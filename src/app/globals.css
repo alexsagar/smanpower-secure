@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-black: #000000;
+  --color-brand-charcoal: #171717;
+  --color-brand-gold: #B5913F;
+  --color-brand-off-white: #F7F5F0;
+  --color-brand-stone: #EDE9E1;
+  --color-brand-muted: #77736A;
+  --color-brand-white: #FFFFFF;
+
+  --font-sans: var(--font-inter);
+
+}
+
+@layer base {
+  :root {
+    --background: #F7F5F0;
+    --foreground: #171717;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 14px; /* Scales down all rem-based Tailwind classes (text, padding, margin) proportionally */
+  }
+
+  body {
+    @apply bg-brand-off-white text-brand-charcoal font-sans antialiased selection:bg-brand-gold selection:text-white;
+  }
+
+  /* Editorial typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight font-semibold text-brand-black;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+
+  /* Corporate sections */
+  .container-wide {
+    @apply max-w-7xl mx-auto px-6 md:px-12 lg:px-16;
+  }
+
+  .container-narrative {
+    @apply max-w-3xl mx-auto px-6 md:px-12;
+  }
+
+  .section-padding {
+    @apply py-20 md:py-32;
+  }
+
+  .section-padding-sm {
+    @apply py-12 md:py-20;
+  }
+
+  /* Override any rounded or shadow utility classes */
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-full {
+    @apply !rounded-none;
+  }
+
+  .shadow-sm,
+  .shadow,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    @apply !shadow-none;
+  }
+}
+
+.marquee-scroll {
+  animation: marquee 40s linear infinite;
+}
+
+.marquee-scroll-reverse {
+  animation: marquee-reverse 40s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+/* ===== Google Translate ===== */
+
+/* Hide the banner bar that Google injects at top */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+/* Hide the wrapper div around the banner iframe */
+body > .skiptranslate:first-child {
+  display: none !important;
+  height: 0 !important;
+}
+body { top: 0 !important; margin-top: 0 !important; }
+
+/* Hide tooltips on translated text */
+#goog-gt-tt, .goog-tooltip { display: none !important; }
+.goog-text-highlight { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+/* The widget container — keep it tight */
+.gt-widget {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  overflow: hidden;
+  max-width: 110px;
+}
+
+/* Hide Google branding completely */
+.gt-widget .goog-te-gadget {
+  font-size: 0 !important;
+  color: transparent !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+.gt-widget .goog-te-gadget > span,
+.gt-widget .goog-te-gadget > a,
+.gt-widget .goog-te-gadget img,
+.gt-widget .goog-te-gadget .goog-logo-link {
+  display: none !important;
+}
+
+/* Style the language <select> dropdown */
+.gt-widget .goog-te-combo {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  padding: 4px 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: border-color 0.2s !important;
+  height: 28px !important;
+  margin: 0 !important;
+}
+.gt-widget .goog-te-combo:hover {
+  border-color: #B5913F !important;
+  color: #fff !important;
+}

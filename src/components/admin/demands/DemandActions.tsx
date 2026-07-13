@@ -1,0 +1,138 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Globe, X, Archive, MoreVertical } from "lucide-react";
+import { publishDemandAction, closeDemandAction, archiveDemandAction } from "@/actions/demands";
+
+interface DemandActionsProps {
+  demandId: string;
+  status: string;
+  title: string;
+}
+
+export function DemandActions({ demandId, status, title }: DemandActionsProps) {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<string | null>(null);
+
+  const handleAction = async (action: string) => {
+    setIsLoading(true);
+    try {
+      let res;
+      switch (action) {
+        case "publish":
+          res = await publishDemandAction(demandId);
+          break;
+        case "close":
+          res = await closeDemandAction(demandId);
+          break;
+        case "archive":
+          res = await archiveDemandAction(demandId);
+          break;
+        default:
+          return;
+      }
+
+      if (!res.success) {
+        alert((res as any).formError || "Action failed.");
+      }
+
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message || "An error occurred.");
+    } finally {
+      setIsLoading(false);
+      setConfirmAction(null);
+      setIsOpen(false);
+    }
+  };
+
+  const canPublish = status === "DRAFT";
+  const canClose = status === "PUBLISHED" || status === "DRAFT";
+  const canArchive = status === "CLOSED";
+
+  if (!canPublish && !canClose && !canArchive) return null;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 text-brand-charcoal hover:bg-brand-charcoal/10 rounded-sm transition-colors"
+        title="Lifecycle Actions"
+        disabled={isLoading}
+      >
+        <MoreVertical className="w-4 h-4" />
+      </button>
+
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => { setIsOpen(false); setConfirmAction(null); }} />
+
+          <div className="absolute right-0 top-full mt-1 bg-white border border-brand-charcoal/15 shadow-lg rounded-sm z-50 w-56 py-1">
+            {/* Confirm dialog overlay */}
+            {confirmAction && (
+              <div className="p-4">
+                <p className="text-xs font-semibold text-brand-charcoal mb-3">
+                  {confirmAction === "publish" && `Publish "${title}"? It will become publicly visible.`}
+                  {confirmAction === "close" && `Close "${title}"? Applications will stop.`}
+                  {confirmAction === "archive" && `Archive "${title}"? This soft-deletes it.`}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAction(confirmAction)}
+                    disabled={isLoading}
+                    className={`flex-1 text-xs font-bold uppercase tracking-wider py-1.5 px-3 rounded-sm text-white transition-colors ${
+                      confirmAction === "publish" ? "bg-green-600 hover:bg-green-700" :
+                      confirmAction === "close" ? "bg-red-600 hover:bg-red-700" :
+                      "bg-gray-600 hover:bg-gray-700"
+                    } disabled:opacity-50`}
+                  >
+                    {isLoading ? "..." : "Confirm"}
+                  </button>
+                  <button
+                    onClick={() => setConfirmAction(null)}
+                    className="flex-1 text-xs font-bold uppercase tracking-wider py-1.5 px-3 rounded-sm bg-brand-charcoal/10 hover:bg-brand-charcoal/20 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!confirmAction && (
+              <>
+                {canPublish && (
+                  <button
+                    onClick={() => setConfirmAction("publish")}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-green-50 text-green-700 transition-colors"
+                  >
+                    <Globe className="w-4 h-4" /> Publish
+                  </button>
+                )}
+                {canClose && (
+                  <button
+                    onClick={() => setConfirmAction("close")}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-red-50 text-red-700 transition-colors"
+                  >
+                    <X className="w-4 h-4" /> Close
+                  </button>
+                )}
+                {canArchive && (
+                  <button
+                    onClick={() => setConfirmAction("archive")}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-gray-50 text-gray-700 transition-colors"
+                  >
+                    <Archive className="w-4 h-4" /> Archive
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

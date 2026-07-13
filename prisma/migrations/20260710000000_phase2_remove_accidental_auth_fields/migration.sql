@@ -1,0 +1,90 @@
+ALTER TABLE "Industry"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "Country"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "TrainingProgramme"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "TrainingFacility"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "Redirect"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "NewsletterSubscriber"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";
+
+ALTER TABLE "NavigationItem"
+  DROP COLUMN "accountStatus",
+  DROP COLUMN "sessionVersion",
+  DROP COLUMN "passwordChangedAt",
+  DROP COLUMN "mfaEnabled",
+  DROP COLUMN "mfaVerifiedAt",
+  DROP COLUMN "mfaSecretEncrypted",
+  DROP COLUMN "mfaKeyVersion",
+  DROP COLUMN "lastLoginAt",
+  DROP COLUMN "lastLoginIpHash",
+  DROP COLUMN "failedLoginCount",
+  DROP COLUMN "lockedUntil";

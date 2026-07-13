@@ -1,0 +1,67 @@
+
+// ============================================================
+// CMS ABSTRACTION
+// ============================================================
+
+model CmsPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  subtitle    String?
+  status      String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  hero        CmsHeroSection?
+  blocks      CmsContentBlock[]
+}
+
+model CmsHeroSection {
+  id                    String   @id @default(cuid())
+  pageId                String   @unique
+  page                  CmsPage  @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  eyebrow               String?
+  richHeading           Json
+  richDescription       Json?
+  
+  imageId               String?
+  image                 MediaAsset? @relation("HeroImage", fields: [imageId], references: [id])
+  videoId               String?
+  video                 MediaAsset? @relation("HeroVideo", fields: [videoId], references: [id])
+  
+  overlayEnabled        Boolean  @default(true)
+  overlayOpacity        Int      @default(60)
+  accessibilityDescription String?
+  
+  primaryCtaText        String?
+  primaryCtaHref        String?
+  secondaryCtaText      String?
+  secondaryCtaHref      String?
+}
+
+model CmsContentBlock {
+  id          String   @id @default(cuid())
+  blockKey    String
+  blockType   String
+  pageId      String
+  page        CmsPage  @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  order       Int      @default(0)
+  visible     Boolean  @default(true)
+  
+  richHeading Json?
+  content     Json
+  
+  imageId     String?
+  image       MediaAsset? @relation("BlockImage", fields: [imageId], references: [id])
+}
+
+model CmsContentRevision {
+  id            String   @id @default(cuid())
+  entityType    String
+  entityId      String
+  content       Json
+  authorId      String
+  author        User     @relation("RevisionsAuthor", fields: [authorId], references: [id])
+  createdAt     DateTime @default(now())
+  commitMessage String?
+}

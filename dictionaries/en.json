@@ -1,0 +1,175 @@
+{
+  "common": {
+    "siteName": "Seven Seas Intercontinental",
+    "siteTagline": "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
+    "requestWorkforce": "Request Workforce",
+    "findJobs": "Find Jobs",
+    "learnMore": "Learn More",
+    "readMore": "Read More",
+    "viewAll": "View All",
+    "submit": "Submit",
+    "search": "Search",
+    "close": "Close",
+    "loading": "Loading...",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "name": "Name",
+    "message": "Message",
+    "send": "Send",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "showing": "Showing",
+    "of": "of",
+    "results": "results",
+    "noResults": "No results found",
+    "required": "Required",
+    "optional": "Optional",
+    "language": "English",
+    "switchLanguage": "नेपाली",
+    "copyright": "© {year} Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved."
+  },
+  "nav": {
+    "aboutUs": "About Us",
+    "ethicalRecruitment": "Ethical Recruitment",
+    "workforceSolutions": "Workforce Solutions",
+    "industries": "Industries",
+    "trainingFacilities": "Training & Facilities",
+    "trustCentre": "Trust Centre",
+    "insights": "Insights",
+    "careers": "Careers",
+    "contact": "Contact"
+  },
+  "hero": {
+    "heading": "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
+    "subheading": "Seven Seas Intercontinental connects international employers with trained Nepali talent through transparent recruitment, candidate screening, practical skill assessment, training, and deployment support.",
+    "ctaPrimary": "Request Workforce",
+    "ctaSecondary": "Explore Our Process"
+  },
+  "about": {
+    "label": "About Seven Seas",
+    "heading": "Building Responsible Pathways from Nepal to Global Employment.",
+    "description": "Seven Seas Intercontinental is a Nepal-based international recruitment company that connects global employers with trained, screened, and deployment-ready Nepali workforce. Our services cover the complete recruitment cycle — from employer workforce sourcing and candidate identification to screening, trade testing, practical training, documentation support, and deployment coordination.",
+    "cta": "Learn About Seven Seas"
+  },
+  "impact": {
+    "heading": "Our Reach & Impact",
+    "note": "Statistics managed through the admin panel. Unverified numbers are not displayed."
+  },
+  "solutions": {
+    "heading": "Workforce Solutions",
+    "subheading": "A structured approach to international recruitment and workforce deployment.",
+    "candidateSourcing": "Candidate Sourcing",
+    "candidateSourcingDesc": "Identification and pre-screening of qualified candidates from across Nepal through our network of verified sourcing channels.",
+    "candidateScreening": "Candidate Screening",
+    "candidateScreeningDesc": "Comprehensive background verification, document authentication, and skills assessment to ensure candidate readiness.",
+    "tradeTesting": "Trade Testing",
+    "tradeTestingDesc": "Practical skill evaluation at our trade test centres to verify hands-on capabilities against employer requirements.",
+    "trainingOrientation": "Training & Orientation",
+    "trainingOrientationDesc": "Pre-departure orientation, language training, cultural preparation, and industry-specific skill development.",
+    "documentation": "Documentation Coordination",
+    "documentationDesc": "End-to-end support for employment contracts, visa processing, medical examinations, and government clearance.",
+    "deployment": "Deployment Support",
+    "deploymentDesc": "Travel coordination, airport assistance, and post-deployment follow-up to ensure smooth workforce integration."
+  },
+  "ethical": {
+    "heading": "Ethical Recruitment Is Built into Our Process.",
+    "step1": "Clear Job Information",
+    "step2": "Responsible Candidate Sourcing",
+    "step3": "Skill and Document Verification",
+    "step4": "Training and Pre-Departure Support",
+    "step5": "Grievance and Feedback Access",
+    "cta": "Explore Our Ethical Recruitment Framework"
+  },
+  "industries": {
+    "heading": "Industries We Serve",
+    "subheading": "Trained workforce for key international sectors."
+  },
+  "training": {
+    "heading": "Prepared Before Deployment.",
+    "subheading": "Our training facilities equip candidates with the practical skills, language readiness, and cultural knowledge needed for their international employment.",
+    "cta": "Explore Training and Facilities"
+  },
+  "trust": {
+    "heading": "Trust Is Documented.",
+    "subheading": "Every claim we make is backed by verifiable documents, certifications, and policies managed through our compliance system."
+  },
+  "stories": {
+    "heading": "Success Stories",
+    "employer": "Employer Stories",
+    "candidate": "Candidate Stories"
+  },
+  "insights_section": {
+    "heading": "Insights & Resources",
+    "subheading": "Guides, reports, and news from Seven Seas Intercontinental."
+  },
+  "contact_section": {
+    "heading": "Start a Responsible Recruitment Partnership.",
+    "forEmployers": "For Employers",
+    "forJobSeekers": "For Job Seekers",
+    "findOpportunities": "Find Current Opportunities"
+  },
+  "employer": {
+    "formTitle": "Request Workforce",
+    "formDescription": "Submit your workforce requirements and our recruitment team will respond within 2 business days.",
+    "companyName": "Company Name",
+    "contactPerson": "Contact Person",
+    "designation": "Designation",
+    "businessEmail": "Business Email",
+    "phoneNumber": "Phone Number",
+    "country": "Country",
+    "industry": "Industry",
+    "workforceCategory": "Workforce Category Needed",
+    "numberOfWorkers": "Number of Workers Required",
+    "requiredSkills": "Required Skills",
+    "expectedMobilisation": "Expected Mobilisation Date",
+    "consent": "I consent to Seven Seas Intercontinental processing my data for recruitment enquiry purposes.",
+    "successMessage": "Thank you for your enquiry. Our team will contact you within 2 business days.",
+    "errorMessage": "Something went wrong. Please try again or contact us directly."
+  },
+  "jobs": {
+    "heading": "Current Opportunities",
+    "subheading": "Browse verified job opportunities managed by Seven Seas Intercontinental.",
+    "filterCountry": "Country",
+    "filterIndustry": "Industry",
+    "filterExperience": "Experience Level",
+    "applyNow": "Apply Now",
+    "deadline": "Deadline",
+    "salary": "Salary",
+    "vacancies": "Vacancies",
+    "contractPeriod": "Contract Period",
+    "safetyNotice": "Candidate Safety Notice",
+    "feeNotice": "Fee Transparency Notice",
+    "reportJob": "Report Suspicious Job"
+  },
+  "application": {
+    "heading": "Apply for This Position",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "address": "Address",
+    "dateOfBirth": "Date of Birth",
+    "educationLevel": "Education Level",
+    "workExperience": "Work Experience",
+    "skillCategory": "Skill Category",
+    "preferredCountry": "Preferred Country",
+    "uploadCV": "Upload CV",
+    "uploadDocuments": "Upload Supporting Documents",
+    "consentData": "I consent to Seven Seas Intercontinental processing my personal data for this job application.",
+    "consentPrivacy": "I have read and accept the Privacy Policy.",
+    "successMessage": "Your application has been submitted successfully. You will receive a confirmation notification.",
+    "errorMessage": "There was an error submitting your application. Please try again."
+  },
+  "footer": {
+    "description": "Seven Seas Intercontinental is a Nepal-based international recruitment company providing ethical workforce solutions to employers worldwide.",
+    "quickLinks": "Quick Links",
+    "forEmployers": "For Employers",
+    "forJobSeekers": "For Job Seekers",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy",
+    "contactUs": "Contact Us"
+  }
+}
