@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && prisma generate && next build",
+    "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint .",
@@ -38,7 +38,8 @@
     "qa:build": "dotenv -e .env.test -- npm run qa:guard && dotenv -e .env.test -- npx prisma generate && dotenv -e .env.test -- next build",
     "qa:static": "npm run qa:validate && npm run qa:lint && npm run qa:test && npm run qa:build",
     "qa:e2e": "npm run qa:seed && npm run qa:build && dotenv -e .env.test -- playwright test",
-    "qa": "npm run qa:static && npm run qa:e2e"
+    "qa": "npm run qa:static && npm run qa:e2e",
+    "vercel-build": "prisma migrate deploy && npm run build"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
