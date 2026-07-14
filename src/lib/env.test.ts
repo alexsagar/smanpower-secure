@@ -21,6 +21,7 @@ describe("environment foundation", () => {
 
   it("reports missing production variables clearly", () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("APP_ENV", "production");
     vi.stubEnv("DEMO_MODE", "false");
     for (const name of REQUIRED_PRODUCTION_ENV) {
       vi.stubEnv(name, "");
@@ -32,8 +33,21 @@ describe("environment foundation", () => {
     );
   });
 
-  it("does not require production variables in demo mode", () => {
+  it("still requires production variables when demo mode is requested in production", () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "true");
+    for (const name of REQUIRED_PRODUCTION_ENV) {
+      vi.stubEnv(name, "");
+    }
+
+    expect(getMissingProductionEnv()).toEqual([...REQUIRED_PRODUCTION_ENV]);
+    expect(() => assertProductionEnv()).toThrow();
+  });
+
+  it("allows demo mode to bypass production env checks only in qa/local app environments", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("APP_ENV", "qa");
     vi.stubEnv("DEMO_MODE", "true");
 
     expect(getMissingProductionEnv()).toEqual([]);

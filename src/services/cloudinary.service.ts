@@ -7,6 +7,8 @@
 // ============================================================
 
 import cloudinary from "@/lib/cloudinary";
+import { DEMO_MODE } from "@/config/demo";
+import { logger } from "@/lib/logger";
 
 const isConfigured = 
   process.env.CLOUDINARY_CLOUD_NAME &&
@@ -20,8 +22,8 @@ const isConfigured =
  */
 export function generateUploadSignature(folder: string = "seven-seas-cms", deliveryType: "upload" | "private" = "upload") {
   if (!isConfigured) {
-    if (process.env.DEMO_MODE === "true") {
-      console.warn("Cloudinary is not configured. Returning dummy signature for Demo Mode.");
+    if (DEMO_MODE) {
+      logger.warn("Cloudinary is not configured. Returning dummy signature for demo mode.");
       return { timestamp: Math.round(new Date().getTime() / 1000), signature: "demo-mode-signature", folder };
     }
     throw new Error("Cloudinary environment variables are missing.");
@@ -47,9 +49,9 @@ export function generateUploadSignature(folder: string = "seven-seas-cms", deliv
  */
 export async function deleteAsset(publicId: string): Promise<boolean> {
   if (!isConfigured) {
-    if (process.env.DEMO_MODE === "true") {
-      console.warn("Cloudinary is not configured. Bypassing deletion for Demo Mode.");
-      return true;
+    if (DEMO_MODE) {
+      logger.warn("Cloudinary is not configured. Refusing demo-mode asset deletion without confirmation.", { publicId });
+      return false;
     }
     throw new Error("Cloudinary environment variables are missing.");
   }
@@ -58,7 +60,7 @@ export async function deleteAsset(publicId: string): Promise<boolean> {
     const result = await cloudinary.uploader.destroy(publicId);
     return result.result === "ok";
   } catch (error) {
-    console.error("Cloudinary deletion failed:", error);
+    logger.error("Cloudinary deletion failed:", error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }
@@ -67,12 +69,18 @@ export async function deleteAsset(publicId: string): Promise<boolean> {
  * Safely deletes a private asset (e.g. for rollback on failed transactions).
  */
 export async function deletePrivateAsset(publicId: string): Promise<boolean> {
-  if (!isConfigured) return true;
+  if (!isConfigured) {
+    logger.error("Private Cloudinary deletion could not be confirmed because configuration is missing.", {
+      publicId,
+      demoMode: DEMO_MODE,
+    });
+    return false;
+  }
   try {
     const result = await cloudinary.uploader.destroy(publicId, { type: "private", resource_type: "auto" });
     return result.result === "ok";
   } catch (error) {
-    console.error(`Failed to rollback/destroy private Cloudinary asset ${publicId}:`, error);
+    logger.error(`Failed to rollback/destroy private Cloudinary asset ${publicId}:`, error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }
@@ -98,8 +106,8 @@ export async function uploadBufferToCloudinary(
   }
 
   if (!isConfigured) {
-    if (process.env.DEMO_MODE === "true") {
-      console.warn("Cloudinary is not configured. Bypassing upload for Demo Mode.");
+    if (DEMO_MODE) {
+      logger.warn("Cloudinary is not configured. Bypassing upload for demo mode.");
       return {
         secureUrl: "https://demo.cloudinary.com/dummy.pdf",
         publicId: `demo_public_id_${Date.now()}`,
@@ -120,7 +128,7 @@ export async function uploadBufferToCloudinary(
       },
       (error, result) => {
         if (error || !result) {
-          console.error("Cloudinary Upload Stream Error:", error);
+          logger.error("Cloudinary Upload Stream Error:", error instanceof Error ? error : new Error(String(error)));
           reject(error || new Error("Failed to upload via stream."));
         } else {
           resolve({
@@ -142,7 +150,7 @@ export async function uploadBufferToCloudinary(
  */
 export function getSignedDocumentUrl(publicId: string, format: string = "pdf"): string {
   if (!isConfigured) {
-    if (process.env.DEMO_MODE === "true") {
+    if (DEMO_MODE) {
       return "https://demo.cloudinary.com/dummy.pdf";
     }
     throw new Error("Cloudinary environment variables are missing.");

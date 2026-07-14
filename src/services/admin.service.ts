@@ -1,5 +1,6 @@
 // TEMPORARY DEMO MODE — switch DEMO_MODE to false after PostgreSQL backend is deployed
-import { DEMO_MODE } from "@/config/demo";
+import { DEMO_MODE, demoFallback } from "@/config/demo";
+import { logger } from "@/lib/logger";
 import { auth } from "@/lib/auth";
 import { 
   requirePermission, 
@@ -39,6 +40,16 @@ import {
   JobFilterSchema 
 } from "@/lib/schemas/admin-filters";
 
+const EMPTY_ADMIN_STATS = {
+  totalJobs: 0,
+  activeJobs: 0,
+  submittedApplications: 0,
+  totalApplications: 0,
+  usersCount: 0,
+  insightsCount: 0,
+  storiesCount: 0,
+};
+
 export async function getAdminDashboardStats() {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
@@ -71,8 +82,9 @@ export async function getAdminDashboardStats() {
       insightsCount,
       storiesCount,
     };
-  } catch {
-    return demoAdminStats;
+  } catch (error) {
+    logger.error("Failed to load admin dashboard stats", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoAdminStats, EMPTY_ADMIN_STATS);
   }
 }
 
@@ -85,8 +97,9 @@ export async function getAdminUsers() {
       include: { role: true },
       orderBy: { createdAt: "desc" },
     });
-  } catch {
-    return demoUsers;
+  } catch (error) {
+    logger.error("Failed to load admin users", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoUsers, []);
   }
 }
 
@@ -108,8 +121,9 @@ export async function getAdminStories() {
     return await prisma.successStory.findMany({
       orderBy: { createdAt: "desc" },
     });
-  } catch {
-    return demoSuccessStories;
+  } catch (error) {
+    logger.error("Failed to load admin stories", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoSuccessStories, []);
   }
 }
 
@@ -193,8 +207,9 @@ export async function getAdminFacilities() {
     return await prisma.trainingFacility.findMany({
       orderBy: { createdAt: "desc" },
     });
-  } catch {
-    return demoTrainingFacilities;
+  } catch (error) {
+    logger.error("Failed to load admin facilities", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoTrainingFacilities, []);
   }
 }
 
@@ -216,8 +231,9 @@ export async function getAdminMediaAssets(rawFilters?: unknown) {
       take: filters.limit,
       skip: (filters.page - 1) * filters.limit,
     });
-  } catch {
-    return demoMediaAssets;
+  } catch (error) {
+    logger.error("Failed to load admin media assets", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoMediaAssets, []);
   }
 }
 
@@ -320,8 +336,9 @@ export async function getAdminLeads(rawFilters?: unknown) {
       take: filters.limit,
       skip: (filters.page - 1) * filters.limit,
     });
-  } catch {
-    return demoLeads;
+  } catch (error) {
+    logger.error("Failed to load admin leads", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoLeads, []);
   }
 }
 
@@ -341,8 +358,9 @@ export async function getAdminJobs(rawFilters?: unknown) {
       take: filters.limit,
       skip: (filters.page - 1) * filters.limit,
     }) as Prisma.JobGetPayload<{ include: { country: true, industry: true } }>[];
-  } catch {
-    return demoJobs;
+  } catch (error) {
+    logger.error("Failed to load admin jobs", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoJobs, []);
   }
 }
 
@@ -352,8 +370,9 @@ export async function getAdminDatasets() {
     return await prisma.workforceDataset.findMany({
       orderBy: { updatedAt: "desc" },
     });
-  } catch {
-    return demoWorkforceDatasets;
+  } catch (error) {
+    logger.error("Failed to load admin datasets", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoWorkforceDatasets, []);
   }
 }
 
@@ -371,8 +390,9 @@ export async function getAdminCandidates(rawFilters?: unknown) {
       take: filters.limit,
       skip: (filters.page - 1) * filters.limit,
     });
-  } catch {
-    return demoCandidates;
+  } catch (error) {
+    logger.error("Failed to load admin candidates", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoCandidates, []);
   }
 }
 
@@ -395,7 +415,7 @@ export async function getAdminApplications(rawFilters?: unknown) {
       skip: (filters.page - 1) * filters.limit,
     }) as Prisma.DemandApplicationGetPayload<{ include: { candidate: { select: { fullName: true, phone: true, email: true } } } }>[];
   } catch (err) {
-    console.error("Failed to fetch admin applications:", err);
+    logger.error("Failed to fetch admin applications:", err instanceof Error ? err : new Error(String(err)));
     return [];
   }
 }
@@ -406,8 +426,9 @@ export async function getAdminComplianceDocs() {
     return await prisma.complianceDocument.findMany({
       orderBy: { order: "asc" },
     });
-  } catch {
-    return demoComplianceDocs;
+  } catch (error) {
+    logger.error("Failed to load admin compliance docs", error instanceof Error ? error : new Error(String(error)));
+    return demoFallback(demoComplianceDocs, []);
   }
 }
 
@@ -429,13 +450,20 @@ export async function getAdminCountriesAndIndustries() {
       prisma.industry.findMany({ select: { id: true, name: true } }),
     ]);
     return { countries, industries };
-  } catch {
+  } catch (error) {
+    logger.error("Failed to load admin countries and industries", error instanceof Error ? error : new Error(String(error)));
     return {
-      countries: [
-        { id: "c-1", name: "United Arab Emirates" },
-        { id: "c-2", name: "Qatar" },
-      ],
-      industries: demoIndustries.map((i) => ({ id: i.id, name: i.name })),
+      countries: demoFallback(
+        [
+          { id: "c-1", name: "United Arab Emirates" },
+          { id: "c-2", name: "Qatar" },
+        ],
+        []
+      ),
+      industries: demoFallback(
+        demoIndustries.map((i) => ({ id: i.id, name: i.name })),
+        []
+      ),
     };
   }
 }

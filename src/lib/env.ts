@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  DEMO_MODE_REQUESTED,
+  isDemoEnvironmentAllowed,
+} from "../config/demo";
 
 const TRUE_VALUES = new Set(["1", "true", "yes"]);
 
@@ -32,7 +36,12 @@ export const REQUIRED_PRODUCTION_ENV = [
 
 export function getMissingProductionEnv(): string[] {
   if (process.env.NODE_ENV !== "production") return [];
-  if (process.env.DEMO_MODE === "true") return [];
+  if (
+    DEMO_MODE_REQUESTED &&
+    isDemoEnvironmentAllowed()
+  ) {
+    return [];
+  }
   return REQUIRED_PRODUCTION_ENV.filter((name) => !process.env[name]);
 }
 

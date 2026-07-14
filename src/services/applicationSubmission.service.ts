@@ -39,6 +39,27 @@ export type ApplicationSubmissionResult = {
 };
 
 export class ApplicationSubmissionService {
+  private static async cleanupPrivateUploads(
+    uploadedDocsData: Array<{ publicId: string }>,
+    logContext: string
+  ) {
+    for (const doc of uploadedDocsData) {
+      try {
+        const deleted = await deletePrivateAsset(doc.publicId);
+        if (!deleted) {
+          logger.error(`${logContext}: private asset cleanup was not confirmed`, {
+            publicId: doc.publicId,
+          });
+        }
+      } catch (err) {
+        logger.error(`${logContext}: private asset cleanup threw`, {
+          publicId: doc.publicId,
+          error: err,
+        });
+      }
+    }
+  }
+
   /**
    * Main entry point for processing an application securely.
    */
@@ -202,9 +223,10 @@ export class ApplicationSubmissionService {
       } catch (uploadError) {
         logger.error("Cloudinary upload failed", uploadError);
         // Rollback uploaded files
-        for (const doc of uploadedDocsData) {
-          await deletePrivateAsset(doc.publicId).catch(err => logger.error("Failed to delete private asset during upload error rollback", { publicId: doc.publicId }));
-        }
+        await this.cleanupPrivateUploads(
+          uploadedDocsData,
+          "Failed to delete private asset during upload error rollback"
+        );
         return { success: false, formError: "SERVER_ERROR", message: "Failed to upload documents. Please try again.", statusCode: 500 };
       }
 
@@ -216,9 +238,10 @@ export class ApplicationSubmissionService {
          hashedUaStr = hashUserAgent(userAgent);
       } catch (e) {
          // Privacy hashing failed, likely missing secret in prod
-         for (const doc of uploadedDocsData) {
-           await deletePrivateAsset(doc.publicId).catch(err => logger.error("Failed to cleanup on privacy hashing error", { publicId: doc.publicId }));
-         }
+         await this.cleanupPrivateUploads(
+           uploadedDocsData,
+           "Failed to cleanup on privacy hashing error"
+         );
          return { success: false, formError: "SERVER_ERROR", message: "Server configuration error.", statusCode: 500 };
       }
 
@@ -294,11 +317,10 @@ export class ApplicationSubmissionService {
         logger.warn("Prisma Transaction failed during application submission", { error: errMessage, code: errCode });
         
         // Compensating Transaction: Rollback Cloudinary Uploads
-        for (const doc of uploadedDocsData) {
-          await deletePrivateAsset(doc.publicId).catch(err => {
-            logger.error("Failed to delete private asset during transaction rollback cleanup", { publicId: doc.publicId, error: err });
-          });
-        }
+        await this.cleanupPrivateUploads(
+          uploadedDocsData,
+          "Failed to delete private asset during transaction rollback cleanup"
+        );
         
         if (errCode === "P2002") {
            return { success: false, formError: "DUPLICATE", message: "You have already applied for this position.", statusCode: 409 };

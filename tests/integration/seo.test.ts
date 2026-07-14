@@ -22,7 +22,10 @@ vi.mock("next/cache", () => ({
 import { revalidatePath } from "next/cache";
 
 vi.mock("@/config/demo", () => ({
-  DEMO_MODE: false
+  DEMO_MODE: false,
+  DEMO_MODE_REQUESTED: false,
+  isDemoEnvironmentAllowed: vi.fn(() => false),
+  demoFallback: <T,>(_: T, safeValue: T) => safeValue,
 }));
 
 const seoSessionTokens = {
@@ -139,35 +142,70 @@ describe("SEO Phase 2B Integration Tests", () => {
 
     const now = Date.now();
 
-    await prisma.adminSession.createMany({
-      data: [
-        {
-          sessionIdHash: hashSessionToken(
-            seoSessionTokens.super_admin,
-          ),
-          userId: "test-user-id",
-          sessionVersionAtIssue: 1,
-          idleExpiresAt: new Date(
-            now + 60 * 60 * 1000,
-          ),
-          absoluteExpiresAt: new Date(
-            now + 8 * 60 * 60 * 1000,
-          ),
-        },
-        {
-          sessionIdHash: hashSessionToken(
-            seoSessionTokens.content_manager,
-          ),
-          userId: "cm-user-id",
-          sessionVersionAtIssue: 1,
-          idleExpiresAt: new Date(
-            now + 60 * 60 * 1000,
-          ),
-          absoluteExpiresAt: new Date(
-            now + 8 * 60 * 60 * 1000,
-          ),
-        },
-      ],
+    await prisma.adminSession.upsert({
+      where: {
+        sessionIdHash: hashSessionToken(
+          seoSessionTokens.super_admin,
+        ),
+      },
+      update: {
+        userId: "test-user-id",
+        sessionVersionAtIssue: 1,
+        revokedAt: null,
+        revokedReason: null,
+        idleExpiresAt: new Date(
+          now + 60 * 60 * 1000,
+        ),
+        absoluteExpiresAt: new Date(
+          now + 8 * 60 * 60 * 1000,
+        ),
+      },
+      create: {
+        sessionIdHash: hashSessionToken(
+          seoSessionTokens.super_admin,
+        ),
+        userId: "test-user-id",
+        sessionVersionAtIssue: 1,
+        idleExpiresAt: new Date(
+          now + 60 * 60 * 1000,
+        ),
+        absoluteExpiresAt: new Date(
+          now + 8 * 60 * 60 * 1000,
+        ),
+      },
+    });
+
+    await prisma.adminSession.upsert({
+      where: {
+        sessionIdHash: hashSessionToken(
+          seoSessionTokens.content_manager,
+        ),
+      },
+      update: {
+        userId: "cm-user-id",
+        sessionVersionAtIssue: 1,
+        revokedAt: null,
+        revokedReason: null,
+        idleExpiresAt: new Date(
+          now + 60 * 60 * 1000,
+        ),
+        absoluteExpiresAt: new Date(
+          now + 8 * 60 * 60 * 1000,
+        ),
+      },
+      create: {
+        sessionIdHash: hashSessionToken(
+          seoSessionTokens.content_manager,
+        ),
+        userId: "cm-user-id",
+        sessionVersionAtIssue: 1,
+        idleExpiresAt: new Date(
+          now + 60 * 60 * 1000,
+        ),
+        absoluteExpiresAt: new Date(
+          now + 8 * 60 * 60 * 1000,
+        ),
+      },
     });
 
     vi.clearAllMocks();
@@ -215,8 +253,20 @@ describe("SEO Phase 2B Integration Tests", () => {
   });
 
   it("SEOPageMeta overrides fallback metadata", async () => {
-    await prisma.sEOPageMeta.create({
-      data: {
+    await prisma.sEOPageMeta.upsert({
+      where: {
+        pagePath_lang: {
+          pagePath: "/employers",
+          lang: "en",
+        },
+      },
+      update: {
+        pagePath: "/employers",
+        lang: "en",
+        metaTitle: "Custom Admin Title",
+        metaDescription: "Custom Description",
+      },
+      create: {
         pagePath: "/employers",
         lang: "en",
         metaTitle: "Custom Admin Title",
@@ -230,11 +280,26 @@ describe("SEO Phase 2B Integration Tests", () => {
   });
 
   it("English and Nepali SEO records are separate", async () => {
-    await prisma.sEOPageMeta.createMany({
-      data: [
-        { pagePath: "/employers", lang: "en", metaTitle: "EN Title" },
-        { pagePath: "/employers", lang: "ne", metaTitle: "NE Title" },
-      ],
+    await prisma.sEOPageMeta.upsert({
+      where: {
+        pagePath_lang: {
+          pagePath: "/employers",
+          lang: "en",
+        },
+      },
+      update: { metaTitle: "EN Title" },
+      create: { pagePath: "/employers", lang: "en", metaTitle: "EN Title" },
+    });
+
+    await prisma.sEOPageMeta.upsert({
+      where: {
+        pagePath_lang: {
+          pagePath: "/employers",
+          lang: "ne",
+        },
+      },
+      update: { metaTitle: "NE Title" },
+      create: { pagePath: "/employers", lang: "ne", metaTitle: "NE Title" },
     });
 
     const metadataEn = await generateMetadata({ params: Promise.resolve({ lang: "en" }) });

@@ -17,13 +17,16 @@ vi.mock('@/lib/auth', () => ({
 let mockUser: any;
 let mockSessionIdHash: string;
 let mockRawToken: string;
+const RUN_ID = crypto.randomUUID();
+let testEmail = '';
 
 describe('AdminSession Comprehensive Integration Tests', () => {
 
   beforeEach(async () => {
+    testEmail = `admin_session_${RUN_ID}_${crypto.randomUUID()}@test.com`;
     await prisma.auditLog.deleteMany({ where: { action: { in: ['EXPLICIT_LOGOUT', 'SESSION_REVOKED', 'ALL_OTHER_SESSIONS_REVOKED', 'PASSWORD_CHANGE'] } } });
-    await prisma.adminSession.deleteMany({ where: { user: { email: 'admin@test.com' } } });
-    await prisma.user.deleteMany({ where: { email: 'admin@test.com' } });
+    await prisma.adminSession.deleteMany({ where: { user: { email: { startsWith: `admin_session_${RUN_ID}_` } } } });
+    await prisma.user.deleteMany({ where: { email: { startsWith: `admin_session_${RUN_ID}_` } } });
     // Keep role upsert safe
 
 
@@ -35,7 +38,7 @@ describe('AdminSession Comprehensive Integration Tests', () => {
 
     mockUser = await prisma.user.create({
       data: {
-        email: 'admin@test.com',
+        email: testEmail,
         name: 'Test Admin',
         passwordHash: 'hash',
         roleId: role.id,

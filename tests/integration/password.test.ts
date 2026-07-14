@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { changePasswordAction } from '@/actions/profile';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { requireCurrentAdminUser } from '@/lib/permissions';
 
 vi.mock('next/headers', () => ({
@@ -34,13 +35,16 @@ vi.mock('next/navigation', () => ({
 
 let mockUser: any;
 let oldPasswordHash: string;
+const RUN_ID = crypto.randomUUID();
+let testEmail = '';
 
 describe('Authenticated Change Password Tests', () => {
 
   beforeEach(async () => {
+    testEmail = `admin_pwd_${RUN_ID}_${crypto.randomUUID()}@test.com`;
     await prisma.auditLog.deleteMany({ where: { action: { in: ['update_password', 'PASSWORD_CHANGE', 'PASSWORD_CHANGED'] } } });
-    await prisma.adminSession.deleteMany({ where: { user: { email: 'admin_pwd@test.com' } } });
-    await prisma.user.deleteMany({ where: { email: 'admin_pwd@test.com' } });
+    await prisma.adminSession.deleteMany({ where: { user: { email: { startsWith: `admin_pwd_${RUN_ID}_` } } } });
+    await prisma.user.deleteMany({ where: { email: { startsWith: `admin_pwd_${RUN_ID}_` } } });
     // role is upserted
 
     const role = await prisma.role.upsert({
@@ -53,7 +57,7 @@ describe('Authenticated Change Password Tests', () => {
 
     mockUser = await prisma.user.create({
       data: {
-        email: 'admin_pwd@test.com',
+        email: testEmail,
         name: 'Test Admin',
         passwordHash: oldPasswordHash,
         roleId: role.id,

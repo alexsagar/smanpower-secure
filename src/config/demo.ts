@@ -5,13 +5,24 @@
 // structured demo fixture files or from a PostgreSQL database via Prisma.
 //
 // Rules:
-//   - If DEMO_MODE env var is explicitly "true", always use demo data.
-//   - If DATABASE_URL is missing, safely fall back to demo data.
-//   - If DATABASE_URL exists and DEMO_MODE is not "true", use Prisma.
-//   - Never attempt Prisma calls when DATABASE_URL is unavailable.
+//   - Demo data is allowed only in explicitly non-production app environments.
+//   - If DEMO_MODE env var is "true" outside an allowed environment, fail closed.
+//   - Never bypass production path validation merely because DEMO_MODE was requested.
 // ============================================================
 
-export const DEMO_MODE = process.env.DEMO_MODE === "true";
+const DEMO_APP_ENVS = new Set(["local", "qa"]);
+
+export const DEMO_MODE_REQUESTED = process.env.DEMO_MODE === "true";
+
+export function isDemoEnvironmentAllowed(appEnv: string | undefined = process.env.APP_ENV): boolean {
+  return DEMO_APP_ENVS.has((appEnv || "").toLowerCase());
+}
+
+export const DEMO_MODE = DEMO_MODE_REQUESTED && isDemoEnvironmentAllowed();
+
+export function demoFallback<T>(demoValue: T, safeValue: T): T {
+  return DEMO_MODE ? demoValue : safeValue;
+}
 
 /**
  * Check whether Cloudinary credentials are configured.

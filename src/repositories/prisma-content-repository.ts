@@ -19,9 +19,12 @@ import type {
   CmsStatistic,
   CmsClientPartner,
   CmsTeamMember,
-  CmsMediaAsset,
   CmsDemand,
   CmsDemandFilters,
+  CmsMediaAsset,
+  MediaResourceType,
+  MediaStatus,
+  MediaVisibility,
 } from "@/types/content";
 import type { ContentRepository } from "./content-repository";
 
@@ -37,6 +40,127 @@ export function safeJsonParse<T = unknown>(data: unknown, fieldName?: string, fa
     }
   }
   return data ?? fallback;
+}
+
+type PrismaMediaRecord = {
+  id: string;
+  publicId?: string | null;
+  assetId?: string | null;
+  fileUrl: string;
+  fileName: string;
+  altText?: string | null;
+  caption?: string | null;
+  folder?: string | null;
+  tags?: string[] | null;
+  status: string;
+  isPublic: boolean;
+  mimeType?: string | null;
+  fileSize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  duration?: number | null;
+  createdAt: Date;
+  updatedAt?: Date | null;
+};
+
+function inferResourceType(mimeType?: string | null): MediaResourceType {
+  if (mimeType?.startsWith("video/")) return "video";
+  if (mimeType?.startsWith("image/")) return "image";
+  return "document";
+}
+
+export function mapPrismaMediaAsset(
+  asset: PrismaMediaRecord,
+  resourceType: MediaResourceType = inferResourceType(asset.mimeType)
+): CmsMediaAsset {
+  return {
+    id: asset.id,
+    source: "CLOUDINARY",
+    cloudinaryPublicId: asset.publicId || undefined,
+    cloudinaryAssetId: asset.assetId || undefined,
+    secureUrl: asset.fileUrl,
+    resourceType,
+    format: asset.mimeType?.split("/")[1] || undefined,
+    width: asset.width || undefined,
+    height: asset.height || undefined,
+    duration: asset.duration || undefined,
+    bytes: asset.fileSize || undefined,
+    fileName: asset.fileName,
+    altText: asset.altText || "",
+    caption: asset.caption || undefined,
+    folder: asset.folder || undefined,
+    tags: asset.tags || undefined,
+    mediaStatus: asset.status as MediaStatus,
+    visibility: (asset.isPublic ? "PUBLIC" : "PRIVATE") as MediaVisibility,
+    createdAt: asset.createdAt.toISOString(),
+    updatedAt: asset.updatedAt?.toISOString() || undefined,
+  };
+}
+
+export function mapUrlBackedMediaAsset(
+  secureUrl: string,
+  options: {
+    id?: string;
+    fileName?: string;
+    altText: string;
+    resourceType?: MediaResourceType;
+    createdAt?: string;
+  }
+): CmsMediaAsset {
+  const derivedFileName =
+    options.fileName ||
+    secureUrl.split("/").pop() ||
+    "media";
+
+  return {
+    id: options.id || derivedFileName,
+    source: "CLOUDINARY",
+    secureUrl,
+    resourceType: options.resourceType || "image",
+    fileName: derivedFileName,
+    altText: options.altText,
+    mediaStatus: "REAL_APPROVED",
+    visibility: "PUBLIC",
+    createdAt: options.createdAt || new Date().toISOString(),
+  };
+}
+
+type PrismaNavigationChild = {
+  id: string;
+  label: string;
+  href?: string | null;
+  order: number;
+  isActive: boolean;
+};
+
+type PrismaNavigationGroup = {
+  id: string;
+  label: string;
+  location: NavLocation;
+  order: number;
+  isActive: boolean;
+  children: PrismaNavigationChild[];
+};
+
+export function mapNavigationGroups(navs: PrismaNavigationGroup[]): CmsNavigation[] {
+  return navs
+    .filter((nav) => nav.isActive)
+    .map((nav) => ({
+      id: nav.id,
+      label: nav.label,
+      labelNe: undefined,
+      location: nav.location,
+      order: nav.order,
+      items: nav.children
+        .filter((child) => child.isActive && Boolean(child.href))
+        .map((child) => ({
+          id: child.id,
+          label: child.label,
+          href: child.href as string,
+          order: child.order,
+          isActive: child.isActive,
+        })),
+    }));
 }
 
 export class PrismaContentRepository implements ContentRepository {
@@ -94,8 +218,8 @@ export class PrismaContentRepository implements ContentRepository {
         overlayEnabled: page.hero.overlayEnabled,
         textAlignment: "left",
         verticalAlignment: "center",
-        image: page.hero.image ? { ...page.hero.image, resourceType: "image", source: "LOCAL_DEMO", mediaStatus: "REAL_APPROVED", visibility: "PUBLIC", overlayEnabled: page.hero.overlayEnabled, overlayOpacity: page.hero.overlayOpacity } as any : undefined,
-        video: page.hero.video ? { ...page.hero.video, resourceType: "video", source: "LOCAL_DEMO", mediaStatus: "REAL_APPROVED", visibility: "PUBLIC" } as any : undefined
+        image: page.hero.image ? mapPrismaMediaAsset(page.hero.image as PrismaMediaRecord, "image") as any : undefined,
+        video: page.hero.video ? mapPrismaMediaAsset(page.hero.video as PrismaMediaRecord, "video") as any : undefined
       } : undefined,
       blocks: page.blocks.map(b => ({
         id: b.id,
@@ -140,27 +264,17 @@ export class PrismaContentRepository implements ContentRepository {
 
   async getNavigation(location: NavLocation): Promise<CmsNavigation[]> {
     const navs = await prisma.navigationItem.findMany({
-      where: { location, parentId: null },
-      include: { children: { orderBy: { order: 'asc' } } },
+      where: { location, parentId: null, isActive: true },
+      include: {
+        children: {
+          where: { isActive: true },
+          orderBy: { order: 'asc' }
+        }
+      },
       orderBy: { order: 'asc' }
     });
 
-    return navs.map((n, idx) => ({
-      id: n.id,
-      label: n.label,
-      labelNe: undefined,
-      location: n.location as NavLocation,
-      order: n.order,
-      items: n.children
-        .filter((c) => Boolean(c.href))
-        .map((c, cIdx) => ({
-          id: c.id,
-          label: c.label,
-          href: c.href as string,
-          order: c.order,
-          isActive: true
-        }))
-    }));
+    return mapNavigationGroups(navs as PrismaNavigationGroup[]);
   }
 
   async getSiteSettings(): Promise<CmsSiteSettings> {
@@ -279,15 +393,8 @@ export class PrismaContentRepository implements ContentRepository {
       country: s.country?.name || undefined,
       storyDate: s.storyDate ? s.storyDate.toISOString() : undefined,
       image: s.featuredImage ? {
-        id: s.featuredImage.id,
-        source: "LOCAL_DEMO",
-        secureUrl: s.featuredImage.fileUrl,
-        resourceType: "image",
-        fileName: s.featuredImage.fileName,
+        ...mapPrismaMediaAsset(s.featuredImage as PrismaMediaRecord, "image"),
         altText: s.featuredImage.altText || s.title,
-        mediaStatus: s.featuredImage.status,
-        visibility: s.featuredImage.isPublic ? "PUBLIC" : "PRIVATE",
-        createdAt: s.featuredImage.createdAt?.toISOString() || "",
       } : undefined,
       seo: {
         metaTitle: s.metaTitle || undefined,
@@ -316,7 +423,7 @@ export class PrismaContentRepository implements ContentRepository {
       icon: i.icon || "",
       order: i.order,
       isActive: i.isActive,
-      image: i.image ? { id: "", source: "LOCAL_DEMO", secureUrl: i.image, resourceType: "image", fileName: i.image, altText: i.name, mediaStatus: "REAL_APPROVED", visibility: "PUBLIC", createdAt: new Date().toISOString() } as any : undefined,
+      image: i.image ? mapUrlBackedMediaAsset(i.image, { altText: i.name }) as any : undefined,
     }));
   }
 
@@ -331,7 +438,7 @@ export class PrismaContentRepository implements ContentRepository {
       icon: i.icon || "",
       order: i.order,
       isActive: i.isActive,
-      image: i.image ? { id: "", source: "LOCAL_DEMO", secureUrl: i.image, resourceType: "image", fileName: i.image, altText: i.name, mediaStatus: "REAL_APPROVED", visibility: "PUBLIC", createdAt: new Date().toISOString() } as any : undefined,
+      image: i.image ? mapUrlBackedMediaAsset(i.image, { altText: i.name }) as any : undefined,
     };
   }
 
@@ -365,7 +472,7 @@ export class PrismaContentRepository implements ContentRepository {
       location: f.location || "",
       capacity: f.capacity || 0,
       isActive: f.isActive,
-      images: Array.isArray(f.images) ? (f.images as string[]).map((img) => ({ secureUrl: img, source: "LOCAL_DEMO", resourceType: "image", fileName: img, altText: f.name, mediaStatus: "REAL_APPROVED", visibility: "PUBLIC", id: img, createdAt: new Date().toISOString() } as any)) : []
+      images: Array.isArray(f.images) ? (f.images as string[]).map((img) => mapUrlBackedMediaAsset(img, { id: img, altText: f.name }) as any) : []
     }));
   }
 
@@ -380,7 +487,7 @@ export class PrismaContentRepository implements ContentRepository {
       location: f.location || "",
       capacity: f.capacity || 0,
       isActive: f.isActive,
-      images: Array.isArray(f.images) ? (f.images as string[]).map((img) => ({ secureUrl: img, source: "LOCAL_DEMO", resourceType: "image", fileName: img, altText: f.name, mediaStatus: "REAL_APPROVED", visibility: "PUBLIC", id: img, createdAt: new Date().toISOString() } as any)) : []
+      images: Array.isArray(f.images) ? (f.images as string[]).map((img) => mapUrlBackedMediaAsset(img, { id: img, altText: f.name }) as any) : []
     };
   }
 
@@ -425,15 +532,8 @@ export class PrismaContentRepository implements ContentRepository {
       readingTime: i.readingTime || "5 min read",
       publishDate: i.publishDate ? i.publishDate.toISOString() : undefined,
       image: i.featuredImage ? {
-        id: i.featuredImage.id,
-        source: "LOCAL_DEMO",
-        secureUrl: i.featuredImage.fileUrl,
-        resourceType: "image",
-        fileName: i.featuredImage.fileName,
+        ...mapPrismaMediaAsset(i.featuredImage as PrismaMediaRecord, "image"),
         altText: i.featuredImage.altText || i.title,
-        mediaStatus: i.featuredImage.status,
-        visibility: i.featuredImage.isPublic ? "PUBLIC" : "PRIVATE",
-        createdAt: i.featuredImage.createdAt?.toISOString() || "",
       } : undefined,
       seo: {
         metaTitle: i.metaTitle || undefined,
@@ -462,42 +562,14 @@ export class PrismaContentRepository implements ContentRepository {
   async getMediaAssets(): Promise<CmsMediaAsset[]> {
     const assets = await prisma.mediaAsset.findMany();
     return assets.map(a => ({
-      id: a.id,
-      source: "LOCAL_DEMO",
-      secureUrl: a.fileUrl,
-      resourceType: "image",
-      fileName: a.fileName,
-      altText: a.altText || "",
-      caption: a.caption || undefined,
-      mediaStatus: a.status as any,
-      visibility: a.isPublic ? "PUBLIC" : "PRIVATE",
-      width: a.width || undefined,
-      height: a.height || undefined,
-      folder: a.folder || "",
-      createdAt: a.createdAt.toISOString(),
-      updatedAt: a.updatedAt.toISOString(),
+      ...mapPrismaMediaAsset(a as PrismaMediaRecord),
     }));
   }
 
   async getMediaAssetById(id: string): Promise<CmsMediaAsset | null> {
     const a = await prisma.mediaAsset.findUnique({ where: { id }});
     if (!a) return null;
-    return {
-      id: a.id,
-      source: "LOCAL_DEMO",
-      secureUrl: a.fileUrl,
-      resourceType: "image",
-      fileName: a.fileName,
-      altText: a.altText || "",
-      caption: a.caption || undefined,
-      mediaStatus: a.status as any,
-      visibility: a.isPublic ? "PUBLIC" : "PRIVATE",
-      width: a.width || undefined,
-      height: a.height || undefined,
-      folder: a.folder || "",
-      createdAt: a.createdAt.toISOString(),
-      updatedAt: a.updatedAt.toISOString(),
-    };
+    return mapPrismaMediaAsset(a as PrismaMediaRecord);
   }
 
   // ── Demands ─────────────────────────────────────────
@@ -525,15 +597,7 @@ export class PrismaContentRepository implements ContentRepository {
       title: r.title,
       companyName: r.companyName,
       companyLogo: r.companyLogo ? {
-        id: r.companyLogo.id,
-        source: "LOCAL_DEMO",
-        secureUrl: r.companyLogo.fileUrl,
-        resourceType: "image",
-        fileName: r.companyLogo.fileName,
-        altText: r.companyLogo.altText || "",
-        mediaStatus: r.companyLogo.status,
-        visibility: r.companyLogo.isPublic ? "PUBLIC" : "PRIVATE",
-        createdAt: r.companyLogo.createdAt?.toISOString() || "",
+        ...mapPrismaMediaAsset(r.companyLogo as PrismaMediaRecord, "image"),
       } : undefined,
       industry: r.industry?.name || undefined,
       industrySlug: r.industry?.slug || undefined,
@@ -601,15 +665,7 @@ export class PrismaContentRepository implements ContentRepository {
         demandId: d.demandId,
         mediaAssetId: d.mediaAssetId || undefined,
         mediaAsset: d.mediaAsset ? {
-          id: d.mediaAsset.id,
-          source: "LOCAL_DEMO",
-          secureUrl: d.mediaAsset.fileUrl,
-          resourceType: "image",
-          fileName: d.mediaAsset.fileName,
-          altText: d.mediaAsset.altText || "",
-          mediaStatus: d.mediaAsset.status,
-          visibility: d.mediaAsset.isPublic ? "PUBLIC" : "PRIVATE",
-          createdAt: d.mediaAsset.createdAt?.toISOString() || "",
+          ...mapPrismaMediaAsset(d.mediaAsset as PrismaMediaRecord),
         } : undefined,
         documentType: d.documentType,
         title: d.title || undefined,
