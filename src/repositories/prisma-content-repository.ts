@@ -142,6 +142,33 @@ type PrismaNavigationGroup = {
   children: PrismaNavigationChild[];
 };
 
+type TeamMemberRecord = {
+  id: string;
+  name: string;
+  nameNe?: string;
+  designation: string;
+  department?: string;
+  bio?: string;
+  photo?: string;
+  email?: string;
+  phone?: string;
+  linkedIn?: string;
+  order: number;
+  isPublished: boolean;
+};
+
+type StatisticRecord = {
+  id: string;
+  label: string;
+  value: string;
+  suffix?: string;
+  description: string;
+  source?: string;
+  order: number;
+};
+
+const TEAM_MEMBERS_SETTING_KEY = "team_members";
+
 export function mapNavigationGroups(navs: PrismaNavigationGroup[]): CmsNavigation[] {
   return navs
     .filter((nav) => nav.isActive)
@@ -163,9 +190,84 @@ export function mapNavigationGroups(navs: PrismaNavigationGroup[]): CmsNavigatio
     }));
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function asString(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function mapStatisticRecord(entry: unknown): CmsStatistic | null {
+  if (!isObject(entry)) return null;
+
+  const id = asString(entry.id);
+  const label = asString(entry.label);
+  const value = asString(entry.value);
+  const description = asString(entry.description);
+  const order =
+    typeof entry.order === "number" && Number.isFinite(entry.order)
+      ? entry.order
+      : null;
+
+  if (!id || !label || !value || !description || order === null) {
+    return null;
+  }
+
+  return {
+    id,
+    label,
+    value,
+    suffix: asString(entry.suffix),
+    description,
+    source: asString(entry.source),
+    order,
+  };
+}
+
+function mapTeamMemberRecord(entry: unknown): CmsTeamMember | null {
+  if (!isObject(entry)) return null;
+
+  const id = asString(entry.id);
+  const name = asString(entry.name);
+  const designation = asString(entry.designation);
+  const order =
+    typeof entry.order === "number" && Number.isFinite(entry.order)
+      ? entry.order
+      : null;
+  const isPublished = typeof entry.isPublished === "boolean" ? entry.isPublished : null;
+
+  if (!id || !name || !designation || order === null || isPublished === null) {
+    return null;
+  }
+
+  return {
+    id,
+    name,
+    nameNe: asString(entry.nameNe),
+    designation,
+    department: asString(entry.department),
+    bio: asString(entry.bio),
+    photo: entry.photo
+      ? mapUrlBackedMediaAsset(String(entry.photo), {
+          id: `${id}-photo`,
+          altText: name,
+        })
+      : undefined,
+    email: asString(entry.email),
+    phone: asString(entry.phone),
+    linkedIn: asString(entry.linkedIn),
+    order,
+    isPublished,
+  };
+}
+
 export class PrismaContentRepository implements ContentRepository {
-  private notImplemented(methodName: string): never {
-    throw new Error(`PrismaContentRepository.${methodName} is not yet implemented. Please ensure DEMO_MODE=true is set until the database is configured.`);
+  private logRepositoryError(methodName: string, error: unknown): never {
+    const normalized =
+      error instanceof Error ? error : new Error(String(error));
+    logger.error(`PrismaContentRepository.${methodName} failed`, normalized);
+    throw normalized;
   }
 
   async getHomepage(): Promise<CmsPage> {
@@ -344,11 +446,130 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getPublishedJobs(filters?: { country?: string; industry?: string }): Promise<CmsJob[]> {
-    return [];
+    try {
+      const now = new Date();
+      const jobs = await prisma.job.findMany({
+        where: {
+          status: "PUBLISHED",
+          deletedAt: null,
+          OR: [
+            { deadline: null },
+            { deadline: { gte: now } },
+          ],
+          ...(filters?.country
+            ? { country: { name: { equals: filters.country, mode: "insensitive" } } }
+            : {}),
+          ...(filters?.industry
+            ? { industry: { name: { equals: filters.industry, mode: "insensitive" } } }
+            : {}),
+        },
+        include: {
+          country: true,
+          industry: true,
+        },
+        orderBy: [
+          { isFeatured: "desc" },
+          { publishedAt: "desc" },
+          { createdAt: "desc" },
+          { id: "asc" },
+        ],
+      });
+
+      return jobs.map((job) => ({
+        id: job.id,
+        title: job.title,
+        slug: job.slug,
+        description: job.description,
+        requirements: job.requirements || undefined,
+        benefits: job.benefits || undefined,
+        responsibilities: job.responsibilities || undefined,
+        country: job.country.name,
+        countryCode: job.country.code,
+        industry: job.industry.name,
+        employerName: job.employerName || undefined,
+        showEmployerName: job.showEmployerName,
+        salary: job.salary || undefined,
+        showSalary: job.showSalary,
+        contractPeriod: job.contractPeriod || undefined,
+        employmentType: job.employmentType,
+        experienceRequired: job.experienceRequired || undefined,
+        skillsRequired: job.skillsRequired || undefined,
+        educationRequired: job.educationRequired || undefined,
+        languageRequired: job.languageRequired || undefined,
+        documentsRequired: job.documentsRequired || undefined,
+        deadline: job.deadline?.toISOString(),
+        status: job.status,
+        isFeatured: job.isFeatured,
+        vacancies: job.vacancies,
+        feeNotice: job.feeNotice || undefined,
+        safetyNotice: job.safetyNotice || undefined,
+        metaTitle: job.metaTitle || undefined,
+        metaDescription: job.metaDescription || undefined,
+        publishedAt: job.publishedAt?.toISOString(),
+        createdAt: job.createdAt.toISOString(),
+      }));
+    } catch (error) {
+      return this.logRepositoryError("getPublishedJobs", error);
+    }
   }
 
   async getJobBySlug(slug: string): Promise<CmsJob | null> {
-    return null;
+    try {
+      const now = new Date();
+      const job = await prisma.job.findFirst({
+        where: {
+          slug,
+          status: "PUBLISHED",
+          deletedAt: null,
+          OR: [
+            { deadline: null },
+            { deadline: { gte: now } },
+          ],
+        },
+        include: {
+          country: true,
+          industry: true,
+        },
+      });
+
+      if (!job) return null;
+
+      return {
+        id: job.id,
+        title: job.title,
+        slug: job.slug,
+        description: job.description,
+        requirements: job.requirements || undefined,
+        benefits: job.benefits || undefined,
+        responsibilities: job.responsibilities || undefined,
+        country: job.country.name,
+        countryCode: job.country.code,
+        industry: job.industry.name,
+        employerName: job.employerName || undefined,
+        showEmployerName: job.showEmployerName,
+        salary: job.salary || undefined,
+        showSalary: job.showSalary,
+        contractPeriod: job.contractPeriod || undefined,
+        employmentType: job.employmentType,
+        experienceRequired: job.experienceRequired || undefined,
+        skillsRequired: job.skillsRequired || undefined,
+        educationRequired: job.educationRequired || undefined,
+        languageRequired: job.languageRequired || undefined,
+        documentsRequired: job.documentsRequired || undefined,
+        deadline: job.deadline?.toISOString(),
+        status: job.status,
+        isFeatured: job.isFeatured,
+        vacancies: job.vacancies,
+        feeNotice: job.feeNotice || undefined,
+        safetyNotice: job.safetyNotice || undefined,
+        metaTitle: job.metaTitle || undefined,
+        metaDescription: job.metaDescription || undefined,
+        publishedAt: job.publishedAt?.toISOString(),
+        createdAt: job.createdAt.toISOString(),
+      };
+    } catch (error) {
+      return this.logRepositoryError("getJobBySlug", error);
+    }
   }
 
   async getFeaturedStories(): Promise<CmsSuccessStory[]> {
@@ -410,7 +631,41 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getPublishedTestimonials(): Promise<CmsTestimonial[]> {
-    return [];
+    try {
+      const testimonials = await prisma.testimonial.findMany({
+        where: {
+          isPublished: true,
+          consentGiven: true,
+        },
+        orderBy: [
+          { order: "asc" },
+          { createdAt: "desc" },
+          { id: "asc" },
+        ],
+      });
+
+      return testimonials.map((testimonial) => ({
+        id: testimonial.id,
+        personName: testimonial.personName,
+        designation: testimonial.designation || undefined,
+        companyName: testimonial.companyName || undefined,
+        content: testimonial.content,
+        image: testimonial.image
+          ? mapUrlBackedMediaAsset(testimonial.image, {
+              id: `${testimonial.id}-image`,
+              altText: testimonial.personName,
+            })
+          : undefined,
+        rating: testimonial.rating || undefined,
+        storyType:
+          testimonial.storyType === "candidate" ? "candidate" : "employer",
+        consentGiven: testimonial.consentGiven,
+        isPublished: testimonial.isPublished,
+        order: testimonial.order,
+      }));
+    } catch (error) {
+      return this.logRepositoryError("getPublishedTestimonials", error);
+    }
   }
 
   async getIndustries(): Promise<CmsIndustry[]> {
@@ -548,15 +803,95 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getStatistics(): Promise<CmsStatistic[]> {
-    return [];
+    try {
+      const block = await prisma.cmsContentBlock.findFirst({
+        where: {
+          blockType: "statistics",
+          visible: true,
+          page: {
+            slug: "home",
+            status: "PUBLISHED",
+          },
+        },
+        select: {
+          content: true,
+        },
+        orderBy: [
+          { order: "asc" },
+          { id: "asc" },
+        ],
+      });
+
+      const content = safeJsonParse<Record<string, unknown>>(
+        block?.content,
+        "cmsContentBlock.content",
+        {}
+      ) as Record<string, unknown>;
+      const stats = Array.isArray(content.stats)
+        ? content.stats
+        : [];
+
+      return stats
+        .map(mapStatisticRecord)
+        .filter((stat): stat is CmsStatistic => stat !== null)
+        .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+    } catch (error) {
+      return this.logRepositoryError("getStatistics", error);
+    }
   }
 
   async getClientPartners(): Promise<CmsClientPartner[]> {
-    return [];
+    try {
+      const partners = await prisma.clientPartner.findMany({
+        where: {
+          isPublic: true,
+        },
+        orderBy: [
+          { order: "asc" },
+          { createdAt: "asc" },
+          { id: "asc" },
+        ],
+      });
+
+      return partners.map((partner) => ({
+        id: partner.id,
+        name: partner.name,
+        logoUrl: partner.logoUrl || undefined,
+        website: partner.website || undefined,
+        country: partner.country || undefined,
+        industry: partner.industry || undefined,
+        type: partner.category === "GROUP_COMPANY" ? "group_company" : "client",
+        isPublic: partner.isPublic,
+        isVerified: partner.isVerified,
+        order: partner.order,
+      }));
+    } catch (error) {
+      return this.logRepositoryError("getClientPartners", error);
+    }
   }
 
   async getTeamMembers(): Promise<CmsTeamMember[]> {
-    return [];
+    try {
+      const setting = await prisma.siteSetting.findUnique({
+        where: {
+          key: TEAM_MEMBERS_SETTING_KEY,
+        },
+        select: {
+          value: true,
+        },
+      });
+
+      const members = Array.isArray(setting?.value)
+        ? setting?.value
+        : [];
+
+      return members
+        .map(mapTeamMemberRecord)
+        .filter((member): member is CmsTeamMember => member !== null && member.isPublished)
+        .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+    } catch (error) {
+      return this.logRepositoryError("getTeamMembers", error);
+    }
   }
 
   async getMediaAssets(): Promise<CmsMediaAsset[]> {
