@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { isStagingNoIndexEnabled } from "./src/lib/env";
+import { getSecurityHeaderConfig } from "./src/lib/security-headers";
 
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 
@@ -20,13 +20,7 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    if (!isStagingNoIndexEnabled()) return [];
-    return [
-      {
-        source: "/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-      },
-    ];
+    return getSecurityHeaderConfig();
   },
 };
 

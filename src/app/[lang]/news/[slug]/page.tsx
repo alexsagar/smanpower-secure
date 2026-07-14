@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 
 async function getNews(lang: string, slug: string) {
@@ -40,7 +41,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ lan
             <span>{article.publishDate ? new Date(article.publishDate).toLocaleDateString() : ""}</span>
           </div>
           <div className="prose prose-lg max-w-none text-brand-black/80 prose-headings:text-brand-black prose-a:text-brand-gold hover:prose-a:text-brand-charcoal prose-img:rounded-sm">
-            <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }} />
           </div>
         </div>
       </section>

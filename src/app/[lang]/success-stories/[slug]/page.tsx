@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { getStoryBySlug } from "@/repositories/content-resolver";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { sanitizeHtml } from "@/lib/html-safety";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -62,7 +63,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
           )}
 
           <div className="prose prose-lg max-w-none text-brand-black/80 prose-headings:text-brand-black prose-a:text-brand-gold hover:prose-a:text-brand-charcoal prose-img:rounded-sm">
-            <div dangerouslySetInnerHTML={{ __html: story.content }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(story.content) }} />
           </div>
         </div>
       </section>

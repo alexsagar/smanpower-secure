@@ -45,12 +45,15 @@ describe("environment foundation", () => {
     expect(() => assertProductionEnv()).toThrow();
   });
 
-  it("allows demo mode to bypass production env checks only in qa/local app environments", () => {
+  it("still requires production variables when demo mode is requested in qa app env under a production node runtime", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("APP_ENV", "qa");
     vi.stubEnv("DEMO_MODE", "true");
+    for (const name of REQUIRED_PRODUCTION_ENV) {
+      vi.stubEnv(name, "");
+    }
 
-    expect(getMissingProductionEnv()).toEqual([]);
-    expect(() => assertProductionEnv()).not.toThrow();
+    expect(getMissingProductionEnv()).toEqual([...REQUIRED_PRODUCTION_ENV]);
+    expect(() => assertProductionEnv()).toThrow();
   });
 });

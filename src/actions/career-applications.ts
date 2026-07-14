@@ -7,6 +7,8 @@ import { headers } from "next/headers";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { ApplicationStatus } from "@prisma/client";
 import { verifyTurnstileToken } from "@/services/turnstile.service";
+import { hashIp } from "@/lib/privacy";
+import { logger } from "@/lib/logger";
 
 const CareerApplicationSchema = z.object({
   careerOpeningId: z.string().min(1, "Career ID is required"),
@@ -84,7 +86,7 @@ export async function applyToCareerAction(prevState: any, formData: FormData) {
         const uploadResult = await uploadBufferToCloudinary(Buffer.from(buffer), crypto.randomUUID(), "seven-seas-careers", false);
         resumeUrl = uploadResult.secureUrl;
       } catch (uploadError) {
-        console.error("Cloudinary upload failed:", uploadError);
+        logger.error("Career application upload failed", uploadError instanceof Error ? uploadError : new Error(String(uploadError)));
         return { success: false, formError: "UPLOAD_FAILED", message: "Failed to upload document. Please try again." };
       }
     } else {
@@ -100,14 +102,14 @@ export async function applyToCareerAction(prevState: any, formData: FormData) {
         phone: data.phone,
         coverLetter: data.coverLetter || null,
         resumeUrl,
-        hashedIp: ip,
+        hashedIp: hashIp(ip),
       }
     });
 
     return { success: true };
 
   } catch (error) {
-    console.error("Career application error:", error);
+    logger.error("Career application error", error instanceof Error ? error : new Error(String(error)));
     return { success: false, formError: "SERVER_ERROR", message: "An unexpected error occurred. Please try again." };
   }
 }

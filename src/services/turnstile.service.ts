@@ -8,6 +8,13 @@ export async function verifyTurnstileToken(
   token: string | undefined | null,
   action?: string
 ): Promise<TurnstileVerificationResult> {
+  // If Turnstile is explicitly disabled via env, we pass.
+  // This must take precedence over QA-specific mock handling so
+  // browser flows do not demand a hidden token.
+  if (process.env.TURNSTILE_ENABLED === "false") {
+    return { success: true };
+  }
+
   // Use mocked provider specific to the test scope
   if (process.env.QA_MODE === "true") {
     if (!token) {
@@ -17,12 +24,6 @@ export async function verifyTurnstileToken(
       return { success: true };
     }
     return { success: false, message: "Mock verification failed", errorCodes: ["invalid-mock-token"] };
-  }
-
-  // If Turnstile is explicitly disabled via env, we pass.
-  // We strictly check the environment variable.
-  if (process.env.TURNSTILE_ENABLED === "false") {
-    return { success: true };
   }
 
   if (!token) {

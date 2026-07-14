@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import nextConfig from "../../next.config";
 import robots from "./robots";
 import sitemap from "./sitemap";
+import { getSecurityHeaderConfig } from "@/lib/security-headers";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {},
@@ -19,18 +20,20 @@ describe("staging search protection", () => {
   it("does not add X-Robots-Tag when staging protection is disabled", async () => {
     vi.stubEnv("STAGING_NOINDEX", "false");
 
-    await expect(nextConfig.headers?.()).resolves.toEqual([]);
+    await expect(nextConfig.headers?.()).resolves.toEqual(getSecurityHeaderConfig());
   });
 
   it("adds X-Robots-Tag when staging protection is enabled", async () => {
     vi.stubEnv("STAGING_NOINDEX", "true");
 
-    await expect(nextConfig.headers?.()).resolves.toEqual([
-      {
-        source: "/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-      },
-    ]);
+    const config = getSecurityHeaderConfig();
+    const globalHeaders = config.find((entry) => entry.source === "/:path*")?.headers ?? [];
+
+    await expect(nextConfig.headers?.()).resolves.toEqual(config);
+    expect(globalHeaders).toContainEqual({
+      key: "X-Robots-Tag",
+      value: "noindex, nofollow",
+    });
   });
 
   it("blocks robots and omits sitemap entries on staging", async () => {

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { getSafeExternalHttpUrl, sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { CareerApplyForm } from "./CareerApplyForm";
 
@@ -29,6 +30,7 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ l
   const { lang, slug } = await params;
   const opening = await getCareer(lang, slug);
   if (!opening) notFound();
+  const safeApplicationUrl = getSafeExternalHttpUrl(opening.applicationUrl);
 
   return (
     <>
@@ -42,29 +44,29 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ l
           </div>
           <div className="prose prose-lg max-w-none text-brand-black/80">
             <h2>Description</h2>
-            <div dangerouslySetInnerHTML={{ __html: opening.description }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.description) }} />
             {opening.requirements && (
               <>
                 <h2>Requirements</h2>
-                <div dangerouslySetInnerHTML={{ __html: opening.requirements }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.requirements) }} />
               </>
             )}
             {opening.responsibilities && (
               <>
                 <h2>Responsibilities</h2>
-                <div dangerouslySetInnerHTML={{ __html: opening.responsibilities }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.responsibilities) }} />
               </>
             )}
           </div>
           
-          {(!opening.applicationUrl || opening.applicationUrl === "#" || opening.applicationUrl === "") && !opening.applicationEmail ? (
+          {!safeApplicationUrl && !opening.applicationEmail ? (
             <div id="apply" className="pt-8 border-t border-brand-charcoal/10">
               <CareerApplyForm careerOpeningId={opening.id} />
             </div>
           ) : (
             <div className="pt-8 border-t border-brand-charcoal/10">
-              {opening.applicationUrl && opening.applicationUrl !== "#" ? (
-                <Link href={opening.applicationUrl} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
+              {safeApplicationUrl ? (
+                <Link href={safeApplicationUrl} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
                   Apply Now
                 </Link>
               ) : opening.applicationEmail ? (

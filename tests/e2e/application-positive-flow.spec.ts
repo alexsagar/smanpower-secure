@@ -97,14 +97,60 @@ async function createFixture(projectName: string) {
       isPublic: true,
     },
   });
+
+  await prisma.applicationDocumentRequirement.upsert({
+    where: { id: "qa-e2e-demand-cv" },
+    update: {
+      demandId,
+      positionId,
+      documentType: "CV",
+      required: false,
+      maxSizeMb: 5,
+      allowedMimeTypes: "application/pdf",
+    },
+    create: {
+      id: "qa-e2e-demand-cv",
+      demandId,
+      positionId,
+      documentType: "CV",
+      required: false,
+      maxSizeMb: 5,
+      allowedMimeTypes: "application/pdf",
+    },
+  });
+
+  await prisma.applicationDocumentRequirement.upsert({
+    where: { id: "qa-e2e-demand-trade-cert" },
+    update: {
+      demandId,
+      positionId,
+      documentType: "TRADE_CERTIFICATE",
+      required: false,
+      maxSizeMb: 5,
+      allowedMimeTypes: "application/pdf,image/jpeg,image/png",
+    },
+    create: {
+      id: "qa-e2e-demand-trade-cert",
+      demandId,
+      positionId,
+      documentType: "TRADE_CERTIFICATE",
+      required: false,
+      maxSizeMb: 5,
+      allowedMimeTypes: "application/pdf,image/jpeg,image/png",
+    },
+  });
 }
 
 async function cleanupFixture() {
   if (applicationId) {
     await prisma.auditLog.deleteMany({
-      where: { entity: "CandidateDocument", entityId: documentId, action: "VIEW_DOCUMENT" },
+      where: { entity: "CandidateDocument", entityId: documentId, action: "PRIVATE_DOCUMENT_VIEWED" },
     });
   }
+
+  await prisma.applicationDocumentRequirement.deleteMany({
+    where: { id: { in: ["qa-e2e-demand-cv", "qa-e2e-demand-trade-cert"] } },
+  });
 
   if (candidateId) {
     await prisma.demandApplication.deleteMany({ where: { candidateId } });
@@ -171,7 +217,9 @@ test("public application flow saves application, protects documents, and stays n
   await page.check('input[name="safetyAcknowledgement"]');
   await page.getByRole("button", { name: /submit application/i }).click();
 
-  await expect(page.getByText(/application submitted/i)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /application submitted/i })
+  ).toBeVisible({ timeout: 15000 });
 
   const candidate = await prisma.candidateProfile.findFirstOrThrow({
     where: { fullName: candidateName },
@@ -215,7 +263,7 @@ test("public application flow saves application, protects documents, and stays n
   await expect(reviewerPage.getByText(candidateName)).toBeVisible();
 
   const preAuditCount = await prisma.auditLog.count({
-    where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: documentId },
+    where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: documentId },
   });
 
   const reviewerRequest = await playwrightRequest.newContext({
@@ -224,11 +272,11 @@ test("public application flow saves application, protects documents, and stays n
   });
   const reviewerRes = await reviewerRequest.get(`/api/documents/${documentId}/view`, { maxRedirects: 0 });
   expect(reviewerRes.status()).toBe(307);
-  expect(reviewerRes.headers()["cache-control"]).toBe("no-store");
+  expect(reviewerRes.headers()["cache-control"]).toBe("no-store, private");
   expect(reviewerRes.headers()["referrer-policy"]).toBe("no-referrer");
 
   const postAuditCount = await prisma.auditLog.count({
-    where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: documentId },
+    where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: documentId },
   });
   expect(postAuditCount).toBeGreaterThan(preAuditCount);
 

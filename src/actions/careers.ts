@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { CAREER_PERMISSIONS, requirePermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { generateUniqueSlug, slugify } from "@/lib/slug";
+import { getSafeExternalHttpUrl } from "@/lib/html-safety";
 
 const CareerPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -19,8 +20,8 @@ const CareerPayloadSchema = z.object({
   description: z.string().min(1, "Description is required"),
   requirements: z.string().nullable().optional(),
   responsibilities: z.string().nullable().optional(),
-  applicationEmail: z.string().nullable().optional(),
-  applicationUrl: z.string().nullable().optional(),
+  applicationEmail: z.union([z.string().email(), z.literal(""), z.null()]).optional(),
+  applicationUrl: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
   deadline: z.string().nullable().optional(),
   imageId: z.string().nullable().optional(),
   metaTitle: z.string().nullable().optional(),
@@ -55,6 +56,11 @@ export async function createCareerAction(formData: FormData) {
   const session = await auth();
   const userId = session?.user?.id;
   const data = parsed.data;
+  const safeApplicationUrl = getSafeExternalHttpUrl(data.applicationUrl);
+
+  if (data.applicationUrl && !safeApplicationUrl) {
+    return { success: false, formError: "Application URL must be an absolute http or https URL." };
+  }
 
   try {
     const created = await prisma.$transaction(async (tx) => {
@@ -70,8 +76,8 @@ export async function createCareerAction(formData: FormData) {
           description: data.description,
           requirements: data.requirements,
           responsibilities: data.responsibilities,
-          applicationEmail: data.applicationEmail,
-          applicationUrl: data.applicationUrl,
+          applicationEmail: data.applicationEmail || null,
+          applicationUrl: safeApplicationUrl,
           deadline: data.deadline ? new Date(data.deadline) : null,
           featuredImageId: data.imageId,
           metaTitle: data.metaTitle,
@@ -111,6 +117,11 @@ export async function updateCareerAction(id: string, formData: FormData) {
   const session = await auth();
   const userId = session?.user?.id;
   const data = parsed.data;
+  const safeApplicationUrl = getSafeExternalHttpUrl(data.applicationUrl);
+
+  if (data.applicationUrl && !safeApplicationUrl) {
+    return { success: false, formError: "Application URL must be an absolute http or https URL." };
+  }
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
@@ -128,8 +139,8 @@ export async function updateCareerAction(id: string, formData: FormData) {
           description: data.description,
           requirements: data.requirements,
           responsibilities: data.responsibilities,
-          applicationEmail: data.applicationEmail,
-          applicationUrl: data.applicationUrl,
+          applicationEmail: data.applicationEmail || null,
+          applicationUrl: safeApplicationUrl,
           deadline: data.deadline ? new Date(data.deadline) : null,
           featuredImageId: data.imageId,
           metaTitle: data.metaTitle,

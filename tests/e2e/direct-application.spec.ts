@@ -72,19 +72,28 @@ test.describe('Phase 5B: Direct Candidate Application', () => {
   test('Closed demand rejects application via API', async ({ request }) => {
     const res = await request.post('/api/applications', {
       multipart: {
+        positionId: 'closed-position',
         fullName: 'Test User',
         phone: '1234567890',
-        province: 'Bagmati',
-        district: 'Kathmandu',
+        provinceDistrict: 'Bagmati / Kathmandu',
         demandId: closedDemand.id,
+        dateOfBirth: '1995-05-15',
+        educationLevel: 'SLC/SEE',
+        skillCategory: 'Security',
+        workExperience: '2 years',
         passportStatus: 'VALID'
+        ,
+        availableForInterview: 'true',
+        demandDetailsRead: 'true',
+        privacyConsentGiven: 'true',
+        safetyAcknowledgement: 'true'
       }
     });
     
     if (res.status() !== 403) { // 403 would mean totally disabled
       expect(res.status()).toBe(400);
       const data = await res.json();
-      expect(data.error).toBe('Demand is not open for applications');
+      expect(data.error).toBe('This demand is no longer accepting applications.');
     }
   });
 

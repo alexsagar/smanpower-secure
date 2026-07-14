@@ -38,7 +38,10 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: process.env.QA_MODE === 'true' ? 'dotenv -e .env.test -- npm run start' : 'npm run dev',
+    command:
+      process.env.QA_MODE === 'true'
+        ? 'dotenv -e .env.test -- node src/scripts/qa-e2e-server.cjs'
+        : 'npm run dev',
     url: 'http://localhost:3000',
     // In QA mode, always start a fresh server connected to smanpower_qa.
     // Never reuse an existing dev server that may be connected to a different database.

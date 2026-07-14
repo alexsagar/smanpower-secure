@@ -58,7 +58,7 @@ test.describe('Document Access Security', () => {
     
     test('Allowed access to SAFE document with security headers and audit log', async ({ request }) => {
       const preAuditCount = await prisma.auditLog.count({
-        where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: docsMap['SAFE'] }
+        where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: docsMap['SAFE'] }
       });
 
       const res = await request.get(`/api/documents/${docsMap['SAFE']}/view`, { maxRedirects: 0 });
@@ -68,12 +68,12 @@ test.describe('Document Access Security', () => {
       expect(location).toBeDefined();
       expect(location?.includes('cloudinary.com')).toBeTruthy();
       
-      expect(res.headers()['cache-control']).toBe('no-store');
+      expect(res.headers()['cache-control']).toBe('no-store, private');
       expect(res.headers()['referrer-policy']).toBe('no-referrer');
 
       // Assert Audit Log created
       const postAuditCount = await prisma.auditLog.count({
-        where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: docsMap['SAFE'] }
+        where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: docsMap['SAFE'] }
       });
       expect(postAuditCount).toBeGreaterThan(preAuditCount);
     });
@@ -81,14 +81,14 @@ test.describe('Document Access Security', () => {
     for (const status of ['PENDING_SCAN', 'SCANNING', 'REJECTED', 'SCAN_FAILED']) {
       test(`Denied access to ${status} document safely`, async ({ request }) => {
         const preAuditCount = await prisma.auditLog.count({
-          where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: docsMap[status] }
+          where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: docsMap[status] }
         });
 
         const res = await request.get(`/api/documents/${docsMap[status]}/view`, { maxRedirects: 0 });
         expect(res.status()).toBe(403);
 
         const postAuditCount = await prisma.auditLog.count({
-          where: { entity: "CandidateDocument", action: "VIEW_DOCUMENT", entityId: docsMap[status] }
+          where: { entity: "CandidateDocument", action: "PRIVATE_DOCUMENT_VIEWED", entityId: docsMap[status] }
         });
         expect(postAuditCount).toBe(preAuditCount); // No false audit
       });
