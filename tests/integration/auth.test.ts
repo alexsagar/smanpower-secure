@@ -215,7 +215,7 @@ describe('Phase 4 Security Tests: Auth & MFA', () => {
       const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
       
       const challenge = await prisma.mfaChallenge.create({
-        data: { userId: (await createTestUser('hash-test@example.com')).id, tokenHash, expiresAt: new Date(Date.now() + 1000) }
+        data: { userId: (await createTestUser('test-auth-hash@example.com')).id, tokenHash, expiresAt: new Date(Date.now() + 1000) }
       });
       
       expect(challenge.tokenHash).toBe(tokenHash);

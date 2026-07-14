@@ -1,123 +1,130 @@
-import { describe, expect, it, vi } from 'vitest';
-import { POST as ApplicationPOST } from '../applications/route';
-import { POST as MediaCompletePOST } from '../admin/media/complete/route';
-import { POST as MediaDeletePOST } from '../admin/media/delete/route';
-import { GET as DocumentGET } from '../documents/[id]/view/route';
-import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
+import { UnauthenticatedError } from "@/lib/auth-errors";
+import { auth } from "@/lib/auth";
+import { requirePermission } from "@/lib/permissions";
+import { POST as ApplicationPOST } from "../applications/route";
+import { POST as MediaCompletePOST } from "../admin/media/complete/route";
+import { GET as DocumentGET } from "../documents/[id]/view/route";
 
-vi.mock('next/server', () => {
-  class MockNextResponse {
-    status: number;
-    _json: any;
-    constructor(body?: any, init?: any) {
-      this.status = init?.status || 200;
-      if (body) {
-        if (typeof body === 'string') {
-          this._json = { error: body };
-        } else {
-          this._json = body;
-        }
-      }
-    }
-    json() {
-      return Promise.resolve(this._json);
-    }
-    static json(body: any, init?: any) {
-      const res = new MockNextResponse(body, init);
-      res._json = body;
-      return res;
-    }
-  }
+vi.mock("@/lib/auth", () => ({
+  auth: vi.fn(),
+  signOut: vi.fn(),
+}));
+
+vi.mock("@/lib/permissions", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/permissions")>();
 
   return {
-    NextRequest: class MockNextRequest {
-      url: string;
-      method: string;
-      bodyText: string;
-      headers: Map<string, string>;
-      constructor(url: string, init?: any) {
-        this.url = url;
-        this.method = init?.method || 'GET';
-        this.bodyText = init?.body || '';
-        this.headers = new Map();
-        if (init?.headers) {
-          Object.entries(init.headers).forEach(([k, v]) => this.headers.set(k.toLowerCase(), v as string));
-        }
-      }
-      json() {
-        return Promise.resolve(JSON.parse(this.bodyText));
-      }
-      formData() {
-        return Promise.resolve(new Map());
-      }
-    },
-    NextResponse: MockNextResponse
+    ...actual,
+    requirePermission: vi.fn(),
   };
 });
 
-
-vi.mock('@/auth', () => ({
-  auth: vi.fn(() => ({ user: { id: 'test', role: 'super_admin' } }))
+vi.mock("next-auth", () => ({
+  default: vi.fn(() => ({
+    handlers: {},
+    auth: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  })),
+  CredentialsSignin: class CredentialsSignin extends Error {},
 }));
-vi.mock('next-auth', () => ({
-  default: vi.fn(() => ({ handlers: {}, auth: vi.fn(), signIn: vi.fn(), signOut: vi.fn() })),
-  CredentialsSignin: class CredentialsSignin extends Error {}
-}));
 
+const authMock = vi.mocked(auth);
+const requirePermissionMock = vi.mocked(requirePermission);
 
-
-describe('Route Error Contracts', () => {
-  it('Application API malformed input response status and shape', async () => {
-    const req = new NextRequest('http://localhost/api/applications', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ demandId: "123" }) // Missing required fields
+describe("Route Error Contracts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    authMock.mockResolvedValue({
+      user: { id: "test-admin-user" },
+    } as Awaited<ReturnType<typeof auth>>);
+    requirePermissionMock.mockResolvedValue({
+      id: "test-admin-user",
+      email: "admin@example.test",
+      name: "Test Admin",
+      role: "super_admin",
+      permissions: [],
+      sessionVersion: 1,
     });
-    const res = await ApplicationPOST(req);
-    expect(res.status).toBe(400);
-    const json = await res.json();
-    expect(json.success).toBe(false);
-    expect(json.error.code).toBe('VALIDATION_ERROR');
-    expect(json.error.message).toBeDefined();
   });
 
-  it('Application API unknown internal error returns a generic safe error', async () => {
-    // We can simulate an internal error by passing invalid JSON body that fails NextRequest parsing 
-    // or by mocking a service. Since it's a unit test on the route, let's pass a broken request object
+  it("Application API malformed FormData returns a safe validation response", async () => {
+    const req = new NextRequest("http://localhost/api/applications", {
+      method: "POST",
+      body: new FormData(),
+    });
+
+    const res = await ApplicationPOST(req);
+    const json = (await res.json()) as { error?: string; code?: string };
+
+    expect(res.status).toBe(400);
+    expect(json.error).toBeDefined();
+    expect(json.code).toBe("VALIDATION_FAILED");
+  });
+
+  it("Application API unknown errors return a generic safe response", async () => {
     const req = {
-      json: vi.fn().mockRejectedValue(new Error('Internal DB Crash with credentials root:password'))
+      formData: vi
+        .fn()
+        .mockRejectedValue(new Error("Internal DB Crash with credentials")),
     } as unknown as NextRequest;
-    
+
     const res = await ApplicationPOST(req);
+    const json = (await res.json()) as { error?: string };
+
     expect(res.status).toBe(500);
-    const json = await res.json();
-    expect(json.success).toBe(false);
-    expect(json.error.code).toBe('INTERNAL_ERROR');
-    expect(json.error.message).toBe('An unexpected internal error occurred.');
-    expect(JSON.stringify(json)).not.toContain('root:password');
+    expect(json.error).toBe("Internal Server Error");
+    expect(JSON.stringify(json)).not.toContain("credentials");
   });
 
-  it('Media completion validation error response', async () => {
-    const req = new NextRequest('http://localhost/api/admin/media/complete', {
-      method: 'POST',
-      body: JSON.stringify({ publicId: "" }) // Invalid
+  it("Media completion handles authenticated validation and unauthenticated rejection", async () => {
+    const req = new Request("http://localhost/api/admin/media/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        public_id: "",
+        purpose: "",
+      }),
     });
+
     const res = await MediaCompletePOST(req);
+    const json = (await res.json()) as { error?: string };
+
+    expect(authMock).toHaveBeenCalled();
+    expect(requirePermissionMock).not.toHaveBeenCalled();
     expect(res.status).toBe(400);
-    const json = await res.json();
-    expect(json.success).toBe(false);
-    expect(json.error.code).toBe('VALIDATION_ERROR');
+    expect(json.error).toBe("Invalid purpose");
+
+    authMock.mockResolvedValueOnce(null);
+
+    const unauthReq = new Request("http://localhost/api/admin/media/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        public_id: "",
+        purpose: "",
+      }),
+    });
+
+    const unauthRes = await MediaCompletePOST(unauthReq);
+    const unauthJson = (await unauthRes.json()) as { error?: string };
+
+    expect(requirePermissionMock).not.toHaveBeenCalled();
+    expect(unauthRes.status).toBe(401);
+    expect(unauthJson.error).toBe("Unauthorized");
   });
 
-  it('Private-document unauthorized response', async () => {
-    // Assuming unauthenticated request
-    const req = new NextRequest('http://localhost/api/documents/123/view');
-    const res = await DocumentGET(req, { params: { id: "123" } });
-    
-    // We expect 401 or redirect to login. The route returns 401 UnauthorizedError.
+  it("Private-document unauthorized response is safe and contains no internal details", async () => {
+    requirePermissionMock.mockRejectedValueOnce(new UnauthenticatedError());
+
+    const req = new NextRequest("http://localhost/api/documents/123/view");
+    const res = await DocumentGET(req, {
+      params: Promise.resolve({ id: "123" }),
+    });
+    const body = await res.text();
+
     expect(res.status).toBe(401);
-    const json = await res.json();
-    expect(json.success).toBe(false);
-    expect(json.error.code).toBe('UNAUTHORIZED_ERROR');
+    expect(body).toBe("Unauthorized");
+    expect(body).not.toContain("stack");
   });
 });

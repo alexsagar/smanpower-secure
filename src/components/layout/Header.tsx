@@ -31,7 +31,6 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveDesktopDropdown(null);
   }, [pathname]);
 

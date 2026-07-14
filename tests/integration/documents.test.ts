@@ -78,7 +78,7 @@ describe("Documents Integration Tests", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("Location")).toBe("https://signed-url.example.com/test.pdf");
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(response.headers.get("Cache-Control")).toBe("no-store, private");
     expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
 
     expect(mockPrisma.auditLog.create).toHaveBeenCalled();

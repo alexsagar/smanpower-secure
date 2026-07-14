@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { saveSeoPageMeta } from "@/actions/seo";
+import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { generateMetadata } from "@/app/[lang]/employers/page";
 
@@ -8,6 +9,11 @@ vi.mock("@/lib/auth", () => ({
   auth: vi.fn(),
 }));
 import { auth } from "@/lib/auth";
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
+import { cookies } from "next/headers";
 
 // Mocking revalidatePath
 vi.mock("next/cache", () => ({
@@ -18,6 +24,21 @@ import { revalidatePath } from "next/cache";
 vi.mock("@/config/demo", () => ({
   DEMO_MODE: false
 }));
+
+const seoSessionTokens = {
+  super_admin: "seo-super-admin-session-token",
+  content_manager: "seo-content-manager-session-token",
+} as const;
+
+let activeSeoRole: keyof typeof seoSessionTokens =
+  "super_admin";
+
+function hashSessionToken(token: string) {
+  return crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+}
 
 describe("SEO Phase 2B Integration Tests", () => {
   beforeEach(async () => {
@@ -69,30 +90,100 @@ describe("SEO Phase 2B Integration Tests", () => {
     // Create super_admin test user
     await prisma.user.upsert({
       where: { id: "test-user-id" },
-      update: { roleId: saRole.id },
+      update: {
+        roleId: saRole.id,
+        accountStatus: "ACTIVE",
+        isActive: true,
+        sessionVersion: 1,
+      },
       create: {
         id: "test-user-id",
         email: "seo-tester@example.com",
         name: "SEO Tester",
         passwordHash: "dummy",
         roleId: saRole.id,
+        accountStatus: "ACTIVE",
+        isActive: true,
+        sessionVersion: 1,
       }
     });
 
     // Create content_manager test user
     await prisma.user.upsert({
       where: { id: "cm-user-id" },
-      update: { roleId: cmRole.id },
+      update: {
+        roleId: cmRole.id,
+        accountStatus: "ACTIVE",
+        isActive: true,
+        sessionVersion: 1,
+      },
       create: {
         id: "cm-user-id",
         email: "cm-tester@example.com",
         name: "CM Tester",
         passwordHash: "dummy",
         roleId: cmRole.id,
+        accountStatus: "ACTIVE",
+        isActive: true,
+        sessionVersion: 1,
       }
     });
 
+    await prisma.adminSession.deleteMany({
+      where: {
+        userId: {
+          in: ["test-user-id", "cm-user-id"],
+        },
+      },
+    });
+
+    const now = Date.now();
+
+    await prisma.adminSession.createMany({
+      data: [
+        {
+          sessionIdHash: hashSessionToken(
+            seoSessionTokens.super_admin,
+          ),
+          userId: "test-user-id",
+          sessionVersionAtIssue: 1,
+          idleExpiresAt: new Date(
+            now + 60 * 60 * 1000,
+          ),
+          absoluteExpiresAt: new Date(
+            now + 8 * 60 * 60 * 1000,
+          ),
+        },
+        {
+          sessionIdHash: hashSessionToken(
+            seoSessionTokens.content_manager,
+          ),
+          userId: "cm-user-id",
+          sessionVersionAtIssue: 1,
+          idleExpiresAt: new Date(
+            now + 60 * 60 * 1000,
+          ),
+          absoluteExpiresAt: new Date(
+            now + 8 * 60 * 60 * 1000,
+          ),
+        },
+      ],
+    });
+
     vi.clearAllMocks();
+
+    activeSeoRole = "super_admin";
+
+    (cookies as any).mockResolvedValue({
+      get: vi.fn((name: string) =>
+        name === "admin_session_token"
+          ? {
+              value:
+                seoSessionTokens[activeSeoRole],
+            }
+          : undefined
+      ),
+    });
   });
 
   afterEach(() => {
@@ -100,9 +191,21 @@ describe("SEO Phase 2B Integration Tests", () => {
   });
 
   const mockUser = (roleName: string) => {
-    const id = roleName === "content_manager" ? "cm-user-id" : "test-user-id";
+    activeSeoRole =
+      roleName === "content_manager"
+        ? "content_manager"
+        : "super_admin";
+
+    const id =
+      activeSeoRole === "content_manager"
+        ? "cm-user-id"
+        : "test-user-id";
+
     (auth as any).mockResolvedValue({
-      user: { id, role: { name: roleName } },
+      user: {
+        id,
+        role: { name: roleName },
+      },
     });
   };
 

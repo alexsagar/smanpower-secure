@@ -37,7 +37,10 @@ vi.mock('next-auth', () => ({
 import { NextRequest } from 'next/server';
 import { GET as viewRoute } from '@/app/api/documents/[id]/view/route';
 import { prisma } from '@/lib/prisma';
-import cloudinary from '@/lib/cloudinary';
+
+vi.mock('@/services/cloudinary.service', () => ({
+  getSignedDocumentUrl: vi.fn().mockReturnValue('https://signed-url.example.com/private_doc_id.pdf'),
+}));
 
 // Mock permissions
 vi.mock('@/lib/permissions', () => ({

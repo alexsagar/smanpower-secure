@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { refreshSessionAction, explicitLogoutAction, getAdminSessionsAction, revokeOtherAdminSessionAction, revokeAllOtherAdminSessionsAction } from '@/actions/session';
+import { refreshSessionAction, explicitLogoutAction, revokeSessionAction } from '@/actions/session';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-import { SESSION_CONFIG } from '@/lib/session-config';
 
 // ── Mock Setup ────────────────────────────────────────────────────
 vi.mock('next/headers', () => ({
@@ -22,7 +21,7 @@ let mockRawToken: string;
 describe('AdminSession Comprehensive Integration Tests', () => {
 
   beforeEach(async () => {
-    await prisma.auditLog.deleteMany({ where: { action: { in: ['EXPLICIT_LOGOUT', 'REMOTE_REVOKE', 'PASSWORD_CHANGE'] } } });
+    await prisma.auditLog.deleteMany({ where: { action: { in: ['EXPLICIT_LOGOUT', 'SESSION_REVOKED', 'ALL_OTHER_SESSIONS_REVOKED', 'PASSWORD_CHANGE'] } } });
     await prisma.adminSession.deleteMany({ where: { user: { email: 'admin@test.com' } } });
     await prisma.user.deleteMany({ where: { email: 'admin@test.com' } });
     // Keep role upsert safe
@@ -109,39 +108,55 @@ describe('AdminSession Comprehensive Integration Tests', () => {
     });
   });
 
-  describe('revokeOtherAdminSessionAction', () => {
+  describe('revokeSessionAction', () => {
     it('4. Revokes a specific other session belonging to the user', async () => {
       const now = new Date();
       const otherToken = crypto.randomBytes(32).toString('hex');
-      const otherHash = crypto.createHash('sha256').update(otherToken).digest('hex');
+      const otherHash = crypto
+        .createHash('sha256')
+        .update(otherToken)
+        .digest('hex');
 
-      await prisma.adminSession.createMany({
-        data: [
-          {
-            sessionIdHash: mockSessionIdHash,
-            userId: mockUser.id,
-            sessionVersionAtIssue: mockUser.sessionVersion,
-            idleExpiresAt: new Date(now.getTime() + 10 * 60000),
-            absoluteExpiresAt: new Date(now.getTime() + 120 * 60000),
-          },
-          {
-            sessionIdHash: otherHash,
-            userId: mockUser.id,
-            sessionVersionAtIssue: mockUser.sessionVersion,
-            idleExpiresAt: new Date(now.getTime() + 10 * 60000),
-            absoluteExpiresAt: new Date(now.getTime() + 120 * 60000),
-          }
-        ]
+      await prisma.adminSession.create({
+        data: {
+          sessionIdHash: mockSessionIdHash,
+          userId: mockUser.id,
+          sessionVersionAtIssue: mockUser.sessionVersion,
+          idleExpiresAt: new Date(now.getTime() + 10 * 60000),
+          absoluteExpiresAt: new Date(now.getTime() + 120 * 60000),
+        },
       });
 
-      const res = await revokeOtherAdminSessionAction(otherHash);
+      const otherSession = await prisma.adminSession.create({
+        data: {
+          sessionIdHash: otherHash,
+          userId: mockUser.id,
+          sessionVersionAtIssue: mockUser.sessionVersion,
+          idleExpiresAt: new Date(now.getTime() + 10 * 60000),
+          absoluteExpiresAt: new Date(now.getTime() + 120 * 60000),
+        },
+      });
+
+      const res = await revokeSessionAction(otherSession.id);
       expect(res.success).toBe(true);
-      
-      const otherSession = await prisma.adminSession.findUnique({ where: { sessionIdHash: otherHash } });
-      expect(otherSession?.revokedAt).not.toBeNull();
-      expect(otherSession?.revokedReason).toBe("REMOTE_REVOKE");
-      
-      const currentSession = await prisma.adminSession.findUnique({ where: { sessionIdHash: mockSessionIdHash } });
+
+      const revokedOtherSession =
+        await prisma.adminSession.findUnique({
+          where: { id: otherSession.id },
+        });
+
+      expect(revokedOtherSession?.revokedAt).not.toBeNull();
+      expect(revokedOtherSession?.revokedReason).toBe(
+        'EXPLICIT_REVOCATION',
+      );
+
+      const currentSession =
+        await prisma.adminSession.findUnique({
+          where: {
+            sessionIdHash: mockSessionIdHash,
+          },
+        });
+
       expect(currentSession?.revokedAt).toBeNull();
     });
   });

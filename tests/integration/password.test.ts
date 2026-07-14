@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { changePasswordAction } from '@/actions/profile';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { requireCurrentAdminUser } from '@/lib/permissions';
 
 vi.mock('next/headers', () => ({
   headers: vi.fn().mockResolvedValue(new Map([['x-forwarded-for', '127.0.0.1']])),
@@ -9,6 +10,17 @@ vi.mock('next/headers', () => ({
     get: vi.fn(),
     delete: vi.fn(),
   }),
+}));
+
+vi.mock('@/lib/permissions', () => ({
+  requireCurrentAdminUser: vi.fn(),
+}));
+
+vi.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: vi.fn().mockResolvedValue({
+    success: true,
+  }),
+  getClientIp: vi.fn().mockReturnValue('127.0.0.1'),
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -26,7 +38,7 @@ let oldPasswordHash: string;
 describe('Authenticated Change Password Tests', () => {
 
   beforeEach(async () => {
-    await prisma.auditLog.deleteMany({ where: { action: { in: ['update_password', 'PASSWORD_CHANGE'] } } });
+    await prisma.auditLog.deleteMany({ where: { action: { in: ['update_password', 'PASSWORD_CHANGE', 'PASSWORD_CHANGED'] } } });
     await prisma.adminSession.deleteMany({ where: { user: { email: 'admin_pwd@test.com' } } });
     await prisma.user.deleteMany({ where: { email: 'admin_pwd@test.com' } });
     // role is upserted
@@ -53,7 +65,7 @@ describe('Authenticated Change Password Tests', () => {
       include: { role: { include: { permissions: { include: { permission: true } } } } }
     });
 
-    vi.mocked(await import('@/lib/permissions')).requireCurrentAdminUser = vi.fn().mockResolvedValue(mockUser);
+    (requireCurrentAdminUser as any).mockResolvedValue(mockUser);
   });
 
   it('1. Valid current password allows password change', async () => {

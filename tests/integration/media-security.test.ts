@@ -34,6 +34,17 @@ import { POST as deleteRoute } from '@/app/api/admin/media/delete/route';
 import { prisma } from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 
+vi.mock('@/services/cloudinary.service', () => ({
+  generateUploadSignature: vi.fn((folder: string, deliveryType: 'upload' | 'private' = 'upload') => ({
+    timestamp: 1234567890,
+    signature: 'mock-signature',
+    folder,
+    cloudName: 'mock-cloud',
+    apiKey: 'mock-key',
+    deliveryType,
+  })),
+}));
+
 // Mock cloudinary
 vi.mock('@/lib/cloudinary', () => ({
   default: {
@@ -78,6 +89,7 @@ describe('Media Security Integration', () => {
       
       expect(res.status).toBe(200);
       expect(data.folder).toBe('seven-seas-cms'); // Ignored the hacked-folder
+      expect(data.deliveryType).toBe('upload');
     });
     
     it('rejects unknown purpose', async () => {

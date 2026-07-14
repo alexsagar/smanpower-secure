@@ -16,9 +16,16 @@ vi.mock('@/lib/auth', () => ({
   auth: vi.fn(),
 }));
 
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(),
+}));
+
 // Mock Prisma
 vi.mock('@/lib/prisma', () => ({
   prisma: {
+    adminSession: {
+      findUnique: vi.fn(),
+    },
     user: {
       findUnique: vi.fn(),
     },
@@ -27,6 +34,7 @@ vi.mock('@/lib/prisma', () => ({
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { cookies } from 'next/headers';
 
 /** Build a fully-populated DB user mock with the given permissions. */
 function buildDbUser(
@@ -57,6 +65,28 @@ describe('Server-Side RBAC & Authorization (DB-authoritative)', () => {
     vi.resetAllMocks();
     delete process.env.DEMO_MODE;
     delete process.env.QA_MODE;
+
+    (cookies as any).mockResolvedValue({
+      get: vi.fn((name: string) =>
+        name === 'admin_session_token'
+          ? { value: 'rbac-test-session-token' }
+          : undefined
+      ),
+    });
+
+    (prisma.adminSession.findUnique as any).mockResolvedValue({
+      id: 'admin-session-1',
+      sessionIdHash: 'mocked-session-hash',
+      userId: 'u1',
+      sessionVersionAtIssue: 1,
+      revokedAt: null,
+      idleExpiresAt: new Date(
+        Date.now() + 60 * 60 * 1000
+      ),
+      absoluteExpiresAt: new Date(
+        Date.now() + 8 * 60 * 60 * 1000
+      ),
+    });
   });
 
   describe('requireCurrentAdminUser', () => {
