@@ -365,9 +365,17 @@ export async function getAdminJobs(rawFilters?: unknown) {
 }
 
 export async function getAdminDatasets() {
+  await requirePermission(INSIGHT_PERMISSIONS.VIEW);
   if (DEMO_MODE) return demoWorkforceDatasets;
   try {
     return await prisma.workforceDataset.findMany({
+      include: {
+        _count: {
+          select: {
+            metrics: true,
+          },
+        },
+      },
       orderBy: { updatedAt: "desc" },
     });
   } catch (error) {

@@ -36,6 +36,7 @@ const sidebarItems = [
   { label: "Demands", href: "/admin/demands", icon: Briefcase },
   { label: "Applications", href: "/admin/applications", icon: Shield },
   { label: "Insights", href: "/admin/insights", icon: FileText },
+  { label: "Intelligence", href: "/admin/intelligence", icon: BarChart3 },
   { label: "Newsroom", href: "/admin/news", icon: Newspaper },
   { label: "Careers", href: "/admin/careers", icon: GraduationCap },
   { label: "Stories", href: "/admin/stories", icon: Star },
