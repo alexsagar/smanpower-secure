@@ -2,6 +2,9 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
+import { sendEmail } from "@/services/email.service";
+import { getAdminNotificationEmail } from "@/lib/env";
 
 // ── Employer Lead Schema ──────────────────────────────
 const employerLeadSchema = z.object({
@@ -29,6 +32,74 @@ export type EmployerLeadFormState = {
   errors?: Record<string, string[]>;
   message?: string;
 };
+
+async function notifyEmployerLeadSubmission(input: {
+  companyName: string;
+  contactPerson: string;
+  designation?: string;
+  businessEmail: string;
+  phone: string;
+  country: string;
+  industry: string;
+  workforceCategory?: string;
+  numberOfWorkers?: number;
+  requiredSkills?: string;
+  expectedMobilisation?: string;
+  message?: string;
+}) {
+  const to = getAdminNotificationEmail();
+  if (!to) {
+    logger.warn("Employer lead notification skipped: no admin notification recipient configured.");
+    return;
+  }
+
+  const mobilisationLine = input.expectedMobilisation
+    ? new Date(input.expectedMobilisation).toISOString().slice(0, 10)
+    : "Not provided";
+  const workersLine =
+    typeof input.numberOfWorkers === "number"
+      ? String(input.numberOfWorkers)
+      : "Not provided";
+
+  await sendEmail({
+    to,
+    replyTo: input.businessEmail,
+    subject: `New workforce request from ${input.companyName}`,
+    text: [
+      "A new workforce request was submitted.",
+      `Company: ${input.companyName}`,
+      `Contact: ${input.contactPerson}`,
+      `Designation: ${input.designation || "Not provided"}`,
+      `Business Email: ${input.businessEmail}`,
+      `Phone: ${input.phone}`,
+      `Country: ${input.country}`,
+      `Industry: ${input.industry}`,
+      `Workforce Category: ${input.workforceCategory || "Not provided"}`,
+      `Number of Workers: ${workersLine}`,
+      `Required Skills: ${input.requiredSkills || "Not provided"}`,
+      `Expected Mobilisation: ${mobilisationLine}`,
+      `Message: ${input.message || "Not provided"}`,
+    ].join("\n"),
+    html: `
+      <p>A new workforce request was submitted.</p>
+      <ul>
+        <li><strong>Company:</strong> ${input.companyName}</li>
+        <li><strong>Contact:</strong> ${input.contactPerson}</li>
+        <li><strong>Designation:</strong> ${input.designation || "Not provided"}</li>
+        <li><strong>Business Email:</strong> ${input.businessEmail}</li>
+        <li><strong>Phone:</strong> ${input.phone}</li>
+        <li><strong>Country:</strong> ${input.country}</li>
+        <li><strong>Industry:</strong> ${input.industry}</li>
+        <li><strong>Workforce Category:</strong> ${input.workforceCategory || "Not provided"}</li>
+        <li><strong>Number of Workers:</strong> ${workersLine}</li>
+        <li><strong>Required Skills:</strong> ${input.requiredSkills || "Not provided"}</li>
+        <li><strong>Expected Mobilisation:</strong> ${mobilisationLine}</li>
+      </ul>
+      <p><strong>Message:</strong></p>
+      <p>${input.message || "Not provided"}</p>
+    `,
+  });
+}
 
 export async function submitEmployerLead(
   prevState: EmployerLeadFormState,
@@ -94,8 +165,14 @@ export async function submitEmployerLead(
       },
     });
 
-    // TODO: Send admin notification email
-    // await sendEmail({ to: ADMIN_EMAIL, subject: "New Workforce Request", ... })
+    try {
+      await notifyEmployerLeadSubmission(parsed.data);
+    } catch (error) {
+      logger.error(
+        "Employer lead notification failed after persistence",
+        error instanceof Error ? error : new Error(String(error))
+      );
+    }
 
     return {
       success: true,
@@ -103,7 +180,10 @@ export async function submitEmployerLead(
         "Thank you for your enquiry. Our team will contact you within 2 business days.",
     };
   } catch (error) {
-    console.error("Failed to submit employer lead:", error);
+    logger.error(
+      "Failed to submit employer lead",
+      error instanceof Error ? error : new Error(String(error))
+    );
     return {
       success: false,
       message: "Something went wrong. Please try again or contact us directly.",

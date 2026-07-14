@@ -51,3 +51,21 @@ export function assertProductionEnv(): void {
     throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
   }
 }
+
+const notificationEmailSchema = z.string().email();
+
+export function getAdminNotificationEmail(): string | null {
+  const value =
+    process.env.ADMIN_NOTIFICATION_EMAIL ||
+    process.env.CONTACT_NOTIFICATION_EMAIL ||
+    "";
+
+  if (!value) return null;
+
+  const result = notificationEmailSchema.safeParse(value);
+  if (!result.success) {
+    throw new Error("Invalid admin notification email configuration.");
+  }
+
+  return result.data;
+}
