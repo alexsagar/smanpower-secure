@@ -6,11 +6,15 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "../RichTextRenderer";
+import { ManagedVideo } from "../ManagedVideo";
 
 export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   const prefix = `/${lang}`;
   const content = block.content as any;
   const mediaUrl = resolveMediaUrl(block.image);
+  const videoUrl = resolveMediaUrl(block.video);
+  const posterUrl = resolveMediaUrl(block.videoPoster || block.image);
+  const mobileFallbackUrl = resolveMediaUrl(block.mobileImage || block.videoPoster || block.image);
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-off-white overflow-hidden">
@@ -40,12 +44,27 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-0 items-end">
           <div className="lg:col-span-7 relative">
             <ScrollReveal delay={0.2} className="relative aspect-[4/3] lg:aspect-[16/10] w-full max-w-3xl overflow-hidden group">
-              <Image
-                src={mediaUrl}
-                alt={block.image?.altText || "Introduction image"}
-                fill
-                className="object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
-              />
+              {videoUrl ? (
+                <ManagedVideo
+                  src={videoUrl}
+                  posterSrc={posterUrl}
+                  mobileFallbackSrc={mobileFallbackUrl}
+                  alt={block.video?.altText || block.image?.altText || "Introduction video"}
+                  controls
+                  muted
+                  preload="metadata"
+                  containerClassName="absolute inset-0"
+                  videoClassName="absolute inset-0 h-full w-full object-cover"
+                  fallbackClassName="grayscale opacity-90"
+                />
+              ) : (
+                <Image
+                  src={mediaUrl}
+                  alt={block.image?.altText || "Introduction image"}
+                  fill
+                  className="object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
+                />
+              )}
               <div className="absolute inset-0 bg-brand-charcoal/10 group-hover:bg-transparent transition-colors duration-1000" />
               
               {content.imageTag && (

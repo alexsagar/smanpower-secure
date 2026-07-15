@@ -8,16 +8,13 @@ import { useRouter } from "next/navigation";
 export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) {
   const [assets, setAssets] = useState(initialAssets);
   const [selectedAsset, setSelectedAsset] = useState<any | null>(null);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState<"ALL" | "IMAGE" | "VIDEO" | "DOCUMENT">("ALL");
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const filteredAssets = assets.filter((asset) => {
-    if (filter === "All") return true;
-    if (filter === "Hero" && asset.folder === "hero") return true;
-    if (filter === "Stories" && asset.folder === "stories") return true;
-    if (filter === "Training" && asset.folder === "training") return true;
-    return false;
+    if (filter === "ALL") return true;
+    return asset.resourceType === filter;
   });
 
   const handleDelete = async () => {
@@ -52,7 +49,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
             <h2 className="text-sm font-semibold uppercase tracking-widest text-brand-black">Media Gallery</h2>
           </div>
           <div className="flex gap-2 text-xs font-semibold tracking-widest uppercase">
-            {["All", "Hero", "Stories", "Training"].map((f) => (
+            {(["ALL", "IMAGE", "VIDEO", "DOCUMENT"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -62,7 +59,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
                     : "text-brand-muted hover:text-brand-black"
                 }`}
               >
-                {f}
+                {f === "ALL" ? "All" : f}
               </button>
             ))}
           </div>
@@ -77,11 +74,16 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
                   onClick={() => setSelectedAsset(asset)}
                   className={`group relative aspect-square bg-brand-off-white border ${selectedAsset?.id === asset.id ? "border-brand-gold ring-2 ring-brand-gold/20" : "border-brand-charcoal/5"} overflow-hidden cursor-pointer`}
                 >
-                  {asset.mimeType?.includes("video") ? (
+                  {asset.resourceType === "VIDEO" ? (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
                       <Video className="w-8 h-8 text-gray-400" />
+                      {typeof asset.duration === "number" ? (
+                        <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                          {asset.duration.toFixed(1)}s
+                        </span>
+                      ) : null}
                     </div>
-                  ) : asset.mimeType?.includes("pdf") ? (
+                  ) : asset.resourceType === "DOCUMENT" ? (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
                       <FileText className="w-8 h-8 text-gray-400" />
                     </div>
@@ -106,6 +108,9 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
                       </div>
                     ) : null}
                   </div>
+                  <div className="absolute bottom-2 left-2 z-10 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    {asset.resourceType || "FILE"}
+                  </div>
                 </div>
               ))}
             </div>
@@ -128,9 +133,9 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
           </div>
 
           <div className="aspect-video relative bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
-             {selectedAsset.mimeType?.includes("video") ? (
-               <video src={selectedAsset.fileUrl} controls className="w-full h-full object-contain" />
-             ) : selectedAsset.mimeType?.includes("pdf") ? (
+             {selectedAsset.resourceType === "VIDEO" ? (
+               <video src={selectedAsset.fileUrl} controls muted preload="metadata" className="w-full h-full object-contain" />
+             ) : selectedAsset.resourceType === "DOCUMENT" ? (
                <FileText className="w-12 h-12 text-gray-400" />
              ) : (
                 <Image src={selectedAsset.fileUrl} alt="Preview" fill sizes="50vw" className="object-contain" />
@@ -147,8 +152,16 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
               <span className="font-medium">{selectedAsset.fileSize ? (selectedAsset.fileSize / 1024).toFixed(0) + " KB" : "--"}</span>
             </div>
             <div className="flex justify-between border-b pb-2">
-              <span className="text-gray-500">Type</span>
+              <span className="text-gray-500">Resource Type</span>
+              <span className="font-medium truncate max-w-[150px]">{selectedAsset.resourceType || "--"}</span>
+            </div>
+            <div className="flex justify-between border-b pb-2">
+              <span className="text-gray-500">MIME</span>
               <span className="font-medium truncate max-w-[150px]">{selectedAsset.mimeType || "--"}</span>
+            </div>
+            <div className="flex justify-between border-b pb-2">
+              <span className="text-gray-500">Duration</span>
+              <span className="font-medium">{typeof selectedAsset.duration === "number" ? `${selectedAsset.duration.toFixed(1)}s` : "--"}</span>
             </div>
             <div className="flex justify-between border-b pb-2">
               <span className="text-gray-500">Visibility</span>

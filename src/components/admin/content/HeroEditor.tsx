@@ -25,9 +25,39 @@ export function HeroEditor({ hero, onChange, onBack }: { hero: any, onChange: (h
         </div>
 
         <MediaInput 
-          label="Background Media (Image or Video)"
+          label="Hero Image"
           value={hero.imageId} 
-          onChange={(id) => onChange({ ...hero, imageId: id })} 
+          onChange={(id) => onChange({ ...hero, imageId: id })}
+          allowedResourceTypes={["IMAGE"]}
+          uploadPurpose="cms_image"
+          helperText="Use for image-only heroes or as a desktop fallback when no poster image is set."
+        />
+
+        <MediaInput
+          label="Hero Video"
+          value={hero.videoId}
+          onChange={(id) => onChange({ ...hero, videoId: id })}
+          allowedResourceTypes={["VIDEO"]}
+          uploadPurpose="cms_video"
+          helperText="Managed videos only. Public pages reject documents and private assets."
+        />
+
+        <MediaInput
+          label="Hero Poster Image"
+          value={hero.posterImageId}
+          onChange={(id) => onChange({ ...hero, posterImageId: id })}
+          allowedResourceTypes={["IMAGE"]}
+          uploadPurpose="cms_poster_image"
+          helperText="Recommended for all hero videos and used as the reduced-motion fallback."
+        />
+
+        <MediaInput
+          label="Hero Mobile Fallback Image"
+          value={hero.mobileImageId}
+          onChange={(id) => onChange({ ...hero, mobileImageId: id })}
+          allowedResourceTypes={["IMAGE"]}
+          uploadPurpose="cms_mobile_image"
+          helperText="Shown on smaller screens instead of autoplaying background video."
         />
 
         <div>

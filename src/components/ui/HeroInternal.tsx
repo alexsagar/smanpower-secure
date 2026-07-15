@@ -2,25 +2,55 @@
 
 import Image from "next/image";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { ManagedVideo } from "@/components/cms/ManagedVideo";
 
 interface HeroInternalProps {
   title: React.ReactNode;
   subtitle: string;
   imageSrc: string;
+  videoSrc?: string;
+  posterSrc?: string;
+  mobileFallbackSrc?: string;
 }
 
-export function HeroInternal({ title, subtitle, imageSrc }: HeroInternalProps) {
+export function HeroInternal({
+  title,
+  subtitle,
+  imageSrc,
+  videoSrc,
+  posterSrc,
+  mobileFallbackSrc,
+}: HeroInternalProps) {
   return (
     <section className="relative h-[70dvh] min-h-[600px] w-full bg-brand-black overflow-hidden flex flex-col justify-center mt-20 group">
       {/* Background Image with Slow Pan Effect */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-        <Image
-          src={imageSrc}
-          alt="Header Background"
-          fill
-          className="object-cover scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-40 grayscale-[20%]"
-          priority
-        />
+        {videoSrc ? (
+          <ManagedVideo
+            src={videoSrc}
+            posterSrc={posterSrc || imageSrc}
+            mobileFallbackSrc={mobileFallbackSrc || posterSrc || imageSrc}
+            alt="Header background video"
+            autoPlay
+            muted
+            loop
+            preload="metadata"
+            priority
+            decorative
+            showPlaybackToggle
+            containerClassName="absolute inset-0"
+            videoClassName="absolute inset-0 h-full w-full object-cover scale-110 opacity-40 grayscale-[20%]"
+            fallbackClassName="scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-40 grayscale-[20%]"
+          />
+        ) : (
+          <Image
+            src={imageSrc}
+            alt="Header Background"
+            fill
+            className="object-cover scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-40 grayscale-[20%]"
+            priority
+          />
+        )}
         {/* Dark Vignette and Gradient Overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.7)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-black via-brand-black/40 to-brand-off-white" />

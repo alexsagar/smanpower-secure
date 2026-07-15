@@ -7,6 +7,7 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
   const updateContent = (key: string, value: any) => {
     onChange({ ...block, content: { ...block.content, [key]: value } });
   };
+  const supportsManagedVideo = block.blockType === "image_text" || block.blockType === "introduction";
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full max-h-[700px]">
@@ -21,9 +22,42 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
         {/* Universal Fields */}
         {block.imageId !== undefined && (
           <MediaInput 
-            label="Section Image/Media"
+            label="Section Image"
             value={block.imageId} 
-            onChange={(id) => onChange({ ...block, imageId: id })} 
+            onChange={(id) => onChange({ ...block, imageId: id })}
+            allowedResourceTypes={["IMAGE"]}
+            uploadPurpose="cms_image"
+          />
+        )}
+
+        {supportsManagedVideo && (
+          <MediaInput
+            label="Section Video"
+            value={block.videoId}
+            onChange={(id) => onChange({ ...block, videoId: id })}
+            allowedResourceTypes={["VIDEO"]}
+            uploadPurpose="cms_video"
+            helperText="Below-the-fold videos render with controls and do not autoplay."
+          />
+        )}
+
+        {supportsManagedVideo && (
+          <MediaInput
+            label="Video Poster Image"
+            value={block.posterImageId}
+            onChange={(id) => onChange({ ...block, posterImageId: id })}
+            allowedResourceTypes={["IMAGE"]}
+            uploadPurpose="cms_poster_image"
+          />
+        )}
+
+        {supportsManagedVideo && (
+          <MediaInput
+            label="Mobile Fallback Image"
+            value={block.mobileImageId}
+            onChange={(id) => onChange({ ...block, mobileImageId: id })}
+            allowedResourceTypes={["IMAGE"]}
+            uploadPurpose="cms_mobile_image"
           />
         )}
 

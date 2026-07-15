@@ -193,6 +193,8 @@ export interface CmsContentBlock {
   backgroundStyle?: "light" | "dark" | "white" | "brand";
   image?: CmsMediaAsset;
   video?: CmsMediaAsset;
+  videoPoster?: CmsMediaAsset;
+  mobileImage?: CmsMediaAsset;
 }
 
 // ── Pages ─────────────────────────────────────────────────────

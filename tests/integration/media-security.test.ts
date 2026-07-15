@@ -36,10 +36,11 @@ import { prisma } from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 
 vi.mock('@/services/cloudinary.service', () => ({
-  generateUploadSignature: vi.fn((folder: string, deliveryType: 'upload' | 'private' = 'upload') => ({
+  generateUploadSignature: vi.fn((folder: string, deliveryType: 'upload' | 'private' = 'upload', resourceType: 'image' | 'video' | 'raw' = 'image') => ({
     timestamp: 1234567890,
     signature: 'mock-signature',
     folder,
+    resourceType,
     cloudName: 'mock-cloud',
     apiKey: 'mock-key',
     deliveryType,
@@ -91,6 +92,7 @@ describe('Media Security Integration', () => {
       expect(res.status).toBe(200);
       expect(data.folder).toBe('seven-seas-cms'); // Ignored the hacked-folder
       expect(data.deliveryType).toBe('upload');
+      expect(data.resourceType).toBe('image');
     });
     
     it('rejects unknown purpose', async () => {
@@ -232,6 +234,7 @@ describe('Media Security Integration', () => {
     beforeEach(() => {
       vi.mocked(auth).mockResolvedValue({ user: { id: 'admin-1' } } as any);
       vi.spyOn(prisma.mediaAsset, 'findFirst').mockResolvedValue(null as any);
+      vi.mocked(cloudinary.uploader.destroy).mockResolvedValue({ result: 'ok' } as any);
     });
 
     it('persists authoritative IMAGE resource type for verified image uploads', async () => {
@@ -296,6 +299,66 @@ describe('Media Security Integration', () => {
 
       expect(mapped.resourceType).toBe('video');
       expect(mapped.duration).toBe(3.5);
+    });
+
+    it('accepts approved CMS video uploads and preserves duration', async () => {
+      vi.mocked(cloudinary.api.resource).mockResolvedValue({
+        folder: 'seven-seas-cms',
+        resource_type: 'video',
+        format: 'mp4',
+        bytes: 4096,
+        width: 1280,
+        height: 720,
+        duration: 6.2,
+        tags: [],
+        public_id: 'cms_video',
+        asset_id: 'asset-video',
+        secure_url: 'https://cdn.example.com/video.mp4',
+      } as any);
+
+      const createSpy = vi.spyOn(prisma.mediaAsset, 'create').mockResolvedValue({ id: 'media-video' } as any);
+
+      const req = new NextRequest('http://localhost/api/admin/media/complete', {
+        method: 'POST',
+        body: JSON.stringify({ public_id: 'cms_video', purpose: 'cms_video', original_filename: 'hero.mp4' }),
+      });
+
+      const res = await completeRoute(req as any);
+
+      expect(res.status).toBe(200);
+      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          resourceType: 'VIDEO',
+          mimeType: 'video/mp4',
+          duration: 6.2,
+        }),
+      }));
+    });
+
+    it('rejects CMS video uploads when verified duration is missing', async () => {
+      vi.mocked(cloudinary.api.resource).mockResolvedValue({
+        folder: 'seven-seas-cms',
+        resource_type: 'video',
+        format: 'mp4',
+        bytes: 1024,
+        width: 1280,
+        height: 720,
+        duration: null,
+        tags: [],
+        public_id: 'cms_video_missing_duration',
+        asset_id: 'asset-video',
+        secure_url: 'https://cdn.example.com/video.mp4',
+      } as any);
+
+      const req = new NextRequest('http://localhost/api/admin/media/complete', {
+        method: 'POST',
+        body: JSON.stringify({ public_id: 'cms_video_missing_duration', purpose: 'cms_video', original_filename: 'hero.mp4' }),
+      });
+
+      const res = await completeRoute(req as any);
+
+      expect(res.status).toBe(400);
+      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('cms_video_missing_duration', { resource_type: 'video' });
     });
 
     it('rejects mismatched verified Cloudinary resource types', async () => {

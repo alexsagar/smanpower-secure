@@ -20,12 +20,21 @@ let applicationId = "";
 let candidateId = "";
 let documentId = "";
 let candidateName = "";
+let cvRequirementId = "";
+let certRequirementId = "";
+
+function projectKey(projectName: string) {
+  return projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
 
 async function createFixture(projectName: string) {
+  const key = projectKey(projectName);
   candidateName = `E2E Positive ${projectName} ${Date.now()}`;
   demandSlug = "security-guards-supervisors-dubai-2026";
   demandId = "demand-1";
   positionId = "pos-1-1";
+  cvRequirementId = `qa-e2e-demand-cv-${key}`;
+  certRequirementId = `qa-e2e-demand-trade-cert-${key}`;
 
   const country = await prisma.country.findFirst({
     where: { code: "AE" },
@@ -99,7 +108,7 @@ async function createFixture(projectName: string) {
   });
 
   await prisma.applicationDocumentRequirement.upsert({
-    where: { id: "qa-e2e-demand-cv" },
+    where: { id: cvRequirementId },
     update: {
       demandId,
       positionId,
@@ -109,7 +118,7 @@ async function createFixture(projectName: string) {
       allowedMimeTypes: "application/pdf",
     },
     create: {
-      id: "qa-e2e-demand-cv",
+      id: cvRequirementId,
       demandId,
       positionId,
       documentType: "CV",
@@ -120,7 +129,7 @@ async function createFixture(projectName: string) {
   });
 
   await prisma.applicationDocumentRequirement.upsert({
-    where: { id: "qa-e2e-demand-trade-cert" },
+    where: { id: certRequirementId },
     update: {
       demandId,
       positionId,
@@ -130,7 +139,7 @@ async function createFixture(projectName: string) {
       allowedMimeTypes: "application/pdf,image/jpeg,image/png",
     },
     create: {
-      id: "qa-e2e-demand-trade-cert",
+      id: certRequirementId,
       demandId,
       positionId,
       documentType: "TRADE_CERTIFICATE",
@@ -149,7 +158,7 @@ async function cleanupFixture() {
   }
 
   await prisma.applicationDocumentRequirement.deleteMany({
-    where: { id: { in: ["qa-e2e-demand-cv", "qa-e2e-demand-trade-cert"] } },
+    where: { id: { in: [cvRequirementId, certRequirementId].filter(Boolean) } },
   });
 
   if (candidateId) {
@@ -157,7 +166,6 @@ async function cleanupFixture() {
     await prisma.candidateDocument.deleteMany({ where: { candidateId } });
     await prisma.candidateProfile.deleteMany({ where: { id: candidateId } });
   }
-
 }
 
 test.beforeAll(async ({}, testInfo) => {

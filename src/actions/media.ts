@@ -1,9 +1,11 @@
 "use server";
 
 import { v2 as cloudinary } from "cloudinary";
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
 import { authoritativeMediaResourceTypeFromMimeType } from "@/lib/media-resource-type";
+import { logger } from "@/lib/logger";
+import { MEDIA_PERMISSIONS, requirePermission } from "@/lib/permissions";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,26 +14,14 @@ cloudinary.config({
 });
 
 export async function uploadMedia(formData: FormData) {
-  // TEMPORARY DEMO MODE — switch DEMO_MODE to false after PostgreSQL backend is deployed
-  if (!process.env.DATABASE_URL) {
-    revalidatePath("/admin/media");
-    return {
-      success: true,
-      asset: {
-        id: "demo-media-id",
-        fileName: "demo_upload.jpg",
-        fileUrl: "/images/hero_training_orientation_1782920391505.png",
-      },
-    };
-  }
+  await requirePermission(MEDIA_PERMISSIONS.UPLOAD);
 
   try {
-    const file = formData.get("file") as File;
+    const file = formData.get("file") as File | null;
     if (!file) {
       return { success: false, error: "No file provided" };
     }
-    
-    // Explicit SVG rejection policy
+
     if (file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg")) {
       return { success: false, error: "SVG uploads are disabled for security reasons." };
     }
@@ -39,19 +29,20 @@ export async function uploadMedia(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Cloudinary using a Promise wrapper
-    const uploadResult = await new Promise((resolve, reject) => {
+    const uploadResult = await new Promise<any>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "seven-seas" },
+        { folder: "seven-seas", resource_type: "auto" },
         (error, result) => {
-          if (error) return reject(error);
+          if (error || !result) {
+            reject(error || new Error("Cloudinary upload failed"));
+            return;
+          }
           resolve(result);
         }
       );
       uploadStream.end(buffer);
-    }) as any;
+    });
 
-    // Create DB record
     const asset = await prisma.mediaAsset.create({
       data: {
         fileName: file.name,
@@ -61,16 +52,20 @@ export async function uploadMedia(formData: FormData) {
         resourceType: authoritativeMediaResourceTypeFromMimeType(file.type),
         width: uploadResult.width,
         height: uploadResult.height,
-        status: "REAL_APPROVED", // Real upload
+        duration: uploadResult.duration ?? null,
+        status: "REAL_APPROVED",
         isPublic: true,
-      }
+      },
     });
 
     revalidatePath("/admin/media");
 
     return { success: true, asset };
-  } catch (error: any) {
-    console.error("Cloudinary upload error:", error);
-    return { success: false, error: error.message || "Failed to upload file" };
+  } catch (error: unknown) {
+    logger.error(
+      "Cloudinary upload error",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    return { success: false, error: "Failed to upload file" };
   }
 }

@@ -27,6 +27,9 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
   let title = fallbackTitle;
   let subtitle = fallbackSubtitle;
   let imageSrc = fallbackImage;
+  let videoSrc: string | undefined;
+  let posterSrc: string | undefined;
+  let mobileFallbackSrc: string | undefined;
 
   if (hero) {
     if (hero.richHeading) {
@@ -39,6 +42,13 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
     if (hero.image?.secureUrl || hero.image?.localPath) {
       imageSrc = (hero.image.secureUrl || hero.image.localPath) as string;
     }
+    if (hero.video?.secureUrl || hero.video?.localPath) {
+      videoSrc = (hero.video.secureUrl || hero.video.localPath) as string;
+      posterSrc =
+        (hero.videoPoster?.secureUrl || hero.videoPoster?.localPath || hero.image?.secureUrl || hero.image?.localPath) as string | undefined;
+      mobileFallbackSrc =
+        (hero.mobileImage?.secureUrl || hero.mobileImage?.localPath || hero.videoPoster?.secureUrl || hero.videoPoster?.localPath || hero.image?.secureUrl || hero.image?.localPath) as string | undefined;
+    }
   }
 
   return (
@@ -46,6 +56,9 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
       title={title}
       subtitle={subtitle}
       imageSrc={imageSrc}
+      videoSrc={videoSrc}
+      posterSrc={posterSrc}
+      mobileFallbackSrc={mobileFallbackSrc}
     />
   );
 }

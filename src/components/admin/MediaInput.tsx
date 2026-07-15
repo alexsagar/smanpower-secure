@@ -1,22 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
-import { Image as ImageIcon, X } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 import { MediaPicker } from "./MediaPicker";
+import type { MediaPurpose } from "@/lib/media-purposes";
 
 interface MediaInputProps {
   value?: string;
   onChange: (id: string, url: string) => void;
   label?: string;
+  allowedResourceTypes?: Array<"IMAGE" | "VIDEO" | "DOCUMENT">;
+  uploadPurpose?: MediaPurpose;
+  helperText?: string;
 }
 
-export function MediaInput({ value, onChange, label = "Select Media" }: MediaInputProps) {
+export function MediaInput({
+  value,
+  onChange,
+  label = "Select Media",
+  allowedResourceTypes,
+  uploadPurpose,
+  helperText,
+}: MediaInputProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <div>
       <label className="block text-sm font-semibold mb-2">{label}</label>
+      {helperText ? (
+        <p className="mb-2 text-xs text-gray-500">{helperText}</p>
+      ) : null}
       
       <div 
         onClick={() => setPickerOpen(true)}
@@ -47,7 +60,9 @@ export function MediaInput({ value, onChange, label = "Select Media" }: MediaInp
         onClose={() => setPickerOpen(false)} 
         onSelect={(media) => {
           onChange(media.id, media.fileUrl);
-        }} 
+        }}
+        allowedResourceTypes={allowedResourceTypes}
+        uploadPurpose={uploadPurpose}
       />
     </div>
   );

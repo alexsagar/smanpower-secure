@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requirePermission, MEDIA_PERMISSIONS } from "@/lib/permissions";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
   try {
@@ -16,11 +17,21 @@ export async function GET(request: Request) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ assets });
-  } catch (error: any) {
-    console.error("Fetch media error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch media" },
+      { assets },
+      {
+        headers: {
+          "Cache-Control": "private, no-store",
+        },
+      }
+    );
+  } catch (error: unknown) {
+    logger.error(
+      "Fetch media error",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
       { status: 500 }
     );
   }

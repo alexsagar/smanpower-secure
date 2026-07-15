@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { CmsHeroSection } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
+import { ManagedVideo } from "./ManagedVideo";
 
 interface DynamicHeroProps {
   hero: CmsHeroSection;
@@ -22,19 +23,42 @@ interface DynamicHeroProps {
 
 export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
   const prefix = `/${lang}`;
-  const mediaUrl = resolveMediaUrl(hero.image || hero.video);
+  const imageUrl = resolveMediaUrl(hero.image);
+  const videoUrl = resolveMediaUrl(hero.video);
+  const posterUrl = resolveMediaUrl(hero.videoPoster || hero.image);
+  const mobileFallbackUrl = resolveMediaUrl(hero.mobileImage || hero.videoPoster || hero.image);
+  const rendersVideo = hero.video?.resourceType === "video" && Boolean(videoUrl);
 
   return (
     <section className="relative min-h-[100dvh] py-16 lg:py-24 w-full bg-brand-black overflow-hidden flex flex-col justify-center">
       {/* Background Media */}
       <div className="absolute inset-0 w-full h-full z-0">
-        <Image
-          src={mediaUrl}
-          alt={hero.accessibilityDescription || "Hero background"}
-          fill
-          className="object-cover scale-110 opacity-40 transition-transform duration-[10s] ease-out hover:scale-125"
-          priority
-        />
+        {rendersVideo ? (
+          <ManagedVideo
+            src={videoUrl}
+            posterSrc={posterUrl}
+            mobileFallbackSrc={mobileFallbackUrl}
+            alt={hero.accessibilityDescription || "Hero background video"}
+            autoPlay
+            muted
+            loop
+            preload="metadata"
+            priority
+            decorative={!hero.accessibilityDescription}
+            showPlaybackToggle
+            containerClassName="absolute inset-0"
+            videoClassName="absolute inset-0 h-full w-full object-cover opacity-40"
+            fallbackClassName="scale-110 opacity-40 transition-transform duration-[10s] ease-out"
+          />
+        ) : imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={hero.accessibilityDescription || "Hero background"}
+            fill
+            className="object-cover scale-110 opacity-40 transition-transform duration-[10s] ease-out hover:scale-125"
+            priority
+          />
+        ) : null}
         {hero.overlayEnabled && (
           <div 
             className="absolute inset-0"

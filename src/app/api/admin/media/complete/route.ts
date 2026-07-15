@@ -2,13 +2,53 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
-import { MEDIA_PURPOSE_MAP, MediaPurpose } from "@/lib/media-purposes";
+import {
+  MEDIA_PURPOSE_MAP,
+  MediaPurpose,
+  getFileExtension,
+  isAllowedExtensionForPurpose,
+  isAllowedMimeTypeForPurpose,
+} from "@/lib/media-purposes";
 import cloudinary from "@/lib/cloudinary";
 import { logger } from "@/lib/logger";
 import {
   authoritativeMediaResourceTypeFromCloudinary,
   cloudinaryDestroyResourceTypeFromAuthoritative,
 } from "@/lib/media-resource-type";
+
+async function rollbackManagedUpload(
+  publicId: string,
+  resourceType: "image" | "video" | "raw"
+) {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    return result.result === "ok";
+  } catch (error) {
+    logger.error(
+      `Failed to rollback managed upload ${publicId}`,
+      error instanceof Error ? error : new Error(String(error))
+    );
+    return false;
+  }
+}
+
+function rejectWithCleanup(
+  publicId: string,
+  resourceType: "image" | "video" | "raw",
+  error: string,
+  status: number = 400
+) {
+  return rollbackManagedUpload(publicId, resourceType).then((rolledBack) => {
+    if (!rolledBack) {
+      return NextResponse.json(
+        { error: "Uploaded asset could not be safely finalized" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ error }, { status });
+  });
+}
 
 export async function POST(request: Request) {
   try {
@@ -31,48 +71,60 @@ export async function POST(request: Request) {
     // We cannot trust client-supplied data. We fetch the asset metadata securely.
     let assetMeta;
     try {
-      assetMeta = await cloudinary.api.resource(data.public_id);
+      assetMeta = await cloudinary.api.resource(data.public_id, {
+        resource_type: config.resourceType,
+        ...(config.deliveryType === "private" ? { type: "private" } : {}),
+      });
     } catch (e) {
-      console.error("Cloudinary asset lookup failed:", e);
+      logger.warn("Cloudinary asset lookup failed during media completion.");
       return NextResponse.json({ error: "Failed to verify asset ownership or asset does not exist" }, { status: 400 });
     }
 
-    const verifiedMimeType = `${assetMeta.resource_type}/${assetMeta.format}`;
+    const verifiedMimeType = `${assetMeta.resource_type}/${assetMeta.format}`.toLowerCase();
     const authoritativeResourceType = authoritativeMediaResourceTypeFromCloudinary(
       assetMeta.resource_type,
       verifiedMimeType
     );
     const destroyResourceType =
       cloudinaryDestroyResourceTypeFromAuthoritative(authoritativeResourceType);
+    const originalExtension = getFileExtension(data.original_filename);
 
     // 2. Validate folder
     if (assetMeta.folder !== config.folder) {
-      // Rollback
-      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
-      return NextResponse.json({ error: "Asset outside approved folder" }, { status: 400 });
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Asset outside approved folder");
     }
 
     // 3. Validate resource type
     if (assetMeta.resource_type !== config.resourceType) {
-      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
-      return NextResponse.json({ error: "Invalid resource type" }, { status: 400 });
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Invalid resource type");
     }
-    
-    // Validate format (e.g. reject SVG)
-    if (!config.allowedFormats.includes(assetMeta.format.toLowerCase())) {
-      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
-      return NextResponse.json({ error: `Format ${assetMeta.format} not allowed` }, { status: 400 });
+
+    if (!isAllowedMimeTypeForPurpose(purpose, verifiedMimeType)) {
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Unsupported media type");
+    }
+
+    if (!isAllowedExtensionForPurpose(purpose, assetMeta.format)) {
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Unsupported media format");
+    }
+
+    if (originalExtension && !isAllowedExtensionForPurpose(purpose, originalExtension)) {
+      return rejectWithCleanup(data.public_id, destroyResourceType, "File extension does not match the approved media type");
     }
 
     // Validate size and dimensions
     if (assetMeta.bytes > config.maxBytes) {
-      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
-      return NextResponse.json({ error: "Asset too large" }, { status: 400 });
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Asset too large");
     }
 
     if (assetMeta.width && config.maxWidth && assetMeta.width > config.maxWidth) {
-      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
-      return NextResponse.json({ error: "Asset dimensions too large" }, { status: 400 });
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Asset dimensions too large");
+    }
+
+    if (
+      authoritativeResourceType === "VIDEO" &&
+      !(typeof assetMeta.duration === "number" && assetMeta.duration > 0)
+    ) {
+      return rejectWithCleanup(data.public_id, destroyResourceType, "Verified video metadata is incomplete");
     }
 
     // Check if asset is already claimed
@@ -87,31 +139,53 @@ export async function POST(request: Request) {
     // Clean up file name
     const sanitizedName = (data.original_filename || "upload").replace(/[\/\\]/g, "").substring(0, 100);
 
-    const mediaAsset = await prisma.mediaAsset.create({
-      data: {
-        publicId: assetMeta.public_id,
-        assetId: assetMeta.asset_id,
-        fileName: sanitizedName,
-        fileUrl: assetMeta.secure_url,
-        fileSize: assetMeta.bytes,
-        mimeType: verifiedMimeType,
-        resourceType: authoritativeResourceType,
-        width: assetMeta.width,
-        height: assetMeta.height,
-        duration: assetMeta.duration,
-        tags: assetMeta.tags || [],
-        folder: assetMeta.folder,
-        altText: sanitizedName, // Sanitized
-        isPublic: config.isPublic,
-        status: "REAL_APPROVED",
+    let mediaAsset;
+
+    try {
+      mediaAsset = await prisma.mediaAsset.create({
+        data: {
+          publicId: assetMeta.public_id,
+          assetId: assetMeta.asset_id,
+          fileName: sanitizedName,
+          fileUrl: assetMeta.secure_url,
+          fileSize: assetMeta.bytes,
+          mimeType: verifiedMimeType,
+          resourceType: authoritativeResourceType,
+          width: assetMeta.width,
+          height: assetMeta.height,
+          duration: assetMeta.duration,
+          tags: assetMeta.tags || [],
+          folder: assetMeta.folder,
+          altText: sanitizedName, // Sanitized
+          isPublic: config.isPublic,
+          status: "REAL_APPROVED",
+        }
+      });
+    } catch (error) {
+      const rolledBack = await rollbackManagedUpload(data.public_id, destroyResourceType);
+      logger.error(
+        "Media persistence failed after Cloudinary upload verification",
+        error instanceof Error ? error : new Error(String(error))
+      );
+
+      if (!rolledBack) {
+        return NextResponse.json(
+          { error: "Uploaded asset could not be safely finalized" },
+          { status: 500 }
+        );
       }
-    });
+
+      return NextResponse.json(
+        { error: "Failed to finalize uploaded media" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, media: mediaAsset });
   } catch (error: unknown) {
     logger.error("Complete media upload error:", error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to save media" },
+      { error: "Failed to save media" },
       { status: 500 }
     );
   }

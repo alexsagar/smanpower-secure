@@ -3,6 +3,7 @@ import { generateUploadSignature } from "@/services/cloudinary.service";
 import { auth } from "@/lib/auth";
 import { requirePermission } from "@/lib/permissions";
 import { MEDIA_PURPOSE_MAP, MediaPurpose } from "@/lib/media-purposes";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
   try {
@@ -24,17 +25,25 @@ export async function GET(request: Request) {
     await requirePermission(config.permission);
 
     // We no longer accept folder from client; we use the config.folder
-    const signatureData = generateUploadSignature(config.folder, config.deliveryType);
+    const signatureData = generateUploadSignature(
+      config.folder,
+      config.deliveryType,
+      config.resourceType
+    );
     
     // Append the allowed prefix so client can use it for generating public_id
     return NextResponse.json({
       ...signatureData,
+      purpose,
       prefix: config.prefix,
     });
-  } catch (error: any) {
-    console.error("Cloudinary signature error:", error);
+  } catch (error: unknown) {
+    logger.error(
+      "Cloudinary signature error",
+      error instanceof Error ? error : new Error(String(error))
+    );
     return NextResponse.json(
-      { error: error.message || "Failed to generate signature" },
+      { error: "Failed to generate upload signature" },
       { status: 500 }
     );
   }

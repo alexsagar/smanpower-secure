@@ -5,10 +5,14 @@ import type { CmsContentBlock } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { CheckCircle, FileText } from "lucide-react";
+import { ManagedVideo } from "../ManagedVideo";
 
 export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   const content = block.content as any;
   const mediaUrl = resolveMediaUrl(block.image);
+  const videoUrl = resolveMediaUrl(block.video);
+  const posterUrl = resolveMediaUrl(block.videoPoster || block.image);
+  const mobileFallbackUrl = resolveMediaUrl(block.mobileImage || block.videoPoster || block.image);
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-white">
@@ -18,12 +22,26 @@ export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: 
           <div className="lg:col-span-6">
             <ScrollReveal>
               <div className="relative aspect-[4/3] w-full overflow-hidden">
-                <Image
-                  src={mediaUrl}
-                  alt={block.image?.altText || "Section image"}
-                  fill
-                  className="object-cover"
-                />
+                {videoUrl ? (
+                  <ManagedVideo
+                    src={videoUrl}
+                    posterSrc={posterUrl}
+                    mobileFallbackSrc={mobileFallbackUrl}
+                    alt={block.video?.altText || block.image?.altText || "Section video"}
+                    controls
+                    muted
+                    preload="metadata"
+                    containerClassName="absolute inset-0"
+                    videoClassName="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={mediaUrl}
+                    alt={block.image?.altText || "Section image"}
+                    fill
+                    className="object-cover"
+                  />
+                )}
               </div>
             </ScrollReveal>
           </div>

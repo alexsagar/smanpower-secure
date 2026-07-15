@@ -331,6 +331,8 @@ export class PrismaContentRepository implements ContentRepository {
         content: safeJsonParse(b.content, `block[${b.blockType}].content`) as any,
         image: b.image ? mapPrismaMediaAsset(b.image as PrismaMediaRecord) as any : undefined,
         video: b.video ? mapPrismaMediaAsset(b.video as PrismaMediaRecord) as any : undefined,
+        videoPoster: b.posterImage ? mapPrismaMediaAsset(b.posterImage as PrismaMediaRecord) as any : undefined,
+        mobileImage: b.mobileImage ? mapPrismaMediaAsset(b.mobileImage as PrismaMediaRecord) as any : undefined,
       })) as any
     };
   }

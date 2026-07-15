@@ -23,7 +23,7 @@ export default async function AdminMediaPage() {
           </p>
         </div>
         <div>
-          <MediaUploader cloudName={process.env.CLOUDINARY_CLOUD_NAME} />
+          <MediaUploader />
         </div>
       </div>
 
