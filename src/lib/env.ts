@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  assertCloudinaryNamespaceConfiguration,
+} from "./cloudinary-namespace";
+
 const TRUE_VALUES = new Set(["1", "true", "yes"]);
 
 export function isEnvEnabled(name: string): boolean {
@@ -29,16 +33,34 @@ export const REQUIRED_PRODUCTION_ENV = [
   "PRIVACY_HASH_SECRET",
 ] as const;
 
+export const REQUIRED_STAGING_ENV = [
+  "CLOUDINARY_FOLDER_PREFIX",
+] as const;
+
 export function getMissingProductionEnv(): string[] {
   if (process.env.NODE_ENV !== "production") return [];
-  return REQUIRED_PRODUCTION_ENV.filter((name) => !process.env[name]);
+
+  const required: readonly string[] =
+    process.env.APP_ENV === "staging"
+      ? [
+          ...REQUIRED_PRODUCTION_ENV,
+          ...REQUIRED_STAGING_ENV,
+        ]
+      : REQUIRED_PRODUCTION_ENV;
+
+  return required.filter((name) => !process.env[name]);
 }
 
 export function assertProductionEnv(): void {
   const missing = getMissingProductionEnv();
+
   if (missing.length) {
-    throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
+    throw new Error(
+      `Missing required production environment variables: ${missing.join(", ")}`
+    );
   }
+
+  assertCloudinaryNamespaceConfiguration();
 }
 
 const notificationEmailSchema = z.string().email();

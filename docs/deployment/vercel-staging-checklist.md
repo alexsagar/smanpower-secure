@@ -30,6 +30,7 @@ Use a staging-only Vercel environment and a staging-only database. Do not reuse 
 | `CLOUDINARY_CLOUD_NAME` | required, secret-adjacent | Staging media cloud name. |
 | `CLOUDINARY_API_KEY` | required, secret | Staging media API key. |
 | `CLOUDINARY_API_SECRET` | required, secret | Staging media API secret. |
+| `CLOUDINARY_FOLDER_PREFIX` | required, staging-specific | Set to `staging`; all new staging assets must remain under this namespace. |
 | `EMAIL_PROVIDER` | optional | `smtp` or `resend`, if mail is enabled in staging. |
 | `EMAIL_FROM` | optional | Staging sender identity. |
 | `RESEND_API_KEY` | optional, secret | Required only when `EMAIL_PROVIDER=resend`. |
