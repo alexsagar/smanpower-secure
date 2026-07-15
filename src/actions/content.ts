@@ -17,6 +17,9 @@ export async function savePageAction(pageId: string, slug: string, hero: any, bl
           secondaryCtaText: hero.secondaryCtaText,
           secondaryCtaHref: hero.secondaryCtaHref,
           imageId: hero.imageId,
+          videoId: hero.videoId ?? null,
+          posterImageId: hero.posterImageId ?? null,
+          mobileImageId: hero.mobileImageId ?? null,
           overlayEnabled: hero.overlayEnabled,
           overlayOpacity: hero.overlayOpacity,
         }
@@ -34,6 +37,10 @@ export async function savePageAction(pageId: string, slug: string, hero: any, bl
             richHeading: block.richHeading,
             visible: block.visible,
             order: i, // enforce new order
+            imageId: block.imageId ?? null,
+            videoId: block.videoId ?? null,
+            posterImageId: block.posterImageId ?? null,
+            mobileImageId: block.mobileImageId ?? null,
           }
         });
       } else {

@@ -1292,6 +1292,12 @@ enum MediaDeletionState {
   REMOTE_DELETED
 }
 
+enum MediaResourceType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
 model MediaAsset {
   id       String      @id @default(cuid())
   publicId String?
@@ -1309,6 +1315,7 @@ model MediaAsset {
   tags     String[]
   isPublic Boolean     @default(true)
   status   MediaStatus @default(AI_PLACEHOLDER)
+  resourceType MediaResourceType
   
   deletionState         MediaDeletionState @default(ACTIVE)
   deletionRequestedAt   DateTime?
@@ -1321,7 +1328,12 @@ model MediaAsset {
 
   heroImages        CmsHeroSection[]  @relation("HeroImage")
   heroVideos        CmsHeroSection[]  @relation("HeroVideo")
+  heroPosterImages  CmsHeroSection[]  @relation("HeroPosterImage")
+  heroMobileImages  CmsHeroSection[]  @relation("HeroMobileImage")
   blockImages       CmsContentBlock[] @relation("BlockImage")
+  blockVideos       CmsContentBlock[] @relation("BlockVideo")
+  blockPosterImages CmsContentBlock[] @relation("BlockPosterImage")
+  blockMobileImages CmsContentBlock[] @relation("BlockMobileImage")
   demandLogos       Demand[]          @relation("DemandCompanyLogo")
   demandDocuments   DemandDocument[]  @relation("DemandDocumentMedia")
   insightImages     InsightArticle[]  @relation("InsightImage")
@@ -1332,6 +1344,7 @@ model MediaAsset {
   @@index([folder])
   @@index([mimeType])
   @@index([status])
+  @@index([resourceType])
   @@index([deletionState])
 }
 
@@ -1498,9 +1511,13 @@ model CmsHeroSection {
   richDescription Json?
 
   imageId String?
-  image   MediaAsset? @relation("HeroImage", fields: [imageId], references: [id])
+  image   MediaAsset? @relation("HeroImage", fields: [imageId], references: [id], onDelete: SetNull)
   videoId String?
-  video   MediaAsset? @relation("HeroVideo", fields: [videoId], references: [id])
+  video   MediaAsset? @relation("HeroVideo", fields: [videoId], references: [id], onDelete: SetNull)
+  posterImageId String?
+  posterImage   MediaAsset? @relation("HeroPosterImage", fields: [posterImageId], references: [id], onDelete: SetNull)
+  mobileImageId String?
+  mobileImage   MediaAsset? @relation("HeroMobileImage", fields: [mobileImageId], references: [id], onDelete: SetNull)
 
   overlayEnabled           Boolean @default(true)
   overlayOpacity           Int     @default(60)
@@ -1510,6 +1527,9 @@ model CmsHeroSection {
   primaryCtaHref   String?
   secondaryCtaText String?
   secondaryCtaHref String?
+
+  @@index([posterImageId])
+  @@index([mobileImageId])
 }
 
 model CmsContentBlock {
@@ -1525,7 +1545,17 @@ model CmsContentBlock {
   content     Json
 
   imageId String?
-  image   MediaAsset? @relation("BlockImage", fields: [imageId], references: [id])
+  image   MediaAsset? @relation("BlockImage", fields: [imageId], references: [id], onDelete: SetNull)
+  videoId String?
+  video   MediaAsset? @relation("BlockVideo", fields: [videoId], references: [id], onDelete: SetNull)
+  posterImageId String?
+  posterImage   MediaAsset? @relation("BlockPosterImage", fields: [posterImageId], references: [id], onDelete: SetNull)
+  mobileImageId String?
+  mobileImage   MediaAsset? @relation("BlockMobileImage", fields: [mobileImageId], references: [id], onDelete: SetNull)
+
+  @@index([videoId])
+  @@index([posterImageId])
+  @@index([mobileImageId])
 }
 
 model CmsContentRevision {

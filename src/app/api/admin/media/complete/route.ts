@@ -5,6 +5,10 @@ import { requirePermission } from "@/lib/permissions";
 import { MEDIA_PURPOSE_MAP, MediaPurpose } from "@/lib/media-purposes";
 import cloudinary from "@/lib/cloudinary";
 import { logger } from "@/lib/logger";
+import {
+  authoritativeMediaResourceTypeFromCloudinary,
+  cloudinaryDestroyResourceTypeFromAuthoritative,
+} from "@/lib/media-resource-type";
 
 export async function POST(request: Request) {
   try {
@@ -33,33 +37,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to verify asset ownership or asset does not exist" }, { status: 400 });
     }
 
+    const verifiedMimeType = `${assetMeta.resource_type}/${assetMeta.format}`;
+    const authoritativeResourceType = authoritativeMediaResourceTypeFromCloudinary(
+      assetMeta.resource_type,
+      verifiedMimeType
+    );
+    const destroyResourceType =
+      cloudinaryDestroyResourceTypeFromAuthoritative(authoritativeResourceType);
+
     // 2. Validate folder
     if (assetMeta.folder !== config.folder) {
       // Rollback
-      await cloudinary.uploader.destroy(data.public_id).catch(() => {});
+      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
       return NextResponse.json({ error: "Asset outside approved folder" }, { status: 400 });
     }
 
     // 3. Validate resource type
     if (assetMeta.resource_type !== config.resourceType) {
-      await cloudinary.uploader.destroy(data.public_id).catch(() => {});
+      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
       return NextResponse.json({ error: "Invalid resource type" }, { status: 400 });
     }
     
     // Validate format (e.g. reject SVG)
     if (!config.allowedFormats.includes(assetMeta.format.toLowerCase())) {
-      await cloudinary.uploader.destroy(data.public_id).catch(() => {});
+      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
       return NextResponse.json({ error: `Format ${assetMeta.format} not allowed` }, { status: 400 });
     }
 
     // Validate size and dimensions
     if (assetMeta.bytes > config.maxBytes) {
-      await cloudinary.uploader.destroy(data.public_id).catch(() => {});
+      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
       return NextResponse.json({ error: "Asset too large" }, { status: 400 });
     }
 
     if (assetMeta.width && config.maxWidth && assetMeta.width > config.maxWidth) {
-      await cloudinary.uploader.destroy(data.public_id).catch(() => {});
+      await cloudinary.uploader.destroy(data.public_id, { resource_type: destroyResourceType }).catch(() => {});
       return NextResponse.json({ error: "Asset dimensions too large" }, { status: 400 });
     }
 
@@ -82,7 +94,8 @@ export async function POST(request: Request) {
         fileName: sanitizedName,
         fileUrl: assetMeta.secure_url,
         fileSize: assetMeta.bytes,
-        mimeType: `${assetMeta.resource_type}/${assetMeta.format}`,
+        mimeType: verifiedMimeType,
+        resourceType: authoritativeResourceType,
         width: assetMeta.width,
         height: assetMeta.height,
         duration: assetMeta.duration,

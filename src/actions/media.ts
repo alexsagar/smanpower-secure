@@ -3,6 +3,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { authoritativeMediaResourceTypeFromMimeType } from "@/lib/media-resource-type";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -57,6 +58,7 @@ export async function uploadMedia(formData: FormData) {
         fileUrl: uploadResult.secure_url,
         fileSize: file.size,
         mimeType: file.type,
+        resourceType: authoritativeMediaResourceTypeFromMimeType(file.type),
         width: uploadResult.width,
         height: uploadResult.height,
         status: "REAL_APPROVED", // Real upload

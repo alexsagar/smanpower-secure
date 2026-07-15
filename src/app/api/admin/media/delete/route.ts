@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { requirePermission, MEDIA_PERMISSIONS } from "@/lib/permissions";
 import { logger } from "@/lib/logger";
+import { cloudinaryDestroyResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +30,12 @@ export async function POST(request: Request) {
           select: {
             heroImages: true,
             heroVideos: true,
+            heroPosterImages: true,
+            heroMobileImages: true,
             blockImages: true,
+            blockVideos: true,
+            blockPosterImages: true,
+            blockMobileImages: true,
             demandLogos: true,
             demandDocuments: true,
             insightImages: true,
@@ -58,7 +64,9 @@ export async function POST(request: Request) {
     // Check references
     const count = asset._count;
     const isReferenced = 
-      count.heroImages > 0 || count.heroVideos > 0 || count.blockImages > 0 ||
+      count.heroImages > 0 || count.heroVideos > 0 || count.heroPosterImages > 0 ||
+      count.heroMobileImages > 0 || count.blockImages > 0 || count.blockVideos > 0 ||
+      count.blockPosterImages > 0 || count.blockMobileImages > 0 ||
       count.demandLogos > 0 || count.demandDocuments > 0 || count.insightImages > 0 ||
       count.newsImages > 0 || count.careerImages > 0 || count.successStoryImages > 0;
 
@@ -107,8 +115,9 @@ export async function POST(request: Request) {
 
     // Step C: Call Cloudinary
     if (updatedAsset.publicId) {
-      const resourceType = updatedAsset.mimeType?.startsWith("video") ? "video" : 
-                           updatedAsset.mimeType?.startsWith("raw") ? "raw" : "image";
+      const resourceType = cloudinaryDestroyResourceTypeFromAuthoritative(
+        updatedAsset.resourceType
+      );
       try {
         const result = await cloudinary.uploader.destroy(updatedAsset.publicId, { resource_type: resourceType });
         

@@ -34,6 +34,7 @@ async function main() {
         altText: media.altText,
         caption: media.caption,
         folder: media.folder,
+        resourceType: "IMAGE",
         width: media.width,
         height: media.height,
         status: media.mediaStatus === "REAL_APPROVED" ? "REAL_APPROVED" : "AI_PLACEHOLDER",
@@ -45,6 +46,7 @@ async function main() {
         altText: media.altText,
         caption: media.caption,
         folder: media.folder,
+        resourceType: "IMAGE",
         width: media.width,
         height: media.height,
         status: media.mediaStatus === "REAL_APPROVED" ? "REAL_APPROVED" : "AI_PLACEHOLDER",
@@ -189,8 +191,8 @@ async function main() {
         const m = p.hero.image as any;
         await prisma.mediaAsset.upsert({
           where: { id: m.id },
-          update: forceOverwrite ? { fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText } : {},
-          create: { id: m.id, fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText }
+          update: forceOverwrite ? { fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText, resourceType: "IMAGE" } : {},
+          create: { id: m.id, fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText, resourceType: "IMAGE" }
         });
       }
       await prisma.cmsHeroSection.upsert({
@@ -221,8 +223,8 @@ async function main() {
             const m = block.image as any;
             await prisma.mediaAsset.upsert({
               where: { id: m.id },
-              update: forceOverwrite ? { fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText } : {},
-              create: { id: m.id, fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText }
+              update: forceOverwrite ? { fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText, resourceType: "IMAGE" } : {},
+              create: { id: m.id, fileName: m.fileName || "unknown.png", fileUrl: m.secureUrl || m.localPath || m.fileUrl || "", altText: m.altText, resourceType: "IMAGE" }
             });
           }
           await prisma.cmsContentBlock.create({

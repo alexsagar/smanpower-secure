@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "@/lib/logger";
+import { cmsMediaResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
 import type {
   CmsPage,
   CmsHeroSection,
@@ -56,6 +57,7 @@ type PrismaMediaRecord = {
   isPublic: boolean;
   mimeType?: string | null;
   fileSize?: number | null;
+  resourceType: "IMAGE" | "VIDEO" | "DOCUMENT";
   width?: number | null;
   height?: number | null;
   duration?: number | null;
@@ -63,15 +65,8 @@ type PrismaMediaRecord = {
   updatedAt?: Date | null;
 };
 
-function inferResourceType(mimeType?: string | null): MediaResourceType {
-  if (mimeType?.startsWith("video/")) return "video";
-  if (mimeType?.startsWith("image/")) return "image";
-  return "document";
-}
-
 export function mapPrismaMediaAsset(
-  asset: PrismaMediaRecord,
-  resourceType: MediaResourceType = inferResourceType(asset.mimeType)
+  asset: PrismaMediaRecord
 ): CmsMediaAsset {
   return {
     id: asset.id,
@@ -79,7 +74,7 @@ export function mapPrismaMediaAsset(
     cloudinaryPublicId: asset.publicId || undefined,
     cloudinaryAssetId: asset.assetId || undefined,
     secureUrl: asset.fileUrl,
-    resourceType,
+    resourceType: cmsMediaResourceTypeFromAuthoritative(asset.resourceType),
     format: asset.mimeType?.split("/")[1] || undefined,
     width: asset.width || undefined,
     height: asset.height || undefined,
@@ -283,9 +278,10 @@ export class PrismaContentRepository implements ContentRepository {
       where: { slug },
       include: {
         hero: {
-          include: { image: true, video: true }
+          include: { image: true, video: true, posterImage: true, mobileImage: true }
         },
         blocks: {
+          include: { image: true, video: true, posterImage: true, mobileImage: true },
           orderBy: { order: 'asc' }
         }
       }
@@ -320,8 +316,10 @@ export class PrismaContentRepository implements ContentRepository {
         overlayEnabled: page.hero.overlayEnabled,
         textAlignment: "left",
         verticalAlignment: "center",
-        image: page.hero.image ? mapPrismaMediaAsset(page.hero.image as PrismaMediaRecord, "image") as any : undefined,
-        video: page.hero.video ? mapPrismaMediaAsset(page.hero.video as PrismaMediaRecord, "video") as any : undefined
+        image: page.hero.image ? mapPrismaMediaAsset(page.hero.image as PrismaMediaRecord) as any : undefined,
+        video: page.hero.video ? mapPrismaMediaAsset(page.hero.video as PrismaMediaRecord) as any : undefined,
+        videoPoster: page.hero.posterImage ? mapPrismaMediaAsset(page.hero.posterImage as PrismaMediaRecord) as any : undefined,
+        mobileImage: page.hero.mobileImage ? mapPrismaMediaAsset(page.hero.mobileImage as PrismaMediaRecord) as any : undefined,
       } : undefined,
       blocks: page.blocks.map(b => ({
         id: b.id,
@@ -331,7 +329,8 @@ export class PrismaContentRepository implements ContentRepository {
         visible: b.visible,
         richHeading: safeJsonParse(b.richHeading, `block[${b.blockType}].richHeading`) as any,
         content: safeJsonParse(b.content, `block[${b.blockType}].content`) as any,
-        image: b.imageId ? { mediaId: b.imageId } : undefined
+        image: b.image ? mapPrismaMediaAsset(b.image as PrismaMediaRecord) as any : undefined,
+        video: b.video ? mapPrismaMediaAsset(b.video as PrismaMediaRecord) as any : undefined,
       })) as any
     };
   }
@@ -614,7 +613,7 @@ export class PrismaContentRepository implements ContentRepository {
       country: s.country?.name || undefined,
       storyDate: s.storyDate ? s.storyDate.toISOString() : undefined,
       image: s.featuredImage ? {
-        ...mapPrismaMediaAsset(s.featuredImage as PrismaMediaRecord, "image"),
+        ...mapPrismaMediaAsset(s.featuredImage as PrismaMediaRecord),
         altText: s.featuredImage.altText || s.title,
       } : undefined,
       seo: {
@@ -787,7 +786,7 @@ export class PrismaContentRepository implements ContentRepository {
       readingTime: i.readingTime || "5 min read",
       publishDate: i.publishDate ? i.publishDate.toISOString() : undefined,
       image: i.featuredImage ? {
-        ...mapPrismaMediaAsset(i.featuredImage as PrismaMediaRecord, "image"),
+        ...mapPrismaMediaAsset(i.featuredImage as PrismaMediaRecord),
         altText: i.featuredImage.altText || i.title,
       } : undefined,
       seo: {
@@ -932,7 +931,7 @@ export class PrismaContentRepository implements ContentRepository {
       title: r.title,
       companyName: r.companyName,
       companyLogo: r.companyLogo ? {
-        ...mapPrismaMediaAsset(r.companyLogo as PrismaMediaRecord, "image"),
+        ...mapPrismaMediaAsset(r.companyLogo as PrismaMediaRecord),
       } : undefined,
       industry: r.industry?.name || undefined,
       industrySlug: r.industry?.slug || undefined,

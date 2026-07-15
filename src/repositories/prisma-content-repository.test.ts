@@ -4,6 +4,11 @@ import {
   mapPrismaMediaAsset,
   mapUrlBackedMediaAsset,
 } from "./prisma-content-repository";
+import {
+  authoritativeMediaResourceTypeFromCloudinary,
+  authoritativeMediaResourceTypeFromMimeType,
+  cmsMediaResourceTypeFromAuthoritative,
+} from "@/lib/media-resource-type";
 
 describe("Prisma content repository helpers", () => {
   it("preserves authoritative prisma media metadata", () => {
@@ -20,6 +25,7 @@ describe("Prisma content repository helpers", () => {
       status: "INTERNAL_DOCUMENT",
       isPublic: false,
       mimeType: "application/pdf",
+      resourceType: "DOCUMENT",
       fileSize: 2048,
       width: null,
       height: null,
@@ -33,6 +39,19 @@ describe("Prisma content repository helpers", () => {
     expect(media.visibility).toBe("PRIVATE");
     expect(media.resourceType).toBe("document");
     expect(media.cloudinaryPublicId).toBe("cloud/public-id");
+  });
+
+  it("maps authoritative media resource types from MIME types", () => {
+    expect(authoritativeMediaResourceTypeFromMimeType("image/jpeg")).toBe("IMAGE");
+    expect(authoritativeMediaResourceTypeFromMimeType("video/mp4")).toBe("VIDEO");
+    expect(authoritativeMediaResourceTypeFromMimeType("application/pdf")).toBe("DOCUMENT");
+  });
+
+  it("maps authoritative media resource types from verified Cloudinary resource types", () => {
+    expect(authoritativeMediaResourceTypeFromCloudinary("image", "image/jpeg")).toBe("IMAGE");
+    expect(authoritativeMediaResourceTypeFromCloudinary("video", "video/mp4")).toBe("VIDEO");
+    expect(authoritativeMediaResourceTypeFromCloudinary("raw", "application/pdf")).toBe("DOCUMENT");
+    expect(cmsMediaResourceTypeFromAuthoritative("VIDEO")).toBe("video");
   });
 
   it("does not label URL-backed database media as LOCAL_DEMO", () => {

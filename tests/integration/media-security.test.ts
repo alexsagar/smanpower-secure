@@ -31,6 +31,7 @@ import { NextRequest } from 'next/server';
 import { GET as signRoute } from '@/app/api/admin/cloudinary/sign/route';
 import { POST as completeRoute } from '@/app/api/admin/media/complete/route';
 import { POST as deleteRoute } from '@/app/api/admin/media/delete/route';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 
@@ -116,7 +117,12 @@ describe('Media Security Integration', () => {
         _count: {
           heroImages: 1, // Referenced!
           heroVideos: 0,
+          heroPosterImages: 0,
+          heroMobileImages: 0,
           blockImages: 0,
+          blockVideos: 0,
+          blockPosterImages: 0,
+          blockMobileImages: 0,
           demandLogos: 0,
           demandDocuments: 0,
           insightImages: 0,
@@ -145,7 +151,7 @@ describe('Media Security Integration', () => {
       vi.spyOn(prisma.mediaAsset, 'findUnique').mockResolvedValue({
         id: 'doc-id',
         folder: 'seven-seas-candidates', // Private document
-        _count: { heroImages: 0, heroVideos: 0, blockImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
+        _count: { heroImages: 0, heroVideos: 0, heroPosterImages: 0, heroMobileImages: 0, blockImages: 0, blockVideos: 0, blockPosterImages: 0, blockMobileImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
       } as any);
 
       const req = new NextRequest('http://localhost/api/admin/media/delete', { method: 'POST', body: JSON.stringify({ id: 'doc-id' }) });
@@ -165,7 +171,7 @@ describe('Media Security Integration', () => {
         folder: 'seven-seas-cms',
         mimeType: 'image/jpeg',
         deletionState: 'ACTIVE',
-        _count: { heroImages: 0, heroVideos: 0, blockImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
+        _count: { heroImages: 0, heroVideos: 0, heroPosterImages: 0, heroMobileImages: 0, blockImages: 0, blockVideos: 0, blockPosterImages: 0, blockMobileImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
       } as any);
 
       vi.spyOn(prisma, '$transaction').mockImplementation(async (cb) => {
@@ -173,7 +179,7 @@ describe('Media Security Integration', () => {
         return {
           id: 'valid-id',
           publicId: 'some-public-id',
-          mimeType: 'image/jpeg',
+          resourceType: 'IMAGE',
           deletionState: 'PENDING_REMOTE_DELETE'
         };
       });
@@ -197,11 +203,11 @@ describe('Media Security Integration', () => {
         folder: 'seven-seas-cms',
         mimeType: 'image/jpeg',
         deletionState: 'ACTIVE',
-        _count: { heroImages: 0, heroVideos: 0, blockImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
+        _count: { heroImages: 0, heroVideos: 0, heroPosterImages: 0, heroMobileImages: 0, blockImages: 0, blockVideos: 0, blockPosterImages: 0, blockMobileImages: 0, demandLogos: 0, demandDocuments: 0, insightImages: 0, newsImages: 0, careerImages: 0, successStoryImages: 0 }
       } as any);
 
       vi.spyOn(prisma, '$transaction').mockImplementation(async (cb) => {
-        return { id: 'valid-id', publicId: 'fail-public-id', mimeType: 'image/jpeg', deletionState: 'PENDING_REMOTE_DELETE' };
+        return { id: 'valid-id', publicId: 'fail-public-id', resourceType: 'IMAGE', deletionState: 'PENDING_REMOTE_DELETE' };
       });
       
       // Simulate Cloudinary failure
@@ -219,6 +225,103 @@ describe('Media Security Integration', () => {
         where: { id: 'valid-id' },
         data: { deletionState: 'REMOTE_DELETE_FAILED', lastDeletionErrorCode: 'CLOUDINARY_UNAVAILABLE' }
       });
+    });
+  });
+
+  describe('Media completion resource typing', () => {
+    beforeEach(() => {
+      vi.mocked(auth).mockResolvedValue({ user: { id: 'admin-1' } } as any);
+      vi.spyOn(prisma.mediaAsset, 'findFirst').mockResolvedValue(null as any);
+    });
+
+    it('persists authoritative IMAGE resource type for verified image uploads', async () => {
+      vi.mocked(cloudinary.api.resource).mockResolvedValue({
+        folder: 'seven-seas-cms',
+        resource_type: 'image',
+        format: 'jpeg',
+        bytes: 1024,
+        width: 1200,
+        height: 800,
+        duration: null,
+        tags: [],
+        public_id: 'cms_image',
+        asset_id: 'asset-image',
+        secure_url: 'https://cdn.example.com/image.jpeg',
+      } as any);
+
+      const createSpy = vi.spyOn(prisma.mediaAsset, 'create').mockResolvedValue({ id: 'media-image' } as any);
+
+      const req = new NextRequest('http://localhost/api/admin/media/complete', {
+        method: 'POST',
+        body: JSON.stringify({ public_id: 'cms_image', purpose: 'cms_image', original_filename: 'hero.jpg' }),
+      });
+
+      const res = await completeRoute(req as any);
+
+      expect(res.status).toBe(200);
+      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          resourceType: 'IMAGE',
+          mimeType: 'image/jpeg',
+          duration: null,
+        }),
+      }));
+    });
+
+    it('preserves verified video duration when an authoritative VIDEO asset is mapped', async () => {
+      const media = {
+        id: 'media-video',
+        publicId: 'cms_video',
+        assetId: 'asset-video',
+        fileUrl: 'https://cdn.example.com/video.mp4',
+        fileName: 'video.mp4',
+        altText: 'Hero video',
+        caption: null,
+        folder: 'seven-seas-cms',
+        tags: [],
+        status: 'REAL_APPROVED',
+        isPublic: true,
+        mimeType: 'video/mp4',
+        resourceType: 'VIDEO',
+        fileSize: 4096,
+        width: 1280,
+        height: 720,
+        duration: 3.5,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+      };
+
+      const { mapPrismaMediaAsset } = await import('@/repositories/prisma-content-repository');
+      const mapped = mapPrismaMediaAsset(media);
+
+      expect(mapped.resourceType).toBe('video');
+      expect(mapped.duration).toBe(3.5);
+    });
+
+    it('rejects mismatched verified Cloudinary resource types', async () => {
+      vi.mocked(cloudinary.api.resource).mockResolvedValue({
+        folder: 'seven-seas-cms',
+        resource_type: 'video',
+        format: 'mp4',
+        bytes: 1024,
+        width: 1280,
+        height: 720,
+        duration: 3.5,
+        tags: [],
+        public_id: 'cms_video',
+        asset_id: 'asset-video',
+        secure_url: 'https://cdn.example.com/video.mp4',
+      } as any);
+
+      const req = new NextRequest('http://localhost/api/admin/media/complete', {
+        method: 'POST',
+        body: JSON.stringify({ public_id: 'cms_video', purpose: 'cms_image', original_filename: 'hero.mp4' }),
+      });
+
+      const res = await completeRoute(req as any);
+
+      expect(res.status).toBe(400);
+      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('cms_video', { resource_type: 'video' });
     });
   });
 });
