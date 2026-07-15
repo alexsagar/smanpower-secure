@@ -56,4 +56,16 @@ describe("environment foundation", () => {
     expect(getMissingProductionEnv()).toEqual([...REQUIRED_PRODUCTION_ENV]);
     expect(() => assertProductionEnv()).toThrow();
   });
+
+  it("accepts a staging runtime when the required deployment variables are present", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    for (const name of REQUIRED_PRODUCTION_ENV) {
+      vi.stubEnv(name, `${name.toLowerCase()}-set`);
+    }
+
+    expect(getMissingProductionEnv()).toEqual([]);
+    expect(() => assertProductionEnv()).not.toThrow();
+  });
 });

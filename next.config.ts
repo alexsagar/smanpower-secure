@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
+import { assertProductionEnv } from "./src/lib/env";
 import { getSecurityHeaderConfig } from "./src/lib/security-headers";
 
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+
+assertProductionEnv();
 
 const nextConfig: NextConfig = {
   output: "standalone",
