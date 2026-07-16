@@ -1,34 +1,11 @@
-"use client";
-
 import React from "react";
-import type { CmsContentBlock } from "@/types/content";
+import { getStatistics } from "@/repositories/content-resolver";
+import type { CmsContentBlock, CmsStatistic } from "@/types/content";
 
-type StatisticItem = {
-  id: string;
-  label: string;
-  value: string | number;
-  suffix?: string;
-  description?: string;
-};
-
-export function getStatisticsFromBlock(block: CmsContentBlock): StatisticItem[] {
-  const stats = Array.isArray((block.content as { stats?: unknown })?.stats)
-    ? (block.content as { stats: unknown[] }).stats
-    : [];
-
-  return stats.filter((stat): stat is StatisticItem => {
-    if (!stat || typeof stat !== "object") return false;
-    const item = stat as Record<string, unknown>;
-    return (
-      typeof item.id === "string" &&
-      typeof item.label === "string" &&
-      (typeof item.value === "string" || typeof item.value === "number")
-    );
-  });
-}
-
-export function StatisticsBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const stats = getStatisticsFromBlock(block);
+export function StatisticsGrid({ stats }: { stats: CmsStatistic[] }) {
+  if (stats.length === 0) {
+    return null;
+  }
 
   return (
     <section className="bg-brand-off-white w-full border-y border-brand-charcoal/10">
@@ -58,4 +35,12 @@ export function StatisticsBlock({ block, lang }: { block: CmsContentBlock; lang:
       </div>
     </section>
   );
+}
+
+export async function StatisticsBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
+  void block;
+  void lang;
+
+  const stats = await getStatistics();
+  return <StatisticsGrid stats={stats} />;
 }
