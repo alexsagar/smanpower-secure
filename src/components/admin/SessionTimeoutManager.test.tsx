@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { jsx } from "react/jsx-runtime";
+import type { SessionTimeoutConfig } from "./SessionTimeoutManager";
+import { getSessionTimeoutDurations } from "./SessionTimeoutManager";
 
 type TreeNode =
   | string
@@ -171,7 +173,7 @@ function createHookHarness() {
   };
 }
 
-async function mountSessionTimeoutManager() {
+async function mountSessionTimeoutManager(configOverride: Partial<SessionTimeoutConfig> = {}) {
   vi.resetModules();
 
   const harness = createHookHarness();
@@ -202,13 +204,9 @@ async function mountSessionTimeoutManager() {
     logoutAction: logoutActionMock,
   }));
 
-  vi.doMock("@/components/ui/dialog", () => ({
-    Dialog: (props: Record<string, unknown>) => jsx("dialog", props),
-    DialogContent: (props: Record<string, unknown>) => jsx("dialog-content", props),
-    DialogHeader: (props: Record<string, unknown>) => jsx("dialog-header", props),
-    DialogTitle: (props: Record<string, unknown>) => jsx("dialog-title", props),
-    DialogFooter: (props: Record<string, unknown>) => jsx("dialog-footer", props),
-  }));
+  vi.doMock("@/components/ui/dialog", () => {
+    throw new Error("SessionTimeoutManager should not import dialog.tsx");
+  });
 
   vi.doMock("@/components/ui/button", () => ({
     Button: (props: Record<string, unknown>) => jsx("button", props),
@@ -222,8 +220,15 @@ async function mountSessionTimeoutManager() {
   vi.stubGlobal("BroadcastChannel", BroadcastChannelMock);
 
   const { SessionTimeoutManager } = await import("./SessionTimeoutManager");
+  const config: SessionTimeoutConfig = {
+    idleTimeoutMinutes: 30,
+    idleWarningSeconds: 120,
+    absoluteTimeoutMinutes: 480,
+    activityRefreshSeconds: 300,
+    ...configOverride,
+  };
 
-  const render = () => harness.renderUntilSettled(SessionTimeoutManager);
+  const render = () => harness.renderUntilSettled(() => SessionTimeoutManager({ config }));
   const flush = async () => {
     await Promise.resolve();
     await Promise.resolve();
@@ -263,6 +268,22 @@ describe("SessionTimeoutManager", () => {
     expect(flattenText(view.tree())).not.toContain("Session Expiring Soon");
   });
 
+  it("converts configured timeout values to the expected milliseconds", () => {
+    expect(
+      getSessionTimeoutDurations({
+        idleTimeoutMinutes: 30,
+        idleWarningSeconds: 120,
+        absoluteTimeoutMinutes: 480,
+        activityRefreshSeconds: 300,
+      })
+    ).toEqual({
+      idleTimeoutMs: 1_800_000,
+      idleWarningMs: 120_000,
+      absoluteTimeoutMs: 28_800_000,
+      activityRefreshMs: 300_000,
+    });
+  });
+
   it("keeps the warning hidden while idle time is above the threshold", async () => {
     const view = await mountSessionTimeoutManager();
 
@@ -281,6 +302,25 @@ describe("SessionTimeoutManager", () => {
     const text = flattenText(view.tree());
     expect(text).toContain("Session Expiring Soon");
     expect(text).toContain("120");
+  });
+
+  it("renders the warning as a fixed centered overlay", async () => {
+    const view = await mountSessionTimeoutManager();
+
+    vi.advanceTimersByTime(28 * 60 * 1000);
+    view.render();
+
+    const dialog = findElement(
+      view.tree(),
+      (element) => element.props.role === "alertdialog"
+    );
+
+    expect(dialog).not.toBeNull();
+    expect(dialog?.props["aria-modal"]).toBe("true");
+    expect(String(dialog?.props.className)).toContain("fixed");
+    expect(String(dialog?.props.className)).toContain("inset-0");
+    expect(String(dialog?.props.className)).toContain("items-center");
+    expect(String(dialog?.props.className)).toContain("justify-center");
   });
 
   it("updates the countdown while the warning is visible", async () => {
@@ -345,6 +385,24 @@ describe("SessionTimeoutManager", () => {
     const view = await mountSessionTimeoutManager();
 
     vi.advanceTimersByTime(30 * 60 * 1000);
+    view.render();
+    await view.flush();
+    vi.advanceTimersByTime(5_000);
+    view.render();
+    await view.flush();
+
+    expect(view.logoutActionMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("automatically signs out at the absolute timeout after 480 minutes, not 480 hours", async () => {
+    const view = await mountSessionTimeoutManager({
+      idleTimeoutMinutes: 600,
+    });
+
+    vi.advanceTimersByTime(28_800_000);
+    view.render();
+    await view.flush();
+    vi.advanceTimersByTime(5_000);
     view.render();
     await view.flush();
 

@@ -5,22 +5,44 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { refreshSessionAction } from "@/actions/session";
 import { logoutAction } from "@/actions/auth";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-export function SessionTimeoutManager() {
+export type SessionTimeoutConfig = {
+  idleTimeoutMinutes: number;
+  idleWarningSeconds: number;
+  absoluteTimeoutMinutes: number;
+  activityRefreshSeconds: number;
+};
+
+export function getSessionTimeoutDurations(config: SessionTimeoutConfig) {
+  return {
+    idleTimeoutMs: config.idleTimeoutMinutes * 60 * 1000,
+    idleWarningMs: config.idleWarningSeconds * 1000,
+    absoluteTimeoutMs: config.absoluteTimeoutMinutes * 60 * 1000,
+    activityRefreshMs: config.activityRefreshSeconds * 1000,
+  };
+}
+
+export function SessionTimeoutManager({
+  config,
+}: {
+  config: SessionTimeoutConfig;
+}) {
   const router = useRouter();
+  const durations = getSessionTimeoutDurations(config);
   
   const [warningOpen, setWarningOpen] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(120);
+  const [remainingSeconds, setRemainingSeconds] = useState(config.idleWarningSeconds);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const isSigningOutRef = useRef(false);
 
   // We maintain expiration times in refs to avoid constant re-renders from the activity listener.
   // The initial values will be overwritten very quickly if the session is alive,
   // but let's default to some future time so it doesn't instantly fire before the first sync.
-  const idleExpiresAtRef = useRef<number>(Date.now() + 30 * 60 * 1000); 
-  const absoluteExpiresAtRef = useRef<number>(Date.now() + 8 * 60 * 60 * 1000);
+  const idleExpiresAtRef = useRef<number>(Date.now() + durations.idleTimeoutMs);
+  const absoluteExpiresAtRef = useRef<number>(Date.now() + durations.absoluteTimeoutMs);
   
   const lastRefreshAtRef = useRef<number>(Date.now());
   const channelRef = useRef<BroadcastChannel | null>(null);
@@ -39,6 +61,7 @@ export function SessionTimeoutManager() {
         idleExpiresAtRef.current = payload.idleExpiresAt;
         absoluteExpiresAtRef.current = payload.absoluteExpiresAt;
         lastRefreshAtRef.current = Date.now();
+        setRemainingSeconds(config.idleWarningSeconds);
         setWarningOpen(false);
       }
     };
@@ -50,7 +73,7 @@ export function SessionTimeoutManager() {
 
   // 2. The refresh function
   const triggerRefresh = async () => {
-    if (isRefreshing) return;
+    if (isRefreshing || isSigningOutRef.current) return;
     setIsRefreshing(true);
     try {
       const result = await refreshSessionAction();
@@ -61,7 +84,7 @@ export function SessionTimeoutManager() {
         idleExpiresAtRef.current = newIdle;
         absoluteExpiresAtRef.current = newAbs;
         lastRefreshAtRef.current = Date.now();
-        
+        setRemainingSeconds(config.idleWarningSeconds);
         setWarningOpen(false);
         channelRef.current?.postMessage({
           type: "SESSION_REFRESHED",
@@ -79,9 +102,12 @@ export function SessionTimeoutManager() {
   };
 
   const handleLogout = async () => {
+    if (isSigningOutRef.current) return;
+    isSigningOutRef.current = true;
+    setIsSigningOut(true);
+    setWarningOpen(false);
     channelRef.current?.postMessage({ type: "SESSION_LOGOUT" });
-    await logoutAction(); // Note: logoutAction was moved to auth.ts actually, wait! I need to import from auth.ts
-    // Wait, let's just do a fetch to a logout route, or import logoutAction from auth.ts
+    await logoutAction();
   };
 
   // 3. Activity Tracker
@@ -89,10 +115,10 @@ export function SessionTimeoutManager() {
     const handleActivity = () => {
       // Throttle refresh calls to once every 5 minutes (300,000 ms)
       const now = Date.now();
-      if (now - lastRefreshAtRef.current > 5 * 60 * 1000) {
+      if (now - lastRefreshAtRef.current > durations.activityRefreshMs) {
         // Only trigger if we aren't already warning (if warning, they must click the button explicitly)
         if (!warningOpen) {
-          triggerRefresh();
+          void triggerRefresh();
         }
       }
     };
@@ -118,18 +144,18 @@ export function SessionTimeoutManager() {
 
       // Absolute timeout always wins
       if (timeToAbsolute <= 0) {
-        handleLogout();
+        void handleLogout();
         return;
       }
 
       // If we are past idle time completely, log out
       if (timeToIdle <= 0) {
-        handleLogout();
+        void handleLogout();
         return;
       }
 
       // If we are within 2 minutes (120,000 ms) of idle expiration, show warning
-      if (timeToIdle <= 120 * 1000) {
+      if (timeToIdle <= durations.idleWarningMs) {
         setRemainingSeconds(Math.ceil(timeToIdle / 1000));
         if (!warningOpen) setWarningOpen(true);
       } else {
@@ -141,29 +167,43 @@ export function SessionTimeoutManager() {
   }, [warningOpen]);
 
   return warningOpen ? (
-    <Dialog open={true} onOpenChange={(open: boolean) => {
-      // User cannot simply dismiss the modal by clicking outside
-      if (!open) return;
-    }}>
-      <DialogContent className="sm:max-w-md pointer-events-auto" onPointerDownOutside={(e: any) => e.preventDefault()} onEscapeKeyDown={(e: any) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle className="text-red-600">Session Expiring Soon</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-sm text-gray-600">
-            You have been inactive for a while. For your security, your admin session will automatically expire in <strong>{remainingSeconds}</strong> seconds.
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-brand-black/45 px-4 py-6"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="session-timeout-title"
+      aria-describedby="session-timeout-description"
+    >
+      <div className="w-full max-w-md border border-brand-gold/25 bg-brand-off-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)]">
+        <div className="border-b border-brand-charcoal/10 px-6 py-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-brand-gold">
+            Security Notice
           </p>
+          <h2 id="session-timeout-title" className="mt-2 text-2xl font-semibold tracking-tight text-brand-black">
+            Session Expiring Soon
+          </h2>
         </div>
-        <DialogFooter className="flex space-x-2 justify-end">
-          <Button variant="outline" onClick={handleLogout} disabled={isRefreshing}>
-            Sign out now
-          </Button>
-          <Button onClick={triggerRefresh} disabled={isRefreshing}>
-            {isRefreshing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-            Continue session
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div className="space-y-5 px-6 py-6">
+          <p id="session-timeout-description" className="text-sm leading-6 text-brand-charcoal/80">
+            You have been inactive for a while. For your security, your admin session will automatically expire in{" "}
+            <strong className="font-semibold text-brand-black">{remainingSeconds}</strong> seconds.
+          </p>
+          <div className="border border-brand-charcoal/10 bg-white px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-muted">Countdown</p>
+            <p className="mt-2 text-3xl font-light tracking-tight text-brand-black">{remainingSeconds}s</p>
+          </div>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button variant="outline" onClick={() => void handleLogout()} disabled={isRefreshing || isSigningOut}>
+              {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Sign out now
+            </Button>
+            <Button onClick={() => void triggerRefresh()} disabled={isRefreshing || isSigningOut}>
+              {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Continue session
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   ) : null;
 }
