@@ -140,8 +140,8 @@ export function SessionTimeoutManager() {
     return () => clearInterval(interval);
   }, [warningOpen]);
 
-  return (
-    <Dialog open={warningOpen} onOpenChange={(open: boolean) => {
+  return warningOpen ? (
+    <Dialog open={true} onOpenChange={(open: boolean) => {
       // User cannot simply dismiss the modal by clicking outside
       if (!open) return;
     }}>
@@ -165,5 +165,5 @@ export function SessionTimeoutManager() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  ) : null;
 }
