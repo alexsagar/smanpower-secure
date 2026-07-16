@@ -9,8 +9,43 @@ import {
   SessionInvalidError,
 } from "@/lib/auth-errors";
 import { prisma } from "@/lib/prisma";
-import { getSignedDocumentUrl } from "@/services/cloudinary.service";
+import { resolveCloudinaryFolder } from "@/lib/cloudinary-namespace";
+import {
+  extractCloudinaryPublicIdFromUrl,
+  getSignedDocumentUrl,
+} from "@/services/cloudinary.service";
 import { logger } from "@/lib/logger";
+
+const LEGACY_CANDIDATE_DOCUMENT_FOLDER = "seven-seas-candidates";
+
+function isLegacyCandidateDocumentPublicId(publicId: string): boolean {
+  const normalized = publicId.trim().replace(/^\/+|\/+$/g, "");
+  if (!normalized.startsWith(`${LEGACY_CANDIDATE_DOCUMENT_FOLDER}/`)) {
+    return false;
+  }
+
+  const assetName = normalized.slice(
+    normalized.lastIndexOf("/") + 1
+  );
+
+  return Boolean(assetName && assetName !== "." && assetName !== "..");
+}
+
+function isCurrentEnvironmentCandidateDocumentPublicId(
+  publicId: string
+): boolean {
+  const normalized = publicId.trim().replace(/^\/+|\/+$/g, "");
+  const folder = `${resolveCloudinaryFolder(
+    LEGACY_CANDIDATE_DOCUMENT_FOLDER
+  )}/`;
+
+  if (!normalized.startsWith(folder)) {
+    return false;
+  }
+
+  const assetName = normalized.slice(normalized.lastIndexOf("/") + 1);
+  return Boolean(assetName && assetName !== "." && assetName !== "..");
+}
 
 export async function GET(
   req: NextRequest,
@@ -33,21 +68,31 @@ export async function GET(
       return new NextResponse("Document is pending security scan or rejected.", { status: 403 });
     }
 
-    // Determine publicId and format
+    // New records store the Cloudinary public ID directly. Legacy rows may still contain a URL.
     let publicId = doc.fileUrl;
     let format = doc.mimeType?.split('/')[1] || doc.fileName.split('.').pop() || "pdf";
+    let allowUnowned = false;
 
-    // Fallback for legacy records that might have stored the full URL
     if (doc.fileUrl.startsWith("http")) {
-      const urlParts = doc.fileUrl.split("/");
-      const filenameWithExt = urlParts[urlParts.length - 1];
-      const folder = urlParts[urlParts.length - 2];
-      publicId = `${folder}/${filenameWithExt.split(".")[0]}`;
-      format = filenameWithExt.split(".")[1] || "pdf";
+      const extracted = extractCloudinaryPublicIdFromUrl(doc.fileUrl);
+      if (!extracted) {
+        throw new Error("Candidate document URL could not be mapped to a Cloudinary public ID.");
+      }
+      if (!isLegacyCandidateDocumentPublicId(extracted.publicId)) {
+        throw new Error("Candidate document URL is outside the approved legacy folder.");
+      }
+      publicId = extracted.publicId;
+      format = extracted.format || format;
+      allowUnowned = true;
+    } else if (!isCurrentEnvironmentCandidateDocumentPublicId(publicId)) {
+      throw new Error("Candidate document public ID is outside the approved environment namespace.");
     }
 
     // Generate short-lived signed URL
-    const signedUrl = getSignedDocumentUrl(publicId, format);
+    const signedUrl = getSignedDocumentUrl(publicId, format, {
+      allowUnowned,
+      resourceType: "raw",
+    });
 
     // Write audit log
     await prisma.auditLog.create({

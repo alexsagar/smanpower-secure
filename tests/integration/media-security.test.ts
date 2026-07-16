@@ -35,17 +35,42 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 
-vi.mock('@/services/cloudinary.service', () => ({
-  generateUploadSignature: vi.fn((folder: string, deliveryType: 'upload' | 'private' = 'upload', resourceType: 'image' | 'video' | 'raw' = 'image') => ({
-    timestamp: 1234567890,
-    signature: 'mock-signature',
-    folder,
-    resourceType,
-    cloudName: 'mock-cloud',
-    apiKey: 'mock-key',
-    deliveryType,
-  })),
-}));
+vi.mock('@/services/cloudinary.service', async () => {
+  const actual =
+    await vi.importActual<typeof import('@/services/cloudinary.service')>(
+      '@/services/cloudinary.service'
+    );
+
+  return {
+    ...actual,
+    generateUploadSignature: vi.fn((
+      folder: string,
+      deliveryType: 'upload' | 'private' = 'upload',
+      resourceType: 'image' | 'video' | 'raw' = 'image'
+    ) => ({
+      timestamp: 1234567890,
+      signature: 'mock-signature',
+      folder,
+      resourceType,
+      cloudName: 'mock-cloud',
+      apiKey: 'mock-key',
+      deliveryType,
+    })),
+    deleteManagedAsset: vi.fn(async (
+      publicId: string,
+      options: {
+        deliveryType?: 'upload' | 'private';
+        resourceType: 'image' | 'video' | 'raw';
+      }
+    ) => {
+      const result = await cloudinary.uploader.destroy(publicId, {
+        ...(options.deliveryType === 'private' ? { type: 'private' } : {}),
+        resource_type: options.resourceType,
+      });
+      return result.result === 'ok' || result.result === 'not found';
+    }),
+  };
+});
 
 // Mock cloudinary
 vi.mock('@/lib/cloudinary', () => ({
@@ -113,7 +138,7 @@ describe('Media Security Integration', () => {
 
       vi.spyOn(prisma.mediaAsset, 'findUnique').mockResolvedValue({
         id: 'referenced-id',
-        publicId: 'some-public-id',
+        publicId: 'seven-seas-cms/some-public-id',
         folder: 'seven-seas-cms',
         mimeType: 'image/jpeg',
         _count: {
@@ -169,7 +194,7 @@ describe('Media Security Integration', () => {
 
       vi.spyOn(prisma.mediaAsset, 'findUnique').mockResolvedValue({
         id: 'valid-id',
-        publicId: 'some-public-id',
+        publicId: 'seven-seas-cms/some-public-id',
         folder: 'seven-seas-cms',
         mimeType: 'image/jpeg',
         deletionState: 'ACTIVE',
@@ -180,7 +205,7 @@ describe('Media Security Integration', () => {
         // Return updated asset mock
         return {
           id: 'valid-id',
-          publicId: 'some-public-id',
+          publicId: 'seven-seas-cms/some-public-id',
           resourceType: 'IMAGE',
           deletionState: 'PENDING_REMOTE_DELETE'
         };
@@ -192,7 +217,7 @@ describe('Media Security Integration', () => {
       
       expect(res.status).toBe(200);
       expect(prisma.$transaction).toHaveBeenCalled();
-      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('some-public-id', { resource_type: 'image' });
+      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('seven-seas-cms/some-public-id', { resource_type: 'image' });
     });
 
     it('Cloudinary failure preserves the database record and transitions to REMOTE_DELETE_FAILED', async () => {
@@ -201,7 +226,7 @@ describe('Media Security Integration', () => {
 
       vi.spyOn(prisma.mediaAsset, 'findUnique').mockResolvedValue({
         id: 'valid-id',
-        publicId: 'fail-public-id',
+        publicId: 'seven-seas-cms/fail-public-id',
         folder: 'seven-seas-cms',
         mimeType: 'image/jpeg',
         deletionState: 'ACTIVE',
@@ -209,7 +234,7 @@ describe('Media Security Integration', () => {
       } as any);
 
       vi.spyOn(prisma, '$transaction').mockImplementation(async (cb) => {
-        return { id: 'valid-id', publicId: 'fail-public-id', resourceType: 'IMAGE', deletionState: 'PENDING_REMOTE_DELETE' };
+        return { id: 'valid-id', publicId: 'seven-seas-cms/fail-public-id', resourceType: 'IMAGE', deletionState: 'PENDING_REMOTE_DELETE' };
       });
       
       // Simulate Cloudinary failure
@@ -247,7 +272,7 @@ describe('Media Security Integration', () => {
         height: 800,
         duration: null,
         tags: [],
-        public_id: 'cms_image',
+        public_id: 'seven-seas-cms/cms_image',
         asset_id: 'asset-image',
         secure_url: 'https://cdn.example.com/image.jpeg',
       } as any);
@@ -256,7 +281,7 @@ describe('Media Security Integration', () => {
 
       const req = new NextRequest('http://localhost/api/admin/media/complete', {
         method: 'POST',
-        body: JSON.stringify({ public_id: 'cms_image', purpose: 'cms_image', original_filename: 'hero.jpg' }),
+        body: JSON.stringify({ public_id: 'seven-seas-cms/cms_image', purpose: 'cms_image', original_filename: 'hero.jpg' }),
       });
 
       const res = await completeRoute(req as any);
@@ -274,7 +299,7 @@ describe('Media Security Integration', () => {
     it('preserves verified video duration when an authoritative VIDEO asset is mapped', async () => {
       const media = {
         id: 'media-video',
-        publicId: 'cms_video',
+        publicId: 'seven-seas-cms/cms_video',
         assetId: 'asset-video',
         fileUrl: 'https://cdn.example.com/video.mp4',
         fileName: 'video.mp4',
@@ -311,7 +336,7 @@ describe('Media Security Integration', () => {
         height: 720,
         duration: 6.2,
         tags: [],
-        public_id: 'cms_video',
+        public_id: 'seven-seas-cms/cms_video',
         asset_id: 'asset-video',
         secure_url: 'https://cdn.example.com/video.mp4',
       } as any);
@@ -320,7 +345,7 @@ describe('Media Security Integration', () => {
 
       const req = new NextRequest('http://localhost/api/admin/media/complete', {
         method: 'POST',
-        body: JSON.stringify({ public_id: 'cms_video', purpose: 'cms_video', original_filename: 'hero.mp4' }),
+        body: JSON.stringify({ public_id: 'seven-seas-cms/cms_video', purpose: 'cms_video', original_filename: 'hero.mp4' }),
       });
 
       const res = await completeRoute(req as any);
@@ -345,20 +370,20 @@ describe('Media Security Integration', () => {
         height: 720,
         duration: null,
         tags: [],
-        public_id: 'cms_video_missing_duration',
+        public_id: 'seven-seas-cms/cms_video_missing_duration',
         asset_id: 'asset-video',
         secure_url: 'https://cdn.example.com/video.mp4',
       } as any);
 
       const req = new NextRequest('http://localhost/api/admin/media/complete', {
         method: 'POST',
-        body: JSON.stringify({ public_id: 'cms_video_missing_duration', purpose: 'cms_video', original_filename: 'hero.mp4' }),
+        body: JSON.stringify({ public_id: 'seven-seas-cms/cms_video_missing_duration', purpose: 'cms_video', original_filename: 'hero.mp4' }),
       });
 
       const res = await completeRoute(req as any);
 
       expect(res.status).toBe(400);
-      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('cms_video_missing_duration', { resource_type: 'video' });
+      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('seven-seas-cms/cms_video_missing_duration', { resource_type: 'video' });
     });
 
     it('rejects mismatched verified Cloudinary resource types', async () => {
@@ -371,20 +396,20 @@ describe('Media Security Integration', () => {
         height: 720,
         duration: 3.5,
         tags: [],
-        public_id: 'cms_video',
+        public_id: 'seven-seas-cms/cms_video',
         asset_id: 'asset-video',
         secure_url: 'https://cdn.example.com/video.mp4',
       } as any);
 
       const req = new NextRequest('http://localhost/api/admin/media/complete', {
         method: 'POST',
-        body: JSON.stringify({ public_id: 'cms_video', purpose: 'cms_image', original_filename: 'hero.mp4' }),
+        body: JSON.stringify({ public_id: 'seven-seas-cms/cms_video', purpose: 'cms_image', original_filename: 'hero.mp4' }),
       });
 
       const res = await completeRoute(req as any);
 
       expect(res.status).toBe(400);
-      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('cms_video', { resource_type: 'video' });
+      expect(cloudinary.uploader.destroy).toHaveBeenCalledWith('seven-seas-cms/cms_video', { resource_type: 'video' });
     });
   });
 });

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   headersMock,
@@ -83,6 +83,8 @@ function buildFormData() {
 describe("applyToCareerAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
     headersMock.mockResolvedValue(new Headers());
     getClientIpMock.mockReturnValue("203.0.113.9");
     checkRateLimitMock.mockResolvedValue({ success: true });
@@ -93,6 +95,10 @@ describe("applyToCareerAction", () => {
       secureUrl: "https://cloudinary.example.com/resume.pdf",
     });
     createCareerApplicationMock.mockResolvedValue({ id: "app-1" });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("stores a hashed ip instead of the raw client ip", async () => {
@@ -127,5 +133,30 @@ describe("applyToCareerAction", () => {
       message: "Failed to upload document. Please try again.",
     });
     expect(loggerErrorMock).toHaveBeenCalledOnce();
+  });
+
+  it("stores the uploaded staging resume url and uses the careers folder", async () => {
+    uploadBufferToCloudinaryMock.mockResolvedValueOnce({
+      secureUrl: "https://cloudinary.example.com/staging/seven-seas-careers/resume.pdf",
+      publicId: "staging/seven-seas-careers/resume",
+    });
+
+    const result = await applyToCareerAction(null, buildFormData());
+
+    expect(result).toEqual({ success: true });
+    expect(uploadBufferToCloudinaryMock).toHaveBeenCalledWith(
+      expect.any(Buffer),
+      expect.any(String),
+      "seven-seas-careers",
+      false
+    );
+    expect(createCareerApplicationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          resumeUrl:
+            "https://cloudinary.example.com/staging/seven-seas-careers/resume.pdf",
+        }),
+      })
+    );
   });
 });

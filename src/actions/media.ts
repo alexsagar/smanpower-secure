@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { authoritativeMediaResourceTypeFromMimeType } from "@/lib/media-resource-type";
 import { logger } from "@/lib/logger";
+import { resolveCloudinaryFolder } from "@/lib/cloudinary-namespace";
 import { MEDIA_PERMISSIONS, requirePermission } from "@/lib/permissions";
 
 cloudinary.config({
@@ -28,10 +29,11 @@ export async function uploadMedia(formData: FormData) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const folder = resolveCloudinaryFolder("seven-seas");
 
     const uploadResult = await new Promise<any>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "seven-seas", resource_type: "auto" },
+        { folder, resource_type: "auto" },
         (error, result) => {
           if (error || !result) {
             reject(error || new Error("Cloudinary upload failed"));
@@ -45,6 +47,9 @@ export async function uploadMedia(formData: FormData) {
 
     const asset = await prisma.mediaAsset.create({
       data: {
+        publicId: uploadResult.public_id,
+        assetId: uploadResult.asset_id ?? null,
+        folder,
         fileName: file.name,
         fileUrl: uploadResult.secure_url,
         fileSize: file.size,

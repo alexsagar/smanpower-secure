@@ -1,14 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   requirePermissionMock,
-  privateDownloadUrlMock,
+  getSignedDocumentUrlMock,
   auditLogCreateMock,
   loggerWarnMock,
   loggerErrorMock,
 } = vi.hoisted(() => ({
   requirePermissionMock: vi.fn(),
-  privateDownloadUrlMock: vi.fn(),
+  getSignedDocumentUrlMock: vi.fn(),
   auditLogCreateMock: vi.fn(),
   loggerWarnMock: vi.fn(),
   loggerErrorMock: vi.fn(),
@@ -19,12 +19,8 @@ vi.mock("@/lib/permissions", () => ({
   CANDIDATE_DOCUMENT_PERMISSIONS: { VIEW: "candidate_documents.view" },
 }));
 
-vi.mock("@/lib/cloudinary", () => ({
-  default: {
-    utils: {
-      private_download_url: privateDownloadUrlMock,
-    },
-  },
+vi.mock("@/services/cloudinary.service", () => ({
+  getSignedDocumentUrl: getSignedDocumentUrlMock,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -45,10 +41,16 @@ vi.mock("@/lib/logger", () => ({
 describe("private media url route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
     requirePermissionMock.mockResolvedValue({ id: "admin-1" });
-    privateDownloadUrlMock.mockReturnValue("https://signed.example.com/private.pdf");
+    getSignedDocumentUrlMock.mockReturnValue("https://signed.example.com/private.pdf");
     auditLogCreateMock.mockResolvedValue({});
     delete process.env.DEMO_MODE;
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("returns no-store headers and a signed url", async () => {
@@ -58,7 +60,10 @@ describe("private media url route", () => {
       new Request("http://localhost:3000/api/admin/private-media-url", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ public_id: "private/doc", resource_type: "raw" }),
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-candidates/private-doc",
+          resource_type: "raw",
+        }),
       })
     );
 
@@ -81,7 +86,7 @@ describe("private media url route", () => {
 
   it("returns a generic 500 without leaking internal errors", async () => {
     const { POST } = await import("./route");
-    privateDownloadUrlMock.mockImplementationOnce(() => {
+    getSignedDocumentUrlMock.mockImplementationOnce(() => {
       throw new Error("cloudinary blew up");
     });
 
@@ -89,7 +94,9 @@ describe("private media url route", () => {
       new Request("http://localhost:3000/api/admin/private-media-url", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ public_id: "private/doc" }),
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-candidates/private-doc",
+        }),
       })
     );
 
@@ -98,5 +105,44 @@ describe("private media url route", () => {
       error: "Failed to generate URL",
     });
     expect(loggerErrorMock).toHaveBeenCalledOnce();
+  });
+
+  it("rejects legacy shared public ids in staging", async () => {
+    const { POST } = await import("./route");
+
+    const response = await POST(
+      new Request("http://localhost:3000/api/admin/private-media-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ public_id: "seven-seas-candidates/legacy-doc" }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Asset is outside the approved environment namespace",
+    });
+    expect(getSignedDocumentUrlMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid resource types", async () => {
+    const { POST } = await import("./route");
+
+    const response = await POST(
+      new Request("http://localhost:3000/api/admin/private-media-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-candidates/private-doc",
+          resource_type: "svg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Invalid resource_type",
+    });
+    expect(getSignedDocumentUrlMock).not.toHaveBeenCalled();
   });
 });

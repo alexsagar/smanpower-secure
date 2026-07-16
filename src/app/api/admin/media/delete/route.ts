@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import cloudinary from "@/lib/cloudinary";
 import { requirePermission, MEDIA_PERMISSIONS } from "@/lib/permissions";
 import { logger } from "@/lib/logger";
 import { cloudinaryDestroyResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
+import {
+  isCloudinaryFolderOwnedByCurrentEnvironment,
+  isCloudinaryPublicIdOwnedByCurrentEnvironment,
+  resolveCloudinaryFolder,
+} from "@/lib/cloudinary-namespace";
+import { deleteManagedAsset } from "@/services/cloudinary.service";
 
 export async function POST(request: Request) {
   try {
@@ -52,12 +57,16 @@ export async function POST(request: Request) {
     }
 
     // Confirm it is inside an approved project folder
-    if (!asset.folder || !asset.folder.startsWith("seven-seas-")) {
+    if (!asset.folder || !isCloudinaryFolderOwnedByCurrentEnvironment(asset.folder)) {
       return NextResponse.json({ error: "Cannot delete assets outside of approved project folders." }, { status: 400 });
     }
 
+    if (asset.publicId && !isCloudinaryPublicIdOwnedByCurrentEnvironment(asset.publicId)) {
+      return NextResponse.json({ error: "Cannot delete assets outside of the approved environment namespace." }, { status: 400 });
+    }
+
     // Confirm it is not a private candidate document
-    if (asset.folder === "seven-seas-candidates") {
+    if (asset.folder === resolveCloudinaryFolder("seven-seas-candidates")) {
       return NextResponse.json({ error: "Cannot delete private candidate documents through generic media route." }, { status: 400 });
     }
 
@@ -119,9 +128,11 @@ export async function POST(request: Request) {
         updatedAsset.resourceType
       );
       try {
-        const result = await cloudinary.uploader.destroy(updatedAsset.publicId, { resource_type: resourceType });
-        
-        if (result.result !== "ok" && result.result !== "not found") {
+        const deleted = await deleteManagedAsset(updatedAsset.publicId, {
+          resourceType,
+        });
+
+        if (!deleted) {
           // Step D: Handle Cloudinary failure
           await prisma.mediaAsset.update({
             where: { id },

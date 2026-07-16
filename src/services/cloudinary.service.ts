@@ -10,7 +10,10 @@ import cloudinary from "@/lib/cloudinary";
 import { DEMO_MODE } from "@/config/demo";
 import { logger } from "@/lib/logger";
 import type { AuthoritativeMediaResourceType } from "@/lib/media-resource-type";
-import { resolveCloudinaryFolder } from "@/lib/cloudinary-namespace";
+import {
+  isCloudinaryPublicIdOwnedByCurrentEnvironment,
+  resolveCloudinaryFolder,
+} from "@/lib/cloudinary-namespace";
 
 const isConfigured = 
   process.env.CLOUDINARY_CLOUD_NAME &&
@@ -66,10 +69,28 @@ export function generateUploadSignature(
   };
 }
 
+function isOwnedManagedCloudinaryPublicId(publicId: string): boolean {
+  return isCloudinaryPublicIdOwnedByCurrentEnvironment(publicId);
+}
+
+function rejectUnownedManagedCloudinaryAsset(
+  publicId: string,
+  operation: string
+): false {
+  logger.error(`${operation} refused for unmanaged Cloudinary asset.`, {
+    publicId,
+  });
+  return false;
+}
+
 /**
  * Deletes an asset from Cloudinary.
  */
 export async function deleteAsset(publicId: string): Promise<boolean> {
+  if (!isOwnedManagedCloudinaryPublicId(publicId)) {
+    return rejectUnownedManagedCloudinaryAsset(publicId, "Cloudinary deletion");
+  }
+
   if (!isConfigured) {
     if (DEMO_MODE) {
       logger.warn("Cloudinary is not configured. Refusing demo-mode asset deletion without confirmation.", { publicId });
@@ -91,23 +112,10 @@ export async function deleteAsset(publicId: string): Promise<boolean> {
  * Safely deletes a private asset (e.g. for rollback on failed transactions).
  */
 export async function deletePrivateAsset(publicId: string): Promise<boolean> {
-  if (!isConfigured) {
-    logger.error("Private Cloudinary deletion could not be confirmed because configuration is missing.", {
-      publicId,
-      demoMode: DEMO_MODE,
-    });
-    return false;
-  }
-  try {
-    const result = await cloudinary.uploader.destroy(publicId, {
-      type: "private",
-      resource_type: "raw",
-    });
-    return result.result === "ok";
-  } catch (error) {
-    logger.error(`Failed to rollback/destroy private Cloudinary asset ${publicId}:`, error instanceof Error ? error : new Error(String(error)));
-    return false;
-  }
+  return deleteManagedAsset(publicId, {
+    deliveryType: "private",
+    resourceType: "raw",
+  });
 }
 
 export async function deleteManagedAsset(
@@ -117,6 +125,13 @@ export async function deleteManagedAsset(
     resourceType: "image" | "video" | "raw";
   }
 ): Promise<boolean> {
+  if (!isOwnedManagedCloudinaryPublicId(publicId)) {
+    return rejectUnownedManagedCloudinaryAsset(
+      publicId,
+      "Managed Cloudinary deletion"
+    );
+  }
+
   if (!isConfigured) {
     logger.error("Managed Cloudinary deletion could not be confirmed because configuration is missing.", {
       publicId,
@@ -209,10 +224,77 @@ export async function uploadBufferToCloudinary(
   });
 }
 
+export function extractCloudinaryPublicIdFromUrl(
+  value: string
+): { publicId: string; format: string | null } | null {
+  try {
+    const url = new URL(value);
+    const segments = url.pathname.split("/").filter(Boolean);
+    const deliveryIndex = segments.findIndex((segment, index) => {
+      if (index < 2) return false;
+      return (
+        segment === "upload" ||
+        segment === "private" ||
+        segment === "authenticated"
+      );
+    });
+
+    if (deliveryIndex < 0) {
+      return null;
+    }
+
+    let assetSegments = segments.slice(deliveryIndex + 1);
+    if (assetSegments[0] && /^v\d+$/.test(assetSegments[0])) {
+      assetSegments = assetSegments.slice(1);
+    }
+
+    if (assetSegments.length === 0) {
+      return null;
+    }
+
+    const lastSegment = assetSegments.at(-1);
+    if (!lastSegment) {
+      return null;
+    }
+
+    const extensionIndex = lastSegment.lastIndexOf(".");
+    const fileName =
+      extensionIndex > 0
+        ? lastSegment.slice(0, extensionIndex)
+        : lastSegment;
+    const format =
+      extensionIndex > 0
+        ? lastSegment.slice(extensionIndex + 1).toLowerCase()
+        : null;
+
+    if (!fileName) {
+      return null;
+    }
+
+    return {
+      publicId: [...assetSegments.slice(0, -1), fileName].join("/"),
+      format,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Generates a signed, short-lived URL for accessing a private document.
  */
-export function getSignedDocumentUrl(publicId: string, format: string = "pdf"): string {
+export function getSignedDocumentUrl(
+  publicId: string,
+  format: string = "pdf",
+  options?: {
+    allowUnowned?: boolean;
+    resourceType?: "image" | "video" | "raw";
+  }
+): string {
+  if (!options?.allowUnowned && !isOwnedManagedCloudinaryPublicId(publicId)) {
+    throw new Error("Cloudinary public ID is outside the approved environment namespace.");
+  }
+
   if (!isConfigured) {
     if (DEMO_MODE) {
       return "https://demo.cloudinary.com/dummy.pdf";
@@ -222,6 +304,7 @@ export function getSignedDocumentUrl(publicId: string, format: string = "pdf"): 
 
   // Generate a signed download URL valid for 5 minutes (expires in 300 seconds)
   return cloudinary.utils.private_download_url(publicId, format, {
-    expires_at: Math.round(Date.now() / 1000) + 300
+    expires_at: Math.round(Date.now() / 1000) + 300,
+    resource_type: options?.resourceType || "raw",
   });
 }

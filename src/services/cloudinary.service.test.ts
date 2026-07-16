@@ -80,4 +80,80 @@ describe("cloudinary service hardening", () => {
       "/staging/seven-seas-candidates/"
     );
   });
+
+  it("keeps production uploads unprefixed", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv(
+      "CLOUDINARY_API_SECRET",
+      "test-api-secret-value"
+    );
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    const result =
+      cloudinaryService.generateUploadSignature(
+        "seven-seas-cms"
+      );
+
+    expect(result.folder).toBe("seven-seas-cms");
+  });
+
+  it("refuses to delete a shared legacy candidate asset in staging", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv(
+      "CLOUDINARY_API_SECRET",
+      "test-api-secret-value"
+    );
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    await expect(
+      cloudinaryService.deletePrivateAsset(
+        "seven-seas-candidates/legacy-doc"
+      )
+    ).resolves.toBe(false);
+  });
+
+  it("refuses to sign a shared legacy private asset in staging", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv(
+      "CLOUDINARY_API_SECRET",
+      "test-api-secret-value"
+    );
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    expect(() =>
+      cloudinaryService.getSignedDocumentUrl(
+        "seven-seas-candidates/legacy-doc"
+      )
+    ).toThrow(
+      "Cloudinary public ID is outside the approved environment namespace."
+    );
+  });
+
+  it("extracts nested Cloudinary public ids from legacy urls", async () => {
+    const cloudinaryService = await import("./cloudinary.service");
+
+    expect(
+      cloudinaryService.extractCloudinaryPublicIdFromUrl(
+        "https://res.cloudinary.com/demo/raw/private/v1720/staging/seven-seas-candidates/folder/doc.pdf"
+      )
+    ).toEqual({
+      publicId: "staging/seven-seas-candidates/folder/doc",
+      format: "pdf",
+    });
+  });
 });

@@ -213,7 +213,7 @@ export class ApplicationSubmissionService {
           uploadedDocsData.push({
             documentType: vf.docType,
             fileName: vf.file.name,
-            fileUrl: uploadResult.secureUrl,
+            fileUrl: uploadResult.publicId,
             fileSize: uploadResult.bytes,
             mimeType: uploadResult.format,
             isPrivate: true,

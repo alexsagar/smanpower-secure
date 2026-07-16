@@ -14,9 +14,17 @@ vi.mock("@/lib/prisma", () => ({
   }
 }));
 
-vi.mock("@/services/cloudinary.service", () => ({
-  getSignedDocumentUrl: vi.fn()
-}));
+vi.mock("@/services/cloudinary.service", async () => {
+  const actual =
+    await vi.importActual<typeof import("@/services/cloudinary.service")>(
+      "@/services/cloudinary.service"
+    );
+
+  return {
+    ...actual,
+    getSignedDocumentUrl: vi.fn(),
+  };
+});
 
 describe("Documents Integration Tests", () => {
   let GET: any;
@@ -68,7 +76,7 @@ describe("Documents Integration Tests", () => {
     mockPrisma.candidateDocument.findUnique.mockResolvedValue({
       id: "doc-1",
       status: "SAFE",
-      fileUrl: "https://res.cloudinary.com/demo/image/upload/v123/folder/file.pdf",
+      fileUrl: "https://res.cloudinary.com/demo/raw/private/v123/seven-seas-candidates/file.pdf",
       fileName: "file.pdf",
       candidate: { fullName: "Test Candidate" }
     });

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary";
 import {
   requirePermission,
   CANDIDATE_DOCUMENT_PERMISSIONS,
@@ -11,6 +10,10 @@ import {
 } from "@/lib/auth-errors";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { isCloudinaryPublicIdOwnedByCurrentEnvironment } from "@/lib/cloudinary-namespace";
+import { getSignedDocumentUrl } from "@/services/cloudinary.service";
+
+const ALLOWED_RESOURCE_TYPES = new Set(["image", "video", "raw"]);
 
 function jsonWithPrivateHeaders(body: unknown, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
@@ -31,15 +34,26 @@ export async function POST(request: Request) {
       return jsonWithPrivateHeaders({ error: "Missing public_id" }, { status: 400 });
     }
 
-    // Generate a signed URL that expires in 1 hour
-    const url = cloudinary.utils.private_download_url(
-      public_id,
-      "pdf",
-      {
-        resource_type: resource_type || "image",
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-      }
-    );
+    if (!isCloudinaryPublicIdOwnedByCurrentEnvironment(public_id)) {
+      return jsonWithPrivateHeaders(
+        { error: "Asset is outside the approved environment namespace" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      resource_type !== undefined &&
+      !ALLOWED_RESOURCE_TYPES.has(resource_type)
+    ) {
+      return jsonWithPrivateHeaders(
+        { error: "Invalid resource_type" },
+        { status: 400 }
+      );
+    }
+
+    const url = getSignedDocumentUrl(public_id, "pdf", {
+      resourceType: resource_type || "raw",
+    });
 
     // Audit Log the access if in production DB mode
     if (process.env.DEMO_MODE !== "true") {

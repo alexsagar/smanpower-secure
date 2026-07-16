@@ -15,14 +15,21 @@ import {
   authoritativeMediaResourceTypeFromCloudinary,
   cloudinaryDestroyResourceTypeFromAuthoritative,
 } from "@/lib/media-resource-type";
+import {
+  isCloudinaryPublicIdOwnedByCurrentEnvironment,
+  resolveCloudinaryFolder,
+} from "@/lib/cloudinary-namespace";
+import { deleteManagedAsset } from "@/services/cloudinary.service";
 
 async function rollbackManagedUpload(
   publicId: string,
   resourceType: "image" | "video" | "raw"
 ) {
   try {
-    const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
-    return result.result === "ok";
+    return await deleteManagedAsset(publicId, {
+      deliveryType: "upload",
+      resourceType,
+    });
   } catch (error) {
     logger.error(
       `Failed to rollback managed upload ${publicId}`,
@@ -67,6 +74,24 @@ export async function POST(request: Request) {
     const config = MEDIA_PURPOSE_MAP[purpose];
     await requirePermission(config.permission);
 
+    const expectedFolder = resolveCloudinaryFolder(
+      config.folder
+    );
+
+    if (
+      !isCloudinaryPublicIdOwnedByCurrentEnvironment(
+        String(data.public_id || "")
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Asset is outside the approved environment namespace",
+        },
+        { status: 400 }
+      );
+    }
+
     // 1. Authoritative verification via Cloudinary Admin API
     // We cannot trust client-supplied data. We fetch the asset metadata securely.
     let assetMeta;
@@ -90,7 +115,7 @@ export async function POST(request: Request) {
     const originalExtension = getFileExtension(data.original_filename);
 
     // 2. Validate folder
-    if (assetMeta.folder !== config.folder) {
+    if (assetMeta.folder !== expectedFolder) {
       return rejectWithCleanup(data.public_id, destroyResourceType, "Asset outside approved folder");
     }
 

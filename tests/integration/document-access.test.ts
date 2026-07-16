@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 
 // Mock next/server
 vi.mock('next/server', () => ({
@@ -38,9 +38,17 @@ import { NextRequest } from 'next/server';
 import { GET as viewRoute } from '@/app/api/documents/[id]/view/route';
 import { prisma } from '@/lib/prisma';
 
-vi.mock('@/services/cloudinary.service', () => ({
-  getSignedDocumentUrl: vi.fn().mockReturnValue('https://signed-url.example.com/private_doc_id.pdf'),
-}));
+vi.mock('@/services/cloudinary.service', async () => {
+  const actual =
+    await vi.importActual<typeof import('@/services/cloudinary.service')>(
+      '@/services/cloudinary.service'
+    );
+
+  return {
+    ...actual,
+    getSignedDocumentUrl: vi.fn().mockReturnValue('https://signed-url.example.com/private_doc_id.pdf'),
+  };
+});
 
 // Mock permissions
 vi.mock('@/lib/permissions', () => ({
@@ -51,6 +59,15 @@ vi.mock('@/lib/permissions', () => ({
 }));
 
 describe('Private Document Access Integration', () => {
+  beforeEach(() => {
+    vi.stubEnv('APP_ENV', 'staging');
+    vi.stubEnv('CLOUDINARY_FOLDER_PREFIX', 'staging');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('rejects PENDING_SCAN documents', async () => {
     vi.spyOn(prisma.candidateDocument, 'findUnique').mockResolvedValue({
       id: 'doc-1',
@@ -70,7 +87,7 @@ describe('Private Document Access Integration', () => {
       id: 'doc-1',
       status: 'SAFE',
       candidateId: 'cand-1',
-      fileUrl: 'private_doc_id',
+      fileUrl: 'staging/seven-seas-candidates/private_doc_id',
       mimeType: 'application/pdf',
       fileName: 'test.pdf',
       candidate: { fullName: 'Test User', id: 'cand-1' }
