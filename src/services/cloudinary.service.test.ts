@@ -33,4 +33,51 @@ describe("cloudinary service hardening", () => {
       cloudinaryService.deletePrivateAsset("private/doc")
     ).resolves.toBe(false);
   });
+
+  it("signs staging uploads inside the staging namespace", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv(
+      "CLOUDINARY_API_SECRET",
+      "test-api-secret-value"
+    );
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    const result =
+      cloudinaryService.generateUploadSignature(
+        "seven-seas-cms"
+      );
+
+    expect(result.folder).toBe(
+      "staging/seven-seas-cms"
+    );
+  });
+
+  it("prefixes server-side staging uploads in QA mode", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("QA_MODE", "true");
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    const result =
+      await cloudinaryService.uploadBufferToCloudinary(
+        Buffer.from("test"),
+        "candidate-document",
+        "seven-seas-candidates",
+        true
+      );
+
+    expect(result.publicId).toBe(
+      "staging/seven-seas-candidates/candidate-document"
+    );
+
+    expect(result.secureUrl).toContain(
+      "/staging/seven-seas-candidates/"
+    );
+  });
 });

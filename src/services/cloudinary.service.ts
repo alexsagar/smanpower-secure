@@ -10,6 +10,7 @@ import cloudinary from "@/lib/cloudinary";
 import { DEMO_MODE } from "@/config/demo";
 import { logger } from "@/lib/logger";
 import type { AuthoritativeMediaResourceType } from "@/lib/media-resource-type";
+import { resolveCloudinaryFolder } from "@/lib/cloudinary-namespace";
 
 const isConfigured = 
   process.env.CLOUDINARY_CLOUD_NAME &&
@@ -26,13 +27,15 @@ export function generateUploadSignature(
   deliveryType: "upload" | "private" = "upload",
   resourceType: "image" | "video" | "raw" = "image"
 ) {
+  const resolvedFolder = resolveCloudinaryFolder(folder);
+
   if (!isConfigured) {
     if (DEMO_MODE) {
       logger.warn("Cloudinary is not configured. Returning dummy signature for demo mode.");
       return {
         timestamp: Math.round(new Date().getTime() / 1000),
         signature: "demo-mode-signature",
-        folder,
+        folder: resolvedFolder,
         resourceType,
       };
     }
@@ -44,7 +47,7 @@ export function generateUploadSignature(
   const signature = cloudinary.utils.api_sign_request(
     {
       timestamp,
-      folder,
+      folder: resolvedFolder,
       resource_type: resourceType,
       // If deliveryType is private, we must sign `type: "private"`
       ...(deliveryType === "private" ? { type: "private" } : {}),
@@ -55,7 +58,7 @@ export function generateUploadSignature(
   return {
     timestamp,
     signature,
-    folder,
+    folder: resolvedFolder,
     resourceType,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
@@ -155,10 +158,12 @@ export async function uploadBufferToCloudinary(
   folder: string = "seven-seas-private",
   isPrivate: boolean = false
 ): Promise<{ secureUrl: string; publicId: string; bytes: number; format: string }> {
+  const resolvedFolder = resolveCloudinaryFolder(folder);
+
   if (process.env.QA_MODE === "true") {
     return {
-      secureUrl: `https://demo.cloudinary.com/${folder}/${fileName.replace(/\.[^/.]+$/, "")}.pdf`,
-      publicId: `${folder}/${fileName.replace(/\.[^/.]+$/, "")}`,
+      secureUrl: `https://demo.cloudinary.com/${resolvedFolder}/${fileName.replace(/\.[^/.]+$/, "")}.pdf`,
+      publicId: `${resolvedFolder}/${fileName.replace(/\.[^/.]+$/, "")}`,
       bytes: buffer.length,
       format: "pdf"
     };
@@ -180,7 +185,7 @@ export async function uploadBufferToCloudinary(
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder,
+        folder: resolvedFolder,
         resource_type: "auto",
         public_id: fileName.replace(/\.[^/.]+$/, ""), // Remove extension
         type: isPrivate ? "private" : "upload", // Private means URL signature required
