@@ -13,6 +13,7 @@ import type {
   CmsNavigation,
   CmsSiteSettings,
   CmsFooterSettings,
+  CmsSocialLink,
   CmsStatistic,
   CmsSuccessStory,
   CmsTestimonial,
@@ -44,6 +45,66 @@ import { demoStatistics, demoClientPartners } from "@/demo-data/homepage";
 import { demoTeam } from "@/demo-data/team";
 import { getAllDemoMedia, getDemoMediaById } from "@/demo-data/media";
 import { demoDemands } from "@/demo-data/demands";
+
+const COMPATIBILITY_FAX_DISPLAY = "Fax: +977-1-4479655";
+const COMPATIBILITY_FAX_HREF = "tel:+977-1-4479655";
+type LegacySocialLinks = NonNullable<CmsSiteSettings["socialLinks"]>;
+
+function normalizePhoneHref(value: string | undefined) {
+  if (!value) return undefined;
+  const normalized = value.replace(/[^\d+]/g, "");
+  return normalized ? `tel:${normalized}` : undefined;
+}
+
+function normalizeWhatsAppHref(value: string | undefined) {
+  if (!value) return undefined;
+  const digits = value.replace(/\D/g, "");
+  return digits ? `https://wa.me/${digits}` : undefined;
+}
+
+function isValidExternalUrl(value: string | undefined) {
+  if (!value) return false;
+
+  try {
+    const url = new URL(value);
+    return (url.protocol === "http:" || url.protocol === "https:") && !url.hostname.includes("localhost");
+  } catch {
+    return false;
+  }
+}
+
+function normalizeFooterSocialLinks(
+  socialLinks: LegacySocialLinks | undefined
+): CmsSocialLink[] {
+  if (!socialLinks) return [];
+
+  return Object.entries(socialLinks)
+    .map(([platform, url], index) =>
+      isValidExternalUrl(url)
+        ? {
+            platform,
+            label: platform.charAt(0).toUpperCase() + platform.slice(1),
+            url,
+            isActive: true,
+            order: index + 1,
+          }
+        : null
+    )
+    .filter((link): link is CmsSocialLink => Boolean(link));
+}
+
+function buildAddressLines(settings: Pick<CmsSiteSettings, "address" | "addressLine2" | "city" | "province" | "country" | "postalCode">) {
+  const locality = [settings.city, settings.province, settings.country]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(", ");
+  const localityWithPostal = [locality, settings.postalCode]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(" ");
+
+  return [settings.address, settings.addressLine2, localityWithPostal].filter(
+    (value): value is string => Boolean(value && value.trim())
+  );
+}
 
 export class DemoContentRepository implements ContentRepository {
   // ── Pages ────────────────────────────────────────────
@@ -81,11 +142,31 @@ export class DemoContentRepository implements ContentRepository {
   }
 
   async getSiteSettings(): Promise<CmsSiteSettings> {
-    return demoSiteSettings;
+    const { socialLinks, ...baseSettings } = demoSiteSettings;
+    void socialLinks;
+    const normalized: CmsSiteSettings = {
+      ...baseSettings,
+      phoneDisplay: demoSiteSettings.phone,
+      phoneHref: normalizePhoneHref(demoSiteSettings.phone),
+      faxDisplay: COMPATIBILITY_FAX_DISPLAY,
+      faxHref: COMPATIBILITY_FAX_HREF,
+      emailDisplay: demoSiteSettings.email,
+      emailHref: demoSiteSettings.email ? `mailto:${demoSiteSettings.email}` : undefined,
+      whatsappDisplay: demoSiteSettings.whatsapp,
+      whatsappHref: normalizeWhatsAppHref(demoSiteSettings.whatsapp),
+    };
+
+    return {
+      ...normalized,
+      footerAddressLines: buildAddressLines(normalized),
+    };
   }
 
   async getFooterSettings(): Promise<CmsFooterSettings> {
-    return demoFooterSettings;
+    return {
+      ...demoFooterSettings,
+      socialLinks: normalizeFooterSocialLinks(demoSiteSettings.socialLinks),
+    };
   }
 
   // ── Jobs ─────────────────────────────────────────────

@@ -42,7 +42,6 @@ export default async function LangLayout({
   const dict = await getDictionary(lang);
   const repo = getContentRepository();
   const headerNav = await repo.getNavigation("header");
-  const footerNav = await repo.getNavigation("footer");
   const footerSettings = await repo.getFooterSettings();
   const siteSettings = await repo.getSiteSettings();
   const orgSchema = buildOrganizationSchema();
@@ -57,7 +56,7 @@ export default async function LangLayout({
         )}
         <Header lang={lang} dict={dict} navigation={headerNav} />
         <main className="flex-1">{children}</main>
-        <Footer lang={lang} dict={dict} navigation={footerNav} footerSettings={footerSettings} siteSettings={siteSettings} />
+        <Footer lang={lang} footerSettings={footerSettings} siteSettings={siteSettings} />
       </body>
     </html>
   );

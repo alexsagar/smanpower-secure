@@ -10,6 +10,7 @@ import type {
   NavLocation,
   CmsSiteSettings,
   CmsFooterSettings,
+  CmsSocialLink,
   CmsJob,
   CmsSuccessStory,
   CmsTestimonial,
@@ -30,6 +31,170 @@ import type {
 import type { ContentRepository } from "./content-repository";
 
 const prisma = new PrismaClient();
+
+const COMPATIBILITY_FAX_DISPLAY = "Fax: +977-1-4479655";
+const COMPATIBILITY_FAX_HREF = "tel:+977-1-4479655";
+
+const DEFAULT_SITE_SETTINGS: CmsSiteSettings = {
+  companyName: "Seven Seas Intercontinental",
+  companyShortName: "Seven Seas",
+  companyLegalName: "Seven Seas Intercontinental Services Pvt. Ltd.",
+  tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
+  website: "https://smanpower.com",
+  domain: "smanpower.com",
+  logoUrl: "/images/SSIS.png",
+  address: "",
+  addressLine2: "",
+  city: "Kathmandu",
+  province: "Bagmati",
+  country: "Nepal",
+  phone: "",
+  faxDisplay: COMPATIBILITY_FAX_DISPLAY,
+  faxHref: COMPATIBILITY_FAX_HREF,
+  email: "",
+  whatsapp: "",
+  officeHours: "",
+  defaultSeo: { metaTitle: "", metaDescription: "" },
+};
+
+const DEFAULT_FOOTER_SETTINGS: CmsFooterSettings = {
+  tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
+  ctaText: "Partner With Us",
+  ctaHref: "/contact",
+  sections: [],
+  socialLinks: [],
+  legalLinks: [
+    { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "Terms of Service", href: "/terms-of-service" },
+    { label: "Worker Grievance", href: "/worker-grievance" },
+  ],
+  copyrightText: `Copyright ${new Date().getFullYear()} Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved.`,
+};
+
+type JsonRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): JsonRecord {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function isValidExternalUrl(value: string | undefined) {
+  if (!value) return false;
+
+  try {
+    const url = new URL(value);
+    return (url.protocol === "http:" || url.protocol === "https:") && !url.hostname.includes("localhost");
+  } catch {
+    return false;
+  }
+}
+
+function isValidInternalHref(value: string | undefined) {
+  return typeof value === "string" && value.startsWith("/") && value !== "#";
+}
+
+function readHref(value: unknown): string | undefined {
+  const href = readString(value);
+  if (!href || href === "#") return undefined;
+  if (isValidInternalHref(href)) return href;
+  return isValidExternalUrl(href) ? href : undefined;
+}
+
+function readLinkList(
+  value: unknown,
+  fallback: { label: string; href: string }[]
+): { label: string; href: string }[] {
+  if (!Array.isArray(value)) return fallback;
+
+  const links = value
+    .map((entry) => {
+      const record = asRecord(entry);
+      const label = readString(record.label);
+      const href = readHref(record.href);
+      return label && href ? { label, href } : null;
+    })
+    .filter((entry): entry is { label: string; href: string } => Boolean(entry));
+
+  return links.length > 0 ? links : fallback;
+}
+
+function normalizeFooterSocialLinks(value: unknown): CmsSocialLink[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((entry, index) => {
+      const record = asRecord(entry);
+      const platform = readString(record.platform)?.toLowerCase();
+      const label = readString(record.label);
+      const url = readString(record.url);
+      const isActive = typeof record.isActive === "boolean" ? record.isActive : true;
+      const order = typeof record.order === "number" && Number.isFinite(record.order) ? record.order : index + 1;
+
+      if (!platform || !label || !url || !isActive || !isValidExternalUrl(url)) {
+        return null;
+      }
+
+      return {
+        platform,
+        label,
+        url,
+        isActive,
+        order,
+      };
+    })
+    .filter((link): link is CmsSocialLink => Boolean(link))
+    .sort((a, b) => a.order - b.order || a.platform.localeCompare(b.platform) || a.label.localeCompare(b.label));
+}
+
+function buildAddressLines(
+  settings: Pick<CmsSiteSettings, "address" | "addressLine2" | "city" | "province" | "country" | "postalCode">
+) {
+  const locality = [settings.city, settings.province, settings.country]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(", ");
+
+  const localityWithPostal = [locality, settings.postalCode]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(" ");
+
+  return [settings.address, settings.addressLine2, localityWithPostal].filter(
+    (value): value is string => Boolean(value && value.trim())
+  );
+}
+
+function normalizePhoneHref(value: string | undefined) {
+  if (!value) return undefined;
+  const normalized = value.replace(/[^\d+]/g, "");
+  return normalized ? `tel:${normalized}` : undefined;
+}
+
+function normalizeEmailHref(value: string | undefined) {
+  return value ? `mailto:${value}` : undefined;
+}
+
+function normalizeWhatsAppHref(value: string | undefined) {
+  if (!value) return undefined;
+  const digits = value.replace(/\D/g, "");
+  return digits ? `https://wa.me/${digits}` : undefined;
+}
+
+function readTelHref(value: unknown) {
+  const href = readString(value);
+  return href?.startsWith("tel:") ? href : undefined;
+}
+
+function readMailtoHref(value: unknown) {
+  const href = readString(value);
+  return href?.startsWith("mailto:") ? href : undefined;
+}
+
+function readWhatsAppHref(value: unknown) {
+  const href = readString(value);
+  return href && href.startsWith("https://wa.me/") ? href : undefined;
+}
 
 export function safeJsonParse<T = unknown>(data: unknown, fieldName?: string, fallback: T = {} as T): unknown {
   if (typeof data === "string") {
@@ -381,39 +546,79 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getSiteSettings(): Promise<CmsSiteSettings> {
-    const address = await prisma.siteSetting.findUnique({ where: { key: "footer_contact" }});
-    const data = address?.value as any || {};
+    const settings = await prisma.siteSetting.findMany({
+      where: {
+        key: {
+          in: ["footer_contact"],
+        },
+      },
+    });
+
+    const settingMap = new Map(settings.map((setting) => [setting.key, setting.value]));
+    const contact = asRecord(safeJsonParse(settingMap.get("footer_contact"), "footer_contact", {}));
+
+    const normalized: CmsSiteSettings = {
+      ...DEFAULT_SITE_SETTINGS,
+      address: readString(contact.address) || DEFAULT_SITE_SETTINGS.address,
+      addressLine2: readString(contact.addressLine2) || DEFAULT_SITE_SETTINGS.addressLine2,
+      city: readString(contact.city) || DEFAULT_SITE_SETTINGS.city,
+      province: readString(contact.province) || DEFAULT_SITE_SETTINGS.province,
+      country: readString(contact.country) || DEFAULT_SITE_SETTINGS.country,
+      postalCode: readString(contact.postalCode),
+      phone: readString(contact.phone) || DEFAULT_SITE_SETTINGS.phone,
+      phoneDisplay: readString(contact.phoneDisplay) || readString(contact.phone) || DEFAULT_SITE_SETTINGS.phone,
+      phoneHref:
+        readTelHref(contact.phoneHref) ||
+        normalizePhoneHref(readString(contact.phoneDisplay) || readString(contact.phone) || DEFAULT_SITE_SETTINGS.phone),
+      faxDisplay:
+        readString(contact.faxDisplay) || readString(contact.fax) || DEFAULT_SITE_SETTINGS.faxDisplay,
+      faxHref:
+        readTelHref(contact.faxHref) ||
+        normalizePhoneHref(readString(contact.faxDisplay) || readString(contact.fax)) ||
+        DEFAULT_SITE_SETTINGS.faxHref,
+      email: readString(contact.email) || DEFAULT_SITE_SETTINGS.email,
+      emailDisplay: readString(contact.emailDisplay) || readString(contact.email) || DEFAULT_SITE_SETTINGS.email,
+      emailHref:
+        readMailtoHref(contact.emailHref) ||
+        normalizeEmailHref(readString(contact.emailDisplay) || readString(contact.email) || DEFAULT_SITE_SETTINGS.email),
+      whatsapp: readString(contact.whatsapp) || DEFAULT_SITE_SETTINGS.whatsapp,
+      whatsappDisplay:
+        readString(contact.whatsappDisplay) || readString(contact.whatsapp) || DEFAULT_SITE_SETTINGS.whatsapp,
+      whatsappHref:
+        readWhatsAppHref(contact.whatsappHref) ||
+        normalizeWhatsAppHref(
+          readString(contact.whatsappDisplay) || readString(contact.whatsapp) || DEFAULT_SITE_SETTINGS.whatsapp
+        ),
+      officeHours: readString(contact.officeHours) || DEFAULT_SITE_SETTINGS.officeHours,
+      defaultSeo: DEFAULT_SITE_SETTINGS.defaultSeo,
+    };
+
     return {
-      companyName: "Seven Seas Intercontinental",
-      companyShortName: "Seven Seas",
-      companyLegalName: "Seven Seas Intercontinental Services Pvt. Ltd.",
-      tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
-      website: "https://smanpower.com",
-      domain: "smanpower.com",
-      logoUrl: "/images/SSIS.png",
-      address: data.address || "",
-      addressLine2: "",
-      city: "Kathmandu",
-      province: "Bagmati",
-      country: "Nepal",
-      phone: data.phone || "",
-      email: data.email || "",
-      whatsapp: "",
-      officeHours: "",
-      socialLinks: { facebook: "", linkedin: "", instagram: "", twitter: "", youtube: "" },
-      defaultSeo: { metaTitle: "", metaDescription: "" }
+      ...normalized,
+      footerAddressLines: buildAddressLines(normalized),
     };
   }
 
   async getFooterSettings(): Promise<CmsFooterSettings> {
-    const mission = await prisma.siteSetting.findUnique({ where: { key: "footer_mission" }});
-    
-    // Fetch footer navigation
-    const footerNavs = await prisma.navigationItem.findMany({
-      where: { location: "footer", parentId: null, isActive: true },
-      include: { children: { where: { isActive: true }, orderBy: { order: 'asc' } } },
-      orderBy: { order: 'asc' }
-    });
+    const [settings, footerNavs] = await Promise.all([
+      prisma.siteSetting.findMany({
+        where: {
+          key: {
+            in: ["footer_mission", "footer_cta", "footer_legal_links", "footer_copyright", "footer_social_links"],
+          },
+        },
+      }),
+      prisma.navigationItem.findMany({
+        where: { location: "footer", parentId: null, isActive: true },
+        include: { children: { where: { isActive: true }, orderBy: { order: "asc" } } },
+        orderBy: { order: "asc" },
+      }),
+    ]);
+
+    const settingMap = new Map(settings.map((setting) => [setting.key, setting.value]));
+    const cta = asRecord(safeJsonParse(settingMap.get("footer_cta"), "footer_cta", {}));
+    const ctaText = readString(cta.text);
+    const ctaHref = readHref(cta.href);
 
     const sections = footerNavs.map(nav => ({
       title: nav.label,
@@ -426,23 +631,19 @@ export class PrismaContentRepository implements ContentRepository {
     }));
 
     return {
-      tagline: mission ? String(mission.value) : "",
-      ctaText: "Partner With Us",
-      ctaHref: "/contact",
-      sections: sections.length > 0 ? sections : [
-        {
-          title: "Navigation",
-          links: [
-            { label: "Footer content pending configuration", href: "#" }
-          ]
-        }
-      ],
-      copyrightText: "© 2026 Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved.",
-      legalLinks: [
-        { label: "Privacy Policy", href: "/ethical-recruitment/privacy-policy" },
-        { label: "Terms of Service", href: "/terms" },
-        { label: "Worker Grievance", href: "/trust-centre/grievance" },
-      ]
+      tagline: readString(settingMap.get("footer_mission")) || DEFAULT_FOOTER_SETTINGS.tagline,
+      ctaText: ctaText && ctaHref ? ctaText : DEFAULT_FOOTER_SETTINGS.ctaText,
+      ctaHref: ctaText && ctaHref ? ctaHref : DEFAULT_FOOTER_SETTINGS.ctaHref,
+      sections: sections.length > 0 ? sections : DEFAULT_FOOTER_SETTINGS.sections,
+      socialLinks: normalizeFooterSocialLinks(
+        safeJsonParse(settingMap.get("footer_social_links"), "footer_social_links", [])
+      ),
+      copyrightText:
+        readString(settingMap.get("footer_copyright")) || DEFAULT_FOOTER_SETTINGS.copyrightText,
+      legalLinks: readLinkList(
+        safeJsonParse(settingMap.get("footer_legal_links"), "footer_legal_links", []),
+        DEFAULT_FOOTER_SETTINGS.legalLinks
+      )
     };
   }
 
