@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   mapNavigationGroups,
   mapPrismaMediaAsset,
@@ -9,6 +9,21 @@ import {
   authoritativeMediaResourceTypeFromMimeType,
   cmsMediaResourceTypeFromAuthoritative,
 } from "@/lib/media-resource-type";
+
+const prismaMock = vi.hoisted(() => ({
+  siteSetting: {
+    findMany: vi.fn(),
+  },
+  navigationItem: {
+    findMany: vi.fn(),
+  },
+}));
+
+vi.mock("@prisma/client", () => ({
+  PrismaClient: vi.fn(function MockPrismaClient() {
+    return prismaMock;
+  }),
+}));
 
 describe("Prisma content repository helpers", () => {
   it("preserves authoritative prisma media metadata", () => {
@@ -55,10 +70,7 @@ describe("Prisma content repository helpers", () => {
   });
 
   it("does not label URL-backed database media as LOCAL_DEMO", () => {
-    const media = mapUrlBackedMediaAsset(
-      "https://cdn.example.com/image.jpg",
-      { altText: "Hero image" }
-    );
+    const media = mapUrlBackedMediaAsset("https://cdn.example.com/image.jpg", { altText: "Hero image" });
 
     expect(media.source).toBe("CLOUDINARY");
     expect(media.fileName).toBe("image.jpg");
@@ -104,5 +116,247 @@ describe("Prisma content repository helpers", () => {
     expect(navs[0].items).toHaveLength(1);
     expect(navs[0].items[0].id).toBe("child-active");
     expect(navs[0].items[0].isActive).toBe(true);
+  });
+});
+
+describe("PrismaContentRepository footer mapping", () => {
+  beforeEach(() => {
+    prismaMock.siteSetting.findMany.mockReset();
+    prismaMock.navigationItem.findMany.mockReset();
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+    vi.clearAllMocks();
+  });
+
+  it("maps footer mission, CTA, legal links, contact fields, and footer navigation from Prisma settings", async () => {
+    prismaMock.siteSetting.findMany.mockImplementation(async (args?: { where?: { key?: { in?: string[] } } }) => {
+      const keys = args?.where?.key?.in ?? [];
+
+      if (keys.includes("footer_contact")) {
+        return [
+          {
+            key: "footer_contact",
+            value: {
+              address: "Ward No. 8, Guheswori",
+              addressLine2: "Kathmandu Metropolitan City",
+              city: "Kathmandu",
+              province: "Bagmati",
+              country: "Nepal",
+              postalCode: "00977",
+              phone: "+977-1-5107440",
+              phoneDisplay: "01-5107440",
+              fax: "+977-1-4479655",
+              email: "info@smanpower.com",
+              whatsapp: "+977 98000 00000",
+              officeHours: "Sun-Fri: 10:00 AM - 5:00 PM",
+            },
+          },
+        ];
+      }
+
+      return [
+        { key: "footer_mission", value: "Responsible recruitment for global employers." },
+        { key: "footer_cta", value: { text: "Request Workforce", href: "/employers/request-workforce" } },
+        {
+          key: "footer_legal_links",
+          value: [{ label: "Policies", href: "/trust-centre/policies" }],
+        },
+        {
+          key: "footer_social_links",
+          value: [
+            { platform: "linkedin", label: "LinkedIn", url: "https://linkedin.com/company/seven-seas", isActive: true, order: 2 },
+            { platform: "facebook", label: "Facebook", url: "https://facebook.com/sevenseas", isActive: true, order: 1 },
+            { platform: "youtube", label: "YouTube", url: "http://localhost:3000/invalid", isActive: true, order: 3 },
+          ],
+        },
+        {
+          key: "footer_copyright",
+          value: "Copyright 2026 Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved.",
+        },
+      ];
+    });
+
+    prismaMock.navigationItem.findMany.mockResolvedValue([
+      {
+        label: "Company",
+        children: [
+          { label: "Leadership", href: "/about/leadership" },
+          { label: "Inactive Placeholder", href: null },
+        ],
+      },
+      {
+        label: "Trust",
+        children: [{ label: "Licences", href: "/trust-centre/licences" }],
+      },
+    ]);
+
+    const { PrismaContentRepository } = await import("./prisma-content-repository");
+    const repository = new PrismaContentRepository();
+    const [siteSettings, footerSettings] = await Promise.all([
+      repository.getSiteSettings(),
+      repository.getFooterSettings(),
+    ]);
+
+    expect(siteSettings.footerAddressLines).toEqual([
+      "Ward No. 8, Guheswori",
+      "Kathmandu Metropolitan City",
+      "Kathmandu, Bagmati, Nepal 00977",
+    ]);
+    expect(siteSettings.emailDisplay).toBe("info@smanpower.com");
+    expect(siteSettings.emailHref).toBe("mailto:info@smanpower.com");
+    expect(siteSettings.phoneDisplay).toBe("01-5107440");
+    expect(siteSettings.phoneHref).toBe("tel:015107440");
+    expect(siteSettings.faxDisplay).toBe("+977-1-4479655");
+    expect(siteSettings.faxHref).toBe("tel:+97714479655");
+    expect(siteSettings.whatsappDisplay).toBe("+977 98000 00000");
+    expect(siteSettings.whatsappHref).toBe("https://wa.me/9779800000000");
+    expect(siteSettings.officeHours).toBe("Sun-Fri: 10:00 AM - 5:00 PM");
+    expect(siteSettings).not.toHaveProperty("socialLinks");
+
+    expect(footerSettings.tagline).toBe("Responsible recruitment for global employers.");
+    expect(footerSettings.ctaText).toBe("Request Workforce");
+    expect(footerSettings.ctaHref).toBe("/employers/request-workforce");
+    expect(footerSettings.legalLinks).toEqual([{ label: "Policies", href: "/trust-centre/policies" }]);
+    expect(footerSettings.socialLinks).toEqual([
+      { platform: "facebook", label: "Facebook", url: "https://facebook.com/sevenseas", isActive: true, order: 1 },
+      { platform: "linkedin", label: "LinkedIn", url: "https://linkedin.com/company/seven-seas", isActive: true, order: 2 },
+    ]);
+    expect(footerSettings.sections).toEqual([
+      {
+        title: "Company",
+        links: [{ label: "Leadership", href: "/about/leadership" }],
+      },
+      {
+        title: "Trust",
+        links: [{ label: "Licences", href: "/trust-centre/licences" }],
+      },
+    ]);
+  });
+
+  it("keeps the current two-setting database shape compatible and does not fall back to demo footer values", async () => {
+    prismaMock.siteSetting.findMany.mockImplementation(async (args?: { where?: { key?: { in?: string[] } } }) => {
+      const keys = args?.where?.key?.in ?? [];
+
+      if (keys.includes("footer_contact")) {
+        return [
+          {
+            key: "footer_contact",
+            value: {
+              address: "Guheswori",
+              city: "Kathmandu",
+              province: "Bagmati",
+              country: "Nepal",
+              phone: "01-5107440",
+              email: "info@smanpower.com",
+            },
+          },
+        ];
+      }
+
+      return [{ key: "footer_mission", value: "Responsible recruitment. Prepared Workforce." }];
+    });
+
+    prismaMock.navigationItem.findMany.mockResolvedValue([]);
+
+    const { PrismaContentRepository } = await import("./prisma-content-repository");
+    const repository = new PrismaContentRepository();
+    const [siteSettings, footerSettings] = await Promise.all([
+      repository.getSiteSettings(),
+      repository.getFooterSettings(),
+    ]);
+
+    expect(siteSettings.emailHref).toBe("mailto:info@smanpower.com");
+    expect(siteSettings.phoneHref).toBe("tel:015107440");
+    expect(siteSettings.faxDisplay).toBe("Fax: +977-1-4479655");
+    expect(siteSettings.faxHref).toBe("tel:+977-1-4479655");
+    expect(siteSettings.footerAddressLines).toEqual(["Guheswori", "Kathmandu, Bagmati, Nepal"]);
+    expect(siteSettings).not.toHaveProperty("socialLinks");
+
+    expect(footerSettings.tagline).toBe("Responsible recruitment. Prepared Workforce.");
+    expect(footerSettings.ctaText).toBe("Partner With Us");
+    expect(footerSettings.ctaHref).toBe("/contact");
+    expect(footerSettings.sections).toEqual([]);
+    expect(footerSettings.socialLinks).toEqual([]);
+    expect(footerSettings.legalLinks).toEqual([
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms of Service", href: "/terms-of-service" },
+      { label: "Worker Grievance", href: "/worker-grievance" },
+    ]);
+    expect(footerSettings.ctaHref).not.toBe("/employers/request-workforce");
+  });
+
+  it("fails safely for malformed footer settings and contact optionals", async () => {
+    prismaMock.siteSetting.findMany.mockImplementation(async (args?: { where?: { key?: { in?: string[] } } }) => {
+      const keys = args?.where?.key?.in ?? [];
+
+      if (keys.includes("footer_contact")) {
+        return [
+          {
+            key: "footer_contact",
+            value: {
+              address: "Guheswori",
+              phoneDisplay: "",
+              phoneHref: "javascript:alert(1)",
+              faxDisplay: "",
+              faxHref: "#",
+              email: "info@smanpower.com",
+              emailHref: "mailto:info@smanpower.com",
+              whatsapp: "not-a-number",
+              whatsappHref: "tel:+9771234567",
+              officeHours: { unexpected: true },
+              socialLinks: "legacy-string",
+            },
+          },
+        ];
+      }
+
+      return [
+        { key: "footer_mission", value: "Mission" },
+        { key: "footer_cta", value: { text: "Bad CTA", href: "http://localhost:3000" } },
+        { key: "footer_legal_links", value: [{ label: "Broken", href: "#" }, { label: "Also bad", href: "" }] },
+        {
+          key: "footer_social_links",
+          value: [
+            { platform: "linkedin", label: "LinkedIn", url: "notaurl", isActive: true, order: 1 },
+            { platform: "js", label: "JS", url: "javascript:alert(1)", isActive: true, order: 2 },
+            { platform: "data", label: "Data", url: "data:text/plain,hello", isActive: true, order: 3 },
+            { platform: "mailto", label: "Mail", url: "mailto:test@example.com", isActive: true, order: 4 },
+            { platform: "tel", label: "Tel", url: "tel:+97715107440", isActive: true, order: 5 },
+            { platform: "relative", label: "Relative", url: "/internal", isActive: true, order: 6 },
+            { platform: "localhost", label: "Localhost", url: "http://localhost:3000", isActive: true, order: 7 },
+          ],
+        },
+        { key: "footer_copyright", value: { text: "not-a-string" } },
+      ];
+    });
+
+    prismaMock.navigationItem.findMany.mockResolvedValue([]);
+
+    const { PrismaContentRepository } = await import("./prisma-content-repository");
+    const repository = new PrismaContentRepository();
+    const [siteSettings, footerSettings] = await Promise.all([
+      repository.getSiteSettings(),
+      repository.getFooterSettings(),
+    ]);
+
+    expect(siteSettings.phoneHref).toBeUndefined();
+    expect(siteSettings.emailHref).toBe("mailto:info@smanpower.com");
+    expect(siteSettings.whatsappHref).toBeUndefined();
+    expect(siteSettings.officeHours).toBe("");
+    expect(siteSettings).not.toHaveProperty("socialLinks");
+    expect(footerSettings.ctaText).toBe("Partner With Us");
+    expect(footerSettings.ctaHref).toBe("/contact");
+    expect(footerSettings.legalLinks).toEqual([
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms of Service", href: "/terms-of-service" },
+      { label: "Worker Grievance", href: "/worker-grievance" },
+    ]);
+    expect(footerSettings.socialLinks).toEqual([]);
+    expect(footerSettings.sections).toEqual([]);
+    expect(footerSettings.copyrightText).toBe(
+      "Copyright 2026 Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved."
+    );
   });
 });
