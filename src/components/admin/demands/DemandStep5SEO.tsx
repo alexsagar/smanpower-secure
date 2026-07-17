@@ -26,7 +26,7 @@ export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d
                 <div>
                   <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-brand-charcoal/60">Current Slug</label>
                   <div className="flex items-center bg-white border border-brand-charcoal/15 rounded-sm px-3 py-2">
-                    <span className="text-brand-charcoal/50 text-sm whitespace-nowrap">smanpower.com/en/demands/</span>
+                    <span className="text-brand-charcoal/50 text-sm whitespace-nowrap">smanpower.com/demands/</span>
                     <span className="text-sm font-mono font-semibold text-brand-black">{data.slug}</span>
                   </div>
                   {isPublished && (

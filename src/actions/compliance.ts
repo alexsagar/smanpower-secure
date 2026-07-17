@@ -18,7 +18,7 @@ export async function createDocument(formData: FormData) {
   // TEMPORARY DEMO MODE — switch DEMO_MODE to false after PostgreSQL backend is deployed
   if (!process.env.DATABASE_URL) {
     revalidatePath("/admin/compliance");
-    revalidatePath("/en/trust-centre");
+    revalidatePath("/trust-centre");
     redirect("/admin/compliance");
   }
 
@@ -38,6 +38,6 @@ export async function createDocument(formData: FormData) {
   }
 
   revalidatePath("/admin/compliance");
-  revalidatePath("/en/trust-centre");
+  revalidatePath("/trust-centre");
   redirect("/admin/compliance");
 }

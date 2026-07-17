@@ -27,10 +27,8 @@ export async function POST(request: Request) {
           where: { id: demand.id },
           data: { status: 'PUBLISHED', isPublic: true, publishedAt: new Date() }
         });
-        revalidatePath('/en/demands');
-        revalidatePath(`/en/demands/${slug}`);
-        revalidatePath('/[lang]/demands', 'page');
-        revalidatePath('/[lang]/demands/[slug]', 'page');
+        revalidatePath('/demands');
+        revalidatePath(`/demands/${slug}`);
       }
     } else if (action === 'close') {
       const demand = await prisma.demand.findUnique({ where: { slug } });
@@ -39,10 +37,8 @@ export async function POST(request: Request) {
           where: { id: demand.id },
           data: { status: 'CLOSED', enableApplication: false }
         });
-        revalidatePath('/en/demands');
-        revalidatePath(`/en/demands/${slug}`);
-        revalidatePath('/[lang]/demands', 'page');
-        revalidatePath('/[lang]/demands/[slug]', 'page');
+        revalidatePath('/demands');
+        revalidatePath(`/demands/${slug}`);
       }
     } else if (action === 'archive') {
       const demand = await prisma.demand.findUnique({ where: { slug } });
@@ -51,10 +47,8 @@ export async function POST(request: Request) {
           where: { id: demand.id },
           data: { status: 'ARCHIVED', isPublic: false, deletedAt: new Date() }
         });
-        revalidatePath('/en/demands');
-        revalidatePath(`/en/demands/${slug}`);
-        revalidatePath('/[lang]/demands', 'page');
-        revalidatePath('/[lang]/demands/[slug]', 'page');
+        revalidatePath('/demands');
+        revalidatePath(`/demands/${slug}`);
       }
     } else if (action === 'update_content') {
       const demand = await prisma.demand.findUnique({ where: { slug } });
@@ -63,10 +57,8 @@ export async function POST(request: Request) {
           where: { id: demand.id },
           data: { companyName: data.companyName }
         });
-        revalidatePath('/en/demands');
-        revalidatePath(`/en/demands/${slug}`);
-        revalidatePath('/[lang]/demands', 'page');
-        revalidatePath('/[lang]/demands/[slug]', 'page');
+        revalidatePath('/demands');
+        revalidatePath(`/demands/${slug}`);
       }
     }
     return NextResponse.json({ success: true });

@@ -115,7 +115,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
             </p>
           </div>
           <div className="md:w-1/3 flex justify-end">
-            <Link href="/en/employers/request-workforce" className="inline-flex items-center gap-4 bg-brand-charcoal text-brand-white px-10 py-5 hover:bg-brand-gold transition-colors duration-300 text-sm font-semibold tracking-widest uppercase group">
+            <Link href="/employers/request-workforce" className="inline-flex items-center gap-4 bg-brand-charcoal text-brand-white px-10 py-5 hover:bg-brand-gold transition-colors duration-300 text-sm font-semibold tracking-widest uppercase group">
               Partner With Us
               <div className="w-8 h-[1px] bg-brand-white group-hover:w-12 transition-all duration-300" />
             </Link>

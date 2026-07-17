@@ -137,12 +137,12 @@ describe("Footer", () => {
 
   it("renders the normalized footer contract, keeps fax visible, and omits empty navigation headings", () => {
     const html = renderToStaticMarkup(
-      <Footer lang="en" footerSettings={footerSettings} siteSettings={siteSettings} />
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
     expect(html).toContain("bg-brand-black");
     expect(html).toContain("Empowering global growth through ethical workforce solutions.");
-    expect(html).toContain('href="/en/contact"');
+    expect(html).toContain('href="/contact"');
     expect(html).toContain('href="mailto:info@smanpower.com"');
     expect(html).toContain('href="tel:+97715107440"');
     expect(html).toContain('href="tel:+977-1-4479655"');
@@ -150,9 +150,9 @@ describe("Footer", () => {
     expect(html).toContain('href="https://wa.me/9779800000000"');
     expect(html).not.toContain('href="tel:+9779800000000"');
     expect(html).toContain("Sun-Fri: 10:00 AM - 5:00 PM");
-    expect(html).toContain('href="/en/privacy-policy"');
-    expect(html).toContain('href="/en/terms-of-service"');
-    expect(html).toContain('href="/en/worker-grievance"');
+    expect(html).toContain('href="/privacy-policy"');
+    expect(html).toContain('href="/terms-of-service"');
+    expect(html).toContain('href="/worker-grievance"');
     expect(html).not.toContain(">Leadership<");
     expect(html).not.toContain("undefined");
     expect(html).not.toContain("null");
@@ -160,7 +160,7 @@ describe("Footer", () => {
 
   it("uses a compact mobile grid for navigation and a responsive contact/socials row", () => {
     const html = renderToStaticMarkup(
-      <Footer lang="en" footerSettings={footerSettings} siteSettings={siteSettings} />
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
     const contactSectionIndex = html.indexOf('aria-label="Footer contact"');
@@ -184,7 +184,7 @@ describe("Footer", () => {
 
   it("renders generic social links in order, covers the supported icons, keeps icons decorative, and uses a generic icon for unknown platforms", () => {
     const html = renderToStaticMarkup(
-      <Footer lang="en" footerSettings={footerSettings} siteSettings={siteSettings} />
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
     const facebookIndex = html.indexOf('href="https://facebook.com/sevenseas"');
@@ -226,7 +226,6 @@ describe("Footer", () => {
   it("does not allow CMS label or platform strings to inject HTML or SVG", () => {
     const html = renderToStaticMarkup(
       <Footer
-        lang="en"
         footerSettings={{
           ...footerSettings,
           socialLinks: [
@@ -252,7 +251,6 @@ describe("Footer", () => {
   it("renders the small legal identity from companyLegalName and keeps the large wordmark on companyShortName", () => {
     const html = renderToStaticMarkup(
       <Footer
-        lang="en"
         footerSettings={{ ...footerSettings, socialLinks: [] }}
         siteSettings={{
           ...siteSettings,
@@ -276,7 +274,6 @@ describe("Footer", () => {
   it("renders a single-word decorative wordmark without injecting a fake second line", () => {
     const html = renderToStaticMarkup(
       <Footer
-        lang="en"
         footerSettings={{ ...footerSettings, socialLinks: [] }}
         siteSettings={{
           ...siteSettings,
@@ -296,7 +293,6 @@ describe("Footer", () => {
   it("renders no social block and no navigation column when both are empty", () => {
     const html = renderToStaticMarkup(
       <Footer
-        lang="en"
         footerSettings={{ ...footerSettings, sections: [], socialLinks: [] }}
         siteSettings={siteSettings}
       />
@@ -309,13 +305,13 @@ describe("Footer", () => {
 
   it("keeps legal links compact on mobile without changing destinations", () => {
     const html = renderToStaticMarkup(
-      <Footer lang="en" footerSettings={footerSettings} siteSettings={siteSettings} />
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
     expect(html).toContain('class="grid grid-cols-2 gap-x-4 gap-y-3 text-center max-[339px]:grid-cols-1 md:flex md:flex-wrap md:justify-end md:items-center md:gap-6 md:text-left"');
-    expect(html).toContain('href="/en/privacy-policy"');
-    expect(html).toContain('href="/en/terms-of-service"');
-    expect(html).toContain('href="/en/worker-grievance"');
+    expect(html).toContain('href="/privacy-policy"');
+    expect(html).toContain('href="/terms-of-service"');
+    expect(html).toContain('href="/worker-grievance"');
   });
 
   it("uses the real demo resolver path and normalizes demo WhatsApp and footer socials", async () => {
@@ -339,10 +335,10 @@ describe("Footer", () => {
     expect(resolvedSiteSettings.whatsappHref).toBe("https://wa.me/9779812345678");
 
     const html = renderToStaticMarkup(
-      <Footer lang="en" footerSettings={resolvedFooterSettings} siteSettings={resolvedSiteSettings} />
+      <Footer footerSettings={resolvedFooterSettings} siteSettings={resolvedSiteSettings} />
     );
 
-    expect(html).toContain('href="/en/employers/request-workforce"');
+    expect(html).toContain('href="/employers/request-workforce"');
     expect(html).toContain('href="https://wa.me/9779812345678"');
     expect(html).not.toContain('href="tel:+9779812345678"');
     expect(html).not.toContain("Socials");
@@ -351,7 +347,6 @@ describe("Footer", () => {
   it("does not inject Intercontinental unless it comes from the supplied settings", () => {
     const html = renderToStaticMarkup(
       <Footer
-        lang="en"
         footerSettings={{ ...footerSettings, socialLinks: [] }}
         siteSettings={{ ...siteSettings, companyShortName: "Seven Seas Intercontinental", companyName: "Seven Seas Intercontinental" }}
       />
@@ -364,9 +359,9 @@ describe("Footer", () => {
 
   it("keeps fallback legal links on existing public routes", () => {
     const fallbackRoutes = [
-      ["Privacy Policy", "../../app/[lang]/privacy-policy/page.tsx"],
-      ["Terms of Service", "../../app/[lang]/terms-of-service/page.tsx"],
-      ["Worker Grievance", "../../app/[lang]/worker-grievance/page.tsx"],
+      ["Privacy Policy", "../../app/(public)/privacy-policy/page.tsx"],
+      ["Terms of Service", "../../app/(public)/terms-of-service/page.tsx"],
+      ["Worker Grievance", "../../app/(public)/worker-grievance/page.tsx"],
     ] as const;
 
     for (const [, relativePath] of fallbackRoutes) {

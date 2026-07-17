@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function PillarGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -53,7 +53,7 @@ export function PillarGridBlock({ block, lang }: { block: CmsContentBlock; lang:
                   </p>
                 )}
                 {content.ctaText && content.ctaHref && (
-                  <Link href={`${prefix}${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
+                  <Link href={`${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
                     <div className="group flex items-center gap-4 cursor-pointer">
                       <span className="text-brand-black text-[11px] font-bold uppercase tracking-[0.2em] group-hover:text-brand-gold transition-colors">
                         {content.ctaText}

@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -49,7 +49,7 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-l border-brand-charcoal/10">
             {content.industries?.map((industry: any, i: number) => (
               <ScrollReveal key={i} delay={i * 0.05} className="w-full h-full">
-                <Link href={`${prefix}${industry.href?.startsWith('/') ? '' : '/'}${industry.href}`} className="group relative block h-[300px] lg:h-[350px] border-b border-r border-brand-charcoal/10 overflow-hidden bg-brand-white cursor-pointer">
+                <Link href={`${industry.href?.startsWith('/') ? '' : '/'}${industry.href}`} className="group relative block h-[300px] lg:h-[350px] border-b border-r border-brand-charcoal/10 overflow-hidden bg-brand-white cursor-pointer">
 
                   {/* Hover Slide Background */}
                   <div className="absolute inset-0 bg-brand-charcoal translate-y-full group-hover:translate-y-0 transition-transform duration-[0.8s] ease-[cubic-bezier(0.19,1,0.22,1)]" />

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Public Routes', () => {
   test('homepage loads and shows navigation', async ({ page }) => {
-    await page.goto('/en');
+    await page.goto('/');
     
     // Check main title or logo exists
     await expect(page.getByRole('banner')).toBeVisible();
@@ -10,18 +10,18 @@ test.describe('Public Routes', () => {
   });
 
   test('about page loads', async ({ page }) => {
-    const res = await page.goto('/en/about');
+    const res = await page.goto('/about');
     expect(res?.status()).toBe(200);
     await expect(page.locator('h1').first()).toBeVisible();
   });
 
   test('demands listing page loads and has items', async ({ page }) => {
-    const res = await page.goto('/en/demands');
+    const res = await page.goto('/demands');
     expect(res?.status()).toBe(200);
   });
 
   test('404 page works', async ({ page }) => {
-    const res = await page.goto('/en/does-not-exist-12345');
+    const res = await page.goto('/does-not-exist-12345');
     expect(res?.status()).toBe(404);
   });
 });
@@ -30,7 +30,7 @@ test.describe('Mobile Responsiveness', () => {
   test.use({ viewport: { width: 375, height: 667 } });
   
   test('homepage renders without horizontal scroll on mobile', async ({ page }) => {
-    await page.goto('/en');
+    await page.goto('/');
     
     // Evaluate horizontal scroll
     const hasHorizontalScroll = await page.evaluate(() => {

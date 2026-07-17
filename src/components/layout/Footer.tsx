@@ -4,6 +4,7 @@ import React from "react";
 import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { SocialBrandIcon, isKnownSocialPlatform } from "./SocialBrandIcon";
 import type { CmsFooterSettings, CmsSiteSettings, CmsSocialLink } from "@/types/content";
+import { toPublicHref } from "@/lib/public-href";
 
 function splitBrandName(settings: CmsSiteSettings) {
   const words = (settings.companyShortName || settings.companyName)
@@ -19,11 +20,6 @@ function splitBrandName(settings: CmsSiteSettings) {
 
 function toLegalIdentity(settings: CmsSiteSettings) {
   return settings.companyLegalName || settings.companyName;
-}
-
-function toPrefixedHref(prefix: string, href: string) {
-  if (/^https?:\/\//.test(href)) return href;
-  return `${prefix}${href.startsWith("/") ? "" : "/"}${href}`;
 }
 
 function toAddressLines(settings: CmsSiteSettings) {
@@ -85,8 +81,7 @@ function toSocialLabel(link: CmsSocialLink) {
   return link.label || link.platform;
 }
 
-export function Footer({ lang, footerSettings, siteSettings }: { lang: string; footerSettings: CmsFooterSettings; siteSettings: CmsSiteSettings }) {
-  const prefix = `/${lang}`;
+export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFooterSettings; siteSettings: CmsSiteSettings }) {
   const legalIdentity = toLegalIdentity(siteSettings);
   const wordmark = toWordmarkParts(siteSettings);
   const addressLines = toAddressLines(siteSettings);
@@ -124,7 +119,7 @@ export function Footer({ lang, footerSettings, siteSettings }: { lang: string; f
           
           {/* Left Column: Brand & Tagline */}
           <div className="flex min-w-0 flex-col items-start 2xl:max-w-xl">
-            <Link href={prefix} className="mb-12 inline-flex items-start gap-6 group lg:gap-7">
+            <Link href="/" className="mb-12 inline-flex items-start gap-6 group lg:gap-7">
               <Image
                 src={siteSettings.logoUrl}
                 alt={siteSettings.companyName}
@@ -145,7 +140,7 @@ export function Footer({ lang, footerSettings, siteSettings }: { lang: string; f
 
             {footerSettings.ctaText && footerSettings.ctaHref && (
               <Link 
-                href={toPrefixedHref(prefix, footerSettings.ctaHref)}
+                href={toPublicHref(footerSettings.ctaHref)}
                 className="group inline-flex items-center gap-6"
               >
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-white relative overflow-hidden">
@@ -183,7 +178,7 @@ export function Footer({ lang, footerSettings, siteSettings }: { lang: string; f
                       {section.links.map((link) => (
                         <li key={link.label}>
                           <Link
-                            href={toPrefixedHref(prefix, link.href)}
+                            href={toPublicHref(link.href)}
                             className="text-sm text-brand-white/60 hover:text-brand-white transition-colors relative group py-1 inline-block"
                           >
                             {link.label}
@@ -270,7 +265,7 @@ export function Footer({ lang, footerSettings, siteSettings }: { lang: string; f
             </p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-center max-[339px]:grid-cols-1 md:flex md:flex-wrap md:justify-end md:items-center md:gap-6 md:text-left">
               {footerSettings.legalLinks.filter((link) => isSafeInternalHref(link.href)).map((link) => (
-                <Link key={link.label} href={toPrefixedHref(prefix, link.href)} className="text-[10px] text-brand-white/40 hover:text-brand-white uppercase tracking-widest transition-colors">
+                <Link key={link.label} href={toPublicHref(link.href)} className="text-[10px] text-brand-white/40 hover:text-brand-white uppercase tracking-widest transition-colors">
                   {link.label}
                 </Link>
               ))}

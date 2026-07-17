@@ -53,7 +53,7 @@ export function AdvantageBlock({ block, lang }: { block: CmsContentBlock; lang: 
 
               {content.ctaText && content.ctaHref && (
                 <div className="mt-12 pt-12 border-t border-brand-charcoal/10">
-                  <Link href={`/${lang}${content.ctaHref}`}>
+                  <Link href={content.ctaHref}>
                     <Button variant="outline" className="h-14 px-8 text-xs font-semibold uppercase tracking-widest border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-white transition-all">
                       {content.ctaText}
                     </Button>

@@ -37,7 +37,7 @@ export function SolutionsGridBlock({ block, lang }: { block: CmsContentBlock; la
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {content.solutions?.map((item: any, i: number) => (
             <ScrollReveal key={i} delay={i * 0.1}>
-              <Link href={`/${lang}${item.href}`} className="group relative block h-full bg-brand-white/[0.02] border border-brand-white/10 p-10 hover:border-brand-gold/50 transition-all duration-500 overflow-hidden">
+              <Link href={item.href} className="group relative block h-full bg-brand-white/[0.02] border border-brand-white/10 p-10 hover:border-brand-gold/50 transition-all duration-500 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="text-brand-gold mb-8 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 origin-left">

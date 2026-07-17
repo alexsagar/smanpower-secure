@@ -22,7 +22,7 @@ interface DynamicHeroProps {
 }
 
 export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
-  const prefix = `/${lang}`;
+  void lang;
   const imageUrl = resolveMediaUrl(hero.image);
   const videoUrl = resolveMediaUrl(hero.video);
   const posterUrl = resolveMediaUrl(hero.videoPoster || hero.image);
@@ -120,14 +120,14 @@ export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
                 
                 <div className="flex gap-2 w-full md:w-auto">
                   {hero.primaryCta && (
-                    <Link href={`${prefix}${hero.primaryCta.href.startsWith('/') ? '' : '/'}${hero.primaryCta.href}`} className="w-full md:w-auto">
+                    <Link href={hero.primaryCta.href.startsWith("/") ? hero.primaryCta.href : `/${hero.primaryCta.href}`} className="w-full md:w-auto">
                       <Button variant="gold" className="w-full rounded-full h-12 px-8 text-xs font-semibold uppercase tracking-widest hover:scale-105 transition-transform duration-300">
                         {hero.primaryCta.text}
                       </Button>
                     </Link>
                   )}
                   {hero.secondaryCta && (
-                    <Link href={`${prefix}${hero.secondaryCta.href.startsWith('/') ? '' : '/'}${hero.secondaryCta.href}`} className="hidden md:flex items-center justify-center w-12 h-12 rounded-full border border-brand-white/20 hover:bg-brand-white hover:text-brand-black transition-colors group">
+                    <Link href={hero.secondaryCta.href.startsWith("/") ? hero.secondaryCta.href : `/${hero.secondaryCta.href}`} className="hidden md:flex items-center justify-center w-12 h-12 rounded-full border border-brand-white/20 hover:bg-brand-white hover:text-brand-black transition-colors group">
                       <ArrowRight className="w-4 h-4 text-brand-white group-hover:text-brand-black group-hover:translate-x-0.5 transition-all" />
                     </Link>
                   )}

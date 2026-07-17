@@ -89,8 +89,10 @@ const DemandPayloadSchema = z.object({
 function revalidateDemandCaches(slug?: string) {
   // Only invalidate the real affected outputs using route patterns
   revalidatePath("/admin/demands", "page");
-  revalidatePath("/[lang]/demands", "page");
-  revalidatePath("/[lang]/demands/[slug]", "page");
+  revalidatePath("/demands", "page");
+  if (slug) {
+    revalidatePath(`/demands/${slug}`, "page");
+  }
   
   // @ts-ignore
   revalidateTag("demands:list");

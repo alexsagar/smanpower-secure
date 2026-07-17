@@ -18,7 +18,7 @@ export async function createFacility(formData: FormData) {
   // TEMPORARY DEMO MODE — switch DEMO_MODE to false after PostgreSQL backend is deployed
   if (!process.env.DATABASE_URL) {
     revalidatePath("/admin/training");
-    revalidatePath("/en/training-facilities");
+    revalidatePath("/training-facilities");
     redirect("/admin/training");
   }
 
@@ -38,6 +38,6 @@ export async function createFacility(formData: FormData) {
   }
 
   revalidatePath("/admin/training");
-  revalidatePath("/en/training-facilities");
+  revalidatePath("/training-facilities");
   redirect("/admin/training");
 }

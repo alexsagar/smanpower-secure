@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function CommunityBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -42,7 +42,7 @@ export function CommunityBlock({ block, lang }: { block: CmsContentBlock; lang: 
                   </p>
                 )}
                 {content.ctaText && content.ctaHref && (
-                  <Link href={`${prefix}${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`} className="inline-flex items-center gap-4 group">
+                  <Link href={`${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`} className="inline-flex items-center gap-4 group">
                     <span className="text-xs font-bold uppercase tracking-widest text-brand-charcoal group-hover:text-brand-gold transition-colors">{content.ctaText}</span>
                     <div className="w-12 h-12 rounded-full border border-brand-charcoal/10 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
                       <ArrowRight className="w-4 h-4 text-brand-charcoal group-hover:text-brand-gold" />

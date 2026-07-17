@@ -7,40 +7,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isStagingNoIndexEnabled()) return [];
 
   const siteUrl = getSiteUrl();
-  // Safe fallback if siteUrl is missing in production to prevent malformed sitemap
   const BASE_URL = siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://smanpower.com";
-  
-  const locales = ["en", "ne"];
   const entries: MetadataRoute.Sitemap = [];
 
-  const addEntries = (path: string, changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never" = "monthly", priority: number = 0.5, lastModified?: Date) => {
-    for (const locale of locales) {
-      entries.push({
-        url: `${BASE_URL}/${locale}${path}`,
-        lastModified: lastModified || new Date(),
-        changeFrequency,
-        priority,
-        alternates: {
-          languages: {
-            en: `${BASE_URL}/en${path}`,
-            ne: `${BASE_URL}/ne${path}`,
-          },
-        },
-      });
-    }
-  };
-
-  const addLocalizedEntry = (locale: string, path: string, changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never" = "monthly", priority: number = 0.5, lastModified?: Date) => {
+  const addEntry = (path: string, changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never" = "monthly", priority: number = 0.5, lastModified?: Date) => {
     entries.push({
-      url: `${BASE_URL}/${locale}${path}`,
+      url: `${BASE_URL}${path || "/"}`,
       lastModified: lastModified || new Date(),
       changeFrequency,
       priority,
-      alternates: {
-        languages: {
-          [locale]: `${BASE_URL}/${locale}${path}`,
-        },
-      },
     });
   };
 
@@ -48,21 +23,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { path: "", changeFrequency: "weekly" as const, priority: 1.0 },
     { path: "/about", changeFrequency: "monthly" as const, priority: 0.8 },
+    { path: "/about/community-impact", changeFrequency: "monthly" as const, priority: 0.7 },
+    { path: "/about/leadership", changeFrequency: "monthly" as const, priority: 0.7 },
+    { path: "/about/mission-vision-values", changeFrequency: "monthly" as const, priority: 0.7 },
+    { path: "/about/our-people", changeFrequency: "monthly" as const, priority: 0.7 },
+    { path: "/about/our-story", changeFrequency: "monthly" as const, priority: 0.7 },
+    { path: "/careers", changeFrequency: "weekly" as const, priority: 0.7 },
+    { path: "/contact", changeFrequency: "monthly" as const, priority: 0.6 },
+    { path: "/demands", changeFrequency: "daily" as const, priority: 0.9 },
     { path: "/employers", changeFrequency: "monthly" as const, priority: 0.8 },
-    { path: "/job-seekers", changeFrequency: "monthly" as const, priority: 0.8 },
+    { path: "/employers/request-workforce", changeFrequency: "monthly" as const, priority: 0.7 },
     { path: "/ethical-recruitment", changeFrequency: "monthly" as const, priority: 0.8 },
     { path: "/industries", changeFrequency: "monthly" as const, priority: 0.8 },
-    { path: "/training-facilities", changeFrequency: "monthly" as const, priority: 0.8 },
-    { path: "/trust-centre", changeFrequency: "monthly" as const, priority: 0.8 },
-    { path: "/demands", changeFrequency: "daily" as const, priority: 0.9 },
     { path: "/insights", changeFrequency: "weekly" as const, priority: 0.7 },
     { path: "/news", changeFrequency: "weekly" as const, priority: 0.7 },
+    { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.5 },
+    { path: "/search", changeFrequency: "weekly" as const, priority: 0.4 },
     { path: "/success-stories", changeFrequency: "monthly" as const, priority: 0.7 },
-    { path: "/contact", changeFrequency: "monthly" as const, priority: 0.6 },
+    { path: "/terms-of-service", changeFrequency: "yearly" as const, priority: 0.5 },
+    { path: "/training-facilities", changeFrequency: "monthly" as const, priority: 0.8 },
+    { path: "/trust-centre", changeFrequency: "monthly" as const, priority: 0.8 },
+    { path: "/worker-grievance", changeFrequency: "yearly" as const, priority: 0.5 },
   ];
 
   staticPages.forEach(({ path, changeFrequency, priority }) => {
-    addEntries(path, changeFrequency, priority);
+    addEntry(path, changeFrequency, priority);
   });
 
   // Dynamic Demands
@@ -73,34 +58,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true, publishedAt: true },
     });
     demands.forEach((demand: any) => {
-      addEntries(`/demands/${demand.slug}`, "daily", 0.9, demand.publishedAt || demand.updatedAt);
+      addEntry(`/demands/${demand.slug}`, "daily", 0.9, demand.publishedAt || demand.updatedAt);
     });
 
     // Dynamic Articles
     const articles = await prisma.insightArticle.findMany({
       where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
-      select: { slug: true, lang: true, updatedAt: true, publishDate: true },
+      select: { slug: true, updatedAt: true, publishDate: true },
     });
     articles.forEach((article: any) => {
-      addLocalizedEntry(article.lang || "en", `/insights/${article.slug}`, "weekly", 0.7, article.publishDate || article.updatedAt);
+      addEntry(`/insights/${article.slug}`, "weekly", 0.7, article.publishDate || article.updatedAt);
     });
 
     // Dynamic News
     const news = await prisma.newsArticle.findMany({
       where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
-      select: { slug: true, lang: true, updatedAt: true, publishDate: true },
+      select: { slug: true, updatedAt: true, publishDate: true },
     });
     news.forEach((item: any) => {
-      addLocalizedEntry(item.lang || "en", `/news/${item.slug}`, "weekly", 0.7, item.publishDate || item.updatedAt);
+      addEntry(`/news/${item.slug}`, "weekly", 0.7, item.publishDate || item.updatedAt);
     });
 
     // Dynamic Careers
     const careers = await prisma.careerOpening.findMany({
       where: { status: "OPEN", deletedAt: null, noIndex: false },
-      select: { slug: true, lang: true, updatedAt: true },
+      select: { slug: true, updatedAt: true },
     });
     careers.forEach((item: any) => {
-      addLocalizedEntry(item.lang || "en", `/careers/${item.slug}`, "weekly", 0.6, item.updatedAt);
+      addEntry(`/careers/${item.slug}`, "weekly", 0.6, item.updatedAt);
     });
 
     // Dynamic Stories
@@ -109,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true, publishedAt: true },
     });
     stories.forEach((story: any) => {
-      addEntries(`/success-stories/${story.slug}`, "monthly", 0.6, story.publishedAt || story.updatedAt);
+      addEntry(`/success-stories/${story.slug}`, "monthly", 0.6, story.publishedAt || story.updatedAt);
     });
     
     // Dynamic CMS Pages
@@ -121,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Avoid duplicate root paths if CMS page matches existing static routes
       const existing = staticPages.find(p => p.path === `/${page.slug}`);
       if (!existing && page.slug) {
-        addEntries(`/${page.slug}`, "monthly", 0.6, page.updatedAt);
+        addEntry(`/${page.slug}`, "monthly", 0.6, page.updatedAt);
       }
     });
   }
