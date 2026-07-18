@@ -109,7 +109,7 @@ createdAt: new Date().toISOString(),
           { title: "Worker Rights", desc: "Protecting the fundamental rights of every candidate throughout the recruitment and deployment cycle, including freedom of movement and safe working conditions.", icon: "Scale", href: "/ethical-recruitment/worker-rights" },
           { title: "Recruitment Fee Transparency", desc: "Clear, documented policies on recruitment fees to protect candidates from exploitation and ensure compliance with international employer paid principles.", icon: "FileCheck", href: "/ethical-recruitment/recruitment-fees" },
           { title: "Grievance Process", desc: "Accessible, confidential, and effective mechanisms for candidates and deployed workers to report concerns without fear of retaliation.", icon: "HeartHandshake", href: "/ethical-recruitment/grievance-process" },
-          { title: "Privacy & Data Protection", desc: "Strict protocols to secure candidate personal information, medical records, and employment documentation in compliance with data protection standards.", icon: "Lock", href: "/ethical-recruitment/privacy-policy" }
+          { title: "Privacy & Data Protection", desc: "Strict protocols to secure candidate personal information, medical records, and employment documentation in compliance with data protection standards.", icon: "Lock", href: "/privacy-policy" }
         ]
       }
     },

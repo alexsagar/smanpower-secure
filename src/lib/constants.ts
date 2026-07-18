@@ -103,7 +103,7 @@ export const MAIN_NAVIGATION: NavItem[] = [
         label: "Grievance Process",
         href: "/ethical-recruitment/grievance-process",
       },
-      { label: "Privacy Policy", href: "/ethical-recruitment/privacy-policy" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Policies", href: "/ethical-recruitment/policies" },
     ],
   },
