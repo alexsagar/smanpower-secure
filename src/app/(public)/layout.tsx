@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { GoogleTranslateScript } from "@/components/layout/GoogleTranslateScript";
 import "@/app/globals.css";
 
 const inter = Inter({
@@ -41,6 +42,7 @@ export default async function PublicLayout({
             {JSON.stringify(orgSchema)}
           </Script>
         )}
+        <GoogleTranslateScript />
         <Header navigation={headerNav} />
         <main className="flex-1">{children}</main>
         <Footer footerSettings={footerSettings} siteSettings={siteSettings} />

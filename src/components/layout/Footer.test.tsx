@@ -267,7 +267,7 @@ describe("Footer", () => {
     expect(html).toContain("Ocean Gate Workforce Services Pvt. Ltd.");
     expect(html).toContain("OCEAN ");
     expect(html).toContain("GATE.");
-    expect(html).toContain('class="max-w-[22rem] text-lg font-medium leading-7 text-brand-white/85 transition-colors duration-500 group-hover:text-brand-gold lg:max-w-[26rem] lg:text-[1.4rem] lg:leading-8"');
+    expect(html).toContain('class="notranslate max-w-[22rem] text-lg font-medium leading-7 text-brand-white/85 transition-colors duration-500 group-hover:text-brand-gold lg:max-w-[26rem] lg:text-[1.4rem] lg:leading-8"');
     expect(html).not.toContain(">Seven Seas Intercontinental Services Pvt. Ltd.<");
   });
 

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsClientPartner, CmsContentBlock } from "@/types/content";
 
@@ -48,7 +49,7 @@ export function ClientMarqueeRenderer({
                   {client.logoUrl ? (
                     <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -60,7 +61,7 @@ export function ClientMarqueeRenderer({
                   {client.logoUrl ? (
                     <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -85,7 +86,7 @@ export function ClientMarqueeRenderer({
                   {group.logoUrl ? (
                     <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -100,7 +101,7 @@ export function ClientMarqueeRenderer({
                   {group.logoUrl ? (
                     <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
                 </div>
               ))}

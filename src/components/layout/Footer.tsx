@@ -5,6 +5,7 @@ import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { SocialBrandIcon, isKnownSocialPlatform } from "./SocialBrandIcon";
 import type { CmsFooterSettings, CmsSiteSettings, CmsSocialLink } from "@/types/content";
 import { toPublicHref } from "@/lib/public-href";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 function splitBrandName(settings: CmsSiteSettings) {
   const words = (settings.companyShortName || settings.companyName)
@@ -58,23 +59,23 @@ function toWordmarkParts(settings: CmsSiteSettings) {
 function toContactLinks(settings: CmsSiteSettings) {
   return [
     settings.emailDisplay && settings.emailHref
-      ? { label: settings.emailDisplay, href: settings.emailHref }
+      ? { label: settings.emailDisplay, href: settings.emailHref, protect: true }
       : settings.email
-        ? { label: settings.email, href: `mailto:${settings.email}` }
+        ? { label: settings.email, href: `mailto:${settings.email}`, protect: true }
         : null,
     settings.phoneDisplay && settings.phoneHref
-      ? { label: settings.phoneDisplay, href: settings.phoneHref }
+      ? { label: settings.phoneDisplay, href: settings.phoneHref, protect: true }
       : settings.phone
-        ? { label: settings.phone, href: `tel:${settings.phone.replace(/[^\d+]/g, "")}` }
+        ? { label: settings.phone, href: `tel:${settings.phone.replace(/[^\d+]/g, "")}`, protect: true }
         : null,
     settings.faxDisplay && settings.faxHref
-      ? { label: settings.faxDisplay, href: settings.faxHref }
+      ? { label: settings.faxDisplay, href: settings.faxHref, protect: true }
       : null,
     settings.whatsappDisplay && settings.whatsappHref
-      ? { label: settings.whatsappDisplay, href: settings.whatsappHref }
+      ? { label: settings.whatsappDisplay, href: settings.whatsappHref, protect: true }
       : null,
-    settings.officeHours ? { label: settings.officeHours, href: "" } : null,
-  ].filter((link): link is { label: string; href: string } => Boolean(link && link.label));
+    settings.officeHours ? { label: settings.officeHours, href: "", protect: false } : null,
+  ].filter((link): link is { label: string; href: string; protect: boolean } => Boolean(link && link.label));
 }
 
 function toSocialLabel(link: CmsSocialLink) {
@@ -127,9 +128,9 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
                 height={60}
                 className="h-11 w-11 shrink-0 object-contain grayscale opacity-80 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 lg:h-[3.75rem] lg:w-[3.75rem]"
               />
-              <p className="max-w-[22rem] text-lg font-medium leading-7 text-brand-white/85 transition-colors duration-500 group-hover:text-brand-gold lg:max-w-[26rem] lg:text-[1.4rem] lg:leading-8">
+              <NoTranslate as="p" className="max-w-[22rem] text-lg font-medium leading-7 text-brand-white/85 transition-colors duration-500 group-hover:text-brand-gold lg:max-w-[26rem] lg:text-[1.4rem] lg:leading-8">
                 {legalIdentity}
-              </p>
+              </NoTranslate>
             </Link>
             
             {footerSettings.tagline && (
@@ -163,7 +164,7 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
                 <h4 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-brand-gold mb-6">Global Headquarters</h4>
                 <address className="not-italic text-sm text-brand-white/60 leading-relaxed space-y-1 max-w-md xl:max-w-lg">
                   {addressLines.map((line, index) => (
-                    <div key={`${line}-${index}`}>{line}</div>
+                    <NoTranslate as="div" key={`${line}-${index}`}>{line}</NoTranslate>
                   ))}
                 </address>
               </div>
@@ -205,13 +206,13 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
                         link.href ? (
                           <a key={`${link.label}-${link.href}`} href={link.href} className="flex w-fit max-w-full items-center gap-4 text-sm text-brand-white/60 transition-colors group hover:text-brand-white">
                             <span className="relative sm:whitespace-nowrap">
-                              {link.label}
+                              {link.protect ? <NoTranslate>{link.label}</NoTranslate> : link.label}
                               <span className="absolute left-0 -bottom-1 w-0 h-px bg-brand-gold group-hover:w-full transition-all duration-500" />
                             </span>
                           </a>
                         ) : (
                           <p key={link.label} className="text-sm text-brand-white/60">
-                            {link.label}
+                            {link.protect ? <NoTranslate>{link.label}</NoTranslate> : link.label}
                           </p>
                         )
                       )}
@@ -233,7 +234,7 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
                               <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />
                             )}
                             <span className="relative sm:whitespace-nowrap">
-                              {toSocialLabel(link)}
+                              <NoTranslate>{toSocialLabel(link)}</NoTranslate>
                               <span className="absolute left-0 -bottom-1 w-0 h-px bg-brand-gold group-hover:w-full transition-all duration-500" />
                             </span>
                           </a>
@@ -253,10 +254,10 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
           
           <div className="w-full overflow-hidden flex justify-center mb-8 select-none">
             {/* The massive responsive lockup */}
-            <h2 className="text-[18vw] md:text-[15vw] lg:text-[12vw] xl:text-[140px] font-bold tracking-tighter leading-[0.75] text-transparent bg-clip-text bg-gradient-to-b from-brand-white/90 to-brand-white/10 text-center whitespace-nowrap">
+            <NoTranslate as="h2" className="text-[18vw] md:text-[15vw] lg:text-[12vw] xl:text-[140px] font-bold tracking-tighter leading-[0.75] text-transparent bg-clip-text bg-gradient-to-b from-brand-white/90 to-brand-white/10 text-center whitespace-nowrap">
               {wordmark.lead ? `${wordmark.lead} ` : ""}
               <span className="font-serif italic font-light">{wordmark.accent}.</span>
-            </h2>
+            </NoTranslate>
           </div>
           
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GoogleTranslate } from "./GoogleTranslate";
 import { toPublicHref } from "@/lib/public-href";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 import type { CmsNavigation } from "@/types/content";
 
@@ -60,29 +61,31 @@ export function Header({ navigation }: { navigation: CmsNavigation[] }) {
     >
       <div className="w-full px-6 lg:px-12 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="relative z-50 flex items-center gap-3 group shrink-0">
-          <Image
-            src="/images/SSIS.png"
-            alt="Seven Seas Intercontinental"
-            width={40}
-            height={40}
-            className="transition-transform duration-500 group-hover:scale-105"
-          />
-          <div
-            className={cn(
-              "hidden xl:block",
-              !scrolled && !activeDesktopDropdown && pathname === "/"
-                ? "text-brand-white"
-                : "text-brand-charcoal"
-            )}
-          >
-            <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
-              Seven Seas
-            </span>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
-              Intercontinental
-            </p>
-          </div>
+        <Link href="/" className="relative z-50 group shrink-0">
+          <NoTranslate className="flex items-center gap-3">
+            <Image
+              src="/images/SSIS.png"
+              alt="Seven Seas Intercontinental"
+              width={40}
+              height={40}
+              className="transition-transform duration-500 group-hover:scale-105"
+            />
+            <div
+              className={cn(
+                "hidden xl:block",
+                !scrolled && !activeDesktopDropdown && pathname === "/"
+                  ? "text-brand-white"
+                  : "text-brand-charcoal"
+              )}
+            >
+              <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
+                Seven Seas
+              </span>
+              <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
+                Intercontinental
+              </p>
+            </div>
+          </NoTranslate>
         </Link>
 
         {/* Desktop Navigation */}
