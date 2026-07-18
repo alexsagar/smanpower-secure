@@ -1,14 +1,7 @@
-import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleTranslateScript } from "@/components/layout/GoogleTranslateScript";
 import "@/app/globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildOrganizationSchema } from "@/lib/seo/schema";
@@ -35,7 +28,7 @@ export default async function PublicLayout({
   const orgSchema = buildOrganizationSchema();
 
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`} data-scroll-behavior="smooth">
+    <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col font-sans bg-brand-white text-brand-charcoal">
         {orgSchema && (
           <Script id="organization-schema" type="application/ld+json" strategy="beforeInteractive">

@@ -137,10 +137,10 @@ export default async function DemandDetailPage({ params }: Props) {
           </div>
 
           <div className="hidden lg:block">
-            <DemandPositionTable demand={demand} />
+            <DemandPositionTable demand={demand} lang="en" />
           </div>
           <div className="block lg:hidden">
-            <DemandPositionCards demand={demand} />
+            <DemandPositionCards demand={demand} lang="en" />
           </div>
           
           <p className="text-xs text-brand-charcoal/50 mt-4 max-w-3xl">
