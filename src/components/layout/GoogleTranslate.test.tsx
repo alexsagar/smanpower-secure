@@ -23,9 +23,21 @@ describe("GoogleTranslate Component", () => {
     expect(html).not.toContain('id="google_translate_element"');
     expect(html).not.toContain("google.translate.TranslateElement");
   });
+
+  it("does not render a raw script tag through React", async () => {
+    const { GoogleTranslateScript } = await import("./GoogleTranslateScript");
+    const html = renderToStaticMarkup(<GoogleTranslateScript />);
+    expect(html).toContain('id="google_translate_element"');
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain("google-translate-script");
+  });
 });
 
 describe("GoogleTranslateScript", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
     vi.resetModules();
