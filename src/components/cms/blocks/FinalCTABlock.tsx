@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function FinalCTABlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -36,14 +36,14 @@ export function FinalCTABlock({ block, lang }: { block: CmsContentBlock; lang: s
 
             <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
               {content.primaryCta?.text && content.primaryCta?.href && (
-                <Link href={`${prefix}${content.primaryCta.href?.startsWith('/') ? '' : '/'}${content.primaryCta.href}`} className="group relative inline-flex items-center justify-center px-10 py-5 overflow-hidden rounded-full bg-brand-gold text-brand-black font-bold text-xs uppercase tracking-widest transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(181,145,63,0.4)]">
+                <Link href={`${content.primaryCta.href?.startsWith('/') ? '' : '/'}${content.primaryCta.href}`} className="group relative inline-flex items-center justify-center px-10 py-5 overflow-hidden rounded-full bg-brand-gold text-brand-black font-bold text-xs uppercase tracking-widest transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(181,145,63,0.4)]">
                   <span className="relative z-10 transition-colors duration-500 group-hover:text-brand-black">{content.primaryCta.text}</span>
                   <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0" />
                 </Link>
               )}
 
               {content.secondaryCta?.text && content.secondaryCta?.href && (
-                <Link href={`${prefix}${content.secondaryCta.href?.startsWith('/') ? '' : '/'}${content.secondaryCta.href}`} className="group flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-brand-black hover:text-brand-gold transition-colors">
+                <Link href={`${content.secondaryCta.href?.startsWith('/') ? '' : '/'}${content.secondaryCta.href}`} className="group flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-brand-black hover:text-brand-gold transition-colors">
                   <div className="w-12 h-12 rounded-full border border-brand-charcoal/20 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
                     <ArrowRight className="w-4 h-4" />
                   </div>

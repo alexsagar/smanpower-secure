@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { saveSeoPageMeta } from "@/actions/seo";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
-import { generateMetadata } from "@/app/[lang]/employers/page";
+import { generateMetadata } from "@/app/(public)/employers/page";
 
 // Mocking auth to simulate different users
 vi.mock("@/lib/auth", () => ({
@@ -248,7 +248,7 @@ describe("SEO Phase 2B Integration Tests", () => {
   };
 
   it("missing SEOPageMeta uses fallback safely", async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ lang: "en" }) });
+    const metadata = await generateMetadata();
     expect(metadata.title).toBe("Hire Nepali Workers | Recruitment Agency for Gulf & Europe | Seven Seas Intercontinental");
   });
 
@@ -274,12 +274,12 @@ describe("SEO Phase 2B Integration Tests", () => {
       },
     });
 
-    const metadata = await generateMetadata({ params: Promise.resolve({ lang: "en" }) });
+    const metadata = await generateMetadata();
     expect(metadata.title).toBe("Custom Admin Title | Seven Seas Intercontinental");
     expect(metadata.description).toBe("Custom Description");
   });
 
-  it("English and Nepali SEO records are separate", async () => {
+  it("root-route metadata reads the canonical English SEO record", async () => {
     await prisma.sEOPageMeta.upsert({
       where: {
         pagePath_lang: {
@@ -302,11 +302,9 @@ describe("SEO Phase 2B Integration Tests", () => {
       create: { pagePath: "/employers", lang: "ne", metaTitle: "NE Title" },
     });
 
-    const metadataEn = await generateMetadata({ params: Promise.resolve({ lang: "en" }) });
-    const metadataNe = await generateMetadata({ params: Promise.resolve({ lang: "ne" }) });
-
-    expect(metadataEn.title).toContain("EN Title");
-    expect(metadataNe.title).toContain("NE Title");
+    const metadata = await generateMetadata();
+    expect(metadata.title).toContain("EN Title");
+    expect(metadata.title).not.toContain("NE Title");
   });
 
   it("unauthorized user cannot edit SEO", async () => {
@@ -329,7 +327,7 @@ describe("SEO Phase 2B Integration Tests", () => {
     await expect(saveSeoPageMeta({
       pagePath: "/employers",
       lang: "en",
-      canonicalUrl: "https://smanpower.com/en/employers",
+      canonicalUrl: "https://smanpower.com/employers",
     })).rejects.toThrow("Forbidden: Missing permission \"seo.manage_canonical\".");
   });
 
@@ -347,7 +345,7 @@ describe("SEO Phase 2B Integration Tests", () => {
     const result = await saveSeoPageMeta({
       pagePath: "/employers",
       lang: "en",
-      canonicalUrl: "https://smanpower.com/en/employers",
+      canonicalUrl: "https://smanpower.com/employers",
       noIndex: true,
     });
     expect(result.success).toBe(true);
@@ -358,7 +356,7 @@ describe("SEO Phase 2B Integration Tests", () => {
     await expect(saveSeoPageMeta({
       pagePath: "/employers",
       lang: "en",
-      canonicalUrl: "http://localhost:3000/en/employers",
+      canonicalUrl: "http://localhost:3000/employers",
     })).rejects.toThrow("Invalid canonical URL.");
 
     await expect(saveSeoPageMeta({
@@ -386,6 +384,6 @@ describe("SEO Phase 2B Integration Tests", () => {
     expect(log).toBeDefined();
     expect((log?.details as any).pagePath).toBe("/employers");
 
-    expect(revalidatePath).toHaveBeenCalledWith("/en/employers");
+    expect(revalidatePath).toHaveBeenCalledWith("/employers");
   });
 });

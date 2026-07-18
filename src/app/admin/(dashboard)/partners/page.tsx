@@ -46,7 +46,7 @@ export default async function AdminPartnersPage() {
     }
 
     revalidatePath("/admin/partners");
-    revalidatePath("/[lang]", "page");
+    revalidatePath("/", "page");
   }
 
   async function deletePartner(id: string) {
@@ -54,7 +54,7 @@ export default async function AdminPartnersPage() {
     await requirePermission(PARTNER_PERMISSIONS.MANAGE);
     await prisma.clientPartner.delete({ where: { id } });
     revalidatePath("/admin/partners");
-    revalidatePath("/[lang]", "page");
+    revalidatePath("/", "page");
   }
 
   return (

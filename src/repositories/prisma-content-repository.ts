@@ -125,7 +125,7 @@ function normalizeFooterSocialLinks(value: unknown): CmsSocialLink[] {
   if (!Array.isArray(value)) return [];
 
   return value
-    .map((entry, index) => {
+    .map((entry, index): CmsSocialLink | null => {
       const record = asRecord(entry);
       const platform = readString(record.platform)?.toLowerCase();
       const label = readString(record.label);

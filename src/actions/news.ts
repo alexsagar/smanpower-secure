@@ -24,11 +24,9 @@ const NewsPayloadSchema = z.object({
 
 function revalidateNews(slug?: string) {
   revalidatePath("/admin/news");
-  revalidatePath("/en/news");
-  revalidatePath("/ne/news");
+  revalidatePath("/news");
   if (slug) {
-    revalidatePath(`/en/news/${slug}`);
-    revalidatePath(`/ne/news/${slug}`);
+    revalidatePath(`/news/${slug}`);
   }
 }
 

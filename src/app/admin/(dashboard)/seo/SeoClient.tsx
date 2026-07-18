@@ -260,7 +260,7 @@ export default function SeoClient({ initialPages }: { initialPages: SeoPage[] })
                   value={editingPage.canonicalUrl || ""} 
                   onChange={(e) => setEditingPage({ ...editingPage, canonicalUrl: e.target.value })}
                   className="w-full border-brand-charcoal/20 border rounded p-2 text-sm"
-                  placeholder="e.g. https://smanpower.com/en/employers (Requires permission)"
+                  placeholder="e.g. https://smanpower.com/employers (Requires permission)"
                 />
               </div>
 

@@ -50,7 +50,7 @@ export const demoHeaderNavigation: CmsNavigation[] = [
       { id: "nav-er-3", label: "Worker Rights", href: "/ethical-recruitment/worker-rights", order: 3, isActive: true },
       { id: "nav-er-4", label: "Recruitment Fee Transparency", href: "/ethical-recruitment/recruitment-fees", order: 4, isActive: true },
       { id: "nav-er-5", label: "Grievance Process", href: "/ethical-recruitment/grievance-process", order: 5, isActive: true },
-      { id: "nav-er-6", label: "Privacy and Data Protection", href: "/ethical-recruitment/privacy-policy", order: 6, isActive: true },
+      { id: "nav-er-6", label: "Privacy and Data Protection", href: "/privacy-policy", order: 6, isActive: true },
       { id: "nav-er-7", label: "Policies and Documents", href: "/ethical-recruitment/policies", order: 7, isActive: true },
     ],
   },

@@ -79,7 +79,7 @@ export const demoFooterSettings: CmsFooterSettings = {
     },
   ],
   legalLinks: [
-    { label: "Privacy Policy", href: "/ethical-recruitment/privacy-policy" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms & Conditions", href: "/trust-centre/policies" },
     { label: "Licences", href: "/trust-centre/licences" },
   ],

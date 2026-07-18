@@ -186,22 +186,6 @@ export const ethicalContent: PageContent[] = [
     ]
   },
   { 
-    slug: "privacy-policy", 
-    title: "Privacy & Data Protection.", 
-    subtitle: "Privacy", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
-    missionHeading: "Securing Candidate Data.",
-    missionText: [
-      "In the digital age, protecting the personal information of our candidates is paramount. We adhere to strict international data protection standards.",
-      "From medical records to passport copies, candidate data is encrypted and accessible only to authorized processing personnel."
-    ],
-    features: [
-      { title: "Encrypted Storage", desc: "Enterprise-grade security for all candidate documentation." },
-      { title: "Strict Access Controls", desc: "Data is only accessible to required processing staff." },
-      { title: "Right to Deletion", desc: "Candidates can request their data be removed from our systems." }
-    ]
-  },
-  { 
     slug: "policies", 
     title: "Our Ethical Policies.", 
     subtitle: "Policies", 

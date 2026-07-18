@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 
 export function StoryGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -28,7 +28,7 @@ export function StoryGridBlock({ block, lang }: { block: CmsContentBlock; lang: 
             </ScrollReveal>
             <ScrollReveal delay={0.2}>
               {content.ctaText && content.ctaHref && (
-                <Link href={`${prefix}${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`} className="inline-flex items-center gap-4 group">
+                <Link href={`${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`} className="inline-flex items-center gap-4 group">
                   <span className="text-xs font-bold uppercase tracking-widest text-brand-charcoal group-hover:text-brand-gold transition-colors">{content.ctaText}</span>
                   <div className="w-12 h-12 rounded-full border border-brand-charcoal/20 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
                     <ArrowRight className="w-4 h-4 text-brand-charcoal group-hover:text-brand-gold" />

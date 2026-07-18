@@ -119,7 +119,7 @@ export default async function AdminContentPage() {
             {/* Actions */}
             <div className="grid grid-cols-2 border-t border-gray-100 divide-x divide-gray-100">
               <Link 
-                href={`/en/${page.slug}`}
+                href={page.slug === "home" ? "/" : `/${page.slug}`}
                 target="_blank"
                 className="flex items-center justify-center gap-2 py-4 text-sm font-medium text-gray-500 hover:text-brand-black hover:bg-gray-50 transition-colors"
               >

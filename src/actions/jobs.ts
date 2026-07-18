@@ -41,7 +41,7 @@ export async function createJob(formData: FormData) {
   }
 
   revalidatePath("/admin/jobs");
-  revalidatePath("/en/jobs");
+  revalidatePath("/jobs");
   redirect("/admin/jobs");
 }
 
@@ -51,6 +51,6 @@ export async function deleteJobAction(id: string) {
 
   await prisma.job.delete({ where: { id } });
   revalidatePath("/admin/jobs");
-  revalidatePath("/en/jobs");
+  revalidatePath("/jobs");
   return { success: true };
 }

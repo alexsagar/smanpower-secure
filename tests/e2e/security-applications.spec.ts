@@ -13,7 +13,7 @@ test.describe('Application Feature-Flag Fail-Closed Validations', () => {
     // a) Not render the form at all (redirected or shows disabled state)
     // b) Return an error state
     // In no case should the word "success" be visible.
-    const res = await page.goto('/en/demands');
+    const res = await page.goto('/demands');
     expect(res?.status()).toBe(200);
     
     // The apply page for any demand should not show application success

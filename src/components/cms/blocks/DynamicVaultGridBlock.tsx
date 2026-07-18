@@ -47,7 +47,7 @@ export async function DynamicVaultGridBlock({ block, lang }: { block: CmsContent
           {complianceDocs.map((item, i) => (
             <ScrollReveal key={item.title} delay={i * 0.1} className="h-full">
               <Link
-                href={`/${lang}/trust-centre/${item.documentType}`}
+                href={`/trust-centre/${item.documentType}`}
                 className="group block h-full min-h-[300px] border-r border-b border-brand-charcoal/10 bg-brand-off-white p-10 relative overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-2xl z-10 hover:z-20"
               >
                 

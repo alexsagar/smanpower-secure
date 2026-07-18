@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   const mainFacility = content.facilities?.[0];
   const trFacility = content.facilities?.[1];
@@ -45,7 +45,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
                   </p>
                 )}
                 {content.ctaText && content.ctaHref && (
-                  <Link href={`${prefix}${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
+                  <Link href={`${content.ctaHref?.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
                     <div className="group flex items-center gap-4 cursor-pointer">
                       <div className="w-12 h-12 rounded-full border border-brand-charcoal/20 group-hover:border-brand-gold flex items-center justify-center transition-all duration-500">
                         <ArrowRight className="w-4 h-4 text-brand-black group-hover:text-brand-gold -rotate-45 group-hover:rotate-0 transition-all duration-500" />

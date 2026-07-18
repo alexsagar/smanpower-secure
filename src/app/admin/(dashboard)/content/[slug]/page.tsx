@@ -45,8 +45,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
       console.error("Invalid JSON blocks", e);
     }
 
-    revalidatePath(`/en/${slug}`);
-    revalidatePath(`/ne/${slug}`);
+    revalidatePath(slug === "home" ? "/" : `/${slug}`);
     revalidatePath("/admin/content");
     redirect("/admin/content");
   }
@@ -83,7 +82,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
 
           <div className="flex items-center gap-3">
             <Link
-              href={`/en/${slug}`}
+              href={slug === "home" ? "/" : `/${slug}`}
               target="_blank"
               className="h-11 px-5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-brand-black font-medium transition-all shadow-sm flex items-center gap-2"
             >
