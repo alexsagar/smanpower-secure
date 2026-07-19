@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Quote } from "lucide-react";
 import Image from "next/image";
+import { getTeamMembers } from "@/repositories/content-resolver";
+import { listLeadershipMembers } from "@/lib/team-members";
 
 export const metadata: Metadata = {
   title: "Leadership | Seven Seas Intercontinental",
@@ -12,12 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LeadershipPage() {
-  const leaders = [
-    { name: "Suresh Thapa", role: "Chairman", image: "/images/trade_test_centre_1782920400836.png" },
-    { name: "Bimal Sharma", role: "Managing Director", image: "/images/corporate_office_interview_1782920412325.png" },
-    { name: "Anita Gurung", role: "Head of Ethical Compliance", image: "/images/hero_training_orientation_1782920391505.png" },
-    { name: "Rajiv Karki", role: "Operations Director", image: "/images/trade_test_centre_1782920400836.png" },
-  ];
+  const leaders = listLeadershipMembers(await getTeamMembers());
 
   return (
     <>
@@ -74,36 +70,40 @@ export default async function LeadershipPage() {
             </ScrollReveal>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {leaders.map((leader, i) => (
-              <ScrollReveal key={leader.name} delay={i * 0.15}>
-                <div className="group cursor-pointer">
-                  {/* Image Container */}
-                  <div className="relative aspect-[3/4] overflow-hidden bg-brand-charcoal/5 mb-6">
-                    <Image
-                      src={leader.image}
-                      alt={leader.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105 group-hover:opacity-80 grayscale group-hover:grayscale-0"
-                    />
-                    {/* Hover Gold Overlay */}
-                    <div className="absolute inset-0 border border-brand-gold/0 group-hover:border-brand-gold/30 transition-colors duration-500 z-10" />
-                  </div>
+          {leaders.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {leaders.map((leader, i) => (
+                <ScrollReveal key={leader.id} delay={i * 0.15}>
+                  <div className="group cursor-pointer">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-brand-charcoal/5 mb-6">
+                      {leader.photo?.secureUrl ? (
+                        <Image
+                          src={leader.photo.secureUrl}
+                          alt={leader.photoAltText || leader.photo.altText || leader.name}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105 group-hover:opacity-80 grayscale group-hover:grayscale-0"
+                        />
+                      ) : null}
+                      <div className="absolute inset-0 border border-brand-gold/0 group-hover:border-brand-gold/30 transition-colors duration-500 z-10" />
+                    </div>
 
-                  {/* Info */}
-                  <div className="relative">
-                    <h3 className="text-2xl font-semibold text-brand-black tracking-tight mb-1 group-hover:text-brand-gold transition-colors duration-300">
-                      {leader.name}
-                    </h3>
-                    <p className="text-sm font-semibold tracking-widest uppercase text-brand-muted">
-                      {leader.role}
-                    </p>
-                    <div className="h-px w-0 bg-brand-gold mt-4 group-hover:w-full transition-all duration-700 ease-out" />
+                    <div className="relative">
+                      <h3 className="text-2xl font-semibold text-brand-black tracking-tight mb-1 group-hover:text-brand-gold transition-colors duration-300">
+                        {leader.name}
+                      </h3>
+                      <p className="text-sm font-semibold tracking-widest uppercase text-brand-muted">
+                        {leader.designation}
+                      </p>
+                      {leader.bio ? <p className="mt-4 text-sm leading-relaxed text-brand-muted">{leader.bio}</p> : null}
+                      <div className="h-px w-0 bg-brand-gold mt-4 group-hover:w-full transition-all duration-700 ease-out" />
+                    </div>
                   </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          ) : (
+            <p className="text-brand-muted">Leadership profiles are being updated.</p>
+          )}
         </div>
       </section>
 

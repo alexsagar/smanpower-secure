@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import Image from "next/image";
-import { Users, GraduationCap, PlaneTakeoff, HeartPulse } from "lucide-react";
+import { getTeamMembers } from "@/repositories/content-resolver";
+import { listPeopleMembers } from "@/lib/team-members";
 
 export const metadata: Metadata = {
   title: "Our People | Seven Seas Intercontinental",
@@ -12,12 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OurPeoplePage() {
-  const departments = [
-    { title: "Sourcing & Outreach", desc: "Our field experts operate deep within local communities across Nepal, ensuring talent is identified ethically and without intermediaries.", icon: <Users className="w-8 h-8" /> },
-    { title: "Trade & Training", desc: "Industry veterans and master trainers who ensure every candidate is technically and culturally prepared for their overseas role.", icon: <GraduationCap className="w-8 h-8" /> },
-    { title: "Deployment Logistics", desc: "Meticulous coordinators managing visas, flights, and documentation to support a smooth transition for workers.", icon: <PlaneTakeoff className="w-8 h-8" /> },
-    { title: "Welfare & Grievance", desc: "A dedicated support team operating 24/7 to ensure deployed workers have an immediate lifeline in case of any issues.", icon: <HeartPulse className="w-8 h-8" /> },
-  ];
+  const people = listPeopleMembers(await getTeamMembers());
 
   return (
     <>
@@ -57,23 +52,34 @@ export default async function OurPeoplePage() {
             </ScrollReveal>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {departments.map((dept, i) => (
-              <ScrollReveal key={dept.title} delay={i * 0.1}>
-                <div className="group bg-brand-white border border-brand-charcoal/10 p-12 h-full hover:border-brand-gold/50 transition-colors duration-500 flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-full bg-brand-charcoal/5 flex items-center justify-center text-brand-gold mb-8 group-hover:bg-brand-gold group-hover:text-brand-white transition-colors duration-500">
-                    {dept.icon}
+          {people.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {people.map((member, i) => (
+                <ScrollReveal key={member.id} delay={i * 0.1}>
+                  <div className="group bg-brand-white border border-brand-charcoal/10 p-8 h-full hover:border-brand-gold/50 transition-colors duration-500 flex gap-6 items-start">
+                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-brand-charcoal/5">
+                      {member.photo?.secureUrl ? (
+                        <Image
+                          src={member.photo.secureUrl}
+                          alt={member.photoAltText || member.photo.altText || member.name}
+                          fill
+                          className="object-cover grayscale transition duration-500 group-hover:grayscale-0"
+                        />
+                      ) : null}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-semibold text-brand-black mb-2">{member.name}</h3>
+                      <p className="text-sm font-semibold uppercase tracking-widest text-brand-gold">{member.designation}</p>
+                      {member.department ? <p className="mt-2 text-sm text-brand-muted">{member.department}</p> : null}
+                      {member.bio ? <p className="mt-4 text-brand-muted leading-relaxed">{member.bio}</p> : null}
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-semibold text-brand-black mb-4">
-                    {dept.title}
-                  </h3>
-                  <p className="text-brand-muted leading-relaxed">
-                    {dept.desc}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-brand-muted">Team profiles are being updated.</p>
+          )}
         </div>
       </section>
 

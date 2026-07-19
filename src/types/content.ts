@@ -626,9 +626,11 @@ export interface CmsTeamMember {
   department?: string;
   bio?: string;
   photo?: CmsMediaAsset;
+  photoAltText?: string;
   email?: string;
   phone?: string;
   linkedIn?: string;
+  group?: "LEADERSHIP" | "PEOPLE" | "BOTH";
   order: number;
   isPublished: boolean;
 }

@@ -33,6 +33,7 @@ const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Content", href: "/admin/content", icon: FileText },
   { label: "Partners", href: "/admin/partners", icon: Building2 },
+  { label: "Team", href: "/admin/team", icon: Users },
   { label: "Demands", href: "/admin/demands", icon: Briefcase },
   { label: "Applications", href: "/admin/applications", icon: Shield },
   { label: "Insights", href: "/admin/insights", icon: FileText },
