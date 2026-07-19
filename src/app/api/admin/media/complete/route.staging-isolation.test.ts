@@ -259,6 +259,7 @@ describe("media completion staging isolation", () => {
       {
         resource_type: "video",
         type: "upload",
+        media_metadata: true,
       }
     );
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
@@ -404,11 +405,11 @@ describe("media completion staging isolation", () => {
     await expect(response.json()).resolves.toEqual({
       error: "Verified video metadata is incomplete",
     });
-    expect(cloudinaryResourceMock).toHaveBeenCalledTimes(6);
+    expect(cloudinaryResourceMock).toHaveBeenCalledTimes(3);
     expect(loggerWarnMock).toHaveBeenCalledWith(
       "Cloudinary video metadata duration is not available yet.",
       expect.objectContaining({
-        attempt: 6,
+        attempt: 3,
         resourceType: "video",
         deliveryType: "upload",
         hasDuration: false,
@@ -736,6 +737,171 @@ describe("media completion staging isolation", () => {
           fileUrl: "https://cdn.example.test/staging-image.jpeg",
           duration: null,
         }),
+      })
+    );
+  });
+
+  it("requests media_metadata for image lookups is not sent", async () => {
+    cloudinaryResourceMock.mockResolvedValue(cloudinaryAsset());
+    createMock.mockResolvedValue({ id: "staging-media-image" });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_image",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(cloudinaryResourceMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/cms_image",
+      { resource_type: "image", type: "upload" }
+    );
+  });
+
+  it.each([
+    [
+      "top-level duration",
+      { duration: 12.5, video_duration: 99, media_metadata: { duration: 88 } },
+      12.5,
+    ],
+    [
+      "top-level video_duration",
+      { duration: null, video_duration: 34.2, media_metadata: { duration: 88 } },
+      34.2,
+    ],
+    [
+      "media_metadata.duration",
+      { duration: null, video_duration: undefined, media_metadata: { duration: 56.1 } },
+      56.1,
+    ],
+    [
+      "media_metadata.video_duration",
+      { duration: null, media_metadata: { video_duration: 21 } },
+      21,
+    ],
+    [
+      "numeric string normalized to number",
+      { duration: "42.75" },
+      42.75,
+    ],
+  ])(
+    "extracts verified video duration from %s",
+    async (_label, durationFields, expected) => {
+      cloudinaryResourceMock.mockResolvedValue(
+        cloudinaryAsset({
+          resource_type: "video",
+          format: "mp4",
+          public_id: "staging/seven-seas-cms/video-candidate",
+          secure_url: "https://cdn.example.test/video-candidate.mp4",
+          ...(durationFields as Record<string, unknown>),
+        })
+      );
+      createMock.mockResolvedValue({ id: "staging-media-video" });
+
+      const response = await POST(
+        new Request("http://localhost/api/admin/media/complete", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            public_id: "staging/seven-seas-cms/video-candidate",
+            purpose: "cms_video",
+            original_filename: "video.mp4",
+          }),
+        })
+      );
+
+      expect(response.status).toBe(200);
+      expect(createMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ duration: expected }),
+        })
+      );
+    }
+  );
+
+  it("rejects a formatted timestamp duration string", async () => {
+    vi.useFakeTimers();
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        resource_type: "video",
+        format: "mp4",
+        duration: "00:01:18.500",
+        public_id: "staging/seven-seas-cms/video-formatted",
+        secure_url: "https://cdn.example.test/video-formatted.mp4",
+      })
+    );
+
+    const responsePromise = POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/video-formatted",
+          purpose: "cms_video",
+          original_filename: "video.mp4",
+        }),
+      })
+    );
+    await vi.runAllTimersAsync();
+    const response = await responsePromise;
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Verified video metadata is incomplete",
+    });
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it("diagnostic logging contains no secrets", async () => {
+    vi.useFakeTimers();
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        resource_type: "video",
+        format: "mp4",
+        duration: null,
+        api_secret: "super-secret",
+        api_key: "key-123",
+        signature: "sig-abc",
+        media_metadata: { fps: "30", codec: "h264" },
+        public_id: "staging/seven-seas-cms/video-diag",
+        secure_url: "https://cdn.example.test/video-diag.mp4",
+      })
+    );
+
+    const responsePromise = POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/video-diag",
+          purpose: "cms_video",
+          original_filename: "video.mp4",
+        }),
+      })
+    );
+    await vi.runAllTimersAsync();
+    await responsePromise;
+
+    const loggedPayloads = loggerWarnMock.mock.calls
+      .map(([, payload]) => JSON.stringify(payload ?? {}))
+      .join("|");
+
+    expect(loggedPayloads).not.toContain("super-secret");
+    expect(loggedPayloads).not.toContain("key-123");
+    expect(loggedPayloads).not.toContain("sig-abc");
+    // Diagnostics expose key names and value TYPES only, never values.
+    expect(loggerWarnMock).toHaveBeenCalledWith(
+      "Cloudinary video metadata duration is not available yet.",
+      expect.objectContaining({
+        hasMediaMetadata: true,
+        mediaMetadataKeys: ["fps", "codec"],
+        durationType: "object",
       })
     );
   });
