@@ -312,9 +312,11 @@ type TeamMemberRecord = {
   department?: string;
   bio?: string;
   photo?: string;
+  photoAltText?: string;
   email?: string;
   phone?: string;
   linkedIn?: string;
+  group?: "LEADERSHIP" | "PEOPLE" | "BOTH";
   order: number;
   isPublished: boolean;
 };
@@ -413,12 +415,14 @@ function mapTeamMemberRecord(entry: unknown): CmsTeamMember | null {
     photo: entry.photo
       ? mapUrlBackedMediaAsset(String(entry.photo), {
           id: `${id}-photo`,
-          altText: name,
+          altText: asString(entry.photoAltText) || name,
         })
       : undefined,
+    photoAltText: asString(entry.photoAltText) || name,
     email: asString(entry.email),
     phone: asString(entry.phone),
     linkedIn: asString(entry.linkedIn),
+    group: entry.group === "LEADERSHIP" || entry.group === "BOTH" ? entry.group : "PEOPLE",
     order,
     isPublished,
   };
@@ -1092,7 +1096,7 @@ export class PrismaContentRepository implements ContentRepository {
       return members
         .map(mapTeamMemberRecord)
         .filter((member): member is CmsTeamMember => member !== null && member.isPublished)
-        .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+        .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
     } catch (error) {
       return this.logRepositoryError("getTeamMembers", error);
     }

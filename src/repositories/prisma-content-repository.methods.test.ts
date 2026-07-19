@@ -27,6 +27,8 @@ vi.mock("@prisma/client", () => ({
   },
 }));
 
+vi.mock("server-only", () => ({}));
+
 import { PrismaContentRepository } from "./prisma-content-repository";
 
 describe("PrismaContentRepository methods", () => {
@@ -276,22 +278,37 @@ describe("PrismaContentRepository methods", () => {
     ]);
   });
 
-  it("reads published team members from the site setting and preserves media without LOCAL_DEMO", async () => {
+  it("reads published team members from site settings with legacy defaults, filtering, and stable sorting", async () => {
     prismaMock.siteSetting.findUnique.mockResolvedValue({
       value: [
         {
-          id: "team-2",
+          id: "team-unpublished",
           name: "Inactive",
           designation: "Director",
-          order: 2,
+          order: 1,
           isPublished: false,
         },
         {
-          id: "team-1",
-          name: "Active",
+          id: "team-invalid",
+          name: "Invalid",
+          order: 2,
+          isPublished: true,
+        },
+        {
+          id: "team-b",
+          name: "Beta",
           designation: "Manager",
-          photo: "https://cdn.example.com/team-1.jpg",
-          order: 1,
+          photo: "https://cdn.example.com/team-b.jpg",
+          photoAltText: "Custom alt",
+          group: "BOTH",
+          order: 3,
+          isPublished: true,
+        },
+        {
+          id: "team-a",
+          name: "Alpha",
+          designation: "Coordinator",
+          order: 3,
           isPublished: true,
         },
       ],
@@ -303,8 +320,13 @@ describe("PrismaContentRepository methods", () => {
       where: { key: "team_members" },
       select: { value: true },
     });
-    expect(members).toHaveLength(1);
-    expect(members[0].photo?.source).toBe("CLOUDINARY");
+    expect(members.map((member) => member.name)).toEqual(["Alpha", "Beta"]);
+    expect(members[0].group).toBe("PEOPLE");
+    expect(members[0].photoAltText).toBe("Alpha");
+    expect(members[1].group).toBe("BOTH");
+    expect(members[1].photoAltText).toBe("Custom alt");
+    expect(members[1].photo?.source).toBe("CLOUDINARY");
+    expect(members[1].photo?.altText).toBe("Custom alt");
   });
 
   it("returns empty arrays for legitimate no-content results", async () => {
