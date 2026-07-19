@@ -16,6 +16,8 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
   const router = useRouter();
   
   const [state, formAction, isPending] = useActionState(applyToDemandAction, null);
+  const [cvFileName, setCvFileName] = useState("");
+  const [certFileName, setCertFileName] = useState("");
 
   // Form State
   const [formData, setFormData] = useState({
@@ -70,7 +72,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
   }
 
   return (
-    <form action={formAction} className="bg-white border border-brand-charcoal/10 shadow-sm rounded-sm p-6 md:p-8">
+    <form action={formAction} className="bg-white border border-brand-charcoal/10 shadow-sm rounded-sm p-6 md:p-8" aria-busy={isPending}>
       {/* Hidden fields for required demand logic */}
       <input type="hidden" name="demandId" value={demand.id} />
       
@@ -258,13 +260,29 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
             <p className="font-semibold text-brand-black text-sm">Upload CV (Optional)</p>
             <p className="text-xs text-brand-charcoal/60 mt-1">PDF only, up to 5MB</p>
-            <input type="file" name="cvFile" accept=".pdf" className="mt-4 w-full text-xs" />
+            <input
+              type="file"
+              name="cvFile"
+              accept=".pdf"
+              disabled={isPending}
+              onChange={(event) => setCvFileName(event.target.files?.[0]?.name || "")}
+              className="mt-4 w-full text-xs disabled:opacity-50"
+            />
+            {cvFileName && <p className="mt-2 truncate text-xs text-brand-gold">{cvFileName}</p>}
           </div>
           <div className="border-2 border-dashed border-brand-charcoal/20 p-6 text-center rounded-sm bg-brand-charcoal/5">
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
             <p className="font-semibold text-brand-black text-sm">Trade Certificate (Optional)</p>
             <p className="text-xs text-brand-charcoal/60 mt-1">PDF, JPG, PNG up to 5MB</p>
-            <input type="file" name="certFile" accept=".pdf,.jpg,.jpeg,.png" className="mt-4 w-full text-xs" />
+            <input
+              type="file"
+              name="certFile"
+              accept=".pdf,.jpg,.jpeg,.png"
+              disabled={isPending}
+              onChange={(event) => setCertFileName(event.target.files?.[0]?.name || "")}
+              className="mt-4 w-full text-xs disabled:opacity-50"
+            />
+            {certFileName && <p className="mt-2 truncate text-xs text-brand-gold">{certFileName}</p>}
           </div>
         </div>
       </div>
@@ -348,9 +366,10 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
       <button
         type="submit"
         disabled={isPending}
+        aria-busy={isPending}
         className="w-full bg-brand-gold text-brand-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-brand-black hover:text-brand-white transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        {isPending ? <><Loader2 className="w-5 h-5 animate-spin" /> Submitting Application...</> : "Submit Application"}
+        {isPending ? <><Loader2 className="w-5 h-5 motion-safe:animate-spin motion-reduce:animate-none" /> Submitting Application...</> : "Submit Application"}
       </button>
     </form>
   );
