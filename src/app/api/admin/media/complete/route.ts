@@ -23,7 +23,10 @@ import {
 } from "@/lib/cloudinary-namespace";
 import { deleteManagedAsset } from "@/services/cloudinary.service";
 
-const VIDEO_METADATA_RETRY_DELAYS_MS = [0, 250, 500, 1000, 2000, 3000];
+// Bounded verification retries. Cloudinary populates verified video duration
+// asynchronously, but with `media_metadata: true` it is available within a few
+// hundred ms, so a short 3-attempt schedule is sufficient.
+const VIDEO_METADATA_RETRY_DELAYS_MS = [0, 500, 1000];
 
 function getVerifiedCloudinaryFolder(assetMeta: {
   asset_folder?: unknown;
@@ -40,19 +43,96 @@ function getVerifiedCloudinaryFolder(assetMeta: {
   return null;
 }
 
-function getVerifiedVideoDuration(assetMeta: { duration?: unknown }): number | null {
-  if (typeof assetMeta.duration === "number") {
-    return Number.isFinite(assetMeta.duration) && assetMeta.duration > 0
-      ? assetMeta.duration
-      : null;
+// Accept only a positive finite number, or a positive finite numeric string of
+// seconds. Rejects undefined/null/""/0/negative/NaN/Infinity/nonnumeric text.
+// A formatted duration like "00:01:18.500" parses to NaN and is rejected here —
+// we intentionally do not implement a timestamp parser.
+function normalizePositiveSeconds(value: unknown): number | null {
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value > 0 ? value : null;
   }
 
-  if (typeof assetMeta.duration === "string" && assetMeta.duration.trim()) {
-    const duration = Number(assetMeta.duration);
-    return Number.isFinite(duration) && duration > 0 ? duration : null;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }
 
   return null;
+}
+
+type CloudinaryDurationSource = {
+  duration?: unknown;
+  video_duration?: unknown;
+  media_metadata?: unknown;
+};
+
+// Extract verified video duration in seconds from the authenticated Cloudinary
+// Admin API response, in deterministic candidate priority. `format_duration` is
+// deliberately excluded: the real response has not proven it to be numeric
+// seconds, and it is typically a formatted string.
+function getVerifiedVideoDuration(assetMeta: CloudinaryDurationSource): number | null {
+  const mediaMetadata =
+    assetMeta.media_metadata &&
+    typeof assetMeta.media_metadata === "object" &&
+    !Array.isArray(assetMeta.media_metadata)
+      ? (assetMeta.media_metadata as Record<string, unknown>)
+      : null;
+
+  const candidates: unknown[] = [
+    assetMeta.duration,
+    assetMeta.video_duration,
+    mediaMetadata?.duration,
+    mediaMetadata?.video_duration,
+  ];
+
+  for (const candidate of candidates) {
+    const normalized = normalizePositiveSeconds(candidate);
+    if (normalized !== null) {
+      return normalized;
+    }
+  }
+
+  return null;
+}
+
+// Temporary safe diagnostics for the authenticated Admin API response. Logs
+// only key names, presence and value TYPES — never the values themselves, and
+// never any credential/secret/header/URL.
+function logVideoMetadataDiagnostics(
+  assetMeta: Record<string, unknown> | undefined,
+  attempt: number,
+  deliveryType?: string
+) {
+  if (!assetMeta) {
+    return;
+  }
+
+  const mediaMetadata =
+    assetMeta.media_metadata &&
+    typeof assetMeta.media_metadata === "object" &&
+    !Array.isArray(assetMeta.media_metadata)
+      ? (assetMeta.media_metadata as Record<string, unknown>)
+      : null;
+
+  logger.warn("Cloudinary video metadata duration is not available yet.", {
+    attempt,
+    resourceType: assetMeta.resource_type,
+    deliveryType,
+    assetKeys: Object.keys(assetMeta),
+    hasMediaMetadata: mediaMetadata !== null,
+    mediaMetadataKeys: mediaMetadata ? Object.keys(mediaMetadata) : null,
+    durationType: typeof assetMeta.duration,
+    hasDuration: assetMeta.duration !== undefined && assetMeta.duration !== null,
+    videoDurationType: typeof assetMeta.video_duration,
+    hasVideoDuration:
+      assetMeta.video_duration !== undefined && assetMeta.video_duration !== null,
+    formatDurationType: typeof assetMeta.format_duration,
+    hasFormatDuration:
+      assetMeta.format_duration !== undefined && assetMeta.format_duration !== null,
+    mediaMetadataDurationType: typeof mediaMetadata?.duration,
+    mediaMetadataVideoDurationType: typeof mediaMetadata?.video_duration,
+    mediaMetadataFormatDurationType: typeof mediaMetadata?.format_duration,
+  });
 }
 
 function wait(ms: number): Promise<void> {
@@ -66,6 +146,10 @@ async function getVerifiedCloudinaryResource(
     type?: "upload" | "private";
   }
 ) {
+  const isVideo = options.resource_type === "video";
+  // Only videos need verified duration metadata; images/raw don't request it.
+  const lookupOptions = isVideo ? { ...options, media_metadata: true } : options;
+
   let assetMeta;
 
   for (let index = 0; index < VIDEO_METADATA_RETRY_DELAYS_MS.length; index += 1) {
@@ -74,19 +158,13 @@ async function getVerifiedCloudinaryResource(
       await wait(delay);
     }
 
-    assetMeta = await cloudinary.api.resource(publicId, options);
+    assetMeta = await cloudinary.api.resource(publicId, lookupOptions);
 
-    if (options.resource_type !== "video" || getVerifiedVideoDuration(assetMeta) !== null) {
+    if (!isVideo || getVerifiedVideoDuration(assetMeta) !== null) {
       return assetMeta;
     }
 
-    logger.warn("Cloudinary video metadata duration is not available yet.", {
-      attempt: index + 1,
-      resourceType: assetMeta?.resource_type,
-      deliveryType: options.type,
-      hasDuration: assetMeta?.duration !== undefined && assetMeta?.duration !== null,
-      durationType: typeof assetMeta?.duration,
-    });
+    logVideoMetadataDiagnostics(assetMeta, index + 1, options.type);
   }
 
   return assetMeta;
