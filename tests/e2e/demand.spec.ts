@@ -10,12 +10,12 @@ test.describe('Demand Module', () => {
   test.skip(true, 'BLOCKED: Requires seeded QA demand with known slug/companyName in smanpower_qa — see docs/qa-issues.md');
 
   test('QA Demand is visible on public listing', async ({ page }) => {
-    await page.goto('/en/demands');
+    await page.goto('/demands');
     await expect(page.getByText('QA Test Employer LLC').first()).toBeVisible();
   });
 
   test('QA Demand detail page loads with JobPosting JSON-LD', async ({ page }) => {
-    await page.goto('/en/demands/qa-test-demand-2026');
+    await page.goto('/demands/qa-test-demand-2026');
     await expect(page.locator('h1')).toContainText('QA_TEST_ Demand for Testing');
     
     const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();

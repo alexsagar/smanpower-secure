@@ -52,7 +52,7 @@ export function EditorialBlock({ block, lang }: { block: CmsContentBlock; lang: 
               return (
                 <Link
                   key={i}
-                  href={`/${lang}${item.href}`}
+                  href={item.href}
                   className="group relative flex items-center gap-6 py-6 px-8 border border-brand-charcoal/10 bg-white overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-brand-charcoal translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0" />

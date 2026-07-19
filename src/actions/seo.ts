@@ -83,8 +83,7 @@ export async function saveSeoPageMeta(data: {
   });
 
   // Revalidate
-  const route = data.pagePath === "/" ? `/${data.lang}` : `/${data.lang}${data.pagePath}`;
-  revalidatePath(route);
+  revalidatePath(data.pagePath || "/");
 
   return { success: true, record };
 }

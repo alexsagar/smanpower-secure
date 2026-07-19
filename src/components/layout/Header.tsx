@@ -9,10 +9,12 @@ import { Menu, X, ChevronDown, Search, Globe, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GoogleTranslate } from "./GoogleTranslate";
+import { toPublicHref } from "@/lib/public-href";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 import type { CmsNavigation } from "@/types/content";
 
-export function Header({ lang, dict, navigation }: { lang: string; dict: any; navigation: CmsNavigation[] }) {
+export function Header({ navigation }: { navigation: CmsNavigation[] }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,8 +35,6 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
     setMobileMenuOpen(false);
     setActiveDesktopDropdown(null);
   }, [pathname]);
-
-  const prefix = `/${lang}`;
 
   const navConfig: Record<string, { label: string; items: { label: string; href: string }[] }> = {};
   navigation.forEach(nav => {
@@ -61,29 +61,31 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
     >
       <div className="w-full px-6 lg:px-12 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href={prefix} className="relative z-50 flex items-center gap-3 group shrink-0">
-          <Image
-            src="/images/SSIS.png"
-            alt="Seven Seas Intercontinental"
-            width={40}
-            height={40}
-            className="transition-transform duration-500 group-hover:scale-105"
-          />
-          <div
-            className={cn(
-              "hidden xl:block",
-              !scrolled && !activeDesktopDropdown && pathname === prefix
-                ? "text-brand-white"
-                : "text-brand-charcoal"
-            )}
-          >
-            <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
-              Seven Seas
-            </span>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
-              Intercontinental
-            </p>
-          </div>
+        <Link href="/" className="relative z-50 group shrink-0">
+          <NoTranslate className="flex items-center gap-3">
+            <Image
+              src="/images/SSIS.png"
+              alt="Seven Seas Intercontinental"
+              width={40}
+              height={40}
+              className="transition-transform duration-500 group-hover:scale-105"
+            />
+            <div
+              className={cn(
+                "hidden xl:block",
+                !scrolled && !activeDesktopDropdown && pathname === "/"
+                  ? "text-brand-white"
+                  : "text-brand-charcoal"
+              )}
+            >
+              <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
+                Seven Seas
+              </span>
+              <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
+                Intercontinental
+              </p>
+            </div>
+          </NoTranslate>
         </Link>
 
         {/* Desktop Navigation */}
@@ -99,7 +101,7 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
                   "text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1 transition-colors relative after:absolute after:bottom-1/3 after:left-0 after:w-full after:h-px after:bg-brand-gold after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left after:transition-transform after:duration-300",
                   activeDesktopDropdown === key
                     ? "text-brand-gold after:scale-x-100"
-                    : !scrolled && !activeDesktopDropdown && pathname === prefix
+                    : !scrolled && !activeDesktopDropdown && pathname === "/"
                     ? "text-brand-white/90 hover:text-brand-white"
                     : "text-brand-charcoal hover:text-brand-gold"
                 )}
@@ -113,10 +115,10 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-3 xl:gap-5 shrink-0">
           <Link
-            href={`${prefix}/search`}
+            href="/search"
             className={cn(
               "p-2 transition-colors rounded-full hover:bg-brand-white/10",
-              !scrolled && !activeDesktopDropdown && pathname === prefix
+              !scrolled && !activeDesktopDropdown && pathname === "/"
                 ? "text-brand-white/80 hover:text-brand-white"
                 : "text-brand-charcoal hover:text-brand-gold"
             )}
@@ -128,12 +130,12 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
             <GoogleTranslate />
           </div>
           
-          <Link href={`${prefix}/demands`}>
+          <Link href="/demands">
             <Button
-              variant={!scrolled && !activeDesktopDropdown && pathname === prefix ? "outline" : "primary"}
+              variant={!scrolled && !activeDesktopDropdown && pathname === "/" ? "outline" : "primary"}
               className={cn(
                 "text-[10px] font-semibold uppercase tracking-widest h-10 px-5 xl:px-8 rounded-none transition-all duration-300 hover:bg-brand-gold hover:text-brand-black hover:border-brand-gold",
-                !scrolled && !activeDesktopDropdown && pathname === prefix ? "text-brand-white border-brand-white/40" : ""
+                !scrolled && !activeDesktopDropdown && pathname === "/" ? "text-brand-white border-brand-white/40" : ""
               )}
             >
               View Demands
@@ -145,7 +147,7 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
         <button
           className={cn(
             "lg:hidden p-2 z-50",
-            !scrolled && !mobileMenuOpen && pathname === prefix
+            !scrolled && !mobileMenuOpen && pathname === "/"
               ? "text-brand-white"
               : "text-brand-charcoal"
           )}
@@ -180,7 +182,7 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
                   {navConfig[activeDesktopDropdown as keyof typeof navConfig].items.map((item) => (
                     <Link
                       key={item.href}
-                      href={`${prefix}${item.href}`}
+                      href={toPublicHref(item.href)}
                       className="text-sm text-brand-charcoal hover:text-brand-gold transition-colors flex items-center group py-2"
                     >
                       <ChevronRight className="w-4 h-4 opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 transition-all text-brand-gold" />
@@ -233,7 +235,7 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
                           {section.items.map((item) => (
                             <Link
                               key={item.href}
-                              href={`${prefix}${item.href}`}
+                              href={toPublicHref(item.href)}
                               className="block text-sm text-brand-muted hover:text-brand-gold"
                             >
                               {item.label}
@@ -247,7 +249,7 @@ export function Header({ lang, dict, navigation }: { lang: string; dict: any; na
               ))}
             </div>
             <div className="p-6 bg-brand-off-white space-y-4">
-              <Link href={`${prefix}/demands`}>
+              <Link href="/demands">
                 <Button variant="primary" fullWidth className="rounded-none">
                   View Demands
                 </Button>

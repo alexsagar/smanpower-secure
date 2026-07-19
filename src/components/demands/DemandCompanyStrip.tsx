@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Building2, MapPin, Briefcase, Calendar, CheckCircle2 } from "lucide-react";
 import { CmsDemand } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 interface DemandCompanyStripProps {
   demand: CmsDemand;
@@ -35,9 +36,9 @@ export function DemandCompanyStrip({ demand }: DemandCompanyStripProps) {
         <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
             <p className="text-xs font-semibold text-brand-charcoal/50 uppercase tracking-wider mb-1">Company</p>
-            <p className="font-bold text-brand-black flex items-center gap-2">
+            <NoTranslate as="p" className="font-bold text-brand-black flex items-center gap-2">
               {demand.companyName}
-            </p>
+            </NoTranslate>
           </div>
 
           <div>
@@ -61,10 +62,10 @@ export function DemandCompanyStrip({ demand }: DemandCompanyStripProps) {
           {demand.demandReferenceNumber && (
             <div>
               <p className="text-xs font-semibold text-brand-charcoal/50 uppercase tracking-wider mb-1">Demand Ref.</p>
-              <p className="font-mono text-sm text-brand-charcoal flex items-center gap-2">
+              <NoTranslate as="p" className="font-mono text-sm text-brand-charcoal flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-brand-gold" />
                 {demand.demandReferenceNumber}
-              </p>
+              </NoTranslate>
             </div>
           )}
 

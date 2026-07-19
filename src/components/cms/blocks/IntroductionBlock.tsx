@@ -9,7 +9,7 @@ import { RichTextRenderer } from "../RichTextRenderer";
 import { ManagedVideo } from "../ManagedVideo";
 
 export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   const mediaUrl = resolveMediaUrl(block.image);
   const videoUrl = resolveMediaUrl(block.video);
@@ -96,7 +96,7 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
 
               {content.ctaText && content.ctaHref && (
                 <div className="mt-16">
-                  <Link href={`${prefix}${content.ctaHref.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
+                  <Link href={`${content.ctaHref.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
                     <div className="group flex items-center gap-6 cursor-pointer">
                       <span className="text-brand-charcoal text-[11px] font-bold uppercase tracking-[0.2em] group-hover:text-brand-gold transition-colors">
                         {content.ctaText}

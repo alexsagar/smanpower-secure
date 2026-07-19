@@ -31,11 +31,9 @@ const CareerPayloadSchema = z.object({
 
 function revalidateCareers(slug?: string) {
   revalidatePath("/admin/careers");
-  revalidatePath("/en/careers");
-  revalidatePath("/ne/careers");
+  revalidatePath("/careers");
   if (slug) {
-    revalidatePath(`/en/careers/${slug}`);
-    revalidatePath(`/ne/careers/${slug}`);
+    revalidatePath(`/careers/${slug}`);
   }
 }
 

@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import "@/app/globals.css";
 import type { Metadata } from "next";
 import { SessionTimeoutManager } from "@/components/admin/SessionTimeoutManager";
+import { SESSION_CONFIG } from "@/lib/session-config";
 
 export const metadata: Metadata = {
   title: { default: "Admin | Seven Seas", template: "%s | Admin | Seven Seas" },
@@ -48,10 +49,17 @@ export default async function AdminLayout({
     role: admin.role,
   };
 
+  const sessionTimeoutConfig = {
+    idleTimeoutMinutes: SESSION_CONFIG.IDLE_TIMEOUT_MINUTES,
+    idleWarningSeconds: SESSION_CONFIG.IDLE_WARNING_SECONDS,
+    absoluteTimeoutMinutes: SESSION_CONFIG.ABSOLUTE_TIMEOUT_MINUTES,
+    activityRefreshSeconds: SESSION_CONFIG.ACTIVITY_REFRESH_SECONDS,
+  };
+
   return (
     <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
       <body className="h-full font-sans bg-brand-off-white text-brand-charcoal">
-        <SessionTimeoutManager />
+        <SessionTimeoutManager config={sessionTimeoutConfig} />
         <div className="flex h-full">
           <AdminSidebar user={user} />
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">

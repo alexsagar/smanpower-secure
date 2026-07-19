@@ -42,7 +42,7 @@ export async function DynamicIndustryGridBlock({ block, lang }: { block: CmsCont
           {dbIndustries.map((item, i) => (
             <ScrollReveal key={item.name} delay={i * 0.05} className="h-full">
               <Link
-                href={`/${lang}/industries/${item.slug}`}
+                href={`/industries/${item.slug}`}
                 className="group block h-full min-h-[320px] bg-white border-r border-b border-brand-charcoal/10 p-10 relative overflow-hidden transition-colors duration-500 hover:bg-brand-black"
               >
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/noise.png')] opacity-0 group-hover:opacity-10 mix-blend-overlay pointer-events-none transition-opacity duration-500" />

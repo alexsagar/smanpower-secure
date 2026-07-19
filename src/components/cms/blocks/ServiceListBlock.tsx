@@ -8,7 +8,7 @@ import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
 export function ServiceListBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
   
   return (
@@ -51,7 +51,7 @@ export function ServiceListBlock({ block, lang }: { block: CmsContentBlock; lang
           <div className="border-t border-brand-charcoal/20">
             {content.services?.map((service: any, i: number) => (
               <ScrollReveal key={i} delay={i * 0.05}>
-                <Link href={`${prefix}${service.href?.startsWith('/') ? '' : '/'}${service.href}`}>
+                <Link href={`${service.href?.startsWith('/') ? '' : '/'}${service.href}`}>
                   <div className="group flex flex-col xl:flex-row xl:items-center justify-between py-12 lg:py-16 border-b border-brand-charcoal/20 hover:bg-brand-charcoal transition-colors duration-700 px-6 lg:px-12 -mx-6 lg:-mx-12 cursor-pointer">
 
                     {/* Number and Title */}

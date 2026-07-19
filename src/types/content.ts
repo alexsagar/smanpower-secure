@@ -271,10 +271,20 @@ export interface CmsSiteSettings {
   country: string;
   postalCode?: string;
   phone: string;
+  phoneDisplay?: string;
+  phoneHref?: string;
+  faxDisplay?: string;
+  faxHref?: string;
   email: string;
+  emailDisplay?: string;
+  emailHref?: string;
   whatsapp: string;
+  whatsappDisplay?: string;
+  whatsappHref?: string;
   officeHours?: string;
-  socialLinks: {
+  footerAddressLines?: string[];
+  // Legacy fixture input only. Footer rendering must use CmsFooterSettings.socialLinks.
+  socialLinks?: {
     facebook?: string;
     linkedin?: string;
     instagram?: string;
@@ -282,6 +292,14 @@ export interface CmsSiteSettings {
     youtube?: string;
   };
   defaultSeo: CmsPageSeo;
+}
+
+export interface CmsSocialLink {
+  platform: string;
+  label: string;
+  url: string;
+  isActive: boolean;
+  order: number;
 }
 
 export interface CmsFooterSettings {
@@ -292,6 +310,7 @@ export interface CmsFooterSettings {
     title: string;
     links: { label: string; href: string }[];
   }[];
+  socialLinks?: CmsSocialLink[];
   legalLinks: { label: string; href: string }[];
   copyrightText: string;
 }

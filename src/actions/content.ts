@@ -240,8 +240,8 @@ export async function savePageAction(
       }
     });
 
-    revalidatePath(`/en/${slug}`);
-    revalidatePath(`/ne/${slug}`);
+    const publicPath = slug === "home" ? "/" : `/${slug}`;
+    revalidatePath(publicPath);
     revalidatePath("/admin/content");
 
     return { success: true };

@@ -52,17 +52,17 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
 
   test('Draft Demand is not public and absent from sitemap', async ({ request, page }) => {
     // 1. Not in public list
-    await page.goto('/en/demands');
+    await page.goto('/demands');
     await expect(page.getByText('E2E Corp')).not.toBeVisible();
 
     // 2. Direct access -> 404
-    const res = await request.get(`/en/demands/${slug}`);
+    const res = await request.get(`/demands/${slug}`);
     expect(res.status()).toBe(404);
 
     // 3. Sitemap
     const sitemap = await request.get('/sitemap.xml');
     const sitemapText = await sitemap.text();
-    expect(sitemapText).not.toContain(`/en/demands/${slug}`);
+    expect(sitemapText).not.toContain(`/demands/${slug}`);
   });
 
   // SKIP REASON (approved): The publish test creates a demand via Prisma directly, then calls
@@ -79,10 +79,10 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
     });
     expect(postRes.status()).toBe(200);
 
-    await page.goto(`/en/demands?t=${Date.now()}`);
+    await page.goto(`/demands?t=${Date.now()}`);
     await expect(page.getByText('E2E Corp').first()).toBeVisible();
 
-    await page.goto(`/en/demands/${slug}?t=${Date.now()}`);
+    await page.goto(`/demands/${slug}?t=${Date.now()}`);
     await expect(page.locator('h1')).toContainText('E2E Test Demand');
     
     const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
@@ -95,7 +95,7 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
 
     const sitemap = await request.get('/sitemap.xml');
     const sitemapText = await sitemap.text();
-    expect(sitemapText).toContain(`/en/demands/${slug}`);
+    expect(sitemapText).toContain(`/demands/${slug}`);
   });
 
   // SKIP REASON (approved): Depends on the publish test having run successfully. Pre-existing.
@@ -105,7 +105,7 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
     });
     expect(postRes.status()).toBe(200);
 
-    await page.goto(`/en/demands/${slug}?t=${Date.now()}`);
+    await page.goto(`/demands/${slug}?t=${Date.now()}`);
     await expect(page.getByText('E2E MegaCorp')).toBeVisible();
   });
 
@@ -115,7 +115,7 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
     });
     expect(postRes.status()).toBe(200);
 
-    await page.goto(`/en/demands/${slug}?t=${Date.now()}`);
+    await page.goto(`/demands/${slug}?t=${Date.now()}`);
     
     // Applications disabled -> no JobPosting
     const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
@@ -136,16 +136,16 @@ test.describe('Demand Cache Lifecycle & E2E Validation', () => {
     expect(postRes.status()).toBe(200);
 
     // 1. Not in public list
-    await page.goto(`/en/demands?t=${Date.now()}`);
+    await page.goto(`/demands?t=${Date.now()}`);
     await expect(page.getByText('E2E MegaCorp')).not.toBeVisible();
 
     // 2. Direct access -> 404 (or noindex depending on your exact policy. Usually an archived demand throws a 404 for public users)
-    const res = await request.get(`/en/demands/${slug}?t=${Date.now()}`);
+    const res = await request.get(`/demands/${slug}?t=${Date.now()}`);
     expect(res.status()).toBe(404);
 
     // 3. Sitemap
     const sitemap = await request.get(`/sitemap.xml?t=${Date.now()}`);
     const sitemapText = await sitemap.text();
-    expect(sitemapText).not.toContain(`/en/demands/${slug}`);
+    expect(sitemapText).not.toContain(`/demands/${slug}`);
   });
 });

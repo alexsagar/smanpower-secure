@@ -185,14 +185,14 @@ test.afterAll(async () => {
 });
 
 test("public application flow saves application, protects documents, and stays noindex", async ({ page, request, browser, baseURL }) => {
-  await page.goto(`/en/demands/${demandSlug}`);
+  await page.goto(`/demands/${demandSlug}`);
 
   const applyLink = page.getByRole("link", { name: /apply job/i });
   await expect(applyLink).toBeVisible();
-  await expect(applyLink).toHaveAttribute("href", `/en/demands/${demandSlug}/apply`);
+  await expect(applyLink).toHaveAttribute("href", `/demands/${demandSlug}/apply`);
 
   await applyLink.click();
-  await expect(page).toHaveURL(`/en/demands/${demandSlug}/apply`);
+  await expect(page).toHaveURL(`/demands/${demandSlug}/apply`);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/i);
   await expect(page.getByRole("heading", { name: /apply for security guards/i })).toBeVisible();
 
@@ -252,7 +252,7 @@ test("public application flow saves application, protects documents, and stays n
 
   const sitemapResponse = await request.get("/sitemap.xml");
   expect(sitemapResponse.ok()).toBeTruthy();
-  expect(await sitemapResponse.text()).not.toContain(`/en/demands/${demandSlug}/apply`);
+  expect(await sitemapResponse.text()).not.toContain(`/demands/${demandSlug}/apply`);
 
   await prisma.candidateDocument.update({
     where: { id: documentId },

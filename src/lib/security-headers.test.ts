@@ -19,6 +19,18 @@ describe("getSecurityHeaderEntries", () => {
     expect(keys).not.toContain("Strict-Transport-Security");
   });
 
+  it("allows Google Translate JSONP scripts without wildcard Google origins", async () => {
+    const { getSecurityHeaderEntries } = await import("./security-headers");
+    const csp = getSecurityHeaderEntries().find((header) => header.key === "Content-Security-Policy")?.value || "";
+    const scriptSrc = csp.split("; ").find((directive) => directive.startsWith("script-src ")) || "";
+
+    expect(scriptSrc).toContain("https://translate.google.com");
+    expect(scriptSrc).toContain("https://translate.googleapis.com");
+    expect(scriptSrc).toContain("https://translate-pa.googleapis.com");
+    expect(scriptSrc).not.toContain("*.googleapis.com");
+    expect(scriptSrc).not.toContain("*.google.com");
+  });
+
   it("adds explicit no-referrer overrides for sensitive document routes", async () => {
     const { getSecurityHeaderConfig } = await import("./security-headers");
     const config = getSecurityHeaderConfig();

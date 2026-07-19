@@ -2,9 +2,9 @@
 
 import React from "react";
 import Image from "next/image";
+import { NoTranslate } from "@/components/i18n/NoTranslate";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import type { CmsContentBlock } from "@/types/content";
-import type { ClientPartner } from "@prisma/client";
+import type { CmsClientPartner, CmsContentBlock } from "@/types/content";
 
 export function ClientMarqueeRenderer({ 
   block, 
@@ -12,8 +12,8 @@ export function ClientMarqueeRenderer({
   groups 
 }: { 
   block: CmsContentBlock; 
-  clients: ClientPartner[];
-  groups: ClientPartner[];
+  clients: CmsClientPartner[];
+  groups: CmsClientPartner[];
 }) {
   const content = block.content as any;
   const heading = content.heading || "Global Network";
@@ -49,7 +49,7 @@ export function ClientMarqueeRenderer({
                   {client.logoUrl ? (
                     <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -61,7 +61,7 @@ export function ClientMarqueeRenderer({
                   {client.logoUrl ? (
                     <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -81,12 +81,12 @@ export function ClientMarqueeRenderer({
               {groups.map((group, idx) => (
                 <div key={idx} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
                   <span className="text-brand-gold text-xs font-bold tracking-[0.2em] uppercase mb-1">
-                    {group.category.replace('_', ' ')}
+                    {group.type.replace("_", " ")}
                   </span>
                   {group.logoUrl ? (
                     <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
                 </div>
               ))}
@@ -96,12 +96,12 @@ export function ClientMarqueeRenderer({
               {groups.map((group, idx) => (
                 <div key={`dup-group-${idx}`} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
                   <span className="text-brand-gold text-xs font-bold tracking-[0.2em] uppercase mb-1">
-                    {group.category.replace('_', ' ')}
+                    {group.type.replace("_", " ")}
                   </span>
                   {group.logoUrl ? (
                     <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
                   ) : (
-                    <span className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</span>
+                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
                 </div>
               ))}

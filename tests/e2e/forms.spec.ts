@@ -7,7 +7,7 @@ test.describe('Forms & Uploads', () => {
   // components. The assertion pattern is incorrect. Will be fixed in a dedicated forms QA pass.
   // Unrelated to Priority 5A security work.
   test.skip('Contact form requires validation', async ({ page }) => {
-    await page.goto('/en/contact');
+    await page.goto('/contact');
     await page.locator('button[type="submit"]').click();
     await expect(page.locator('form').first()).toContainText(/required|invalid/i);
   });

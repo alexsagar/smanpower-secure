@@ -25,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
           "/accept-invite/",
           "/forgot-password/",
           "/*preview*", 
-          "/*/apply/" // Block all application forms from crawling (e.g. /en/demands/slug/apply)
+          "/*/apply/" // Block all application forms from crawling (e.g. /demands/slug/apply)
         ],
       },
     ],

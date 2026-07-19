@@ -8,7 +8,6 @@ import type { CmsContentBlock } from "@/types/content";
 import TalentDashboard from "@/components/dashboard/TalentDashboard";
 
 export function MapIntelligenceBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
   
   return (
     <>

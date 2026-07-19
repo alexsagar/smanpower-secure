@@ -6,10 +6,10 @@ import { DemandStatusBadgeComponent } from "./DemandStatusBadge";
 
 interface DemandCardProps {
   demand: CmsDemand;
-  lang: string;
+  lang?: string;
 }
 
-export function DemandCard({ demand, lang }: DemandCardProps) {
+export function DemandCard({ demand }: DemandCardProps) {
   const isClosed = demand.status === "CLOSED" || demand.status === "ARCHIVED";
 
   return (
@@ -93,7 +93,7 @@ export function DemandCard({ demand, lang }: DemandCardProps) {
       {/* Action Button */}
       <div className="p-6 pt-0 mt-auto">
         <Link
-          href={`/${lang}/demands/${demand.slug}`}
+          href={`/demands/${demand.slug}`}
           className={`block w-full text-center py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
             isClosed
               ? "bg-brand-charcoal/5 text-brand-charcoal/40 cursor-default pointer-events-none"

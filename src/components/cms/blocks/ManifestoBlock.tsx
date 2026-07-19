@@ -7,7 +7,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
 
 export function ManifestoBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
-  const prefix = `/${lang}`;
+  void lang;
   const content = block.content as any;
 
   return (
@@ -49,7 +49,7 @@ export function ManifestoBlock({ block, lang }: { block: CmsContentBlock; lang: 
 
               {content.ctaText && content.ctaHref && (
                 <div className="pt-16 flex justify-end">
-                  <Link href={`${prefix}${content.ctaHref.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
+                  <Link href={`${content.ctaHref.startsWith('/') ? '' : '/'}${content.ctaHref}`}>
                     <div className="inline-flex items-center gap-6 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-all duration-300">
                       <span className="text-[11px] font-bold uppercase tracking-[0.2em]">{content.ctaText}</span>
                       <ArrowRight className="w-5 h-5" />

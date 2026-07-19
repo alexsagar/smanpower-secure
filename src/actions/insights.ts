@@ -34,9 +34,9 @@ const InsightPayloadSchema = z.object({
 
 function revalidateInsightCaches(slug?: string) {
   revalidatePath("/admin/insights", "page");
-  revalidatePath("/[lang]/insights", "page");
+  revalidatePath("/insights", "page");
   if (slug) {
-    revalidatePath(`/[lang]/insights/${slug}`, "page");
+    revalidatePath(`/insights/${slug}`, "page");
     // @ts-expect-error Next.js 16 signature issue
     revalidateTag(`insight:${slug}`);
   }

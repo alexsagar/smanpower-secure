@@ -112,8 +112,7 @@ describe("savePageAction", () => {
         }),
       })
     );
-    expect(revalidatePath).toHaveBeenCalledWith("/en/about");
-    expect(revalidatePath).toHaveBeenCalledWith("/ne/about");
+    expect(revalidatePath).toHaveBeenCalledWith("/about");
     expect(revalidatePath).toHaveBeenCalledWith("/admin/content");
   });
 
@@ -180,5 +179,39 @@ describe("savePageAction", () => {
 
     expect(result).toEqual({ success: true });
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("revalidates the homepage slug at the canonical root path", async () => {
+    prisma.mediaAsset.findMany.mockResolvedValue([]);
+    prisma.cmsPage.findUnique.mockResolvedValue({
+      id: "page-home",
+      slug: "home",
+      hero: { id: "hero-1" },
+      blocks: [{ id: "block-1" }],
+    });
+
+    const { savePageAction } = await import("./content");
+
+    const result = await savePageAction(
+      "page-home",
+      "home",
+      {
+        id: "hero-1",
+        richHeading: { type: "doc", content: [] },
+        overlayEnabled: false,
+      },
+      [
+        {
+          id: "block-1",
+          blockType: "introduction",
+          content: {},
+        },
+      ]
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/content");
+    expect(revalidatePath).not.toHaveBeenCalledWith("/home");
   });
 });

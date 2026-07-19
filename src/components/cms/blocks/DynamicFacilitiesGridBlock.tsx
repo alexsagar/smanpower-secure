@@ -42,7 +42,7 @@ export async function DynamicFacilitiesGridBlock({ block, lang }: { block: CmsCo
           {dbFacilities.map((item, i) => (
             <ScrollReveal key={item.id || item.slug} delay={i * 0.1} className="h-full">
               <Link
-                href={`/${lang}/training-facilities/${item.slug}`}
+                href={`/training-facilities/${item.slug}`}
                 className="group block h-full min-h-[350px] border-r border-b border-brand-white/10 p-10 relative overflow-hidden transition-all duration-700 hover:bg-brand-white/[0.02]"
               >
                 {/* Subtle Glow on Hover */}
