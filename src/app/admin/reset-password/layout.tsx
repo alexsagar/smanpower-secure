@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
 import "@/app/globals.css";
 
-export const metadata: Metadata = {
-  title: "Admin Login | Seven Seas Intercontinental",
-  robots: { index: false, follow: false },
-};
-
-export default function AdminLoginLayout({
+export default function ResetPasswordLayout({
   children,
 }: {
   children: React.ReactNode;
