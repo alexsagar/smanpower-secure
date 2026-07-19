@@ -204,10 +204,113 @@ describe("media completion staging isolation", () => {
           publicId: "staging/seven-seas-cms/lsghq77avthfu3t2nrqq",
           folder: "staging/seven-seas-cms",
           resourceType: "VIDEO",
+          duration: 4,
+          width: 1200,
+          height: 800,
+          fileSize: 1024,
+          mimeType: "video/mp4",
+          fileUrl: "https://cdn.example.test/staging-video.mp4",
+        }),
+      })
+    );
+    expect(cloudinaryResourceMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/lsghq77avthfu3t2nrqq",
+      {
+        resource_type: "video",
+        type: "upload",
+      }
+    );
+    expect(deleteManagedAssetMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts video completion after initially incomplete metadata is populated", async () => {
+    cloudinaryResourceMock
+      .mockResolvedValueOnce(
+        cloudinaryAsset({
+          resource_type: "video",
+          format: "mp4",
+          duration: null,
+          public_id: "staging/seven-seas-cms/video-delayed",
+          secure_url: "https://cdn.example.test/video-delayed.mp4",
+        })
+      )
+      .mockResolvedValueOnce(
+        cloudinaryAsset({
+          resource_type: "video",
+          format: "mp4",
+          duration: 6.5,
+          public_id: "staging/seven-seas-cms/video-delayed",
+          secure_url: "https://cdn.example.test/video-delayed.mp4",
+        })
+      );
+    createMock.mockResolvedValue({
+      id: "staging-media-video",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/video-delayed",
+          purpose: "cms_video",
+          original_filename: "video.mp4",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(cloudinaryResourceMock).toHaveBeenCalledTimes(2);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          duration: 6.5,
         }),
       })
     );
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
+  });
+
+  it("fails safely when verified video duration remains unavailable", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        resource_type: "video",
+        format: "mp4",
+        duration: null,
+        public_id: "staging/seven-seas-cms/video-incomplete",
+        secure_url: "https://cdn.example.test/video-incomplete.mp4",
+      })
+    );
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/video-incomplete",
+          purpose: "cms_video",
+          original_filename: "video.mp4",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Verified video metadata is incomplete",
+    });
+    expect(cloudinaryResourceMock).toHaveBeenCalledTimes(3);
+    expect(createMock).not.toHaveBeenCalled();
+    expect(deleteManagedAssetMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/video-incomplete",
+      {
+        deliveryType: "upload",
+        resourceType: "video",
+      }
+    );
   });
 
   it("uses asset_folder before legacy folder", async () => {
@@ -441,5 +544,40 @@ describe("media completion staging isolation", () => {
 
     expect(response.status).toBe(200);
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
+  });
+
+  it("does not use client-provided metadata as authoritative", async () => {
+    cloudinaryResourceMock.mockResolvedValue(cloudinaryAsset());
+    createMock.mockResolvedValue({
+      id: "staging-media-image",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_image",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+          bytes: 999999,
+          secure_url: "https://evil.example.test/file.jpg",
+          duration: 999,
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          fileSize: 1024,
+          fileUrl: "https://cdn.example.test/staging-image.jpeg",
+          duration: null,
+        }),
+      })
+    );
   });
 });
