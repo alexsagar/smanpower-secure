@@ -77,17 +77,17 @@
 
 ## Wave 5: Contact, Grievance And Legal Pages
 
-- Pages: `/contact`, `/worker-grievance`, `/privacy-policy`, `/terms-of-service`, `/ethical-recruitment/privacy-policy`.
+- Pages: `/contact`, `/worker-grievance`, `/privacy-policy`, `/terms-of-service`.
 - New collections: OfficeLocation; LegalPage if legal content requires approval workflow.
 - New block types: `contact_details`, `office_locations`, `legal_rich_text`, `faq`.
 - Schema impact: office/legal structured content.
-- Migration requirements: seed hardcoded offices and legal copy.
+- Migration requirements: seed hardcoded offices and legal copy. Keep `/ethical-recruitment/privacy-policy` as a legacy redirect to canonical `/privacy-policy`.
 - Admin UI work: legal editing with restricted roles and review workflow.
 - Public rendering work: contact/grievance pages read settings/office/legal content.
 - Preview work: legal/contact preview.
 - Tests: no validation/security edits exposed.
 - Staging checks: legal review required.
-- Rollback: route fallback copy.
+- Rollback: route fallback copy; the legacy privacy redirect remains in place.
 - Dependencies: Wave 0 and auth/RBAC policy.
 
 ## Wave 6: Listing And Dynamic Detail Templates
