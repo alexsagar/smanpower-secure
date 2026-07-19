@@ -23,6 +23,9 @@ import {
 } from "@/lib/cloudinary-namespace";
 import { deleteManagedAsset } from "@/services/cloudinary.service";
 
+const VIDEO_METADATA_LOOKUP_ATTEMPTS = 3;
+const VIDEO_METADATA_RETRY_DELAY_MS = 150;
+
 function getVerifiedCloudinaryFolder(assetMeta: {
   asset_folder?: unknown;
   folder?: unknown;
@@ -36,6 +39,38 @@ function getVerifiedCloudinaryFolder(assetMeta: {
   }
 
   return null;
+}
+
+function hasVerifiedVideoMetadata(assetMeta: { duration?: unknown }): boolean {
+  return typeof assetMeta.duration === "number" && assetMeta.duration > 0;
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getVerifiedCloudinaryResource(
+  publicId: string,
+  options: {
+    resource_type: "image" | "video" | "raw";
+    type?: "upload" | "private";
+  }
+) {
+  let assetMeta;
+
+  for (let attempt = 1; attempt <= VIDEO_METADATA_LOOKUP_ATTEMPTS; attempt += 1) {
+    assetMeta = await cloudinary.api.resource(publicId, options);
+
+    if (options.resource_type !== "video" || hasVerifiedVideoMetadata(assetMeta)) {
+      return assetMeta;
+    }
+
+    if (attempt < VIDEO_METADATA_LOOKUP_ATTEMPTS) {
+      await wait(VIDEO_METADATA_RETRY_DELAY_MS);
+    }
+  }
+
+  return assetMeta;
 }
 
 async function rollbackManagedUpload(
@@ -113,9 +148,9 @@ export async function POST(request: Request) {
     // We cannot trust client-supplied data. We fetch the asset metadata securely.
     let assetMeta;
     try {
-      assetMeta = await cloudinary.api.resource(data.public_id, {
+      assetMeta = await getVerifiedCloudinaryResource(data.public_id, {
         resource_type: config.resourceType,
-        ...(config.deliveryType === "private" ? { type: "private" } : {}),
+        type: config.deliveryType,
       });
     } catch (e) {
       logger.warn("Cloudinary asset lookup failed during media completion.");
@@ -168,7 +203,7 @@ export async function POST(request: Request) {
 
     if (
       authoritativeResourceType === "VIDEO" &&
-      !(typeof assetMeta.duration === "number" && assetMeta.duration > 0)
+      !hasVerifiedVideoMetadata(assetMeta)
     ) {
       return rejectWithCleanup(data.public_id, destroyResourceType, "Verified video metadata is incomplete");
     }
