@@ -3,6 +3,7 @@
 import type React from "react";
 import { useActionState, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import {
@@ -17,6 +18,23 @@ import {
 import { MediaInput } from "@/components/admin/MediaInput";
 
 const initialState: TeamActionState = { success: false, message: "" };
+
+type RefreshRouter = { refresh: () => void };
+
+export async function runTeamActionWithRefresh(
+  action: (state: TeamActionState, formData: FormData) => Promise<TeamActionState>,
+  state: TeamActionState,
+  formData: FormData,
+  router: RefreshRouter,
+  onSuccess?: () => void
+) {
+  const result = await action(state, formData);
+  if (result.success) {
+    router.refresh();
+    onSuccess?.();
+  }
+  return result;
+}
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -40,8 +58,19 @@ function TeamForm({
   member?: AdminTeamMember;
   onDone?: () => void;
 }) {
-  const [state, formAction] = useActionState(action, initialState);
+  const router = useRouter();
   const [photo, setPhoto] = useState(member?.photo ?? "");
+  const [state, formAction] = useActionState(
+    (state: TeamActionState, formData: FormData) =>
+      runTeamActionWithRefresh(action, state, formData, router, () => {
+        if (member) {
+          onDone?.();
+        } else {
+          setPhoto("");
+        }
+      }),
+    initialState
+  );
 
   return (
     <form action={formAction} className="space-y-4 border border-brand-charcoal/10 bg-white p-6">
@@ -132,7 +161,12 @@ function IconAction({
   confirmMessage?: string;
   fields: Record<string, string>;
 }) {
-  const [state, formAction] = useActionState(action, initialState);
+  const router = useRouter();
+  const [state, formAction] = useActionState(
+    (state: TeamActionState, formData: FormData) =>
+      runTeamActionWithRefresh(action, state, formData, router),
+    initialState
+  );
   return (
     <form
       action={formAction}
