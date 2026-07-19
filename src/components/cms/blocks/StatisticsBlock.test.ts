@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { demoStatistics } from "@/demo-data/homepage";
 import type { CmsContentBlock, CmsStatistic } from "@/types/content";
 
+vi.mock("server-only", () => ({}));
+
 const block = {
   id: "block-home-stats",
   blockType: "statistics",

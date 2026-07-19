@@ -5,6 +5,81 @@ import { ChevronLeft, Save, Code, LayoutTemplate, Settings2 } from "lucide-react
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { VisualPageEditor } from "@/components/admin/content/VisualPageEditor";
+import { getClientPartners, getStatistics } from "@/repositories/content-resolver";
+import { getIndustries } from "@/services/industries.service";
+import { getTrainingFacilities } from "@/services/facilities.service";
+import { getComplianceDocuments } from "@/services/compliance.service";
+import type { AdminPreviewData } from "@/types/admin-preview";
+import type { CmsComplianceDocument, CmsContentBlock, CmsIndustry, CmsTrainingFacility } from "@/types/content";
+
+function normalizeIndustries(items: Awaited<ReturnType<typeof getIndustries>> | undefined): CmsIndustry[] | undefined {
+  return items?.map((item) => ({
+    id: item.id,
+    name: item.name,
+    nameNe: "nameNe" in item ? item.nameNe ?? undefined : undefined,
+    slug: item.slug,
+    description: item.description ?? undefined,
+    icon: "icon" in item ? item.icon ?? undefined : undefined,
+    order: item.order,
+    isActive: item.isActive,
+  }));
+}
+
+function normalizeTrainingFacilities(items: Awaited<ReturnType<typeof getTrainingFacilities>> | undefined): CmsTrainingFacility[] | undefined {
+  return items?.map((item) => ({
+    id: item.id,
+    name: item.name,
+    nameNe: "nameNe" in item ? item.nameNe ?? undefined : undefined,
+    slug: item.slug,
+    description: item.description ?? undefined,
+    location: item.location ?? undefined,
+    capacity: item.capacity ?? undefined,
+    isActive: item.isActive,
+  }));
+}
+
+function isComplianceDocumentType(value: string): value is CmsComplianceDocument["documentType"] {
+  return value === "licence" || value === "certificate" || value === "policy";
+}
+
+function normalizeTrustDocuments(items: Awaited<ReturnType<typeof getComplianceDocuments>> | undefined): CmsComplianceDocument[] | undefined {
+  return items?.flatMap((item) => {
+    const documentType = item.documentType;
+    if (!isComplianceDocumentType(documentType)) return [];
+
+    return [{
+      id: item.id,
+      title: item.title,
+      titleNe: "titleNe" in item ? item.titleNe ?? undefined : undefined,
+      description: "description" in item ? item.description ?? undefined : undefined,
+      documentType,
+      issueDate: "issueDate" in item ? item.issueDate instanceof Date ? item.issueDate.toISOString() : item.issueDate ?? undefined : undefined,
+      expiryDate: "expiryDate" in item ? item.expiryDate instanceof Date ? item.expiryDate.toISOString() : item.expiryDate ?? undefined : undefined,
+      isPublic: item.isPublic,
+      isVerified: item.isVerified,
+      order: item.order,
+    }];
+  });
+}
+
+async function getAdminPreviewData(blocks: Pick<CmsContentBlock, "blockType" | "visible">[]): Promise<AdminPreviewData> {
+  const blockTypes = new Set(blocks.filter((block) => block.visible !== false).map((block) => block.blockType));
+  const [statistics, clientPartners, industries, trainingFacilities, trustDocuments] = await Promise.all([
+    blockTypes.has("statistics") ? getStatistics() : undefined,
+    blockTypes.has("client_marquee") ? getClientPartners() : undefined,
+    blockTypes.has("dynamic_industry_grid") ? getIndustries() : undefined,
+    blockTypes.has("dynamic_facilities_grid") ? getTrainingFacilities() : undefined,
+    blockTypes.has("dynamic_vault_grid") ? getComplianceDocuments() : undefined,
+  ]);
+
+  return {
+    statistics,
+    clientPartners,
+    industries: normalizeIndustries(industries),
+    trainingFacilities: normalizeTrainingFacilities(trainingFacilities),
+    trustDocuments: normalizeTrustDocuments(trustDocuments),
+  };
+}
 
 export default async function PageEditor({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -20,6 +95,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
   });
 
   if (!page) notFound();
+  const previewData = await getAdminPreviewData(page.blocks as Pick<CmsContentBlock, "blockType" | "visible">[]);
 
   async function updatePageAction(formData: FormData) {
     "use server";
@@ -93,7 +169,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
         </div>
       </div>
 
-      <VisualPageEditor initialPage={page} />
+      <VisualPageEditor initialPage={page} previewData={previewData} />
     </div>
   );
 }

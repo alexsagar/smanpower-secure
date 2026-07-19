@@ -5,6 +5,8 @@ import { jsx } from "react/jsx-runtime";
 import { demoClientPartners } from "@/demo-data/homepage";
 import type { CmsClientPartner, CmsContentBlock } from "@/types/content";
 
+vi.mock("server-only", () => ({}));
+
 vi.mock("next/image", () => ({
   default: (props: Record<string, unknown>) => jsx("img", props),
 }));
