@@ -51,7 +51,6 @@ export function generateUploadSignature(
     {
       timestamp,
       folder: resolvedFolder,
-      resource_type: resourceType,
       // If deliveryType is private, we must sign `type: "private"`
       ...(deliveryType === "private" ? { type: "private" } : {}),
     },

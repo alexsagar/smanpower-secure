@@ -57,6 +57,46 @@ describe("cloudinary service hardening", () => {
     );
   });
 
+  it("does not include endpoint-only resource_type in signed upload parameters", async () => {
+    const apiSignRequestMock = vi.fn(() => "signed");
+
+    vi.doMock("@/lib/cloudinary", () => ({
+      default: {
+        utils: {
+          api_sign_request: apiSignRequestMock,
+        },
+      },
+    }));
+
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv(
+      "CLOUDINARY_API_SECRET",
+      "test-api-secret-value"
+    );
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    const result =
+      cloudinaryService.generateUploadSignature(
+        "seven-seas-cms",
+        "upload",
+        "image"
+      );
+
+    expect(result.resourceType).toBe("image");
+    expect(apiSignRequestMock).toHaveBeenCalledWith(
+      {
+        timestamp: expect.any(Number),
+        folder: "staging/seven-seas-cms",
+      },
+      "test-api-secret-value"
+    );
+  });
+
   it("prefixes server-side staging uploads in QA mode", async () => {
     vi.stubEnv("APP_ENV", "staging");
     vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");

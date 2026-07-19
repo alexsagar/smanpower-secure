@@ -177,6 +177,19 @@ export function getAcceptAttributeForPurpose(purpose: MediaPurpose): string {
   return getAllowedMimeTypesForPurpose(purpose).join(",");
 }
 
+export function getCloudinaryResourceTypeForPurpose(
+  purpose: MediaPurpose
+): "image" | "video" | "raw" {
+  return MEDIA_PURPOSE_MAP[purpose].resourceType;
+}
+
+export function isCloudinaryResourceTypeAllowedForPurpose(
+  purpose: MediaPurpose,
+  resourceType?: string | null
+): boolean {
+  return resourceType === getCloudinaryResourceTypeForPurpose(purpose);
+}
+
 export function getNormalizedExtension(value?: string | null): string | null {
   if (!value) return null;
 

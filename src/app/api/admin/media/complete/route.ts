@@ -6,6 +6,7 @@ import {
   MEDIA_PURPOSE_MAP,
   MediaPurpose,
   getFileExtension,
+  isCloudinaryResourceTypeAllowedForPurpose,
   isAllowedExtensionForPurpose,
   isAllowedMimeTypeForPurpose,
 } from "@/lib/media-purposes";
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Validate resource type
-    if (assetMeta.resource_type !== config.resourceType) {
+    if (!isCloudinaryResourceTypeAllowedForPurpose(purpose, assetMeta.resource_type)) {
       return rejectWithCleanup(data.public_id, destroyResourceType, "Invalid resource type");
     }
 
