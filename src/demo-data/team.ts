@@ -12,6 +12,7 @@ export const demoTeam: CmsTeamMember[] = [
     designation: "Managing Director",
     department: "Executive",
     bio: "Over 25 years of experience in international workforce deployment and ethical recruitment standards.",
+    group: "LEADERSHIP",
     order: 1,
     isPublished: true,
   },
@@ -21,6 +22,7 @@ export const demoTeam: CmsTeamMember[] = [
     designation: "Operations Director",
     department: "Operations",
     bio: "Leads the sourcing, screening, and deployment teams with a focus on efficiency and compliance.",
+    group: "BOTH",
     order: 2,
     isPublished: true,
   }
