@@ -11,11 +11,11 @@ The current CMS strengths are `CmsPage`, `CmsHeroSection`, `CmsContentBlock`, a 
 - Total public routes found: 38
 - Fully CMS-managed: 1
 - Partially CMS-managed: 8
-- Hardcoded / none: 14
+- Hardcoded / none: 13
 - Collection-driven: 10
 - Functional/code-controlled: 3
+- Legacy redirects: 1
 - System routes: 2
-- Legacy redirects: 0 page rows; legacy `/en` and `/ne` locale redirects are handled by `src/proxy.ts`.
 
 ## Existing CMS Strengths
 
