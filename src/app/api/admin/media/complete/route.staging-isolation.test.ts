@@ -162,6 +162,49 @@ describe("media completion staging isolation", () => {
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
   });
 
+  it("rejects resource type mismatch for cms_image", async () => {
+    cloudinaryResourceMock.mockResolvedValue({
+      folder: "staging/seven-seas-cms",
+      resource_type: "video",
+      format: "mp4",
+      bytes: 1024,
+      width: 1200,
+      height: 800,
+      duration: 1,
+      tags: [],
+      public_id: "staging/seven-seas-cms/cms_video",
+      asset_id: "staging-asset-video",
+      secure_url: "https://cdn.example.test/staging-video.mp4",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_video",
+          purpose: "cms_image",
+          original_filename: "profile.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Invalid resource type",
+    });
+    expect(createMock).not.toHaveBeenCalled();
+    expect(deleteManagedAssetMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/cms_video",
+      {
+        deliveryType: "upload",
+        resourceType: "video",
+      }
+    );
+  });
+
   it("rolls back only staging-owned uploads during validation failure", async () => {
     cloudinaryResourceMock.mockResolvedValue({
       folder: "staging/seven-seas-news",

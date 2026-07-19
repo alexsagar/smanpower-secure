@@ -13,6 +13,41 @@ export function canStartMediaUpload(isUploading: boolean, file: File | null | un
   return Boolean(file) && !isUploading;
 }
 
+type SignedUploadResponse = {
+  cloudName: string;
+  apiKey: string;
+  timestamp: number;
+  signature: string;
+  folder: string;
+  resourceType: "image" | "video" | "raw";
+};
+
+export function buildCloudinaryUploadUrl(signatureData: SignedUploadResponse): string {
+  return `https://api.cloudinary.com/v1_1/${signatureData.cloudName}/${signatureData.resourceType}/upload`;
+}
+
+export async function getSafeCloudinaryUploadErrorMessage(
+  response: Response
+): Promise<string> {
+  const fallback = "Cloudinary upload failed. Please verify the file type and try again.";
+  const data = await response.json().catch(() => null) as
+    | { error?: { message?: unknown } | string }
+    | null;
+
+  if (data && typeof data.error === "object" && data.error) {
+    const message = data.error.message;
+    if (typeof message === "string" && message.trim()) {
+      return `Cloudinary upload failed: ${message.trim()}`;
+    }
+  }
+
+  if (data && typeof data.error === "string" && data.error.trim()) {
+    return `Cloudinary upload failed: ${data.error.trim()}`;
+  }
+
+  return fallback;
+}
+
 export function MediaUploader({
   purpose = "cms_image",
 }: {
@@ -40,7 +75,7 @@ export function MediaUploader({
     try {
       const signRes = await fetch(`/api/admin/cloudinary/sign?purpose=${purpose}`);
       if (!signRes.ok) throw new Error("Failed to get upload signature");
-      const signatureData = await signRes.json();
+      const signatureData = await signRes.json() as SignedUploadResponse;
 
       const formData = new FormData();
       formData.append("file", selectedFile);
@@ -50,14 +85,16 @@ export function MediaUploader({
       formData.append("folder", signatureData.folder);
 
       const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${signatureData.cloudName}/${signatureData.resourceType}/upload`,
+        buildCloudinaryUploadUrl(signatureData),
         {
           method: "POST",
           body: formData,
         }
       );
 
-      if (!uploadRes.ok) throw new Error("Failed to upload to Cloudinary");
+      if (!uploadRes.ok) {
+        throw new Error(await getSafeCloudinaryUploadErrorMessage(uploadRes));
+      }
       const cloudData = await uploadRes.json();
 
       const completeRes = await fetch("/api/admin/media/complete", {

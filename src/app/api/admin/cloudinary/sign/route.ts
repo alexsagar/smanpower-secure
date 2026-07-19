@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { generateUploadSignature } from "@/services/cloudinary.service";
 import { auth } from "@/lib/auth";
 import { requirePermission } from "@/lib/permissions";
-import { MEDIA_PURPOSE_MAP, MediaPurpose } from "@/lib/media-purposes";
+import {
+  MEDIA_PURPOSE_MAP,
+  MediaPurpose,
+  getCloudinaryResourceTypeForPurpose,
+} from "@/lib/media-purposes";
 import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
@@ -28,7 +32,7 @@ export async function GET(request: Request) {
     const signatureData = generateUploadSignature(
       config.folder,
       config.deliveryType,
-      config.resourceType
+      getCloudinaryResourceTypeForPurpose(purpose)
     );
     
     // Append the allowed prefix so client can use it for generating public_id
