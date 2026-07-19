@@ -1,4 +1,4 @@
-import { MEDIA_PERMISSIONS } from "./permissions";
+import { MEDIA_PERMISSIONS } from "./permissions.constants";
 
 export type MediaPurpose = 
   | "cms_image"
