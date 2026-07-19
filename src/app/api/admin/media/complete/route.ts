@@ -23,8 +23,7 @@ import {
 } from "@/lib/cloudinary-namespace";
 import { deleteManagedAsset } from "@/services/cloudinary.service";
 
-const VIDEO_METADATA_LOOKUP_ATTEMPTS = 3;
-const VIDEO_METADATA_RETRY_DELAY_MS = 150;
+const VIDEO_METADATA_RETRY_DELAYS_MS = [0, 250, 500, 1000, 2000, 3000];
 
 function getVerifiedCloudinaryFolder(assetMeta: {
   asset_folder?: unknown;
@@ -41,8 +40,19 @@ function getVerifiedCloudinaryFolder(assetMeta: {
   return null;
 }
 
-function hasVerifiedVideoMetadata(assetMeta: { duration?: unknown }): boolean {
-  return typeof assetMeta.duration === "number" && assetMeta.duration > 0;
+function getVerifiedVideoDuration(assetMeta: { duration?: unknown }): number | null {
+  if (typeof assetMeta.duration === "number") {
+    return Number.isFinite(assetMeta.duration) && assetMeta.duration > 0
+      ? assetMeta.duration
+      : null;
+  }
+
+  if (typeof assetMeta.duration === "string" && assetMeta.duration.trim()) {
+    const duration = Number(assetMeta.duration);
+    return Number.isFinite(duration) && duration > 0 ? duration : null;
+  }
+
+  return null;
 }
 
 function wait(ms: number): Promise<void> {
@@ -58,16 +68,25 @@ async function getVerifiedCloudinaryResource(
 ) {
   let assetMeta;
 
-  for (let attempt = 1; attempt <= VIDEO_METADATA_LOOKUP_ATTEMPTS; attempt += 1) {
+  for (let index = 0; index < VIDEO_METADATA_RETRY_DELAYS_MS.length; index += 1) {
+    const delay = VIDEO_METADATA_RETRY_DELAYS_MS[index];
+    if (delay > 0) {
+      await wait(delay);
+    }
+
     assetMeta = await cloudinary.api.resource(publicId, options);
 
-    if (options.resource_type !== "video" || hasVerifiedVideoMetadata(assetMeta)) {
+    if (options.resource_type !== "video" || getVerifiedVideoDuration(assetMeta) !== null) {
       return assetMeta;
     }
 
-    if (attempt < VIDEO_METADATA_LOOKUP_ATTEMPTS) {
-      await wait(VIDEO_METADATA_RETRY_DELAY_MS);
-    }
+    logger.warn("Cloudinary video metadata duration is not available yet.", {
+      attempt: index + 1,
+      resourceType: assetMeta?.resource_type,
+      deliveryType: options.type,
+      hasDuration: assetMeta?.duration !== undefined && assetMeta?.duration !== null,
+      durationType: typeof assetMeta?.duration,
+    });
   }
 
   return assetMeta;
@@ -166,6 +185,10 @@ export async function POST(request: Request) {
       cloudinaryDestroyResourceTypeFromAuthoritative(authoritativeResourceType);
     const originalExtension = getFileExtension(data.original_filename);
     const verifiedFolder = getVerifiedCloudinaryFolder(assetMeta);
+    const verifiedVideoDuration =
+      authoritativeResourceType === "VIDEO"
+        ? getVerifiedVideoDuration(assetMeta)
+        : null;
 
     // 2. Validate folder
     if (
@@ -203,7 +226,7 @@ export async function POST(request: Request) {
 
     if (
       authoritativeResourceType === "VIDEO" &&
-      !hasVerifiedVideoMetadata(assetMeta)
+      verifiedVideoDuration === null
     ) {
       return rejectWithCleanup(data.public_id, destroyResourceType, "Verified video metadata is incomplete");
     }
@@ -234,7 +257,10 @@ export async function POST(request: Request) {
           resourceType: authoritativeResourceType,
           width: assetMeta.width,
           height: assetMeta.height,
-          duration: assetMeta.duration,
+          duration:
+            authoritativeResourceType === "VIDEO"
+              ? verifiedVideoDuration
+              : assetMeta.duration,
           tags: assetMeta.tags || [],
           folder: verifiedFolder,
           altText: sanitizedName, // Sanitized
