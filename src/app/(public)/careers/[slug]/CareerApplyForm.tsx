@@ -101,7 +101,7 @@ export function CareerApplyForm({ careerOpeningId }: CareerApplyFormProps) {
   }
 
   return (
-    <form action={formAction} className="bg-white border border-brand-charcoal/10 rounded-2xl p-8 md:p-12 mt-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+    <form action={formAction} className="bg-white border border-brand-charcoal/10 rounded-2xl p-8 md:p-12 mt-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden" aria-busy={isPending}>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-gold via-brand-gold/80 to-brand-gold/40" />
       
       <div className="mb-10 text-center">
@@ -184,7 +184,7 @@ export function CareerApplyForm({ careerOpeningId }: CareerApplyFormProps) {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          onClick={() => !file && fileInputRef.current?.click()}
+          onClick={() => !isPending && !file && fileInputRef.current?.click()}
         >
           <input 
             type="file" 
@@ -193,6 +193,7 @@ export function CareerApplyForm({ careerOpeningId }: CareerApplyFormProps) {
             onChange={handleFileChange} 
             accept=".pdf" 
             className="hidden" 
+            disabled={isPending}
           />
           
           {file ? (
@@ -201,8 +202,9 @@ export function CareerApplyForm({ careerOpeningId }: CareerApplyFormProps) {
                 <FileText className="w-8 h-8 text-green-600" />
                 <button 
                   type="button" 
+                  disabled={isPending}
                   onClick={(e) => { e.stopPropagation(); removeFile(); }}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md"
+                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md disabled:opacity-40"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -234,12 +236,13 @@ export function CareerApplyForm({ careerOpeningId }: CareerApplyFormProps) {
       <button
         type="submit"
         disabled={isPending || !file}
+        aria-busy={isPending}
         className="w-full relative overflow-hidden group bg-brand-black text-brand-white py-5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_40px_-10px_rgba(0,0,0,0.4)] hover:shadow-[0_0_60px_-15px_rgba(212,175,55,0.6)]"
       >
         <div className="absolute inset-0 bg-brand-gold translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
         <span className="relative z-10 flex items-center justify-center gap-2 group-hover:text-brand-black transition-colors duration-300">
           {isPending ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
+            <><Loader2 className="w-5 h-5 motion-safe:animate-spin motion-reduce:animate-none" /> Submitting...</>
           ) : (
             "Submit Application"
           )}
