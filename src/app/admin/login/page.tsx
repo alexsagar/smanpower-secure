@@ -10,10 +10,14 @@ const SESSION_NOTICES: Record<string, string> = {
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, message } = await searchParams;
   const notice = error ? SESSION_NOTICES[error] ?? null : null;
+  const successNotice =
+    message === "password_reset"
+      ? "Your password has been reset successfully. You can now sign in with your new password."
+      : null;
 
-  return <LoginForm notice={notice} />;
+  return <LoginForm notice={notice} successNotice={successNotice} />;
 }
