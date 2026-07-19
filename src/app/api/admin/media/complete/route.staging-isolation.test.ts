@@ -75,6 +75,23 @@ vi.mock("@/lib/logger", () => ({
 
 import { POST } from "./route";
 
+function cloudinaryAsset(overrides: Record<string, unknown> = {}) {
+  return {
+    asset_folder: "staging/seven-seas-cms",
+    resource_type: "image",
+    format: "jpeg",
+    bytes: 1024,
+    width: 1200,
+    height: 800,
+    duration: null,
+    tags: [],
+    public_id: "staging/seven-seas-cms/cms_image",
+    asset_id: "staging-asset-image",
+    secure_url: "https://cdn.example.test/staging-image.jpeg",
+    ...overrides,
+  };
+}
+
 describe("media completion staging isolation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -118,20 +135,8 @@ describe("media completion staging isolation", () => {
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
   });
 
-  it("accepts verified media inside the staging namespace", async () => {
-    cloudinaryResourceMock.mockResolvedValue({
-      folder: "staging/seven-seas-cms",
-      resource_type: "image",
-      format: "jpeg",
-      bytes: 1024,
-      width: 1200,
-      height: 800,
-      duration: null,
-      tags: [],
-      public_id: "staging/seven-seas-cms/cms_image",
-      asset_id: "staging-asset-image",
-      secure_url: "https://cdn.example.test/staging-image.jpeg",
-    });
+  it("accepts Dynamic-folder cms_image metadata inside the staging namespace", async () => {
+    cloudinaryResourceMock.mockResolvedValue(cloudinaryAsset());
     createMock.mockResolvedValue({
       id: "staging-media-image",
     });
@@ -162,20 +167,121 @@ describe("media completion staging isolation", () => {
     expect(deleteManagedAssetMock).not.toHaveBeenCalled();
   });
 
+  it("accepts Dynamic-folder cms_video metadata inside the staging namespace", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        asset_folder: "staging/seven-seas-cms",
+        resource_type: "video",
+        format: "mp4",
+        duration: 4,
+        public_id: "staging/seven-seas-cms/lsghq77avthfu3t2nrqq",
+        asset_id: "staging-asset-video",
+        secure_url: "https://cdn.example.test/staging-video.mp4",
+      })
+    );
+    createMock.mockResolvedValue({
+      id: "staging-media-video",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/lsghq77avthfu3t2nrqq",
+          purpose: "cms_video",
+          original_filename: "0719.mp4",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          publicId: "staging/seven-seas-cms/lsghq77avthfu3t2nrqq",
+          folder: "staging/seven-seas-cms",
+          resourceType: "VIDEO",
+        }),
+      })
+    );
+    expect(deleteManagedAssetMock).not.toHaveBeenCalled();
+  });
+
+  it("uses asset_folder before legacy folder", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        asset_folder: "staging/seven-seas-cms",
+        folder: "staging/seven-seas-news",
+      })
+    );
+    createMock.mockResolvedValue({
+      id: "staging-media-image",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_image",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          folder: "staging/seven-seas-cms",
+        }),
+      })
+    );
+  });
+
+  it("falls back to legacy fixed-folder metadata", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        asset_folder: undefined,
+        folder: "staging/seven-seas-cms",
+      })
+    );
+    createMock.mockResolvedValue({
+      id: "staging-media-image",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_image",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("rejects resource type mismatch for cms_image", async () => {
-    cloudinaryResourceMock.mockResolvedValue({
-      folder: "staging/seven-seas-cms",
+    cloudinaryResourceMock.mockResolvedValue(cloudinaryAsset({
       resource_type: "video",
       format: "mp4",
-      bytes: 1024,
-      width: 1200,
-      height: 800,
       duration: 1,
-      tags: [],
       public_id: "staging/seven-seas-cms/cms_video",
       asset_id: "staging-asset-video",
       secure_url: "https://cdn.example.test/staging-video.mp4",
-    });
+    }));
 
     const response = await POST(
       new Request("http://localhost/api/admin/media/complete", {
@@ -206,19 +312,11 @@ describe("media completion staging isolation", () => {
   });
 
   it("rolls back only staging-owned uploads during validation failure", async () => {
-    cloudinaryResourceMock.mockResolvedValue({
-      folder: "staging/seven-seas-news",
-      resource_type: "image",
-      format: "jpeg",
-      bytes: 1024,
-      width: 1200,
-      height: 800,
-      duration: null,
-      tags: [],
+    cloudinaryResourceMock.mockResolvedValue(cloudinaryAsset({
+      asset_folder: "staging/seven-seas-news",
       public_id: "staging/seven-seas-news/news_image",
       asset_id: "staging-asset-image",
-      secure_url: "https://cdn.example.test/staging-image.jpeg",
-    });
+    }));
 
     const response = await POST(
       new Request("http://localhost/api/admin/media/complete", {
@@ -245,5 +343,103 @@ describe("media completion staging isolation", () => {
         resourceType: "image",
       }
     );
+  });
+
+  it("rejects missing Dynamic and legacy folder metadata", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        asset_folder: undefined,
+        folder: undefined,
+      })
+    );
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/cms_image",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Asset outside approved folder",
+    });
+    expect(deleteManagedAssetMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/cms_image",
+      {
+        deliveryType: "upload",
+        resourceType: "image",
+      }
+    );
+  });
+
+  it("rejects a malicious sibling public ID prefix", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        asset_folder: "staging/seven-seas-cms",
+        public_id: "staging/seven-seas-cms-evil/file",
+      })
+    );
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms-evil/file",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Asset outside approved folder",
+    });
+    expect(deleteManagedAssetMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms-evil/file",
+      {
+        deliveryType: "upload",
+        resourceType: "image",
+      }
+    );
+  });
+
+  it("accepts nested public IDs only inside the approved path boundary", async () => {
+    cloudinaryResourceMock.mockResolvedValue(
+      cloudinaryAsset({
+        public_id: "staging/seven-seas-cms/nested/file",
+      })
+    );
+    createMock.mockResolvedValue({
+      id: "staging-media-image",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/complete", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          public_id: "staging/seven-seas-cms/nested/file",
+          purpose: "cms_image",
+          original_filename: "hero.jpg",
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(deleteManagedAssetMock).not.toHaveBeenCalled();
   });
 });

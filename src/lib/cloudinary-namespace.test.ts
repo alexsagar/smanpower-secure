@@ -8,6 +8,7 @@ import {
 import {
   assertCloudinaryNamespaceConfiguration,
   isCloudinaryFolderOwnedByCurrentEnvironment,
+  isCloudinaryPublicIdInsideFolder,
   isCloudinaryPublicIdOwnedByCurrentEnvironment,
   resolveCloudinaryFolder,
 } from "./cloudinary-namespace";
@@ -100,6 +101,29 @@ describe("Cloudinary environment namespace", () => {
     expect(
       isCloudinaryPublicIdOwnedByCurrentEnvironment(
         "untrusted-folder/file"
+      )
+    ).toBe(false);
+  });
+
+  it("checks public IDs against an exact folder path boundary", () => {
+    expect(
+      isCloudinaryPublicIdInsideFolder(
+        "staging/seven-seas-cms/file",
+        "staging/seven-seas-cms"
+      )
+    ).toBe(true);
+
+    expect(
+      isCloudinaryPublicIdInsideFolder(
+        "staging/seven-seas-cms/nested/file",
+        "staging/seven-seas-cms"
+      )
+    ).toBe(true);
+
+    expect(
+      isCloudinaryPublicIdInsideFolder(
+        "staging/seven-seas-cms-evil/file",
+        "staging/seven-seas-cms"
       )
     ).toBe(false);
   });
