@@ -18,9 +18,25 @@ import {
 } from "@/lib/media-resource-type";
 import {
   isCloudinaryPublicIdOwnedByCurrentEnvironment,
+  isCloudinaryPublicIdInsideFolder,
   resolveCloudinaryFolder,
 } from "@/lib/cloudinary-namespace";
 import { deleteManagedAsset } from "@/services/cloudinary.service";
+
+function getVerifiedCloudinaryFolder(assetMeta: {
+  asset_folder?: unknown;
+  folder?: unknown;
+}): string | null {
+  if (typeof assetMeta.asset_folder === "string" && assetMeta.asset_folder.trim()) {
+    return assetMeta.asset_folder;
+  }
+
+  if (typeof assetMeta.folder === "string" && assetMeta.folder.trim()) {
+    return assetMeta.folder;
+  }
+
+  return null;
+}
 
 async function rollbackManagedUpload(
   publicId: string,
@@ -114,9 +130,13 @@ export async function POST(request: Request) {
     const destroyResourceType =
       cloudinaryDestroyResourceTypeFromAuthoritative(authoritativeResourceType);
     const originalExtension = getFileExtension(data.original_filename);
+    const verifiedFolder = getVerifiedCloudinaryFolder(assetMeta);
 
     // 2. Validate folder
-    if (assetMeta.folder !== expectedFolder) {
+    if (
+      !isCloudinaryPublicIdInsideFolder(data.public_id, expectedFolder) ||
+      verifiedFolder !== expectedFolder
+    ) {
       return rejectWithCleanup(data.public_id, destroyResourceType, "Asset outside approved folder");
     }
 
@@ -181,7 +201,7 @@ export async function POST(request: Request) {
           height: assetMeta.height,
           duration: assetMeta.duration,
           tags: assetMeta.tags || [],
-          folder: assetMeta.folder,
+          folder: verifiedFolder,
           altText: sanitizedName, // Sanitized
           isPublic: config.isPublic,
           status: "REAL_APPROVED",
