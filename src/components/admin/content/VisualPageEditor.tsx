@@ -20,10 +20,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, Code, Settings2, Save } from "lucide-react";
 import { DynamicHero } from "@/components/cms/DynamicHero";
-import { ContentBlockRenderer } from "@/components/cms/ContentBlockRenderer";
+import { AdminPreviewBlockRenderer } from "./AdminPreviewBlockRenderer";
 import { HeroEditor } from "./HeroEditor";
 import { BlockEditor } from "./BlockEditor";
 import { toast } from "sonner";
+import type { AdminPreviewData } from "@/types/admin-preview";
 
 // Simple sortable item wrapper
 function SortableBlockItem({ 
@@ -98,7 +99,7 @@ function SortableBlockItem({
   );
 }
 
-export function VisualPageEditor({ initialPage }: { initialPage: any }) {
+export function VisualPageEditor({ initialPage, previewData }: { initialPage: any; previewData: AdminPreviewData }) {
   const [page, setPage] = useState(initialPage);
   const [blocks, setBlocks] = useState(initialPage.blocks || []);
   const [activeEditor, setActiveEditor] = useState<"none" | "hero" | "block" | "json">("none");
@@ -297,7 +298,7 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
           {page.hero && <DynamicHero hero={page.hero} />}
           {blocks.map((block: any) => (
              block.visible !== false && (
-               <ContentBlockRenderer key={block.id} block={block} />
+               <AdminPreviewBlockRenderer key={block.id} block={block} previewData={previewData} />
              )
           ))}
         </div>

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { PrismaClient } from "@prisma/client";
 import { logger } from "@/lib/logger";
 import { cmsMediaResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
