@@ -71,7 +71,8 @@ export function isCloudinaryFolderOwnedByCurrentEnvironment(
   const prefix = getCloudinaryFolderPrefix();
 
   if (!prefix) {
-    return isApprovedCloudinaryBaseFolder(normalized);
+    const [baseFolder] = normalized.split("/");
+    return Boolean(baseFolder) && isApprovedCloudinaryBaseFolder(baseFolder);
   }
 
   const expectedPrefix = `${prefix}/`;
@@ -80,11 +81,10 @@ export function isCloudinaryFolderOwnedByCurrentEnvironment(
     return false;
   }
 
-  const baseFolder = normalized.slice(expectedPrefix.length);
+  const [baseFolder] = normalized.slice(expectedPrefix.length).split("/");
 
   return (
-    !baseFolder.includes("/") &&
-    isApprovedCloudinaryBaseFolder(baseFolder)
+    Boolean(baseFolder) && isApprovedCloudinaryBaseFolder(baseFolder)
   );
 }
 
@@ -106,4 +106,21 @@ export function isCloudinaryPublicIdOwnedByCurrentEnvironment(
   }
 
   return isCloudinaryFolderOwnedByCurrentEnvironment(folder);
+}
+
+export function isCloudinaryPublicIdInsideFolder(
+  publicId: string,
+  expectedFolder: string
+): boolean {
+  const normalizedPublicId = publicId.trim().replace(/^\/+|\/+$/g, "");
+  const normalizedFolder = expectedFolder.trim().replace(/^\/+|\/+$/g, "");
+
+  if (!normalizedPublicId || !normalizedFolder) {
+    return false;
+  }
+
+  return (
+    normalizedPublicId.startsWith(`${normalizedFolder}/`) &&
+    normalizedPublicId.length > normalizedFolder.length + 1
+  );
 }
