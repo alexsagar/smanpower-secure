@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Extension, Mark } from "@tiptap/core";
@@ -110,11 +108,15 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: RichTe
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
-      Underline,
+      StarterKit.configure({
+        link: {
+          openOnClick: false,
+        },
+      }),
       TextStyle,
-      Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder: placeholder || "Start writing..." }),
+      Placeholder.configure({
+        placeholder: placeholder || "Start writing...",
+      }),
       BrandStyle,
       FontSize
     ],
