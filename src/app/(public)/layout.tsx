@@ -1,6 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleTranslateScript } from "@/components/layout/GoogleTranslateScript";
+import { FirstVisitLoader } from "@/components/loading/FirstVisitLoader";
 import "@/app/globals.css";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -29,13 +30,17 @@ export default async function PublicLayout({
 
   return (
     <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
-      <body className="min-h-full flex flex-col font-sans bg-brand-white text-brand-charcoal">
+      <body
+        className="min-h-full flex flex-col font-sans bg-brand-white text-brand-charcoal"
+        suppressHydrationWarning
+      >
         {orgSchema && (
           <Script id="organization-schema" type="application/ld+json" strategy="beforeInteractive">
             {JSON.stringify(orgSchema)}
           </Script>
         )}
         <GoogleTranslateScript />
+        <FirstVisitLoader />
         <Header navigation={headerNav} />
         <main className="flex-1">{children}</main>
         <Footer footerSettings={footerSettings} siteSettings={siteSettings} />

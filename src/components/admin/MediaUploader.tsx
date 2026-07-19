@@ -9,12 +9,19 @@ import {
   getAcceptAttributeForPurpose,
 } from "@/lib/media-purposes";
 
+export function canStartMediaUpload(isUploading: boolean, file: File | null | undefined) {
+  return Boolean(file) && !isUploading;
+}
+
 export function MediaUploader({
   purpose = "cms_image",
 }: {
   purpose?: MediaPurpose;
 }) {
   const [isUploading, setIsUploading] = useState(false);
+  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -22,9 +29,13 @@ export function MediaUploader({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!canStartMediaUpload(isUploading, file)) return;
+    const selectedFile = file as File;
 
     setIsUploading(true);
+    setCurrentFileName(selectedFile.name);
+    setStatus("idle");
+    setMessage(null);
 
     try {
       const signRes = await fetch(`/api/admin/cloudinary/sign?purpose=${purpose}`);
@@ -32,7 +43,7 @@ export function MediaUploader({
       const signatureData = await signRes.json();
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", selectedFile);
       formData.append("api_key", signatureData.apiKey);
       formData.append("timestamp", String(signatureData.timestamp));
       formData.append("signature", signatureData.signature);
@@ -54,7 +65,7 @@ export function MediaUploader({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           public_id: cloudData.public_id,
-          original_filename: file.name,
+          original_filename: selectedFile.name,
           purpose,
         }),
       });
@@ -64,11 +75,14 @@ export function MediaUploader({
         throw new Error(errorData.error || "Failed to save media");
       }
 
+      setStatus("success");
+      setMessage(`${selectedFile.name} uploaded.`);
       router.refresh();
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Upload failed";
-      alert(message);
+      setStatus("error");
+      setMessage(message);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -83,20 +97,39 @@ export function MediaUploader({
         className="hidden"
         ref={fileInputRef}
         onChange={handleFileChange}
+        disabled={isUploading}
       />
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
+        aria-busy={isUploading}
+        aria-describedby={message || currentFileName ? "media-upload-status" : undefined}
         className="bg-brand-black text-brand-white px-6 py-3 text-sm font-semibold tracking-widest uppercase hover:bg-brand-gold hover:text-brand-black transition-colors flex items-center gap-2 disabled:opacity-50"
         title={`Upload to ${config.folder}`}
       >
         {isUploading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 motion-safe:animate-spin motion-reduce:animate-none" />
         ) : (
           <UploadCloud className="w-4 h-4" />
         )}
         {isUploading ? "Uploading..." : "Upload Asset"}
       </button>
+      {(isUploading || message || currentFileName) && (
+        <p
+          id="media-upload-status"
+          className={`mt-2 text-xs ${
+            status === "error"
+              ? "text-red-600"
+              : status === "success"
+              ? "text-emerald-700"
+              : "text-gray-500"
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          {isUploading && currentFileName ? `Uploading ${currentFileName}...` : message}
+        </p>
+      )}
     </>
   );
 }

@@ -126,6 +126,81 @@
   }
 }
 
+@keyframes loading-line {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+@keyframes seven-seas-loading {
+  0% {
+    left: 0;
+    right: auto;
+    width: 0%;
+  }
+
+  50% {
+    left: 0;
+    right: auto;
+    width: 100%;
+  }
+
+  51% {
+    left: auto;
+    right: 0;
+    width: 100%;
+  }
+
+  100% {
+    left: auto;
+    right: 0;
+    width: 0%;
+  }
+}
+
+@keyframes seven-seas-logo-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.seven-seas-loader-bar {
+  position: relative;
+  width: 130px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.seven-seas-loader-bar::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 0%;
+  border-radius: inherit;
+  background: var(--color-brand-gold);
+  animation: seven-seas-loading 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seven-seas-loader-bar::before {
+    width: 100%;
+    animation: none;
+  }
+}
+
 /* ===== Google Translate ===== */
 
 /* Hide the banner bar that Google injects at top */
