@@ -146,7 +146,11 @@ export async function deleteManagedAsset(
       resource_type: options.resourceType,
       ...(options.deliveryType === "private" ? { type: "private" } : {}),
     });
-    return result.result === "ok";
+    // Deletion is idempotent: "not found" means the asset is already gone from
+    // Cloudinary (e.g. removed manually in the dashboard or by a prior attempt),
+    // which is the desired end state — otherwise the DB row is stuck as
+    // REMOTE_DELETE_FAILED and can never be cleared from the media library.
+    return result.result === "ok" || result.result === "not found";
   } catch (error) {
     logger.error(`Failed to destroy managed Cloudinary asset ${publicId}:`, error instanceof Error ? error : new Error(String(error)));
     return false;
