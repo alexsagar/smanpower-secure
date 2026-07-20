@@ -77,7 +77,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
                 <div className="absolute bottom-8 left-8 right-8 lg:bottom-12 lg:left-12 lg:right-12 flex justify-between items-start">
                   <div>
                     <div className="text-brand-gold text-[10px] tracking-[0.3em] uppercase font-bold mb-3">{mainFacility.label}</div>
-                    <h3 className="text-3xl lg:text-5xl font-semibold text-brand-black">{mainFacility.title}</h3>
+                    <h3 className="text-3xl lg:text-5xl font-semibold text-white">{mainFacility.title}</h3>
                   </div>
                   <div className="w-14 h-14 rounded-full bg-brand-charcoal/10 backdrop-blur-sm border border-brand-charcoal/20 flex items-center justify-center group-hover:bg-brand-gold group-hover:border-brand-gold transition-all duration-500 shrink-0">
                     <ArrowRight className="w-5 h-5 text-brand-black group-hover:text-brand-charcoal transition-colors" />
@@ -102,7 +102,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
 
                   <div className="absolute bottom-8 left-8">
                     <div className="text-brand-gold text-[10px] tracking-[0.3em] uppercase font-bold mb-2">{trFacility.label}</div>
-                    <h3 className="text-xl lg:text-2xl font-semibold text-brand-black">{trFacility.title}</h3>
+                    <h3 className="text-xl lg:text-2xl font-semibold text-white">{trFacility.title}</h3>
                   </div>
                 </ScrollReveal>
               )}
@@ -120,7 +120,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
 
                   <div className="absolute bottom-8 left-8">
                     <div className="text-brand-gold text-[10px] tracking-[0.3em] uppercase font-bold mb-2">{brFacility.label}</div>
-                    <h3 className="text-xl lg:text-2xl font-semibold text-brand-black">{brFacility.title}</h3>
+                    <h3 className="text-xl lg:text-2xl font-semibold text-white">{brFacility.title}</h3>
                   </div>
                 </ScrollReveal>
               )}
