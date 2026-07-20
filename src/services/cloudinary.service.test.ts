@@ -184,6 +184,32 @@ describe("cloudinary service hardening", () => {
     );
   });
 
+  it("treats a Cloudinary 'not found' as a successful managed deletion", async () => {
+    const destroyMock = vi.fn(async () => ({ result: "not found" }));
+
+    vi.doMock("@/lib/cloudinary", () => ({
+      default: {
+        uploader: { destroy: destroyMock },
+      },
+    }));
+
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("CLOUDINARY_CLOUD_NAME", "test-cloud");
+    vi.stubEnv("CLOUDINARY_API_KEY", "test-api-key");
+    vi.stubEnv("CLOUDINARY_API_SECRET", "test-api-secret-value");
+
+    const cloudinaryService = await import("./cloudinary.service");
+
+    await expect(
+      cloudinaryService.deleteManagedAsset("staging/seven-seas-cms/cms_video_gone", {
+        resourceType: "video",
+      })
+    ).resolves.toBe(true);
+    expect(destroyMock).toHaveBeenCalled();
+  });
+
   it("extracts nested Cloudinary public ids from legacy urls", async () => {
     const cloudinaryService = await import("./cloudinary.service");
 
