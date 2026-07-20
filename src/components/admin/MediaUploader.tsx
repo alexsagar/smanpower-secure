@@ -50,8 +50,10 @@ export async function getSafeCloudinaryUploadErrorMessage(
 
 export function MediaUploader({
   purpose = "cms_image",
+  onUploadComplete,
 }: {
   purpose?: MediaPurpose;
+  onUploadComplete?: (media: unknown) => void;
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
@@ -111,9 +113,11 @@ export function MediaUploader({
         const errorData = await completeRes.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to save media");
       }
+      const completeData = await completeRes.json();
 
       setStatus("success");
       setMessage(`${selectedFile.name} uploaded.`);
+      onUploadComplete?.(completeData.media);
       router.refresh();
     } catch (error: unknown) {
       const message =

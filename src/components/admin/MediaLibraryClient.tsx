@@ -28,7 +28,10 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: selectedAsset.id, public_id: selectedAsset.publicId }),
       });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to delete");
+      }
 
       setAssets((prev) => prev.filter((a) => a.id !== selectedAsset.id));
       setSelectedAsset(null);

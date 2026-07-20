@@ -1,8 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
 import {
   mapNavigationGroups,
   mapPrismaMediaAsset,
   mapUrlBackedMediaAsset,
+  PrismaContentRepository,
 } from "./prisma-content-repository";
 import {
   authoritativeMediaResourceTypeFromCloudinary,
@@ -11,6 +15,9 @@ import {
 } from "@/lib/media-resource-type";
 
 const prismaMock = vi.hoisted(() => ({
+  cmsPage: {
+    findUnique: vi.fn(),
+  },
   siteSetting: {
     findMany: vi.fn(),
   },
@@ -75,6 +82,64 @@ describe("Prisma content repository helpers", () => {
     expect(media.source).toBe("CLOUDINARY");
     expect(media.fileName).toBe("image.jpg");
     expect(media.mediaStatus).toBe("REAL_APPROVED");
+  });
+
+  it("reads homepage video hero media as the public video source and keeps image as fallback", async () => {
+    prismaMock.cmsPage.findUnique.mockResolvedValue({
+      id: "page_home",
+      slug: "home",
+      title: "Home",
+      status: "PUBLISHED",
+      updatedAt: new Date("2026-01-02T00:00:00.000Z"),
+      hero: {
+        id: "hero-1",
+        videoId: "video-1",
+        imageId: "image-1",
+        posterImageId: null,
+        mobileImageId: null,
+        eyebrow: null,
+        richHeading: { type: "doc", content: [] },
+        richDescription: null,
+        primaryCtaText: null,
+        primaryCtaHref: null,
+        secondaryCtaText: null,
+        secondaryCtaHref: null,
+        overlayEnabled: true,
+        image: {
+          id: "image-1",
+          fileUrl: "https://cdn.example.com/fallback.jpg",
+          fileName: "fallback.jpg",
+          altText: "Fallback",
+          status: "AI_PLACEHOLDER",
+          isPublic: true,
+          resourceType: "IMAGE",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+        video: {
+          id: "video-1",
+          publicId: "cms/hero-video",
+          fileUrl: "https://cdn.example.com/selected-video.mp4",
+          fileName: "selected-video.mp4",
+          altText: "Selected video",
+          status: "REAL_APPROVED",
+          isPublic: true,
+          resourceType: "VIDEO",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+        posterImage: null,
+        mobileImage: null,
+      },
+      blocks: [],
+    });
+
+    const repository = new PrismaContentRepository();
+    const hero = await repository.getHeroByPageSlug("home");
+
+    expect(hero?.heroType).toBe("video");
+    expect(hero?.video?.id).toBe("video-1");
+    expect(hero?.video?.resourceType).toBe("video");
+    expect(hero?.video?.secureUrl).toBe("https://cdn.example.com/selected-video.mp4");
+    expect(hero?.image?.secureUrl).toBe("https://cdn.example.com/fallback.jpg");
   });
 
   it("excludes inactive navigation groups and children without forcing active state", () => {

@@ -31,6 +31,16 @@ describe("getSecurityHeaderEntries", () => {
     expect(scriptSrc).not.toContain("*.google.com");
   });
 
+  it("allows cross-origin media so Cloudinary hero videos can load", async () => {
+    const { getSecurityHeaderEntries } = await import("./security-headers");
+    const csp = getSecurityHeaderEntries().find((header) => header.key === "Content-Security-Policy")?.value || "";
+    const mediaSrc = csp.split("; ").find((directive) => directive.startsWith("media-src ")) || "";
+
+    // Without an explicit media-src, <video> falls back to default-src 'self'
+    // and cross-origin Cloudinary videos are blocked.
+    expect(mediaSrc).toContain("https:");
+  });
+
   it("adds explicit no-referrer overrides for sensitive document routes", async () => {
     const { getSecurityHeaderConfig } = await import("./security-headers");
     const config = getSecurityHeaderConfig();
