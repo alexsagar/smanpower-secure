@@ -27,6 +27,43 @@ interface MediaPickerProps {
 
 const RESOURCE_TYPE_FILTERS = ["ALL", "IMAGE", "VIDEO", "DOCUMENT"] as const;
 
+export function mergeMediaAssets(
+  current: MediaAssetRecord[],
+  next: MediaAssetRecord | MediaAssetRecord[] | null | undefined
+) {
+  const incoming = Array.isArray(next) ? next : next ? [next] : [];
+  const byKey = new Map<string, MediaAssetRecord>();
+
+  for (const asset of [...incoming, ...current]) {
+    const key = asset.id || asset.fileUrl;
+    if (key && !byKey.has(key)) byKey.set(key, asset);
+  }
+
+  return Array.from(byKey.values());
+}
+
+export function mediaAssetMatchesPickerFilters(
+  asset: MediaAssetRecord,
+  search: string,
+  selectedFilter: (typeof RESOURCE_TYPE_FILTERS)[number],
+  allowedResourceTypes?: Array<"IMAGE" | "VIDEO" | "DOCUMENT">
+) {
+  const allowedByField =
+    !allowedResourceTypes?.length ||
+    (asset.resourceType && allowedResourceTypes.includes(asset.resourceType));
+  if (!allowedByField) return false;
+
+  const allowedByActiveFilter =
+    selectedFilter === "ALL" || asset.resourceType === selectedFilter;
+  if (!allowedByActiveFilter) return false;
+
+  const lowered = search.toLowerCase();
+  return (
+    asset.fileName.toLowerCase().includes(lowered) ||
+    Boolean(asset.folder?.toLowerCase().includes(lowered))
+  );
+}
+
 export function MediaPicker({
   open,
   onClose,
@@ -53,7 +90,7 @@ export function MediaPicker({
         const data = await res.json();
 
         if (!cancelled) {
-          setAssets(data.assets || []);
+          setAssets((current) => mergeMediaAssets(data.assets || [], current));
         }
       } finally {
         if (!cancelled) {
@@ -73,23 +110,9 @@ export function MediaPicker({
     allowedResourceTypes?.length === 1 ? allowedResourceTypes[0] : activeFilter;
 
   const filteredAssets = useMemo(() => {
-    const lowered = search.toLowerCase();
-
-    return assets.filter((asset) => {
-      const allowedByField =
-        !allowedResourceTypes?.length ||
-        (asset.resourceType && allowedResourceTypes.includes(asset.resourceType));
-      if (!allowedByField) return false;
-
-      const allowedByActiveFilter =
-        selectedFilter === "ALL" || asset.resourceType === selectedFilter;
-      if (!allowedByActiveFilter) return false;
-
-      return (
-        asset.fileName.toLowerCase().includes(lowered) ||
-        asset.folder?.toLowerCase().includes(lowered)
-      );
-    });
+    return assets.filter((asset) =>
+      mediaAssetMatchesPickerFilters(asset, search, selectedFilter, allowedResourceTypes)
+    );
   }, [allowedResourceTypes, assets, search, selectedFilter]);
 
   if (!open) return null;
@@ -104,7 +127,12 @@ export function MediaPicker({
           </div>
           <div className="flex items-center gap-4">
             {uploadPurpose ? (
-              <MediaUploader purpose={uploadPurpose} />
+              <MediaUploader
+                purpose={uploadPurpose}
+                onUploadComplete={(media) => {
+                  setAssets((current) => mergeMediaAssets(current, media as MediaAssetRecord));
+                }}
+              />
             ) : null}
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition text-gray-500">
               <X className="w-5 h-5" />

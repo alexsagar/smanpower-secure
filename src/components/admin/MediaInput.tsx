@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, X } from "lucide-react";
 import { MediaPicker } from "./MediaPicker";
 import type { MediaPurpose } from "@/lib/media-purposes";
 
@@ -46,6 +46,18 @@ export function MediaInput({
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
               <span className="text-white text-sm font-semibold tracking-widest uppercase">Change</span>
             </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onChange("", "");
+              }}
+              className="absolute right-3 top-3 z-20 rounded-full bg-white p-1.5 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-600"
+              aria-label={`Clear ${label}`}
+              title={`Clear ${label}`}
+            >
+              <X className="h-4 w-4" />
+            </button>
           </>
         ) : (
           <>

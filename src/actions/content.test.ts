@@ -214,4 +214,69 @@ describe("savePageAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/admin/content");
     expect(revalidatePath).not.toHaveBeenCalledWith("/home");
   });
+
+  it.each([
+    ["image hero", [{ id: "hero-image", isPublic: true, status: "REAL_APPROVED", resourceType: "IMAGE", deletionState: "ACTIVE" }], { imageId: "hero-image" }],
+    ["video hero", [{ id: "hero-video", isPublic: true, status: "REAL_APPROVED", resourceType: "VIDEO", deletionState: "ACTIVE" }], { videoId: "hero-video" }],
+  ])("publishes the homepage with an approved %s", async (_label, media, heroMedia) => {
+    prisma.mediaAsset.findMany.mockResolvedValue(media);
+    prisma.cmsPage.findUnique.mockResolvedValue({
+      id: "page-home",
+      slug: "home",
+      hero: { id: "hero-1" },
+      blocks: [{ id: "block-1" }],
+    });
+
+    const { savePageAction } = await import("./content");
+
+    const result = await savePageAction(
+      "page-home",
+      "home",
+      {
+        id: "hero-1",
+        richHeading: { type: "doc", content: [] },
+        overlayEnabled: false,
+        ...heroMedia,
+      },
+      [
+        {
+          id: "block-1",
+          blockType: "introduction",
+          content: {},
+        },
+      ]
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+  });
+
+  it("does not persist arbitrary client-provided media URLs as authoritative", async () => {
+    prisma.mediaAsset.findMany.mockResolvedValue([
+      { id: "hero-video", isPublic: true, status: "REAL_APPROVED", resourceType: "VIDEO", deletionState: "ACTIVE" },
+    ]);
+
+    const { savePageAction } = await import("./content");
+
+    await savePageAction(
+      "page-1",
+      "about",
+      {
+        id: "hero-1",
+        richHeading: { type: "doc", content: [] },
+        videoId: "hero-video",
+        secureUrl: "https://attacker.example/video.mp4",
+      } as never,
+      []
+    );
+
+    expect(tx.cmsHeroSection.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.not.objectContaining({
+          secureUrl: "https://attacker.example/video.mp4",
+          fileUrl: "https://attacker.example/video.mp4",
+        }),
+      })
+    );
+  });
 });

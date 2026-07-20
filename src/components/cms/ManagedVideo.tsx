@@ -1,10 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(callback: () => void) {
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
 import Image from "next/image";
 
 type ManagedVideoProps = {
   src: string;
+  sources?: Array<{ src: string; type: string }>;
   posterSrc?: string;
   mobileFallbackSrc?: string;
   alt: string;
@@ -23,6 +32,7 @@ type ManagedVideoProps = {
 
 export function ManagedVideo({
   src,
+  sources,
   posterSrc,
   mobileFallbackSrc,
   alt,
@@ -40,11 +50,43 @@ export function ManagedVideo({
 }: ManagedVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [hasError, setHasError] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isReady, setIsReady] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false
+  );
 
   const fallbackSrc = posterSrc || mobileFallbackSrc;
   const hasMobileFallback = Boolean(mobileFallbackSrc);
   const showVideo = !hasError;
+  // The video is CSS-hidden for reduced-motion users, so keep the fallback
+  // image visible for them — otherwise a "ready" video leaves a black area.
+  const showFallback = Boolean(fallbackSrc) && (!isReady || hasError || prefersReducedMotion);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // React does not reliably set the `muted` DOM *property* from the JSX prop,
+    // so browsers see an unmuted autoplay and block it. Force it here, then kick
+    // off playback imperatively (respecting reduced-motion, which keeps the
+    // poster fallback instead).
+    video.muted = muted;
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      setIsReady(true);
+      setIsPlaying(!video.paused);
+    }
+
+    if (autoPlay && !prefersReducedMotion) {
+      video
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => undefined);
+    }
+  }, [src, muted, autoPlay, prefersReducedMotion]);
 
   const togglePlayback = async () => {
     const video = videoRef.current;
@@ -73,7 +115,7 @@ export function ManagedVideo({
         />
       ) : null}
 
-      {fallbackSrc ? (
+      {showFallback && fallbackSrc ? (
         <Image
           src={fallbackSrc}
           alt={alt}
@@ -87,7 +129,7 @@ export function ManagedVideo({
       {showVideo ? (
         <video
           ref={videoRef}
-          src={src}
+          src={sources?.length ? undefined : src}
           poster={posterSrc}
           autoPlay={autoPlay}
           muted={muted}
@@ -97,13 +139,23 @@ export function ManagedVideo({
           preload={preload}
           aria-hidden={decorative || undefined}
           onError={() => setHasError(true)}
+          onLoadedData={() => setIsReady(true)}
+          onCanPlay={() => setIsReady(true)}
+          onPlaying={() => {
+            setIsReady(true);
+            setIsPlaying(true);
+          }}
+          onPause={() => setIsPlaying(false)}
           className={`${hasMobileFallback ? "hidden md:block" : ""} motion-reduce:hidden ${videoClassName || ""}`}
         >
+          {sources?.map((source) => (
+            <source key={`${source.type}:${source.src}`} src={source.src} type={source.type} />
+          ))}
           {alt}
         </video>
       ) : null}
 
-      {showPlaybackToggle && autoPlay ? (
+      {showPlaybackToggle && autoPlay && showVideo && isReady ? (
         <button
           type="button"
           onClick={togglePlayback}

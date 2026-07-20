@@ -173,6 +173,40 @@ describe("media delete route staging isolation", () => {
     );
   });
 
+  it("deletes staging-owned videos using the Cloudinary video resource type", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
+    findUniqueMock.mockResolvedValue({
+      ...buildAsset(
+        "staging/seven-seas-cms",
+        "staging/seven-seas-cms/video-1"
+      ),
+      resourceType: "VIDEO",
+    });
+    txUpdateMock.mockResolvedValue({
+      id: "asset-1",
+      publicId: "staging/seven-seas-cms/video-1",
+      resourceType: "VIDEO",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/delete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: "asset-1" }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ success: true });
+    expect(deleteManagedAssetMock).toHaveBeenCalledWith(
+      "staging/seven-seas-cms/video-1",
+      {
+        resourceType: "video",
+      }
+    );
+  });
+
   it("rejects staging assets whose public id points to a legacy shared namespace", async () => {
     vi.stubEnv("APP_ENV", "staging");
     vi.stubEnv("CLOUDINARY_FOLDER_PREFIX", "staging");
