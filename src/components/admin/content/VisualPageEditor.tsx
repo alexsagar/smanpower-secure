@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  DndContext, 
+import {
+  DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -26,12 +26,28 @@ import { BlockEditor } from "./BlockEditor";
 import { toast } from "sonner";
 import type { AdminPreviewData } from "@/types/admin-preview";
 
+export const VISUAL_PAGE_EDITOR_DND_ID = "visual-page-editor-blocks";
+
+export function reorderBlocks<T extends { id: string; order?: number }>(
+  blocks: T[],
+  activeId: string,
+  overId: string | null | undefined
+) {
+  if (!overId || activeId === overId) return blocks;
+
+  const oldIndex = blocks.findIndex((block) => block.id === activeId);
+  const newIndex = blocks.findIndex((block) => block.id === overId);
+  if (oldIndex < 0 || newIndex < 0) return blocks;
+
+  return arrayMove(blocks, oldIndex, newIndex).map((block, order) => ({ ...block, order }));
+}
+
 // Simple sortable item wrapper
-function SortableBlockItem({ 
-  block, 
-  onEdit, 
-  onToggleVisibility, 
-  onDuplicate, 
+function SortableBlockItem({
+  block,
+  onEdit,
+  onToggleVisibility,
+  onDuplicate,
   onDelete,
   isActive
 }: any) {
@@ -49,7 +65,7 @@ function SortableBlockItem({
   };
 
   const getBlockSummary = () => {
-    switch(block.blockType) {
+    switch (block.blockType) {
       case "editorial": return block.content?.title || "Editorial Block";
       case "manifesto": return block.content?.subtitle || "Manifesto Block";
       case "statistics": return `${block.content?.stats?.length || 0} statistics`;
@@ -60,14 +76,16 @@ function SortableBlockItem({
   };
 
   return (
-    <div 
-      ref={setNodeRef} 
+    <div
+      ref={setNodeRef}
       style={style}
       className={`bg-white border rounded-lg overflow-hidden flex transition-shadow ${isActive ? 'border-brand-gold ring-1 ring-brand-gold shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
     >
-      <div 
-        {...attributes} 
+      <div
+        {...attributes}
         {...listeners}
+        aria-label="Drag section"
+        data-drag-handle="section"
         className="w-10 bg-gray-50 border-r border-gray-100 flex items-center justify-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-brand-black"
       >
         <GripVertical className="w-4 h-4" />
@@ -113,12 +131,7 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
-      setBlocks((items: any[]) => {
-        const oldIndex = items.findIndex(i => i.id === active.id);
-        const newIndex = items.findIndex(i => i.id === over?.id);
-        const newArray = arrayMove(items, oldIndex, newIndex);
-        return newArray.map((b, i) => ({ ...b, order: i }));
-      });
+      setBlocks((items: any[]) => reorderBlocks(items, String(active.id), over?.id ? String(over.id) : null));
     }
   };
 
@@ -142,11 +155,17 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
 
   const saveChanges = async () => {
     setIsSaving(true);
+    const heroPayload = JSON.parse(JSON.stringify(page.hero));
+    // TEMPORARY diagnostic — trace hero state sent to server
+    console.log("[SAVE_DIAG] hero.videoId:", heroPayload?.videoId);
+    console.log("[SAVE_DIAG] hero.imageId:", heroPayload?.imageId);
+    console.log("[SAVE_DIAG] hero.posterImageId:", heroPayload?.posterImageId);
+    console.log("[SAVE_DIAG] hero.mobileImageId:", heroPayload?.mobileImageId);
     const { savePageAction } = await import("@/actions/content");
     const res = await savePageAction(
-      page.id, 
-      page.slug, 
-      JSON.parse(JSON.stringify(page.hero)), 
+      page.id,
+      page.slug,
+      heroPayload,
       JSON.parse(JSON.stringify(blocks))
     );
     setIsSaving(false);
@@ -159,10 +178,10 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[800px]">
-      
+
       {/* LEFT: Editor Panel */}
       <div className="flex flex-col gap-6">
-        
+
         {/* Sections List */}
         {activeEditor === "none" && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -199,13 +218,13 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
               )}
 
               {/* Sortable Blocks */}
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <DndContext id={VISUAL_PAGE_EDITOR_DND_ID} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={blocks.map((b: any) => b.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-3">
                     {blocks.map((block: any) => (
-                      <SortableBlockItem 
-                        key={block.id} 
-                        block={block} 
+                      <SortableBlockItem
+                        key={block.id}
+                        block={block}
                         isActive={editingBlock?.id === block.id}
                         onEdit={(b: any) => { setEditingBlock(b); setActiveEditor("block"); }}
                         onToggleVisibility={toggleVisibility}
@@ -226,8 +245,8 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
 
         {/* Hero Editor */}
         {activeEditor === "hero" && (
-          <HeroEditor 
-            hero={editingBlock} 
+          <HeroEditor
+            hero={editingBlock}
             onChange={(h) => {
               setEditingBlock(h);
               setPage({ ...page, hero: h });
@@ -235,14 +254,14 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
             onBack={() => {
               setActiveEditor("none");
               setEditingBlock(null);
-            }} 
+            }}
           />
         )}
 
         {/* Block Editor */}
         {activeEditor === "block" && (
-          <BlockEditor 
-            block={editingBlock} 
+          <BlockEditor
+            block={editingBlock}
             onChange={(b) => {
               setEditingBlock(b);
               setBlocks(blocks.map((block: any) => block.id === b.id ? b : block));
@@ -250,7 +269,7 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
             onBack={() => {
               setActiveEditor("none");
               setEditingBlock(null);
-            }} 
+            }}
           />
         )}
 
@@ -264,13 +283,13 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
               </div>
               <button onClick={() => setActiveEditor("none")} className="px-3 py-1 bg-white border border-red-200 text-red-700 text-xs font-semibold rounded hover:bg-red-50">Back to Visual</button>
             </div>
-            <textarea 
+            <textarea
               value={JSON.stringify(blocks, null, 2)}
               onChange={(e) => {
                 try {
                   const parsed = JSON.parse(e.target.value);
                   setBlocks(parsed);
-                } catch(e) {}
+                } catch (e) { }
               }}
               className="flex-1 w-full p-4 font-mono text-xs bg-[#0d1117] text-[#c9d1d9] focus:outline-none resize-none"
               spellCheck={false}
@@ -297,9 +316,9 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
           {/* Render Actual Components! */}
           {page.hero && <DynamicHero hero={page.hero} />}
           {blocks.map((block: any) => (
-             block.visible !== false && (
-               <AdminPreviewBlockRenderer key={block.id} block={block} previewData={previewData} />
-             )
+            block.visible !== false && (
+              <AdminPreviewBlockRenderer key={block.id} block={block} previewData={previewData} />
+            )
           ))}
         </div>
       </div>

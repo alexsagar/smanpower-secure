@@ -11,7 +11,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import type { CmsHeroSection } from "@/types/content";
+import type { CmsHeroSection, CmsMediaAsset } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
 import { ManagedVideo } from "./ManagedVideo";
@@ -21,21 +21,65 @@ interface DynamicHeroProps {
   lang?: string;
 }
 
+function getPlayableVideo(hero: CmsHeroSection) {
+  if (hero.video?.resourceType !== "video") return undefined;
+
+  // The verified Cloudinary secureUrl is authoritative and is played directly.
+  // Cloudinary on-the-fly video format derivatives (f_mp4/f_webm) can be
+  // disabled, rejected, or slow to generate, which leaves the hero permanently
+  // black — so we never route delivery through a generated derivative.
+  // ponytail: use the verified upload URL; add derivatives back only if a real
+  // encoding/optimization need is proven against the live Cloudinary account.
+  const src = hero.video.secureUrl || hero.video.localPath;
+  return src ? { src } : undefined;
+}
+
+// Cloudinary first-frame poster (so_0 image derivative). Image-from-video
+// transforms are reliable even where video format derivatives are restricted,
+// so this guarantees the hero shows the video's own first frame instead of a
+// black area while the video loads, is blocked by autoplay policy, or is
+// hidden for reduced-motion users.
+function deriveCloudinaryVideoPoster(video?: CmsMediaAsset) {
+  if (video?.source !== "CLOUDINARY" || video.resourceType !== "video" || !video.secureUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(video.secureUrl);
+    if (!url.pathname.includes("/video/upload/")) return undefined;
+    const path = url.pathname
+      .replace("/video/upload/", "/video/upload/so_0/")
+      .replace(/\.[^/.]+$/, ".jpg");
+    return `${url.origin}${path}`;
+  } catch {
+    return undefined;
+  }
+}
+
+function getFallbackImageUrl(hero: CmsHeroSection) {
+  const asset = hero.videoPoster || hero.image;
+  if (asset) return resolveMediaUrl(asset);
+  return deriveCloudinaryVideoPoster(hero.video);
+}
+
+function getMobileFallbackImageUrl(hero: CmsHeroSection) {
+  return hero.mobileImage ? resolveMediaUrl(hero.mobileImage) : undefined;
+}
+
 export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
   void lang;
   const imageUrl = resolveMediaUrl(hero.image);
-  const videoUrl = resolveMediaUrl(hero.video);
-  const posterUrl = resolveMediaUrl(hero.videoPoster || hero.image);
-  const mobileFallbackUrl = resolveMediaUrl(hero.mobileImage || hero.videoPoster || hero.image);
-  const rendersVideo = hero.video?.resourceType === "video" && Boolean(videoUrl);
+  const playableVideo = getPlayableVideo(hero);
+  const posterUrl = getFallbackImageUrl(hero);
+  const mobileFallbackUrl = getMobileFallbackImageUrl(hero);
 
   return (
     <section className="relative min-h-[100dvh] py-16 lg:py-24 w-full bg-brand-black overflow-hidden flex flex-col justify-center">
       {/* Background Media */}
       <div className="absolute inset-0 w-full h-full z-0">
-        {rendersVideo ? (
+        {playableVideo ? (
           <ManagedVideo
-            src={videoUrl}
+            src={playableVideo.src}
             posterSrc={posterUrl}
             mobileFallbackSrc={mobileFallbackUrl}
             alt={hero.accessibilityDescription || "Hero background video"}
@@ -47,8 +91,8 @@ export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
             decorative={!hero.accessibilityDescription}
             showPlaybackToggle
             containerClassName="absolute inset-0"
-            videoClassName="absolute inset-0 h-full w-full object-cover opacity-40"
-            fallbackClassName="scale-110 opacity-40 transition-transform duration-[10s] ease-out"
+            videoClassName="absolute inset-0 h-full w-full object-cover opacity-60"
+            fallbackClassName="scale-110 opacity-60 transition-transform duration-[10s] ease-out"
           />
         ) : imageUrl ? (
           <Image
