@@ -103,25 +103,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
         </section>
       )}
 
-      {/* Universal CTA Section */}
-      <section className="py-24 bg-brand-charcoal/5 relative overflow-hidden">
-        <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="md:w-2/3">
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tighter leading-tight text-brand-black mb-6">
-              Ready to elevate your <span className="text-brand-gold italic font-serif">global workforce?</span>
-            </h2>
-            <p className="text-lg text-brand-muted max-w-2xl leading-relaxed">
-              Partner with Seven Seas Intercontinental to access RBA-aligned, ethically sourced talent perfectly matched to your operational requirements.
-            </p>
-          </div>
-          <div className="md:w-1/3 flex justify-end">
-            <Link href="/employers/request-workforce" className="inline-flex items-center gap-4 bg-brand-charcoal text-brand-white px-10 py-5 hover:bg-brand-gold transition-colors duration-300 text-sm font-semibold tracking-widest uppercase group">
-              Partner With Us
-              <div className="w-8 h-[1px] bg-brand-white group-hover:w-12 transition-all duration-300" />
-            </Link>
-          </div>
-        </div>
-      </section>
+
     </>
   );
 }

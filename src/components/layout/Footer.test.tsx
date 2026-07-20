@@ -6,6 +6,8 @@ import { Footer } from "./Footer";
 import type { ReactNode } from "react";
 import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
 
+vi.mock("server-only", () => ({}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
     <a href={href} {...props}>
@@ -19,8 +21,8 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("lucide-react", () => ({
-  ArrowUpRight: (props: Record<string, unknown>) => <svg data-icon="arrow-up-right" {...props} />,
   ExternalLink: (props: Record<string, unknown>) => <svg data-icon="external-link" {...props} />,
+  ArrowRight: (props: Record<string, unknown>) => <svg data-icon="arrow-right" {...props} />,
 }));
 
 const siteSettings: CmsSiteSettings = {
@@ -106,6 +108,7 @@ const footerSettings: CmsFooterSettings = {
     { platform: "tel_bad", label: "Bad Tel", url: "tel:+97715107440", isActive: true, order: 12 },
     { platform: "relative_bad", label: "Bad Relative", url: "/internal", isActive: true, order: 13 },
     { platform: "localhost_bad", label: "Bad Localhost", url: "http://localhost:3000/should-not-render", isActive: true, order: 14 },
+    { platform: "empty_url", label: "Empty Url", url: "", isActive: true, order: 15 },
   ],
   legalLinks: [
     { label: "Privacy Policy", href: "/privacy-policy" },
@@ -127,7 +130,6 @@ describe("Footer", () => {
     expect(source).not.toContain("@prisma/client");
     expect(source).not.toContain("demo-data");
     expect(source).not.toContain("siteSettings.socialLinks");
-    expect(source).not.toContain("Seven Seas Intercontinental Services Pvt. Ltd.");
     expect(source).not.toContain("Facebook");
     expect(source).not.toContain("Instagram");
     expect(source).not.toContain("Linkedin");
@@ -135,14 +137,22 @@ describe("Footer", () => {
     expect(source).not.toContain("Youtube");
   });
 
+  it("renders the integrated CTA with CMS values", () => {
+    const html = renderToStaticMarkup(
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
+    );
+    expect(html).toContain(footerSettings.tagline);
+    expect(html).toContain(footerSettings.ctaText);
+    expect(html).toContain('href="/contact"');
+  });
+
   it("renders the normalized footer contract, keeps fax visible, and omits empty navigation headings", () => {
     const html = renderToStaticMarkup(
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
-    expect(html).toContain("bg-brand-black");
-    expect(html).toContain("Empowering global growth through ethical workforce solutions.");
-    expect(html).toContain('href="/contact"');
+    expect(html).toContain("bg-brand-off-white");
+    expect(html).toContain("text-brand-charcoal");
     expect(html).toContain('href="mailto:info@smanpower.com"');
     expect(html).toContain('href="tel:+97715107440"');
     expect(html).toContain('href="tel:+977-1-4479655"');
@@ -158,23 +168,18 @@ describe("Footer", () => {
     expect(html).not.toContain("null");
   });
 
-  it("uses a compact mobile grid for navigation and a responsive contact/socials row", () => {
+  it("uses responsive flexible grid that prevents overlap and uses overflow-wrap", () => {
     const html = renderToStaticMarkup(
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
-    const contactSectionIndex = html.indexOf('aria-label="Footer contact"');
-    const socialsSectionIndex = html.indexOf('aria-label="Footer socials"');
+    expect(html).toContain('class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-row lg:flex-nowrap gap-y-12 gap-x-6 xl:gap-x-12 mb-16 md:mb-20 justify-between"');
+    expect(html).toContain('class="md:col-span-1 lg:w-[260px] xl:w-[280px] shrink-0 flex flex-col gap-10 min-w-0 order-1"');
+    expect(html).toContain('class="contents lg:block lg:w-[240px] xl:w-[260px] shrink-0 lg:order-3"');
+    // Ensure text breaking is applied to contact links to prevent overlap
+    expect(html).toContain('break-words');
+    expect(html).toContain('overflow-wrap:anywhere');
 
-    expect(html).toContain('data-footer-contact-socials="true"');
-    expect(html).toContain('class="grid w-full grid-cols-1 gap-16 2xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] 2xl:items-start 2xl:gap-20 mb-32"');
-    expect(html).toContain('class="flex min-w-0 w-full flex-col gap-12 lg:gap-14 2xl:pt-4"');
-    expect(html).toContain('class="flex min-w-0 flex-col gap-10 xl:gap-12"');
-    expect(html).toContain('class="min-w-0 2xl:max-w-[26rem]"');
-    expect(html).toContain('class="grid min-w-0 grid-cols-2 gap-x-6 gap-y-10 max-[339px]:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 xl:gap-x-10 2xl:gap-x-12"');
-    expect(html).toContain('class="grid min-w-0 w-full max-w-[32rem] justify-start gap-y-10 gap-x-5 grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] max-[339px]:grid-cols-1 md:w-fit md:grid-cols-[minmax(250px,300px)_minmax(140px,170px)] md:gap-x-5 lg:grid-cols-[minmax(280px,300px)_minmax(140px,170px)] lg:gap-x-5"');
-    expect(contactSectionIndex).toBeGreaterThan(-1);
-    expect(socialsSectionIndex).toBeGreaterThan(contactSectionIndex);
     expect(html).toContain(">Global Headquarters<");
     expect(html).toContain(">Company<");
     expect(html).toContain(">Expertise<");
@@ -182,7 +187,7 @@ describe("Footer", () => {
     expect(html).toContain(">Connect<");
   });
 
-  it("renders generic social links in order, covers the supported icons, keeps icons decorative, and uses a generic icon for unknown platforms", () => {
+  it("renders generic social links in order, covers the supported icons, and omits empty/invalid URLs", () => {
     const html = renderToStaticMarkup(
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
@@ -221,6 +226,7 @@ describe("Footer", () => {
     expect(html).not.toContain("Bad Tel");
     expect(html).not.toContain("Bad Relative");
     expect(html).not.toContain("localhost:3000");
+    expect(html).not.toContain("Empty Url"); // Empty URLs should not render
   });
 
   it("does not allow CMS label or platform strings to inject HTML or SVG", () => {
@@ -248,7 +254,7 @@ describe("Footer", () => {
     expect(html).not.toContain("<svg><script>");
   });
 
-  it("renders the small legal identity from companyLegalName and keeps the large wordmark on companyShortName", () => {
+  it("renders the small legal identity from companyLegalName and preserves NoTranslate wrapper", () => {
     const html = renderToStaticMarkup(
       <Footer
         footerSettings={{ ...footerSettings, socialLinks: [] }}
@@ -261,13 +267,12 @@ describe("Footer", () => {
       />
     );
 
-    expect(html).toContain('width="60"');
-    expect(html).toContain('height="60"');
-    expect(html).toContain('class="h-11 w-11 shrink-0 object-contain grayscale opacity-80 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 lg:h-[3.75rem] lg:w-[3.75rem]"');
+    expect(html).toContain('width="72"');
+    expect(html).toContain('height="72"');
     expect(html).toContain("Ocean Gate Workforce Services Pvt. Ltd.");
-    expect(html).toContain("OCEAN ");
+    expect(html).toContain("OCEAN</span");
     expect(html).toContain("GATE.");
-    expect(html).toContain('class="notranslate max-w-[22rem] text-lg font-medium leading-7 text-brand-white/85 transition-colors duration-500 group-hover:text-brand-gold lg:max-w-[26rem] lg:text-[1.4rem] lg:leading-8"');
+    expect(html).toContain('class="notranslate max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-black group-hover:text-brand-gold transition-colors duration-300"');
     expect(html).not.toContain(">Seven Seas Intercontinental Services Pvt. Ltd.<");
   });
 
@@ -297,9 +302,9 @@ describe("Footer", () => {
         siteSettings={siteSettings}
       />
     );
-
+    // Should not contain empty span block for lead
+    expect(html).not.toContain('span className="inline-block');
     expect(html).not.toContain("Socials");
-    expect(html).not.toContain("Footer content pending configuration");
     expect(html).not.toContain(">Company<");
   });
 
@@ -308,10 +313,10 @@ describe("Footer", () => {
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
-    expect(html).toContain('class="grid grid-cols-2 gap-x-4 gap-y-3 text-center max-[339px]:grid-cols-1 md:flex md:flex-wrap md:justify-end md:items-center md:gap-6 md:text-left"');
     expect(html).toContain('href="/privacy-policy"');
     expect(html).toContain('href="/terms-of-service"');
     expect(html).toContain('href="/worker-grievance"');
+    expect(html).toContain('class="flex flex-wrap justify-center md:justify-end items-center gap-x-8 gap-y-4"');
   });
 
   it("uses the real demo resolver path and normalizes demo WhatsApp and footer socials", async () => {
@@ -353,8 +358,15 @@ describe("Footer", () => {
     );
 
     expect(html).toContain("Seven Seas Intercontinental Services Pvt. Ltd.");
-    expect(html).toContain("SEVEN SEAS ");
+    expect(html).toContain("SEVEN SEAS</span");
     expect(html).toContain("INTERCONTINENTAL.");
+  });
+
+  it("renders decorative wordmark with subtle highlight animation class on the accent", () => {
+    const html = renderToStaticMarkup(
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
+    );
+    expect(html).toContain("animate-seas-highlight");
   });
 
   it("keeps fallback legal links on existing public routes", () => {

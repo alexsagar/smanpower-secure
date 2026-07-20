@@ -264,3 +264,53 @@ body { top: 0 !important; margin-top: 0 !important; }
   border-color: #B5913F !important;
   color: #fff !important;
 }
+
+@keyframes subtle-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+.animate-subtle-flicker {
+    animation: subtle-flicker 4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .animate-subtle-flicker {
+        animation: none;
+    }
+}
+
+@keyframes seas-highlight {
+  0%,
+  70%,
+  100% {
+    background-position: 100% 50%;
+  }
+
+  85% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-seas-highlight {
+  background: linear-gradient(
+    90deg,
+    #B5913F 0%,
+    #B5913F 38%,
+    #D7BD7A 50%,
+    #B5913F 62%,
+    #B5913F 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 50%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: seas-highlight 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-seas-highlight {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
