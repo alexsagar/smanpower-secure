@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import { DemandStatusBadgeComponent } from "@/components/demands/DemandStatusBad
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema } from "@/lib/seo/schema";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 import Script from "next/script";
 
 interface Props {
@@ -56,13 +58,13 @@ export default async function DemandDetailPage({ params }: Props) {
 
   const isClosed = demand.status === "CLOSED" || demand.status === "ARCHIVED";
   const hasDocuments = demand.documents && demand.documents.filter(d => d.visibility === "PUBLIC" && d.approvalStatus === "APPROVED").length > 0;
-  
+
   const schemas = demand.positions
     .map((pos: any) => buildJobPostingSchema(demand, pos))
     .filter(Boolean);
 
   return (
-    <div className="bg-brand-gray/30 min-h-screen">
+    <div className="bg-brand-off-white min-h-screen relative font-sans">
       {schemas.length > 0 && (
         <Script id={`job-schema-${demand.id}`} type="application/ld+json" strategy="beforeInteractive">
           {JSON.stringify({
@@ -70,44 +72,57 @@ export default async function DemandDetailPage({ params }: Props) {
             "@graph": schemas
           })}
         </Script>
-      )}
-      {/* Page Header */}
-      <div className="bg-brand-black text-brand-white pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 text-sm text-brand-white/60 mb-6 font-mono">
-            <Link href="/" className="hover:text-brand-white transition-colors">Home</Link>
+      )}      {/* Page Header */}
+      <div className="relative pt-32 pb-8 border-b border-brand-charcoal/5 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/10 to-transparent pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+          <div className="flex items-center gap-2 text-sm text-brand-charcoal/60 mb-6 font-mono">
+            <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
             <ChevronRight className="w-4 h-4" />
-            <Link href="/demands" className="hover:text-brand-white transition-colors">Demands</Link>
+            <Link href="/demands" className="hover:text-brand-gold transition-colors">Demands</Link>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-brand-white/90 truncate max-w-xs">{demand.title}</span>
+            <span className="text-brand-charcoal/90 truncate max-w-xs">{demand.title}</span>
           </div>
+          {/* Featured image is optional: when absent nothing renders, no placeholder. */}
+          {demand.featuredImage && (
+            <div className="relative w-full aspect-[21/9] mb-8 overflow-hidden rounded-sm bg-brand-charcoal/5 border border-brand-charcoal/10 shadow-sm">
+              <Image
+                src={resolveMediaUrl(demand.featuredImage)}
+                alt={demand.featuredImage.altText || demand.title}
+                fill
+                priority
+                sizes="(max-width: 1280px) 100vw, 1280px"
+                className="object-cover"
+              />
+            </div>
+          )}
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div className="max-w-4xl">
               <div className="flex items-center gap-4 mb-4">
                 <DemandStatusBadgeComponent status={demand.statusBadge} />
                 {!demand.isPublic && (
-                  <span className="bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 text-xs font-bold uppercase tracking-wider">
+                  <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wider">
                     Draft / Private
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold font-serif mb-4">
+              <h1 className="text-3xl md:text-5xl font-bold font-serif mb-4 text-brand-black tracking-tight leading-tight">
                 {demand.title}
               </h1>
             </div>
-            
+
             <div className="shrink-0 flex gap-4">
               <Link
                 href="/demands"
-                className="flex items-center justify-center gap-2 px-6 py-3 border border-brand-white/20 text-brand-white hover:bg-brand-white/5 transition-colors text-sm font-semibold uppercase tracking-wider"
+                className="flex items-center justify-center gap-2 px-6 py-3 border border-brand-charcoal/20 text-brand-charcoal hover:bg-brand-charcoal/5 transition-colors text-sm font-semibold uppercase tracking-wider bg-white shadow-sm"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to List
               </Link>
               {process.env.PUBLIC_APPLICATIONS_ENABLED === 'true' && demand.enableApplication && !isClosed && (
                 <Link
                   href={`/demands/${demand.slug}/apply`}
-                  className="flex items-center justify-center bg-brand-gold text-brand-black px-8 py-3 text-sm font-bold uppercase tracking-wider hover:bg-brand-white transition-colors"
+                  className="flex items-center justify-center bg-brand-gold text-brand-white px-8 py-3 text-sm font-bold uppercase tracking-wider hover:bg-brand-gold/90 transition-colors shadow-sm"
                 >
                   Apply Job
                 </Link>
@@ -142,7 +157,7 @@ export default async function DemandDetailPage({ params }: Props) {
           <div className="block lg:hidden">
             <DemandPositionCards demand={demand} lang="en" />
           </div>
-          
+
           <p className="text-xs text-brand-charcoal/50 mt-4 max-w-3xl">
             * NPR equivalents are estimates based on the exchange rate at the time of demand approval and may vary. Final salary is based on the local currency amount specified in the employment contract.
           </p>
@@ -155,7 +170,7 @@ export default async function DemandDetailPage({ params }: Props) {
               <h2 className="text-2xl font-bold font-serif text-brand-black">Official Documents</h2>
               <p className="text-brand-charcoal/70 mt-1">Verified demand letters and approval documents.</p>
             </div>
-            
+
             <DemandDocumentViewer documents={demand.documents} />
           </div>
         )}
@@ -171,7 +186,7 @@ export default async function DemandDetailPage({ params }: Props) {
               </p>
             </div>
           </div>
-          
+
           <div className="bg-blue-50 border border-blue-100 p-6 rounded-sm flex gap-4">
             <ShieldAlert className="w-8 h-8 text-blue-600 shrink-0" />
             <div>

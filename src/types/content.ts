@@ -482,6 +482,7 @@ export interface CmsDemand {
   title: string;
   companyName: string;
   companyLogo?: CmsMediaAsset;
+  featuredImage?: CmsMediaAsset;
   industry?: string;
   industrySlug?: string;
   country: string;

@@ -4,10 +4,11 @@ import Link from "next/link";
 import { getAdminMediaAssets, getAdminStory } from "@/services/admin.service";
 import { notFound } from "next/navigation";
 
-export default async function EditStoryPage({ params }: { params: { id: string } }) {
+export default async function EditStoryPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const [assets, story] = await Promise.all([
     getAdminMediaAssets(),
-    getAdminStory(params.id)
+    getAdminStory(resolvedParams.id)
   ]);
 
   if (!story) {
