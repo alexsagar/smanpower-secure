@@ -150,6 +150,8 @@ export type ContentBlockType =
   | "dynamic_industry_grid"
   | "dynamic_facilities_grid"
   | "dynamic_vault_grid"
+  // Editable copy for pages that render their own JSX rather than CMS blocks.
+  | "page_copy"
   | "rich_text"
   | "image_text"
   | "video_text"
