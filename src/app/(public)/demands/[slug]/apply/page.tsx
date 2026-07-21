@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getPageCopy } from "@/services/page-copy.service";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getDemandBySlug } from "@/repositories/content-resolver";
@@ -9,6 +10,7 @@ interface ApplyPageProps {
 }
 
 export default async function ApplyPage({ params }: ApplyPageProps) {
+  const copy = await getPageCopy("demands/detail");
   const { slug } = await params;
   const demand = await getDemandBySlug(slug);
 
@@ -43,11 +45,11 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
             className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-brand-charcoal/70 hover:text-brand-black transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Demand
+            {copy.applyPage.backLabel}
           </Link>
           <div className="mt-6">
             <p className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-3">
-              Candidate Application
+              {copy.applyPage.heading}
             </p>
             <h1 className="text-3xl md:text-4xl font-bold font-serif text-brand-black">
               Apply for {demand.title}

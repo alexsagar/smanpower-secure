@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { prisma } from "@/lib/prisma";
 
@@ -22,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InsightsPage() {
+  const copy = await getPageCopy("insights");
   const articles = await prisma.insightArticle.findMany({
     where: { status: "PUBLISHED", deletedAt: null, lang: "en" },
     include: { featuredImage: true, category: true },
@@ -30,13 +32,13 @@ export default async function InsightsPage() {
 
   return (
     <>
-      <HeroInternal title="Published Insights." subtitle="Insights" imageSrc="/images/hero_training_orientation_1782920391505.png" />
+      <HeroInternal title={copy.hero.title} subtitle={copy.hero.subtitle} imageSrc={copy.hero.imageSrc} />
       <section className="py-24 md:py-32 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12">
           {articles.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-3xl font-semibold text-brand-black mb-4">No insights are published yet.</h2>
-              <p className="text-brand-muted">Please check back soon.</p>
+              <h2 className="text-3xl font-semibold text-brand-black mb-4">{copy.emptyState.heading}</h2>
+              <p className="text-brand-muted">{copy.emptyState.body}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -50,7 +52,7 @@ export default async function InsightsPage() {
                     <h2 className="text-2xl font-semibold text-brand-black mb-4 group-hover:text-brand-gold transition-colors">{article.title}</h2>
                     <p className="text-brand-muted leading-relaxed mb-8 line-clamp-4">{article.summary || "Read the full article."}</p>
                     <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold">
-                      Read Article <ArrowRight className="w-4 h-4" />
+                      {copy.readMoreLabel} <ArrowRight className="w-4 h-4" />
                     </span>
                   </Link>
                 </ScrollReveal>

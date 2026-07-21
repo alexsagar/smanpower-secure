@@ -1,4 +1,5 @@
 import { searchGlobalData } from "@/services/search.service";
+import { getPageCopy } from "@/services/page-copy.service";
 import { SearchForm } from "@/components/search/SearchForm";
 import Link from "next/link";
 import { Briefcase, Star, GraduationCap, Building2, SearchX, ArrowRight } from "lucide-react";
@@ -9,6 +10,7 @@ interface PageProps {
 }
 
 export default async function SearchPage({ searchParams }: PageProps) {
+  const copy = await getPageCopy("search");
   const resolvedSearchParams = await searchParams;
   const query = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
 
@@ -25,10 +27,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
         
         <div className="container-wide relative z-10 text-center">
           <span className="text-brand-gold text-xs md:text-sm font-semibold tracking-[0.3em] uppercase mb-4 block">
-            Global Search
+            {copy.hero.eyebrow}
           </span>
           <h1 className="text-4xl md:text-6xl font-light text-brand-black tracking-tight mb-12 max-w-3xl mx-auto">
-            Find <span className="font-semibold text-brand-gold">Opportunities</span> and Information
+            {copy.hero.headingLead}<span className="font-semibold text-brand-gold">{copy.hero.headingHighlight}</span>{copy.hero.headingTrail}
           </h1>
           
           <SearchForm />
@@ -41,16 +43,16 @@ export default async function SearchPage({ searchParams }: PageProps) {
           {!query ? (
             <div className="text-center py-20">
               <SearchX className="w-16 h-16 text-brand-charcoal/20 mx-auto mb-6" />
-              <h2 className="text-2xl font-light text-brand-black mb-2">Enter a search term</h2>
-              <p className="text-brand-muted">Search across our global job openings, success stories, and facilities.</p>
+              <h2 className="text-2xl font-light text-brand-black mb-2">{copy.prompt.heading}</h2>
+              <p className="text-brand-muted">{copy.prompt.body}</p>
             </div>
           ) : !hasResults ? (
             <div className="text-center py-20">
               <SearchX className="w-16 h-16 text-brand-charcoal/20 mx-auto mb-6" />
-              <h2 className="text-2xl font-light text-brand-black mb-2">No exact matches found for "{query}"</h2>
-              <p className="text-brand-muted mb-8">Try using different keywords or check out our latest jobs below.</p>
+              <h2 className="text-2xl font-light text-brand-black mb-2">{copy.noResults.headingLead}{query}{copy.noResults.headingTrail}</h2>
+              <p className="text-brand-muted mb-8">{copy.noResults.body}</p>
               <Link href="/jobs" className="bg-brand-black text-brand-white px-8 py-4 uppercase tracking-widest text-sm font-semibold hover:bg-brand-gold hover:text-brand-black transition-colors inline-block">
-                View All Jobs
+                {copy.viewAllJobsLabel}
               </Link>
             </div>
           ) : (
@@ -61,7 +63,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 <div>
                   <div className="flex items-center gap-3 mb-8 pb-4 border-b border-brand-charcoal/10">
                     <Briefcase className="w-6 h-6 text-brand-gold" />
-                    <h2 className="text-2xl font-semibold text-brand-black tracking-tight">Active Jobs</h2>
+                    <h2 className="text-2xl font-semibold text-brand-black tracking-tight">{copy.sectionHeadings.jobs}</h2>
                     <span className="bg-brand-charcoal/5 px-2 py-1 text-xs font-mono text-brand-charcoal rounded-sm">{jobs.length}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,7 +90,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                           </div>
                         </div>
                         <div className="text-sm font-semibold uppercase tracking-widest text-brand-black group-hover:text-brand-gold transition-colors flex items-center gap-2">
-                          View Details <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                          {copy.viewDetailsLabel} <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                         </div>
                       </Link>
                     ))}
@@ -101,7 +103,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 <div>
                   <div className="flex items-center gap-3 mb-8 pb-4 border-b border-brand-charcoal/10">
                     <Star className="w-6 h-6 text-brand-gold" />
-                    <h2 className="text-2xl font-semibold text-brand-black tracking-tight">Success Stories</h2>
+                    <h2 className="text-2xl font-semibold text-brand-black tracking-tight">{copy.sectionHeadings.stories}</h2>
                     <span className="bg-brand-charcoal/5 px-2 py-1 text-xs font-mono text-brand-charcoal rounded-sm">{stories.length}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,7 +131,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                   <div>
                     <div className="flex items-center gap-3 mb-8 pb-4 border-b border-brand-charcoal/10">
                       <GraduationCap className="w-5 h-5 text-brand-gold" />
-                      <h2 className="text-xl font-semibold text-brand-black tracking-tight">Facilities</h2>
+                      <h2 className="text-xl font-semibold text-brand-black tracking-tight">{copy.sectionHeadings.facilities}</h2>
                       <span className="bg-brand-charcoal/5 px-2 py-1 text-xs font-mono text-brand-charcoal rounded-sm">{facilities.length}</span>
                     </div>
                     <div className="space-y-4">
@@ -147,7 +149,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                   <div>
                     <div className="flex items-center gap-3 mb-8 pb-4 border-b border-brand-charcoal/10">
                       <Building2 className="w-5 h-5 text-brand-gold" />
-                      <h2 className="text-xl font-semibold text-brand-black tracking-tight">Industries</h2>
+                      <h2 className="text-xl font-semibold text-brand-black tracking-tight">{copy.sectionHeadings.industries}</h2>
                       <span className="bg-brand-charcoal/5 px-2 py-1 text-xs font-mono text-brand-charcoal rounded-sm">{industries.length}</span>
                     </div>
                     <div className="space-y-4">

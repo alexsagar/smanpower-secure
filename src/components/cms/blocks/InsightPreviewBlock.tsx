@@ -62,7 +62,7 @@ export function InsightPreviewBlock({ block, lang }: { block: CmsContentBlock; l
 
                 {/* View article text that slides in */}
                 <div className="mt-6 flex items-center gap-3 text-brand-gold text-[10px] font-bold uppercase tracking-widest opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                  <span>Read Article</span>
+                  <span>{content.readArticleLabel || "Read Article"}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
               </ScrollReveal>

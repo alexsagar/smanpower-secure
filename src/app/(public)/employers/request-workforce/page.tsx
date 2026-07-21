@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { RequestWorkforceForm } from "@/components/forms/RequestWorkforceForm";
 import type { Metadata } from "next";
+import { getPageCopy } from "@/services/page-copy.service";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ShieldCheck, Users, Zap, CheckCircle2 } from "lucide-react";
@@ -33,19 +34,21 @@ const hardcodedDict = {
   }
 };
 
-const advantages = [
-  { icon: <ShieldCheck className="w-6 h-6" />, title: "RBA-Aligned Sourcing", desc: "Processes designed around ethical recruitment frameworks and employer-paid recruitment principles where applicable." },
-  { icon: <Users className="w-6 h-6" />, title: "Pre-Screened Talent", desc: "Every candidate is medically, psychologically, and technically vetted before interview." },
-  { icon: <Zap className="w-6 h-6" />, title: "Rapid Deployment", desc: "Streamlined government processing to mobilize your workforce on schedule." }
+const ADVANTAGE_ICONS = [
+  <ShieldCheck className="w-6 h-6" key="shield" />,
+  <Users className="w-6 h-6" key="users" />,
+  <Zap className="w-6 h-6" key="zap" />,
 ];
 
+
 export default async function RequestWorkforcePage() {
+  const copy = await getPageCopy("employers/request-workforce");
   return (
     <>
       <HeroInternal 
-        title="Partner With Us." 
-        subtitle="Workforce Solutions"
-        imageSrc="/images/corporate_office_interview_1782920412325.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <section className="py-24 md:py-32 bg-brand-off-white relative">
@@ -56,23 +59,23 @@ export default async function RequestWorkforcePage() {
             <div className="lg:col-span-4 space-y-12">
               <ScrollReveal>
                 <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                  Employer Process
+                  {copy.intro.eyebrow}
                 </span>
                 <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black mb-6">
-                  Build Your Global Team.
+                  {copy.intro.heading}
                 </h2>
                 <p className="text-lg leading-relaxed text-brand-muted font-light mb-12">
-                  Submit your preliminary workforce requirements. Our corporate relations team will analyze your project needs and prepare a customized deployment proposal.
+                  {copy.intro.body}
                 </p>
 
                 <div className="space-y-8">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-brand-charcoal border-b border-brand-charcoal/10 pb-4">
-                    The Seven Seas Approach
+                    {copy.approachHeading}
                   </h3>
-                  {advantages.map((item, i) => (
+                  {copy.advantages.map((item, i) => (
                     <div key={i} className="flex items-start gap-4 group">
                       <div className="text-brand-gold mt-1 group-hover:scale-110 transition-transform duration-300">
-                        {item.icon}
+                        {ADVANTAGE_ICONS[i] ?? ADVANTAGE_ICONS[0]}
                       </div>
                       <div>
                         <h4 className="font-semibold text-brand-black mb-1">{item.title}</h4>

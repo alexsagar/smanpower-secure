@@ -5,6 +5,7 @@ import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import Image from 'next/image';
 import { NepalMap } from 'nepal-district-map';
 import { useState, useEffect } from 'react';
+import { talentDashboardDefaults, type TalentDashboardContent } from '@/lib/talent-dashboard-content';
 
 // Simple counter hook for animated numbers
 function useCounter(end: number, duration: number = 2000) {
@@ -28,9 +29,13 @@ function useCounter(end: number, duration: number = 2000) {
   return count;
 }
 
-export default function TalentDashboard() {
-  const domesticCount = useCounter(3200000);
-  const foreignCount = useCounter(2800000);
+export default function TalentDashboard({
+  content = talentDashboardDefaults,
+}: {
+  content?: TalentDashboardContent;
+} = {}) {
+  const domesticCount = useCounter(content.pool.domesticTarget);
+  const foreignCount = useCounter(content.pool.deployedTarget);
 
   return (
     <section className="py-32 lg:py-48 bg-[#0a0a0a] text-brand-white relative overflow-hidden">
@@ -56,18 +61,18 @@ export default function TalentDashboard() {
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px w-16 bg-brand-gold" />
               <span className="text-brand-white/50 text-[10px] font-semibold tracking-[0.3em] uppercase">
-                Data & Insights
+                {content.eyebrow}
               </span>
             </div>
             <h2 className="text-5xl md:text-6xl lg:text-[6rem] font-bold tracking-tighter text-brand-white leading-[0.9]">
-              Nepal Talent<br/>
-              <span className="font-serif italic font-light text-brand-gold">Intelligence.</span>
+              {content.headingLead}<br/>
+              <span className="font-serif italic font-light text-brand-gold">{content.headingHighlight}</span>
             </h2>
           </ScrollReveal>
           
           <ScrollReveal delay={0.2} className="max-w-md pb-2">
             <p className="text-brand-white/60 text-lg leading-relaxed font-medium">
-              Live aggregated overview of workforce demographics, readiness, and sourcing potential across the nation.
+              {content.description}
             </p>
           </ScrollReveal>
         </div>
@@ -79,12 +84,12 @@ export default function TalentDashboard() {
           <div className="lg:col-span-8 lg:row-span-2 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden group hover:border-brand-gold/30 transition-all duration-700 hover:shadow-[0_0_50px_rgba(234,179,8,0.05)]">
             <div className="flex justify-between items-start mb-8 relative z-20">
               <div>
-                <h3 className="text-2xl font-light text-brand-white mb-2">National <span className="font-serif italic text-brand-gold">Sourcing Hubs</span></h3>
-                <p className="text-xs text-brand-white/50">Interactive deployment tracking across 7 provinces.</p>
+                <h3 className="text-2xl font-light text-brand-white mb-2">{content.map.titleLead}<span className="font-serif italic text-brand-gold">{content.map.titleHighlight}</span></h3>
+                <p className="text-xs text-brand-white/50">{content.map.subtitle}</p>
               </div>
               <div className="px-4 py-2 bg-brand-white/5 rounded-full border border-brand-white/10 flex items-center gap-3 animate-pulse">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-[10px] uppercase tracking-widest text-brand-white/70">Live Data</span>
+                <span className="text-[10px] uppercase tracking-widest text-brand-white/70">{content.map.liveBadge}</span>
               </div>
             </div>
 
@@ -98,11 +103,12 @@ export default function TalentDashboard() {
                   strokeWidth={1}
                   showLabels={false}
                   showTooltip={true}
-                  data={{
-                    "Kathmandu": { value: 1200000, activeTalent: "1.2M", topSector: "Hospitality", hub: "Bagmati Hub" },
-                    "Rupandehi": { value: 850000, activeTalent: "850K", topSector: "Construction", hub: "Lumbini Hub" },
-                    "Morang": { value: 620000, activeTalent: "620K", topSector: "Manufacturing", hub: "Koshi Hub" },
-                  } as any}
+                  data={Object.fromEntries(
+                    content.map.provinces.map((p) => [
+                      p.district,
+                      { value: p.value, activeTalent: p.activeTalent, topSector: p.topSector, hub: p.hub },
+                    ])
+                  ) as any}
                   renderTooltip={(districtName, data: any) => {
                     // If no explicit data provided, generate deterministic fallback data
                     const activeVal = data?.activeTalent || `${Math.floor(districtName.length * 25.5)}K`;
@@ -116,11 +122,11 @@ export default function TalentDashboard() {
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-brand-white/60">Active Talent</span>
+                            <span className="text-brand-white/60">{content.map.tooltipActiveTalent}</span>
                             <span className="text-brand-white font-mono">{activeVal}</span>
                           </div>
                           <div className="flex justify-between text-xs">
-                            <span className="text-brand-white/60">Top Sector</span>
+                            <span className="text-brand-white/60">{content.map.tooltipTopSector}</span>
                             <span className="text-brand-white">{topSec}</span>
                           </div>
                         </div>
@@ -145,12 +151,12 @@ export default function TalentDashboard() {
           {/* Top Right: Real-time Counters */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-8 flex items-center gap-2">
-              <Globe className="w-4 h-4 text-brand-gold" /> Global Deployment
+              <Globe className="w-4 h-4 text-brand-gold" /> {content.pool.heading}
             </h3>
             
             <div className="space-y-8">
               <div>
-                <div className="text-[10px] text-brand-white/40 uppercase tracking-widest mb-2">Available Domestic Pool</div>
+                <div className="text-[10px] text-brand-white/40 uppercase tracking-widest mb-2">{content.pool.domesticLabel}</div>
                 <div className="text-4xl lg:text-5xl font-serif italic text-brand-white flex items-baseline gap-1">
                   {(domesticCount / 1000000).toFixed(1)}<span className="text-xl text-brand-gold font-sans not-italic">M</span>
                 </div>
@@ -159,7 +165,7 @@ export default function TalentDashboard() {
               <div className="h-px w-full bg-gradient-to-r from-brand-white/20 to-transparent" />
 
               <div>
-                <div className="text-[10px] text-brand-white/40 uppercase tracking-widest mb-2">Successfully Deployed</div>
+                <div className="text-[10px] text-brand-white/40 uppercase tracking-widest mb-2">{content.pool.deployedLabel}</div>
                 <div className="text-4xl lg:text-5xl font-serif italic text-brand-white flex items-baseline gap-1">
                   {(foreignCount / 1000000).toFixed(1)}<span className="text-xl text-brand-gold font-sans not-italic">M</span>
                 </div>
@@ -170,14 +176,14 @@ export default function TalentDashboard() {
           {/* Middle Right: Readiness Metrics */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-6 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-brand-gold" /> Readiness & Compliance
+              <ShieldCheck className="w-4 h-4 text-brand-gold" /> {content.readiness.heading}
             </h3>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-brand-white/70">Medical Clearance</span>
-                  <span className="text-brand-gold font-mono">98%</span>
+                  <span className="text-brand-white/70">{content.readiness.items[0].label}</span>
+                  <span className="text-brand-gold font-mono">{content.readiness.items[0].value}</span>
                 </div>
                 <div className="h-1.5 w-full bg-brand-white/10 overflow-hidden rounded-full">
                   <div className="h-full bg-brand-gold w-[98%] group-hover:bg-brand-white transition-colors duration-500" />
@@ -186,8 +192,8 @@ export default function TalentDashboard() {
 
               <div>
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-brand-white/70">Pre-departure Training</span>
-                  <span className="text-brand-gold font-mono">100%</span>
+                  <span className="text-brand-white/70">{content.readiness.items[1].label}</span>
+                  <span className="text-brand-gold font-mono">{content.readiness.items[1].value}</span>
                 </div>
                 <div className="h-1.5 w-full bg-brand-white/10 overflow-hidden rounded-full">
                   <div className="h-full bg-brand-gold w-[100%] group-hover:bg-brand-white transition-colors duration-500" />
@@ -196,8 +202,8 @@ export default function TalentDashboard() {
 
               <div>
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-brand-white/70">Background Verification</span>
-                  <span className="text-brand-gold font-mono">95%</span>
+                  <span className="text-brand-white/70">{content.readiness.items[2].label}</span>
+                  <span className="text-brand-gold font-mono">{content.readiness.items[2].value}</span>
                 </div>
                 <div className="h-1.5 w-full bg-brand-white/10 overflow-hidden rounded-full">
                   <div className="h-full bg-brand-gold w-[95%] group-hover:bg-brand-white transition-colors duration-500" />
@@ -209,7 +215,7 @@ export default function TalentDashboard() {
           {/* Bottom Left: Skill Distribution (Spans 4 columns) */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-6 flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-brand-gold" /> Demographics
+              <GraduationCap className="w-4 h-4 text-brand-gold" /> {content.demographics.heading}
             </h3>
             
             <div className="flex gap-8 items-center h-full pb-4">
@@ -217,17 +223,17 @@ export default function TalentDashboard() {
               <div className="relative w-24 h-24 rounded-full flex items-center justify-center border-8 border-brand-white/10 border-t-brand-gold border-r-brand-gold border-b-brand-gold/50 transform -rotate-45 group-hover:rotate-0 transition-transform duration-1000">
                 <div className="absolute inset-0 rounded-full border-8 border-brand-white/5 border-l-brand-white/30 transform rotate-90" />
                 <span className="transform rotate-45 group-hover:rotate-0 transition-transform duration-1000 text-brand-white font-serif italic text-xl">
-                  68%
+                  {content.demographics.donutValue}
                 </span>
               </div>
               <div className="flex-1 space-y-4">
                 <div>
-                  <div className="text-[10px] text-brand-white/40 uppercase tracking-widest">Core Demographic</div>
-                  <div className="text-sm text-brand-white">Age Group (18-35)</div>
+                  <div className="text-[10px] text-brand-white/40 uppercase tracking-widest">{content.demographics.coreLabel}</div>
+                  <div className="text-sm text-brand-white">{content.demographics.coreValue}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-brand-white/40 uppercase tracking-widest">Literacy Rate</div>
-                  <div className="text-sm text-brand-white font-mono text-brand-gold">82% <span className="text-brand-white/50 font-sans text-xs">Workforce</span></div>
+                  <div className="text-[10px] text-brand-white/40 uppercase tracking-widest">{content.demographics.literacyLabel}</div>
+                  <div className="text-sm text-brand-white font-mono text-brand-gold">{content.demographics.literacyValue} <span className="text-brand-white/50 font-sans text-xs">{content.demographics.literacySuffix}</span></div>
                 </div>
               </div>
             </div>
@@ -236,16 +242,11 @@ export default function TalentDashboard() {
           {/* Bottom Middle/Right: Sector Breakdown (Spans 8 columns) */}
           <div className="lg:col-span-8 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-8 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-brand-gold" /> Primary Sectors
+              <Briefcase className="w-4 h-4 text-brand-gold" /> {content.sectors.heading}
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { name: 'Hospitality', value: '35%', desc: 'Hotels & Tourism' },
-                { name: 'Construction', value: '28%', desc: 'Infrastructure' },
-                { name: 'Healthcare', value: '15%', desc: 'Nursing & Care' },
-                { name: 'Security', value: '12%', desc: 'Guards & Safety' }
-              ].map((sector, i) => (
+              {content.sectors.items.map((sector, i) => (
                 <div key={i} className="flex flex-col">
                   <div className="text-3xl font-serif italic text-brand-white mb-2">{sector.value}</div>
                   <div className="text-sm font-semibold text-brand-gold mb-1">{sector.name}</div>

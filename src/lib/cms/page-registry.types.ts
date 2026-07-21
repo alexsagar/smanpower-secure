@@ -24,7 +24,8 @@ export type CmsBlockTypeId =
   | "timeline_grid"
   | "dynamic_industry_grid"
   | "dynamic_facilities_grid"
-  | "dynamic_vault_grid";
+  | "dynamic_vault_grid"
+  | "page_copy";
 
 export type PageCategory = "MARKETING" | "LISTING" | "DETAIL" | "FUNCTIONAL" | "LEGAL" | "SEARCH" | "REDIRECT" | "SYSTEM" | "COLLECTION" | "HYBRID";
 export type CmsCoverageStatus = "FULL" | "PARTIAL" | "NONE" | "COLLECTION_DRIVEN" | "FUNCTIONAL_CODE_CONTROLLED" | "LEGACY_REDIRECT" | "SYSTEM_ROUTE";

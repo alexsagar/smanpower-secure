@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getContentBySlug, employersContent } from "@/lib/content";
+import { employersContent } from "@/lib/content";
+import { getDynamicPageContent } from "@/services/dynamic-page.service";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 export function generateStaticParams() {
@@ -12,7 +13,7 @@ export default async function EmployersDynamicPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const content = getContentBySlug("employers", slug);
+  const content = await getDynamicPageContent("employers", slug);
 
   if (!content) notFound();
 

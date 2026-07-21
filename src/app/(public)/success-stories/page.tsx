@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getPageCopy } from "@/services/page-copy.service";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
@@ -22,14 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SuccessStoriesPage() {
+  const copy = await getPageCopy("success-stories");
   const stories = await getPublishedStories();
 
   return (
     <>
       <HeroInternal 
-        title="Impact Beyond Placement." 
-        subtitle="Success Stories"
-        imageSrc="/images/hero_training_orientation_1782920391505.png"
+        title={copy.hero.title}
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <section className="py-24 md:py-32 bg-brand-black text-brand-white relative">
@@ -39,20 +41,20 @@ export default async function SuccessStoriesPage() {
           <div className="max-w-4xl mb-24">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block">
-                Real Results
+                {copy.intro.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-white mb-8">
-                The human proof of ethical recruitment.
+                {copy.intro.heading}
               </h2>
               <p className="text-xl leading-relaxed text-brand-white/60 font-light max-w-2xl">
-                We measure our success not just by the numbers deployed, but by the lives uplifted and the businesses propelled forward. Read the accounts of those who have experienced the Seven Seas standard.
+                {copy.intro.body}
               </p>
             </ScrollReveal>
           </div>
 
           {stories.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-2xl font-light text-brand-white/80">More stories coming soon.</h3>
+              <h3 className="text-2xl font-light text-brand-white/80">{copy.emptyState}</h3>
             </div>
           ) : (
             <div className="space-y-32">
@@ -99,7 +101,7 @@ export default async function SuccessStoriesPage() {
                             {story.industry || story.country || "Success Story"}
                           </p>
                           <Link href={`/success-stories/${story.slug}`} className="text-xs uppercase tracking-widest font-semibold text-brand-white hover:text-brand-gold transition-colors">
-                            Read Full Story &rarr;
+                            {copy.readMoreLabel}
                           </Link>
                         </div>
                       </div>
@@ -118,15 +120,15 @@ export default async function SuccessStoriesPage() {
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="md:w-2/3">
             <h2 className="text-3xl md:text-5xl font-semibold tracking-tighter leading-tight text-brand-black mb-6">
-              Write your own <span className="text-brand-gold italic font-serif">success story.</span>
+              {copy.cta.headingLead}<span className="text-brand-gold italic font-serif">{copy.cta.headingHighlight}</span>
             </h2>
             <p className="text-lg text-brand-muted max-w-2xl leading-relaxed">
-              Whether you are an employer seeking reliable talent or a candidate looking for a life-changing opportunity, we are ready to partner with you.
+              {copy.cta.body}
             </p>
           </div>
           <div className="md:w-1/3 flex justify-end">
             <Link href="/contact" className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase group">
-              Start Your Journey
+              {copy.cta.buttonLabel}
               <div className="w-8 h-[1px] bg-brand-white group-hover:w-12 group-hover:bg-brand-black transition-all duration-300" />
             </Link>
           </div>

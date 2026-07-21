@@ -1,3 +1,4 @@
+import { getPageCopy } from "@/services/page-copy.service";
 import React from "react";
 import { Metadata } from "next";
 import { getPublishedDemands, getDemandFilterOptions } from "@/repositories/content-resolver";
@@ -26,6 +27,7 @@ export default async function DemandsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
+  const copy = await getPageCopy("demands");
   const resolvedSearchParams = await searchParams;
 
   const filters: CmsDemandFilters = {
@@ -50,14 +52,14 @@ export default async function DemandsPage({
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-brand-charcoal/10 shadow-sm mb-8">
             <span className="w-2 h-2 rounded-full bg-brand-gold animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-charcoal">Global Opportunities</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-charcoal">{copy.badge}</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-light tracking-tighter leading-[1.1] text-brand-black mb-6">
-            Foreign Job Demands <br />
-            <span className="font-serif italic text-brand-gold">in Nepal.</span>
+            {copy.headingLead}<br />
+            <span className="font-serif italic text-brand-gold">{copy.headingHighlight}</span>
           </h1>
           <p className="text-brand-charcoal/60 max-w-2xl text-lg font-light leading-relaxed">
-            Browse published foreign job demands shared by Seven Seas Intercontinental. Each demand includes position details, transparent fee structures, and worker-safety guidance for official applications.
+            {copy.intro}
           </p>
         </div>
       </div>
@@ -66,7 +68,7 @@ export default async function DemandsPage({
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="lg:w-1/4 shrink-0">
-            <React.Suspense fallback={<div className="p-6 bg-white border border-brand-charcoal/10 rounded-sm">Loading filters...</div>}>
+            <React.Suspense fallback={<div className="p-6 bg-white border border-brand-charcoal/10 rounded-sm">{copy.filtersLoading}</div>}>
               <DemandFilters options={filterOptions} className="sticky top-24" />
             </React.Suspense>
           </div>
@@ -85,10 +87,10 @@ export default async function DemandsPage({
                   <span className="text-brand-gold text-2xl">?</span>
                 </div>
                 <h3 className="text-2xl font-light tracking-tight text-brand-black mb-3">
-                  No Demands Found
+                  {copy.emptyState.heading}
                 </h3>
                 <p className="text-brand-charcoal/60 font-light">
-                  We couldn't find any demands matching your current filters. Please try adjusting your search criteria.
+                  {copy.emptyState.body}
                 </p>
               </div>
             )}

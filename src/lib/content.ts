@@ -13,6 +13,16 @@ export interface PageContent {
     title: string;
     image: string;
   }[];
+  /**
+   * Labels rendered by DynamicPageTemplate itself. Optional: when absent the
+   * template falls back to the wording it has always shown.
+   */
+  overviewSubtitle?: string;
+  featuresEyebrow?: string;
+  featuresHeading?: string;
+  documentsEyebrow?: string;
+  documentsHeading?: string;
+  documentsCtaLabel?: string;
 }
 
 export const employersContent: PageContent[] = [
