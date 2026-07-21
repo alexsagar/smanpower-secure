@@ -27,10 +27,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
         
         <div className="container-wide relative z-10 text-center">
           <span className="text-brand-gold text-xs md:text-sm font-semibold tracking-[0.3em] uppercase mb-4 block">
-            Global Search
+            {copy.hero.eyebrow}
           </span>
           <h1 className="text-4xl md:text-6xl font-light text-brand-black tracking-tight mb-12 max-w-3xl mx-auto">
-            Find <span className="font-semibold text-brand-gold">Opportunities</span> and Information
+            {copy.hero.headingLead}<span className="font-semibold text-brand-gold">{copy.hero.headingHighlight}</span>{copy.hero.headingTrail}
           </h1>
           
           <SearchForm />
@@ -52,7 +52,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
               <h2 className="text-2xl font-light text-brand-black mb-2">{copy.noResults.headingLead}{query}{copy.noResults.headingTrail}</h2>
               <p className="text-brand-muted mb-8">{copy.noResults.body}</p>
               <Link href="/jobs" className="bg-brand-black text-brand-white px-8 py-4 uppercase tracking-widest text-sm font-semibold hover:bg-brand-gold hover:text-brand-black transition-colors inline-block">
-                View All Jobs
+                {copy.viewAllJobsLabel}
               </Link>
             </div>
           ) : (
@@ -90,7 +90,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                           </div>
                         </div>
                         <div className="text-sm font-semibold uppercase tracking-widest text-brand-black group-hover:text-brand-gold transition-colors flex items-center gap-2">
-                          View Details <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                          {copy.viewDetailsLabel} <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                         </div>
                       </Link>
                     ))}

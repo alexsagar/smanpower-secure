@@ -22,6 +22,7 @@ export interface PageContent {
   featuresHeading?: string;
   documentsEyebrow?: string;
   documentsHeading?: string;
+  documentsCtaLabel?: string;
 }
 
 export const employersContent: PageContent[] = [

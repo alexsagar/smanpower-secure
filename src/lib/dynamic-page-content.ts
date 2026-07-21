@@ -51,6 +51,7 @@ const TEMPLATE_LABEL_DEFAULTS = {
   featuresHeading: "The Seven Seas Standard.",
   documentsEyebrow: "Official Records",
   documentsHeading: "Licenses & Certifications.",
+  documentsCtaLabel: "View Document",
 } as const;
 
 export function buildDynamicPageBlockContent(entry: PageContent) {
@@ -83,6 +84,7 @@ export function mapBlockContentToPageContent(
     featuresHeading: asString(content.featuresHeading) ?? fallback?.featuresHeading,
     documentsEyebrow: asString(content.documentsEyebrow) ?? fallback?.documentsEyebrow,
     documentsHeading: asString(content.documentsHeading) ?? fallback?.documentsHeading,
+    documentsCtaLabel: asString(content.documentsCtaLabel) ?? fallback?.documentsCtaLabel,
     title: asString(content.title) ?? fallback?.title ?? "",
     subtitle: asString(content.subtitle) ?? fallback?.subtitle ?? "",
     heroImage: asString(content.heroImage) ?? fallback?.heroImage ?? "",

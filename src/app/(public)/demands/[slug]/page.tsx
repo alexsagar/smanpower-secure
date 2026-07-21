@@ -139,7 +139,7 @@ export default async function DemandDetailPage({ params }: Props) {
 
         {demand.generalNotes && (
           <div className="bg-brand-charcoal/5 border border-brand-charcoal/10 p-6 rounded-sm mb-12">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-brand-charcoal mb-2">Demand Notice</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-brand-charcoal mb-2">{copy.noticeHeading}</h3>
             <p className="text-brand-charcoal whitespace-pre-line">{demand.generalNotes}</p>
           </div>
         )}

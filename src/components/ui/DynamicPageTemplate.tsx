@@ -84,7 +84,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
                   <div className="relative overflow-hidden border border-brand-charcoal/10 bg-white mb-6 p-2">
                     <div className="absolute inset-0 bg-brand-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
                       <span className="bg-brand-gold text-brand-black px-6 py-3 text-xs font-semibold tracking-widest uppercase shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        View Document
+                        {content.documentsCtaLabel || "View Document"}
                       </span>
                     </div>
                     <img 

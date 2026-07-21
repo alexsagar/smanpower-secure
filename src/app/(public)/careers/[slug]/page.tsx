@@ -40,16 +40,16 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
       <section className="py-24 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Department</span><span className="font-medium text-brand-black">{opening.department || "-"}</span></div>
+            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.departmentLabel}</span><span className="font-medium text-brand-black">{opening.department || "-"}</span></div>
             <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Location</span><span className="font-medium text-brand-black">{opening.location || "-"}</span></div>
             <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.employmentTypeLabel}</span><span className="font-medium text-brand-black">{opening.employmentType || "-"}</span></div>
           </div>
           <div className="prose prose-lg max-w-none text-brand-black/80">
-            <h2>Description</h2>
+            <h2>{copy.descriptionHeading}</h2>
             <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.description) }} />
             {opening.requirements && (
               <>
-                <h2>Requirements</h2>
+                <h2>{copy.requirementsHeading}</h2>
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.requirements) }} />
               </>
             )}

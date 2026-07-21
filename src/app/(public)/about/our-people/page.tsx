@@ -93,7 +93,7 @@ export default async function OurPeoplePage() {
         <div className="relative z-10 text-center px-6">
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl font-light text-white tracking-widest uppercase max-w-4xl mx-auto leading-tight">
-              One Team. <span className="font-semibold text-brand-gold">One Mission.</span>
+              {copy.bandHeadingLead}<span className="font-semibold text-brand-gold">{copy.bandHeadingHighlight}</span>
             </h2>
           </ScrollReveal>
         </div>

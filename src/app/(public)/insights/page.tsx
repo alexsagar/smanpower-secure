@@ -52,7 +52,7 @@ export default async function InsightsPage() {
                     <h2 className="text-2xl font-semibold text-brand-black mb-4 group-hover:text-brand-gold transition-colors">{article.title}</h2>
                     <p className="text-brand-muted leading-relaxed mb-8 line-clamp-4">{article.summary || "Read the full article."}</p>
                     <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold">
-                      Read Article <ArrowRight className="w-4 h-4" />
+                      {copy.readMoreLabel} <ArrowRight className="w-4 h-4" />
                     </span>
                   </Link>
                 </ScrollReveal>

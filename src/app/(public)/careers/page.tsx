@@ -47,7 +47,7 @@ export default async function CareersPage() {
                   </p>
                   <p className="text-brand-muted leading-relaxed mb-8 line-clamp-4">{opening.description}</p>
                   <span className="inline-flex items-center gap-2 text-sm font-semibold tracking-widest uppercase text-brand-charcoal group-hover:text-brand-gold transition-colors">
-                    View Opening <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    {copy.viewOpeningLabel} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Link>
               ))}

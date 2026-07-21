@@ -293,6 +293,8 @@ export const ourPeopleCopy = {
     heading: "The People Behind the Process.",
     emptyState: "Team profiles are being updated.",
   },
+  bandHeadingLead: "One Team. ",
+  bandHeadingHighlight: "One Mission.",
   culture: {
     headingLead: "A Culture of ",
     headingHighlight: "Excellence.",
@@ -310,6 +312,7 @@ export const ourPeopleCopy = {
 // rendering on these pages are untouched.
 
 export const insightsCopy = {
+  readMoreLabel: "Read Article",
   hero: {
     title: "Published Insights.",
     subtitle: "Insights",
@@ -322,6 +325,7 @@ export const insightsCopy = {
 };
 
 export const newsCopy = {
+  readMoreLabel: "Read Update",
   hero: {
     title: "Newsroom.",
     subtitle: "Newsroom",
@@ -334,6 +338,7 @@ export const newsCopy = {
 };
 
 export const careersCopy = {
+  viewOpeningLabel: "View Opening",
   hero: {
     title: "Careers.",
     subtitle: "Join Our Team",
@@ -482,6 +487,7 @@ export const demandDetailCopy = {
     heading: "Official Documents",
     subtitle: "Verified demand letters and approval documents.",
   },
+  noticeHeading: "Demand Notice",
   notices: {
     safetyHeading: "Candidate Safety Notice",
     feeHeading: "Fee Transparency",
@@ -493,12 +499,23 @@ export const demandDetailCopy = {
 };
 
 export const careerDetailCopy = {
+  departmentLabel: "Department",
   employmentTypeLabel: "Employment Type",
+  descriptionHeading: "Description",
+  requirementsHeading: "Requirements",
   responsibilitiesHeading: "Responsibilities",
   applyByEmailLabel: "Apply by Email",
 };
 
 export const searchCopy = {
+  hero: {
+    eyebrow: "Global Search",
+    headingLead: "Find ",
+    headingHighlight: "Opportunities",
+    headingTrail: " and Information",
+  },
+  viewAllJobsLabel: "View All Jobs",
+  viewDetailsLabel: "View Details",
   prompt: {
     heading: "Enter a search term",
     body: "Search across our global job openings, success stories, and facilities.",
