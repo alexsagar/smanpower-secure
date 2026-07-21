@@ -1,6 +1,6 @@
 "use server";
 
-import { requirePermission, DEMAND_PERMISSIONS } from "@/lib/permissions";
+import { requirePermission, requireCurrentAdminUser, DEMAND_PERMISSIONS } from "@/lib/permissions";
 import { DEMO_MODE } from "@/config/demo";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -707,6 +707,10 @@ export async function archiveDemandAction(id: string) {
 }
 
 export async function saveDemandDraftAction(id: string | null, formData: FormData) {
+  // Guard before the lookup below: the delegated actions authorize themselves,
+  // but this function queries the demand first.
+  await requireCurrentAdminUser();
+
   // Strictly enforce that this only creates or updates DRAFT status
   if (!id) {
     return createDemandAction(formData);

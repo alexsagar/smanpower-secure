@@ -7,7 +7,8 @@ const read = (p: string) => readFileSync(path.join(process.cwd(), p), "utf8");
 const step1 = read("src/components/admin/demands/DemandStep1Company.tsx");
 const step3 = read("src/components/admin/demands/DemandStep3Positions.tsx");
 const actions = read("src/components/admin/demands/DemandActions.tsx");
-const listPage = read("src/app/admin/(dashboard)/demands/page.tsx");
+// The list table moved into a client component when search/filter were wired.
+const listTable = read("src/components/admin/demands/DemandListTable.tsx");
 const publicPage = read("src/app/(public)/demands/[slug]/page.tsx");
 
 describe("demand position editor", () => {
@@ -49,7 +50,7 @@ describe("featured image", () => {
 
 describe("demand action menu", () => {
   it("is clipped by its ancestors, so it must escape via a portal", () => {
-    expect(listPage).toMatch(/overflow-hidden|overflow-x-auto/);
+    expect(listTable).toMatch(/overflow-hidden|overflow-x-auto/);
     expect(actions).toContain('from "react-dom"');
     expect(actions).toContain("createPortal(");
     expect(actions).toContain("document.body");
