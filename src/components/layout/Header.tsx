@@ -67,16 +67,17 @@ export function Header({
       )}
       onMouseLeave={() => setActiveDesktopDropdown(null)}
     >
-      <div className="w-full px-6 lg:px-12 h-20 flex items-center justify-between">
+      <div className="w-full px-6 lg:px-12 h-24 lg:h-28 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="relative z-50 group shrink-0">
           <NoTranslate className="flex items-center gap-3">
             <Image
               src="/images/SSIS.png"
               alt="Seven Seas Intercontinental"
-              width={40}
-              height={40}
-              className="transition-transform duration-500 group-hover:scale-105"
+              width={80}
+              height={80}
+              priority
+              className="h-14 w-14 lg:h-16 lg:w-16 object-contain transition-transform duration-500 group-hover:scale-105"
             />
             <div
               className={cn(
@@ -86,10 +87,10 @@ export function Header({
                   : "text-brand-charcoal"
               )}
             >
-              <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
+              <span className="block text-base font-semibold tracking-wide uppercase leading-none">
                 {copy.wordmarkLead}
               </span>
-              <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-brand-gold mt-1.5">
                 {copy.wordmarkAccent}
               </p>
             </div>
@@ -106,7 +107,11 @@ export function Header({
             >
               <button
                 className={cn(
-                  "text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1 transition-colors relative after:absolute after:bottom-1/3 after:left-0 after:w-full after:h-px after:bg-brand-gold after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left after:transition-transform after:duration-300",
+                  "relative py-2 text-[11px] font-semibold uppercase tracking-widest flex items-center gap-1",
+                  "transition-colors duration-200",
+                  "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
+                  "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
+                  "hover:after:scale-x-100",
                   activeDesktopDropdown === key
                     ? "text-brand-gold after:scale-x-100"
                     : !scrolled && !activeDesktopDropdown && pathname === "/"
@@ -151,10 +156,28 @@ export function Header({
           </Link>
         </div>
 
+        {/* Mobile actions: the demands CTA was only inside the drawer, so it was
+            invisible until the menu was opened. It now sits in the bar itself. */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <Link href="/demands" className="z-50">
+            <Button
+              variant={!scrolled && !mobileMenuOpen && pathname === "/" ? "outline" : "primary"}
+              className={cn(
+                "h-10 px-4 sm:px-5 rounded-none text-[10px] font-semibold uppercase tracking-widest whitespace-nowrap",
+                "transition-all duration-300 hover:bg-brand-gold hover:text-brand-black hover:border-brand-gold",
+                !scrolled && !mobileMenuOpen && pathname === "/"
+                  ? "text-brand-white border-brand-white/40"
+                  : ""
+              )}
+            >
+              {copy.viewDemandsLabel}
+            </Button>
+          </Link>
+
         {/* Mobile Toggle */}
         <button
           className={cn(
-            "lg:hidden p-2 z-50",
+            "p-2 z-50",
             !scrolled && !mobileMenuOpen && pathname === "/"
               ? "text-brand-white"
               : "text-brand-charcoal"
@@ -163,6 +186,7 @@ export function Header({
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
+        </div>
       </div>
 
       {/* Desktop Mega Menu Dropdown */}
@@ -173,7 +197,7 @@ export function Header({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="hidden lg:block absolute top-20 left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
+            className="hidden lg:block absolute top-24 lg:top-28 left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
             onMouseLeave={() => setActiveDesktopDropdown(null)}
           >
             <div className="container-wide py-12">
@@ -212,7 +236,7 @@ export function Header({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-brand-white lg:hidden flex flex-col pt-24 overflow-y-auto"
+            className="fixed inset-0 z-40 bg-brand-white lg:hidden flex flex-col pt-28 overflow-y-auto"
           >
             <div className="px-6 flex-1">
               {Object.entries(navConfig).map(([key, section]) => (
