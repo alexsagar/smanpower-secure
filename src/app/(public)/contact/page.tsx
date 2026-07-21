@@ -146,7 +146,7 @@ export default async function ContactPage() {
                 <Globe2 className="w-8 h-8 text-brand-gold" />
               </div>
               <h2 className="text-4xl md:text-6xl font-light tracking-tighter leading-[1.1] text-brand-black">
-                Our Global Footprint.
+                {copy.footprintHeading}
               </h2>
             </ScrollReveal>
           </div>

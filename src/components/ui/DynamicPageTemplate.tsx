@@ -14,7 +14,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
 
       <EditorialSection 
         title={content.missionHeading || `Explore ${content.title}`}
-        subtitle="Overview"
+        subtitle={content.overviewSubtitle || "Overview"}
       >
         {content.missionText ? (
           content.missionText.map((text, idx) => (
@@ -38,10 +38,10 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
           <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
             <div className="mb-20 text-center">
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block">
-                Key Highlights
+                {content.featuresEyebrow || "Key Highlights"}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-white">
-                The Seven Seas Standard.
+                {content.featuresHeading || "The Seven Seas Standard."}
               </h2>
             </div>
             
@@ -71,10 +71,10 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
           <div className="container-wide mx-auto px-6 lg:px-12">
             <div className="mb-16">
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block">
-                Official Records
+                {content.documentsEyebrow || "Official Records"}
               </span>
               <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                Licenses & Certifications.
+                {content.documentsHeading || "Licenses & Certifications."}
               </h2>
             </div>
             

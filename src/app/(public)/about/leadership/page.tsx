@@ -129,7 +129,7 @@ export default async function LeadershipPage() {
           <div className="md:w-1/2">
             <ScrollReveal delay={0.2}>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-6 block">
-                Our Core Belief
+                {copy.accountability.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl text-brand-white font-semibold tracking-tighter leading-[1.1] mb-8">
                 {copy.accountability.heading}

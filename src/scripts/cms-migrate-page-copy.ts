@@ -38,6 +38,32 @@ function deepEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
+/**
+ * Backfills keys the defaults define but the stored copy is missing, without
+ * touching any value an editor has already set. This lets newly-wired fields
+ * appear in the CMS without overwriting existing edits.
+ */
+function backfillMissing(defaults: unknown, stored: unknown): unknown {
+  if (
+    !defaults || typeof defaults !== "object" || Array.isArray(defaults) ||
+    !stored || typeof stored !== "object" || Array.isArray(stored)
+  ) {
+    return stored;
+  }
+
+  const result: Record<string, unknown> = { ...(stored as Record<string, unknown>) };
+
+  for (const [key, value] of Object.entries(defaults as Record<string, unknown>)) {
+    if (!(key in result)) {
+      result[key] = value;
+    } else {
+      result[key] = backfillMissing(value, result[key]);
+    }
+  }
+
+  return result;
+}
+
 function titleFromSlug(slug: string): string {
   const last = slug.split("/").pop() ?? slug;
   return last
@@ -48,6 +74,7 @@ function titleFromSlug(slug: string): string {
 
 async function migrate(dryRun: boolean) {
   let created = 0;
+  let backfilled = 0;
   let unchanged = 0;
 
   for (const [slug, defaults] of Object.entries(PAGE_COPY_DEFAULTS)) {
@@ -69,10 +96,29 @@ async function migrate(dryRun: boolean) {
       continue;
     }
 
-    // Never overwrite copy an editor has already customised.
-    if (current !== null) {
-      unchanged++;
-      console.log(`[KEEP]    ${slug} (already edited in CMS, left untouched)`);
+    // Existing copy may have been edited: keep every stored value and only add
+    // keys the defaults have gained since it was written.
+    if (current !== null && existingBlock) {
+      const merged = backfillMissing(defaults, current);
+
+      if (deepEqual(merged, current)) {
+        unchanged++;
+        console.log(`[KEEP]    ${slug} (edited in CMS, nothing to backfill)`);
+        continue;
+      }
+
+      if (dryRun) {
+        backfilled++;
+        console.log(`[DRY-ADD] ${slug} (would add newly wired fields)`);
+        continue;
+      }
+
+      await prisma.cmsContentBlock.update({
+        where: { id: existingBlock.id },
+        data: { content: merged as never },
+      });
+      backfilled++;
+      console.log(`[ADD]     ${slug} (new fields added, existing edits preserved)`);
       continue;
     }
 

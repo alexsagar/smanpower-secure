@@ -264,6 +264,7 @@ export const leadershipCopy = {
     emptyState: "Leadership profiles are being updated.",
   },
   accountability: {
+    eyebrow: "Our Core Belief",
     heading: "Accountability at the highest level.",
     lead: "We believe that ethical compliance cannot be outsourced or delegated. It must be woven into the fabric of the organization starting from the board room.",
     body: "Our directors are deeply involved in the daily operations of our sourcing networks, training centers, and deployment pipelines. By maintaining a hands-on approach, we ensure that our promises of transparency and zero-fees are not just marketing slogans, but operational realities.",
@@ -368,6 +369,7 @@ export const contactCopy = {
       { label: "General Enquiries", value: "info@smanpower.com" },
     ],
   },
+  footprintHeading: "Our Global Footprint.",
   form: {
     heading: "Send Us a Message",
     body: "Our corporate relations team typically responds within 24 hours.",

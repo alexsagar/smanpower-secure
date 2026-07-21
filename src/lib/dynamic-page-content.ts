@@ -45,8 +45,17 @@ function asDocuments(value: unknown): PageContent["documents"] {
  * Shared with the migration script so the stored shape and the shape read back
  * by `mapBlockContentToPageContent` can never drift apart.
  */
+const TEMPLATE_LABEL_DEFAULTS = {
+  overviewSubtitle: "Overview",
+  featuresEyebrow: "Key Highlights",
+  featuresHeading: "The Seven Seas Standard.",
+  documentsEyebrow: "Official Records",
+  documentsHeading: "Licenses & Certifications.",
+} as const;
+
 export function buildDynamicPageBlockContent(entry: PageContent) {
   return {
+    ...TEMPLATE_LABEL_DEFAULTS,
     title: entry.title,
     subtitle: entry.subtitle,
     heroImage: entry.heroImage,
@@ -69,6 +78,11 @@ export function mapBlockContentToPageContent(
 
   return {
     slug,
+    overviewSubtitle: asString(content.overviewSubtitle) ?? fallback?.overviewSubtitle,
+    featuresEyebrow: asString(content.featuresEyebrow) ?? fallback?.featuresEyebrow,
+    featuresHeading: asString(content.featuresHeading) ?? fallback?.featuresHeading,
+    documentsEyebrow: asString(content.documentsEyebrow) ?? fallback?.documentsEyebrow,
+    documentsHeading: asString(content.documentsHeading) ?? fallback?.documentsHeading,
     title: asString(content.title) ?? fallback?.title ?? "",
     subtitle: asString(content.subtitle) ?? fallback?.subtitle ?? "",
     heroImage: asString(content.heroImage) ?? fallback?.heroImage ?? "",
