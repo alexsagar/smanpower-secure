@@ -2,8 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Save, Code, LayoutTemplate, Settings2 } from "lucide-react";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { VisualPageEditor } from "@/components/admin/content/VisualPageEditor";
 import { getClientPartners, getStatistics } from "@/repositories/content-resolver";
 import { getIndustries } from "@/services/industries.service";
@@ -96,35 +94,6 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
 
   if (!page) notFound();
   const previewData = await getAdminPreviewData(page.blocks as Pick<CmsContentBlock, "blockType" | "visible">[]);
-
-  async function updatePageAction(formData: FormData) {
-    "use server";
-    
-    const blocksJson = formData.get("blocksJson") as string;
-    try {
-      const parsedBlocks = JSON.parse(blocksJson);
-      
-      for (const block of parsedBlocks) {
-        if (block.id) {
-          await prisma.cmsContentBlock.update({
-            where: { id: block.id },
-            data: {
-              content: block.content,
-              richHeading: block.richHeading,
-              visible: block.visible,
-              order: block.order
-            }
-          });
-        }
-      }
-    } catch (e) {
-      console.error("Invalid JSON blocks", e);
-    }
-
-    revalidatePath(slug === "home" ? "/" : `/${slug}`);
-    revalidatePath("/admin/content");
-    redirect("/admin/content");
-  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">

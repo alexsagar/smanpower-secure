@@ -97,6 +97,71 @@ export function HeroEditor({ hero, onChange, onBack }: { hero: any, onChange: (h
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold mb-2">Secondary CTA Text</label>
+            <input
+              type="text"
+              value={hero.secondaryCtaText || ""}
+              onChange={(e) => onChange({ ...hero, secondaryCtaText: e.target.value })}
+              className="w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2">Secondary CTA Link</label>
+            <input
+              type="text"
+              value={hero.secondaryCtaHref || ""}
+              onChange={(e) => onChange({ ...hero, secondaryCtaHref: e.target.value })}
+              className="w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">
+            Accessibility Description
+          </label>
+          <input
+            type="text"
+            value={hero.accessibilityDescription || ""}
+            onChange={(e) =>
+              onChange({ ...hero, accessibilityDescription: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-md p-2"
+            placeholder="Describes the hero media for screen readers."
+          />
+        </div>
+
+        <div className="border border-gray-200 rounded-md p-4 bg-gray-50/60 space-y-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hero.overlayEnabled ?? true}
+              onChange={(e) => onChange({ ...hero, overlayEnabled: e.target.checked })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm font-semibold">Darken media with overlay</span>
+          </label>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2">
+              Overlay Opacity ({hero.overlayOpacity ?? 60}%)
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={hero.overlayOpacity ?? 60}
+              onChange={(e) =>
+                onChange({ ...hero, overlayOpacity: Number(e.target.value) })
+              }
+              disabled={!(hero.overlayEnabled ?? true)}
+              className="w-full disabled:opacity-40"
+            />
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ export type SaveableHeroInput = {
   mobileImageId?: string | null;
   overlayEnabled?: boolean;
   overlayOpacity?: number | null;
+  accessibilityDescription?: string | null;
 };
 
 export type SaveableBlockInput = {
