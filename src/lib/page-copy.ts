@@ -304,6 +304,132 @@ export const ourPeopleCopy = {
   },
 };
 
+// ── Listing wrappers ──────────────────────────────────────────
+// Only the surrounding copy is CMS-driven; the collection queries and card
+// rendering on these pages are untouched.
+
+export const insightsCopy = {
+  hero: {
+    title: "Published Insights.",
+    subtitle: "Insights",
+    imageSrc: "/images/hero_training_orientation_1782920391505.png",
+  },
+  emptyState: {
+    heading: "No insights are published yet.",
+    body: "Please check back soon.",
+  },
+};
+
+export const newsCopy = {
+  hero: {
+    title: "Newsroom.",
+    subtitle: "Newsroom",
+    imageSrc: "/images/trade_test_centre_1782920400836.png",
+  },
+  emptyState: {
+    heading: "No news has been published yet.",
+    body: "Please check back soon.",
+  },
+};
+
+export const careersCopy = {
+  hero: {
+    title: "Careers.",
+    subtitle: "Join Our Team",
+    imageSrc: "/images/corporate_office_interview_1782920412325.png",
+  },
+  emptyState: {
+    heading: "No current openings.",
+    body: "Please check back later or contact us.",
+  },
+};
+
+// ── Functional pages ──────────────────────────────────────────
+// Copy only. Form fields, validation, Turnstile, consent and submission
+// handling remain entirely in code.
+
+export const contactCopy = {
+  hero: {
+    title: "Contact Our Nepal Manpower Agency",
+    subtitle:
+      "Whether you are an international employer seeking to hire Nepali workers or a candidate looking for foreign demands, our Kathmandu-based team is ready to assist. Candidates should apply only through the official Demands page and should not send CVs or documents through the general corporate inquiry form.",
+    imageSrc: "/images/hero_training_orientation_1782920391505.png",
+  },
+  details: {
+    eyebrow: "Global Inquiries",
+    heading: "Global Reach, Local Support.",
+    body: "Our Kathmandu-based team is ready to assist. Candidates should apply only through the official Demands page and should not send CVs or documents through the general corporate inquiry form.",
+    // Icons stay in code, matched to these entries by position.
+    items: [
+      { label: "Head Office", value: "Kathmandu Metropolitan City, Ward No. 8, Guheswori, Kathmandu, Nepal, 00977" },
+      { label: "P.O. Box", value: "7531" },
+      { label: "Corporate Phone", value: "01-5107440" },
+      { label: "Fax", value: "+977-1-4479655" },
+      { label: "General Enquiries", value: "info@smanpower.com" },
+    ],
+  },
+  form: {
+    heading: "Send Us a Message",
+    body: "Our corporate relations team typically responds within 24 hours.",
+  },
+};
+
+export const workerGrievanceCopy = {
+  badge: "Official Support Channel",
+  headingLead: "Worker",
+  headingHighlight: "Grievance",
+  intro:
+    "We take the safety and well-being of our deployed workers very seriously. If you are facing any issues abroad or during the recruitment process, please reach out to us immediately.",
+  channels: [
+    {
+      title: "Emergency Hotline",
+      desc: "Call us directly for immediate assistance regarding safety or critical contractual violations.",
+      value: "01-5107440",
+      href: "tel:+977015107440",
+    },
+    {
+      title: "Email Support",
+      desc: "Send us a detailed report of your grievance. We guarantee confidentiality and prompt action.",
+      value: "info@smanpower.com",
+      href: "mailto:info@smanpower.com",
+    },
+  ],
+  commitmentHeading: "Our Commitment to Your Rights",
+  commitmentIntro:
+    "Seven Seas Intercontinental is committed to ethical recruitment and the strict protection of migrant workers' rights. We act as a mediator between you and your employer to resolve any disputes relating to:",
+  categories: [
+    { title: "Wage Disputes", desc: "Non-payment, delayed payment, or unauthorized deductions of agreed wages." },
+    { title: "Contract Substitution", desc: "Changes to agreed job roles, salary terms, or working hours upon arrival." },
+    { title: "Living Conditions", desc: "Inadequate housing, lack of basic amenities, or unsafe working environments." },
+    { title: "Harassment & Abuse", desc: "Any form of physical or verbal abuse, or retention of personal documents (e.g., passports)." },
+  ],
+  escalation: {
+    lead: "If your grievance requires escalation, we will coordinate directly with the respective embassies, the ",
+    emphasis: "Department of Foreign Employment (DoFE)",
+    trail: " in Nepal, and legal authorities to ensure your safety and rightful compensation.",
+  },
+};
+
+export const requestWorkforceCopy = {
+  hero: {
+    title: "Partner With Us.",
+    subtitle: "Workforce Solutions",
+    imageSrc: "/images/corporate_office_interview_1782920412325.png",
+  },
+  intro: {
+    eyebrow: "Employer Process",
+    heading: "Build Your Global Team.",
+    body: "Submit your preliminary workforce requirements. Our corporate relations team will analyze your project needs and prepare a customized deployment proposal.",
+  },
+  approachHeading: "The Seven Seas Approach",
+  // Icons stay in code, matched to these entries by position.
+  advantages: [
+    { title: "RBA-Aligned Sourcing", desc: "Processes designed around ethical recruitment frameworks and employer-paid recruitment principles where applicable." },
+    { title: "Pre-Screened Talent", desc: "Every candidate is medically, psychologically, and technically vetted before interview." },
+    { title: "Rapid Deployment", desc: "Streamlined government processing to mobilize your workforce on schedule." },
+  ],
+};
+
 /** CMS page slug -> the default copy that page renders today. */
 export const PAGE_COPY_DEFAULTS = {
   "privacy-policy": privacyPolicyCopy,
@@ -313,6 +439,12 @@ export const PAGE_COPY_DEFAULTS = {
   "about/community-impact": communityImpactCopy,
   "about/leadership": leadershipCopy,
   "about/our-people": ourPeopleCopy,
+  insights: insightsCopy,
+  news: newsCopy,
+  careers: careersCopy,
+  contact: contactCopy,
+  "worker-grievance": workerGrievanceCopy,
+  "employers/request-workforce": requestWorkforceCopy,
 } as const;
 
 export type PageCopySlug = keyof typeof PAGE_COPY_DEFAULTS;

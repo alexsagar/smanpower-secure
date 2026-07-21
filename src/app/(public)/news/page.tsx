@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { prisma } from "@/lib/prisma";
 
@@ -22,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NewsroomPage() {
+  const copy = await getPageCopy("news");
   const news = await prisma.newsArticle.findMany({
     where: { status: "PUBLISHED", isPublished: true, deletedAt: null, lang: "en" },
     include: { featuredMedia: true },
@@ -30,13 +32,13 @@ export default async function NewsroomPage() {
 
   return (
     <>
-      <HeroInternal title="Newsroom." subtitle="Newsroom" imageSrc="/images/trade_test_centre_1782920400836.png" />
+      <HeroInternal title={copy.hero.title} subtitle={copy.hero.subtitle} imageSrc={copy.hero.imageSrc} />
       <section className="py-24 md:py-32 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12">
           {news.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-3xl font-semibold text-brand-black mb-4">No news has been published yet.</h2>
-              <p className="text-brand-muted">Please check back soon.</p>
+              <h2 className="text-3xl font-semibold text-brand-black mb-4">{copy.emptyState.heading}</h2>
+              <p className="text-brand-muted">{copy.emptyState.body}</p>
             </div>
           ) : (
             <div className="space-y-6">

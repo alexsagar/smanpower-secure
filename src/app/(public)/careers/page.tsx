@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Briefcase } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { getPageCopy } from "@/services/page-copy.service";
 import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CareersPage() {
+  const copy = await getPageCopy("careers");
   const openings = await prisma.careerOpening.findMany({
     where: { status: "OPEN", deletedAt: null, lang: "en" },
     include: { featuredImage: true },
@@ -23,13 +25,13 @@ export default async function CareersPage() {
 
   return (
     <>
-      <HeroInternal title="Careers." subtitle="Join Our Team" imageSrc="/images/corporate_office_interview_1782920412325.png" />
+      <HeroInternal title={copy.hero.title} subtitle={copy.hero.subtitle} imageSrc={copy.hero.imageSrc} />
       <section className="py-24 md:py-32 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12">
           {openings.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-3xl font-semibold text-brand-black mb-4">No current openings.</h2>
-              <p className="text-brand-muted">Please check back later or contact us.</p>
+              <h2 className="text-3xl font-semibold text-brand-black mb-4">{copy.emptyState.heading}</h2>
+              <p className="text-brand-muted">{copy.emptyState.body}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
