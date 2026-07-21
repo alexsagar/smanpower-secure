@@ -1,13 +1,37 @@
+"use client";
+
 import React from "react";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
 import { MediaInput } from "@/components/admin/MediaInput";
 import { ChevronLeft } from "lucide-react";
+import {
+  ContentFieldEditor,
+  humanizeKey,
+  orderContentKeys,
+} from "./ContentFieldEditor";
 
-export function BlockEditor({ block, onChange, onBack }: { block: any, onChange: (block: any) => void, onBack: () => void }) {
-  const updateContent = (key: string, value: any) => {
+/**
+ * Block types that carry a managed video placement alongside the section image.
+ */
+const MANAGED_VIDEO_BLOCK_TYPES = new Set(["image_text", "introduction"]);
+
+export function BlockEditor({
+  block,
+  onChange,
+  onBack,
+}: {
+  block: any;
+  onChange: (block: any) => void;
+  onBack: () => void;
+}) {
+  const updateContent = (key: string, value: unknown) => {
     onChange({ ...block, content: { ...block.content, [key]: value } });
   };
-  const supportsManagedVideo = block.blockType === "image_text" || block.blockType === "introduction";
+
+  const supportsManagedVideo = MANAGED_VIDEO_BLOCK_TYPES.has(block.blockType);
+  const content: Record<string, unknown> =
+    block.content && typeof block.content === "object" ? block.content : {};
+  const contentKeys = orderContentKeys(content);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full max-h-[700px]">
@@ -15,11 +39,13 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded text-gray-500">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h3 className="font-semibold capitalize">{block.blockType.replace(/([A-Z])/g, ' $1').trim()} Editor</h3>
+        <h3 className="font-semibold capitalize">
+          {block.blockType.replace(/([A-Z])/g, " $1").trim()} Editor
+        </h3>
       </div>
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
-        {/* Universal Fields */}
+        {/* Managed media placements (dedicated columns, not block content) */}
         {block.imageId !== undefined && (
           <MediaInput
             label="Section Image"
@@ -71,58 +97,25 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
           </div>
         )}
 
-        {/* Dynamic Fields based on Content */}
-        {block.content && Object.keys(block.content).map(key => {
-          const val = block.content[key];
+        {/*
+          Every remaining content field is rendered generically by value type.
+          No field-name allow-list: new CMS fields appear here automatically.
+        */}
+        {contentKeys.map((key) => (
+          <ContentFieldEditor
+            key={key}
+            label={humanizeKey(key)}
+            value={content[key]}
+            onChange={(next) => updateContent(key, next)}
+          />
+        ))}
 
-          if (typeof val === "string" && (key === "title" || key === "subtitle" || key === "description" || key.includes("Text"))) {
-            return (
-              <div key={key}>
-                <label className="block text-sm font-semibold mb-2 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                <input
-                  type="text"
-                  value={val}
-                  onChange={(e) => updateContent(key, e.target.value)}
-                  className="w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-            );
-          }
-
-          if (typeof val === "boolean") {
-            return (
-              <div key={key} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={val}
-                  onChange={(e) => updateContent(key, e.target.checked)}
-                />
-                <label className="text-sm font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-              </div>
-            );
-          }
-
-          if (Array.isArray(val)) {
-            return (
-              <div key={key} className="p-4 border border-gray-200 rounded bg-gray-50">
-                <label className="block text-sm font-semibold mb-2 capitalize">{key}</label>
-                <p className="text-xs text-gray-500 mb-2">Array editing is simplified for this demo.</p>
-                <textarea
-                  value={JSON.stringify(val, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      updateContent(key, JSON.parse(e.target.value));
-                    } catch (e) { }
-                  }}
-                  className="w-full p-2 text-xs font-mono border border-gray-300 rounded"
-                  rows={5}
-                />
-              </div>
-            );
-          }
-
-          return null;
-        })}
+        {contentKeys.length === 0 && (
+          <p className="text-sm text-gray-500">
+            This block has no editable content fields. Its content is supplied by the
+            section itself or by a managed collection.
+          </p>
+        )}
       </div>
     </div>
   );
