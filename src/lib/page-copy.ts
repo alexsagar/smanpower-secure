@@ -80,9 +80,44 @@ export const privacyPolicyCopy = {
   ],
 };
 
+export const termsOfServiceCopy = {
+  headingLead: "Terms of",
+  headingHighlight: "Service",
+  lastUpdatedLabel: "Last updated:",
+  intro:
+    "By accessing and using the Seven Seas Intercontinental website and services, you agree to comply with and be bound by the following terms and conditions.",
+  sections: [
+    {
+      heading: "1. Acceptance of Terms",
+      body: "These Terms of Service govern your use of our website and services. If you do not agree with any part of these terms, please refrain from using our services.",
+    },
+    {
+      heading: "2. Use of Services",
+      body: "Our platform connects candidates with foreign job opportunities. While we strive to ensure the accuracy of all job postings, we cannot guarantee employment, visa approvals, or specific conditions set by foreign employers.",
+    },
+    {
+      heading: "3. Zero-Tolerance Policy",
+      body: "We operate strictly under the ethical recruitment guidelines of the Government of Nepal. Any fraudulent activities, forged documents, or illegal payments will result in immediate disqualification and reporting to the authorities.",
+    },
+    {
+      heading: "4. Limitation of Liability",
+      body: "Seven Seas Intercontinental shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website content.",
+    },
+  ],
+  // Rendered with the contact address as a mailto link.
+  contactSection: {
+    heading: "5. Contact Us",
+    bodyLead:
+      "If you have any questions regarding these terms, please contact our administrative team at ",
+    email: "info@smanpower.com",
+    bodyAfter: ".",
+  },
+};
+
 /** CMS page slug -> the default copy that page renders today. */
 export const PAGE_COPY_DEFAULTS = {
   "privacy-policy": privacyPolicyCopy,
+  "terms-of-service": termsOfServiceCopy,
 } as const;
 
 export type PageCopySlug = keyof typeof PAGE_COPY_DEFAULTS;

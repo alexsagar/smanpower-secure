@@ -48,7 +48,6 @@ function titleFromSlug(slug: string): string {
 
 async function migrate(dryRun: boolean) {
   let created = 0;
-  let updated = 0;
   let unchanged = 0;
 
   for (const [slug, defaults] of Object.entries(PAGE_COPY_DEFAULTS)) {
@@ -106,7 +105,7 @@ async function migrate(dryRun: boolean) {
   }
 
   console.log(
-    `\n${dryRun ? "Would create" : "Created"} ${created}, updated ${updated}, unchanged ${unchanged}.`
+    `\n${dryRun ? "Would create" : "Created"} ${created}, unchanged ${unchanged}.`
   );
 }
 
