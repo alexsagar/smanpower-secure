@@ -14,6 +14,9 @@ export async function GET(request: Request) {
     await requirePermission(MEDIA_PERMISSIONS.VIEW);
 
     const assets = await prisma.mediaAsset.findMany({
+      // Deleted assets no longer exist in Cloudinary; listing them lets an
+      // editor pick one and publish a broken image.
+      where: { deletionState: { not: "REMOTE_DELETED" } },
       orderBy: { createdAt: "desc" },
     });
 
