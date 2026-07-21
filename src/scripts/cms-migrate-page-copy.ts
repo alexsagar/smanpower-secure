@@ -184,6 +184,54 @@ async function migrate(dryRun: boolean) {
     console.log(`[ADD]     ${label}`);
   }
 
+  // Industry grid gained an optional photo, deployment figure and shared label.
+  // The keys are added empty so they appear in the editor; no copy is invented.
+  const industryBlocks = await prisma.cmsContentBlock.findMany({
+    where: { blockType: "industry_grid" },
+    include: { page: { select: { slug: true } } },
+  });
+
+  for (const block of industryBlocks) {
+    const current =
+      typeof block.content === "string" ? JSON.parse(block.content) : block.content;
+    if (!current || typeof current !== "object") continue;
+
+    const content = current as Record<string, unknown>;
+    const industries = Array.isArray(content.industries) ? content.industries : [];
+
+    const next = {
+      deploymentLabel: "",
+      ...content,
+      industries: industries.map((item) => ({
+        image: "",
+        imageAlt: "",
+        deploymentCount: "",
+        ...(item as Record<string, unknown>),
+      })),
+    };
+
+    const label = `${block.page?.slug ?? "?"} / industry_grid`;
+
+    if (deepEqual(next, current)) {
+      unchanged++;
+      console.log(`[SAME]    ${label}`);
+      continue;
+    }
+
+    if (dryRun) {
+      backfilled++;
+      console.log(`[DRY-ADD] ${label}`);
+      continue;
+    }
+
+    await prisma.cmsContentBlock.update({
+      where: { id: block.id },
+      data: { content: next as never },
+    });
+    backfilled++;
+    console.log(`[ADD]     ${label}`);
+  }
+
   console.log(
     `\n${dryRun ? "Would create" : "Created"} ${created}, ` +
       `${dryRun ? "would backfill" : "backfilled"} ${backfilled}, unchanged ${unchanged}.`

@@ -51,8 +51,24 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
               <ScrollReveal key={i} delay={i * 0.05} className="w-full h-full">
                 <Link href={`${industry.href?.startsWith('/') ? '' : '/'}${industry.href}`} className="group relative block h-[300px] lg:h-[350px] border-b border-r border-brand-charcoal/10 overflow-hidden bg-brand-white cursor-pointer">
 
-                  {/* Hover Slide Background */}
-                  <div className="absolute inset-0 bg-brand-charcoal translate-y-full group-hover:translate-y-0 transition-transform duration-[0.8s] ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                  {/* Hover Slide Background. When the industry has a photo it
+                      rides up with the panel, so the reveal shows the sector at
+                      work; without one the original solid panel is unchanged. */}
+                  <div className="absolute inset-0 overflow-hidden bg-brand-charcoal translate-y-full group-hover:translate-y-0 transition-transform duration-[0.8s] ease-[cubic-bezier(0.19,1,0.22,1)]">
+                    {industry.image && (
+                      <>
+                        <Image
+                          src={industry.image}
+                          alt={industry.imageAlt || industry.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover opacity-70 scale-105 group-hover:scale-100 transition-transform duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)]"
+                        />
+                        {/* Scrim keeps the overlaid figures legible on any photo. */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal via-brand-charcoal/70 to-brand-charcoal/30" />
+                      </>
+                    )}
+                  </div>
 
                   {/* Huge Background Number on Hover */}
                   <div className="absolute -bottom-10 -right-10 text-[12rem] leading-none font-serif italic text-brand-white/[0.03] group-hover:text-brand-white/[0.05] transition-colors duration-700 pointer-events-none">
@@ -75,9 +91,16 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
                       </h3>
                       {/* Optional: entries without a count keep the original layout. */}
                       {industry.deploymentCount && (
-                        <p className="mt-3 font-serif italic text-xl text-brand-charcoal/60 group-hover:text-brand-gold transition-colors duration-500">
-                          {industry.deploymentCount}
-                        </p>
+                        <div className="mt-3">
+                          <p className="font-serif italic text-xl text-brand-charcoal/60 group-hover:text-brand-gold group-hover:text-3xl transition-all duration-500">
+                            {industry.deploymentCount}
+                          </p>
+                          {content.deploymentLabel && (
+                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-white/0 group-hover:text-brand-white/70 transition-colors duration-500">
+                              {content.deploymentLabel}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
