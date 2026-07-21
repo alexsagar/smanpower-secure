@@ -104,6 +104,7 @@ export function BlockEditor({
           <ContentFieldEditor
             key={key}
             label={humanizeKey(key)}
+            fieldKey={key}
             value={content[key]}
             onChange={(next) => updateContent(key, next)}
           />

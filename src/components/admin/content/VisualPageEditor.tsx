@@ -19,8 +19,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, Code, Settings2, Save } from "lucide-react";
-import { DynamicHero } from "@/components/cms/DynamicHero";
-import { AdminPreviewBlockRenderer } from "./AdminPreviewBlockRenderer";
 import { HeroEditor } from "./HeroEditor";
 import { BlockEditor } from "./BlockEditor";
 import {
@@ -30,7 +28,6 @@ import {
   blockTypeLabel,
 } from "@/lib/cms/block-labels";
 import { toast } from "sonner";
-import type { AdminPreviewData } from "@/types/admin-preview";
 
 export const VISUAL_PAGE_EDITOR_DND_ID = "visual-page-editor-blocks";
 
@@ -115,7 +112,7 @@ function SortableBlockItem({
   );
 }
 
-export function VisualPageEditor({ initialPage, previewData }: { initialPage: any; previewData: AdminPreviewData }) {
+export function VisualPageEditor({ initialPage }: { initialPage: any }) {
   const [page, setPage] = useState(initialPage);
   const [blocks, setBlocks] = useState(initialPage.blocks || []);
   const [activeEditor, setActiveEditor] = useState<"none" | "hero" | "block" | "json">("none");
@@ -175,7 +172,7 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[800px]">
+    <div className="min-h-[800px]">
 
       {/* LEFT: Editor Panel */}
       <div className="flex flex-col gap-6">
@@ -304,22 +301,6 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
         </div>
       </div>
 
-      {/* RIGHT: Live Preview */}
-      <div className="bg-gray-100 rounded-xl overflow-hidden border border-gray-200 shadow-inner flex flex-col h-[800px] sticky top-6">
-        <div className="bg-gray-800 text-gray-300 text-xs px-4 py-2 flex justify-between items-center font-mono">
-          <span>Live Preview</span>
-          <span className="opacity-50">{1440}x{900}</span>
-        </div>
-        <div className="flex-1 overflow-y-auto bg-white" style={{ zoom: 0.75 }}>
-          {/* Render Actual Components! */}
-          {page.hero && <DynamicHero hero={page.hero} />}
-          {blocks.map((block: any) => (
-            block.visible !== false && (
-              <AdminPreviewBlockRenderer key={block.id} block={block} previewData={previewData} />
-            )
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
