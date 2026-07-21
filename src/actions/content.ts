@@ -88,8 +88,11 @@ export async function savePageAction(
             videoId: normalizeMediaId(hero.videoId),
             posterImageId: normalizeMediaId(hero.posterImageId),
             mobileImageId: normalizeMediaId(hero.mobileImageId),
-            overlayEnabled: hero.overlayEnabled ?? false,
+            // Schema default is true; `?? false` silently disabled the overlay
+            // for any hero saved before the field was editable.
+            overlayEnabled: hero.overlayEnabled ?? true,
             overlayOpacity: hero.overlayOpacity ?? 60,
+            accessibilityDescription: hero.accessibilityDescription || null,
           },
         });
       }

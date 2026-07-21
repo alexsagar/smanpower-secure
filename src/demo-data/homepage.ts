@@ -246,7 +246,10 @@ export const demoHomepageBlocks: CmsContentBlock[] = [
     },
   },
 
-  // SECTION 4: Statistics (data comes from demoStatistics array)
+  // SECTION 4: Statistics
+  // The Prisma repository reads these from `content.stats` on this block, so the
+  // canonical demoStatistics array is stored here rather than left empty. Both
+  // repositories therefore serve the same figures from a single source.
   {
     id: "block-home-stats",
     blockKey: "home-statistics",
@@ -254,7 +257,7 @@ export const demoHomepageBlocks: CmsContentBlock[] = [
     pageSlug: "home",
     order: 3,
     visible: true,
-    content: {},
+    content: { stats: demoStatistics },
   },
 
   // SECTION 5: Workforce Solutions

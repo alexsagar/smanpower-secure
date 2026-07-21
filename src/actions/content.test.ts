@@ -279,4 +279,56 @@ describe("savePageAction", () => {
       })
     );
   });
+
+  it("persists the hero fields that were previously uneditable", async () => {
+    prisma.mediaAsset.findMany.mockResolvedValue([]);
+    const { savePageAction } = await import("./content");
+
+    await savePageAction(
+      "page-1",
+      "about",
+      {
+        id: "hero-1",
+        richHeading: { type: "doc", content: [] },
+        secondaryCtaText: "Contact Office",
+        secondaryCtaHref: "/contact",
+        accessibilityDescription: "Recruitment team at work",
+        overlayEnabled: true,
+        overlayOpacity: 40,
+      } as never,
+      []
+    );
+
+    expect(tx.cmsHeroSection.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          secondaryCtaText: "Contact Office",
+          secondaryCtaHref: "/contact",
+          accessibilityDescription: "Recruitment team at work",
+          overlayEnabled: true,
+          overlayOpacity: 40,
+        }),
+      })
+    );
+  });
+
+  // The schema default is true; `?? false` silently disabled the overlay on any
+  // hero saved while the field had no editor control.
+  it("defaults overlayEnabled to true rather than false when unset", async () => {
+    prisma.mediaAsset.findMany.mockResolvedValue([]);
+    const { savePageAction } = await import("./content");
+
+    await savePageAction(
+      "page-1",
+      "about",
+      { id: "hero-1", richHeading: { type: "doc", content: [] } } as never,
+      []
+    );
+
+    expect(tx.cmsHeroSection.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ overlayEnabled: true }),
+      })
+    );
+  });
 });
