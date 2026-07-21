@@ -1,10 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireCurrentAdminUser } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createDocument(formData: FormData) {
+  // Server actions are callable endpoints: authenticate here, not only in the layout.
+  await requireCurrentAdminUser();
+
   const title = formData.get("title") as string;
   const documentType = formData.get("documentType") as string;
   const description = formData.get("description") as string;

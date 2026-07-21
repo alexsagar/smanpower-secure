@@ -151,7 +151,8 @@ describe("Footer", () => {
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     );
 
-    expect(html).toContain("bg-brand-off-white");
+    // Footer now uses the neutral dark that matches the logo.
+    expect(html).toContain("bg-brand-charcoal");
     expect(html).toContain("text-brand-charcoal");
     expect(html).toContain('href="mailto:info@smanpower.com"');
     expect(html).toContain('href="tel:+97715107440"');
@@ -272,7 +273,7 @@ describe("Footer", () => {
     expect(html).toContain("Ocean Gate Workforce Services Pvt. Ltd.");
     expect(html).toContain("OCEAN</span");
     expect(html).toContain("GATE.");
-    expect(html).toContain('class="notranslate max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-black group-hover:text-brand-gold transition-colors duration-300"');
+    expect(html).toContain('class="notranslate max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-white group-hover:text-brand-gold transition-colors duration-300"');
     expect(html).not.toContain(">Seven Seas Intercontinental Services Pvt. Ltd.<");
   });
 

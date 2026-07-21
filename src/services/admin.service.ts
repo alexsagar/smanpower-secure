@@ -223,6 +223,8 @@ export async function getAdminMediaAssets(rawFilters?: unknown) {
   try {
     return await prisma.mediaAsset.findMany({
       where: {
+        // Assets whose remote file has been deleted must not be offered again.
+        deletionState: { not: "REMOTE_DELETED" },
         ...(filters.visibility ? { isPublic: filters.visibility === "PUBLIC" } : {})
       },
       orderBy: filters.sortBy === "originalName" ? { fileName: filters.sortOrder } :
