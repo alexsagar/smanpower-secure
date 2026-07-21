@@ -18,12 +18,12 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
         <h3 className="font-semibold capitalize">{block.blockType.replace(/([A-Z])/g, ' $1').trim()} Editor</h3>
       </div>
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-        
+
         {/* Universal Fields */}
         {block.imageId !== undefined && (
-          <MediaInput 
+          <MediaInput
             label="Section Image"
-            value={block.imageId} 
+            value={block.imageId}
             onChange={(id) => onChange({ ...block, imageId: id })}
             allowedResourceTypes={["IMAGE"]}
             uploadPurpose="cms_image"
@@ -64,9 +64,9 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
         {block.richHeading !== undefined && (
           <div>
             <label className="block text-sm font-semibold mb-2">Section Heading</label>
-            <RichTextEditor 
-              initialContent={block.richHeading} 
-              onChange={(c) => onChange({ ...block, richHeading: c })} 
+            <RichTextEditor
+              initialContent={block.richHeading}
+              onChange={(c) => onChange({ ...block, richHeading: c })}
             />
           </div>
         )}
@@ -74,14 +74,14 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
         {/* Dynamic Fields based on Content */}
         {block.content && Object.keys(block.content).map(key => {
           const val = block.content[key];
-          
+
           if (typeof val === "string" && (key === "title" || key === "subtitle" || key === "description" || key.includes("Text"))) {
             return (
               <div key={key}>
                 <label className="block text-sm font-semibold mb-2 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                <input 
-                  type="text" 
-                  value={val} 
+                <input
+                  type="text"
+                  value={val}
                   onChange={(e) => updateContent(key, e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2"
                 />
@@ -92,27 +92,27 @@ export function BlockEditor({ block, onChange, onBack }: { block: any, onChange:
           if (typeof val === "boolean") {
             return (
               <div key={key} className="flex items-center gap-2">
-                <input 
-                  type="checkbox" 
-                  checked={val} 
+                <input
+                  type="checkbox"
+                  checked={val}
                   onChange={(e) => updateContent(key, e.target.checked)}
                 />
                 <label className="text-sm font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
               </div>
             );
           }
-          
+
           if (Array.isArray(val)) {
             return (
               <div key={key} className="p-4 border border-gray-200 rounded bg-gray-50">
                 <label className="block text-sm font-semibold mb-2 capitalize">{key}</label>
                 <p className="text-xs text-gray-500 mb-2">Array editing is simplified for this demo.</p>
-                <textarea 
+                <textarea
                   value={JSON.stringify(val, null, 2)}
                   onChange={(e) => {
                     try {
                       updateContent(key, JSON.parse(e.target.value));
-                    } catch(e) {}
+                    } catch (e) { }
                   }}
                   className="w-full p-2 text-xs font-mono border border-gray-300 rounded"
                   rows={5}

@@ -163,6 +163,22 @@ export const MEDIA_PURPOSE_MAP: Record<MediaPurpose, MediaPurposeConfig> = {
   }
 };
 
+/**
+ * Map a verified Cloudinary `resource_type`/`format` pair to a real MIME type.
+ * Cloudinary reports JPEGs as format "jpg", and naive concatenation yields the
+ * non-existent "image/jpg", which fails every allow-list check. Formats we do
+ * not know fall back to concatenation so unknown types stay rejected downstream.
+ */
+export function cloudinaryMimeType(
+  resourceType?: string | null,
+  format?: string | null
+): string {
+  const normalizedFormat = getNormalizedExtension(format);
+  const known = normalizedFormat ? FORMAT_MIME_TYPES[normalizedFormat]?.[0] : undefined;
+
+  return (known ?? `${resourceType ?? ""}/${normalizedFormat ?? ""}`).toLowerCase();
+}
+
 export function getAllowedMimeTypesForPurpose(purpose: MediaPurpose): string[] {
   const config = MEDIA_PURPOSE_MAP[purpose];
 

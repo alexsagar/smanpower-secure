@@ -9,8 +9,9 @@ export const metadata = {
   title: "Edit Demand | Admin",
 };
 
-export default async function EditDemandPage({ params }: { params: { id: string } }) {
-  const demand = await getAdminDemandById(params.id);
+export default async function EditDemandPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const demand = await getAdminDemandById(resolvedParams.id);
 
   if (!demand) {
     notFound();

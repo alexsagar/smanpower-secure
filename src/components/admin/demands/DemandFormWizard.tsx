@@ -29,6 +29,7 @@ export function DemandFormWizard({ initialData }: { initialData?: any }) {
     title: "",
     companyName: "",
     companyLogoId: "",
+    featuredImageId: "",
     industryId: "",
     countryId: "",
     city: "",

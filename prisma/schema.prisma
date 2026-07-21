@@ -429,6 +429,8 @@ model Demand {
   companyName     String
   companyLogoId   String?
   companyLogo     MediaAsset? @relation("DemandCompanyLogo", fields: [companyLogoId], references: [id])
+  featuredImageId String?
+  featuredImage   MediaAsset? @relation("DemandFeaturedImage", fields: [featuredImageId], references: [id])
   industryId      String?
   industry        Industry?   @relation(fields: [industryId], references: [id])
   countryId       String
@@ -1335,6 +1337,7 @@ model MediaAsset {
   blockPosterImages CmsContentBlock[] @relation("BlockPosterImage")
   blockMobileImages CmsContentBlock[] @relation("BlockMobileImage")
   demandLogos       Demand[]          @relation("DemandCompanyLogo")
+  demandFeaturedImages Demand[]     @relation("DemandFeaturedImage")
   demandDocuments   DemandDocument[]  @relation("DemandDocumentMedia")
   insightImages     InsightArticle[]  @relation("InsightImage")
   newsImages        NewsArticle[]     @relation("NewsImage")

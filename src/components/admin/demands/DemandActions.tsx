@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Globe, X, Archive, MoreVertical } from "lucide-react";
 import { publishDemandAction, closeDemandAction, archiveDemandAction } from "@/actions/demands";
@@ -16,6 +17,28 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
+  // The admin table sits inside `overflow-hidden` / `overflow-x-auto` containers,
+  // which clip any absolutely positioned child regardless of z-index. Render the
+  // menu into document.body and position it from the trigger's viewport rect.
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const place = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (rect) {
+        setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+      }
+    };
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [isOpen]);
 
   const handleAction = async (action: string) => {
     setIsLoading(true);
@@ -58,6 +81,7 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-brand-charcoal hover:bg-brand-charcoal/10 rounded-sm transition-colors"
         title="Lifecycle Actions"
@@ -66,12 +90,15 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
         <MoreVertical className="w-4 h-4" />
       </button>
 
-      {isOpen && (
+      {isOpen && menuPos && typeof document !== "undefined" && createPortal(
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => { setIsOpen(false); setConfirmAction(null); }} />
+          <div className="fixed inset-0 z-[1000]" onClick={() => { setIsOpen(false); setConfirmAction(null); }} />
 
-          <div className="absolute right-0 top-full mt-1 bg-white border border-brand-charcoal/15 shadow-lg rounded-sm z-50 w-56 py-1">
+          <div
+            style={{ top: menuPos.top, right: menuPos.right }}
+            className="fixed bg-white border border-brand-charcoal/15 shadow-lg rounded-sm z-[1001] w-56 py-1"
+          >
             {/* Confirm dialog overlay */}
             {confirmAction && (
               <div className="p-4">
@@ -131,7 +158,8 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
               </>
             )}
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
