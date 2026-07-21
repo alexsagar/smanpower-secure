@@ -79,9 +79,9 @@ export default async function DemandDetailPage({ params }: Props) {
         <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
           <div className="flex items-center gap-2 text-sm text-brand-charcoal/60 mb-6 font-mono">
-            <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
+            <Link href="/" className="hover:text-brand-gold transition-colors">{copy.breadcrumbHome}</Link>
             <ChevronRight className="w-4 h-4" />
-            <Link href="/demands" className="hover:text-brand-gold transition-colors">Demands</Link>
+            <Link href="/demands" className="hover:text-brand-gold transition-colors">{copy.breadcrumbDemands}</Link>
             <ChevronRight className="w-4 h-4" />
             <span className="text-brand-charcoal/90 truncate max-w-xs">{demand.title}</span>
           </div>

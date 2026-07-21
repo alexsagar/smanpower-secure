@@ -487,6 +487,8 @@ export const demandDetailCopy = {
     heading: "Official Documents",
     subtitle: "Verified demand letters and approval documents.",
   },
+  breadcrumbHome: "Home",
+  breadcrumbDemands: "Demands",
   noticeHeading: "Demand Notice",
   notices: {
     safetyHeading: "Candidate Safety Notice",
@@ -499,6 +501,8 @@ export const demandDetailCopy = {
 };
 
 export const careerDetailCopy = {
+  locationLabel: "Location",
+  applyNowLabel: "Apply Now",
   departmentLabel: "Department",
   employmentTypeLabel: "Employment Type",
   descriptionHeading: "Description",

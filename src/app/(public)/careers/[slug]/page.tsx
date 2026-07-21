@@ -41,7 +41,7 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.departmentLabel}</span><span className="font-medium text-brand-black">{opening.department || "-"}</span></div>
-            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Location</span><span className="font-medium text-brand-black">{opening.location || "-"}</span></div>
+            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.locationLabel}</span><span className="font-medium text-brand-black">{opening.location || "-"}</span></div>
             <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.employmentTypeLabel}</span><span className="font-medium text-brand-black">{opening.employmentType || "-"}</span></div>
           </div>
           <div className="prose prose-lg max-w-none text-brand-black/80">
@@ -69,7 +69,7 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
             <div className="pt-8 border-t border-brand-charcoal/10">
               {safeApplicationUrl ? (
                 <Link href={safeApplicationUrl} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
-                  Apply Now
+                  {copy.applyNowLabel}
                 </Link>
               ) : opening.applicationEmail ? (
                 <a href={`mailto:${opening.applicationEmail}`} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
