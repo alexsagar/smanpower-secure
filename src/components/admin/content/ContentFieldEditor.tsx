@@ -2,6 +2,8 @@
 
 import React from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { MediaInput } from "@/components/admin/MediaInput";
+import { isMediaField, mediaFieldKind, mediaFieldPurpose } from "@/lib/cms/media-fields";
 
 /**
  * Generic, recursive, type-driven editor for CMS block content.
@@ -78,6 +80,8 @@ export function orderContentKeys(content: Record<string, unknown>): string[] {
 
 type FieldProps = {
   label: string;
+  /** Raw content key, used to detect media fields. Falls back to the label. */
+  fieldKey?: string;
   value: unknown;
   onChange: (next: unknown) => void;
   depth?: number;
@@ -88,7 +92,30 @@ type FieldProps = {
 const inputClass =
   "w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold/50";
 
-export function ContentFieldEditor({ label, value, onChange, depth = 0, chrome = true }: FieldProps) {
+export function ContentFieldEditor({
+  label,
+  fieldKey,
+  value,
+  onChange,
+  depth = 0,
+  chrome = true,
+}: FieldProps) {
+  const key = fieldKey ?? label;
+
+  // Media is edited through the Media Library, never as a raw path. The stored
+  // value stays a URL string, so rendering and existing content are unaffected.
+  if (isMediaField(key, value)) {
+    return (
+      <MediaInput
+        label={label}
+        value={typeof value === "string" ? value : ""}
+        allowedResourceTypes={[mediaFieldKind(key, value)]}
+        uploadPurpose={mediaFieldPurpose(key, value)}
+        onChange={(_id, url) => onChange(url)}
+      />
+    );
+  }
+
   // null/undefined are treated as empty text so previously-unset fields are
   // still editable instead of silently disappearing.
   if (value === null || value === undefined) {
@@ -131,7 +158,7 @@ export function ContentFieldEditor({ label, value, onChange, depth = 0, chrome =
   }
 
   if (Array.isArray(value)) {
-    return <ArrayField label={label} value={value} onChange={onChange} depth={depth} />;
+    return <ArrayField label={label} fieldKey={key} value={value} onChange={onChange} depth={depth} />;
   }
 
   return (
@@ -203,6 +230,7 @@ function ObjectField({
         <ContentFieldEditor
           key={key}
           label={humanizeKey(key)}
+          fieldKey={key}
           value={value[key]}
           depth={depth + 1}
           onChange={(next) => onChange({ ...value, [key]: next })}
@@ -234,11 +262,13 @@ function itemSummary(item: unknown, index: number): string {
 
 function ArrayField({
   label,
+  fieldKey,
   value,
   onChange,
   depth = 0,
 }: {
   label: string;
+  fieldKey?: string;
   value: unknown[];
   onChange: (next: unknown) => void;
   depth?: number;
@@ -316,6 +346,7 @@ function ArrayField({
               </div>
               <ContentFieldEditor
                 label={humanizeKey(label).replace(/s$/, "")}
+                fieldKey={fieldKey}
                 value={item}
                 depth={depth + 1}
                 chrome={false}

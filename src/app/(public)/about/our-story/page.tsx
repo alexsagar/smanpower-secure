@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
+import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const metadata: Metadata = {
@@ -10,38 +11,33 @@ export const metadata: Metadata = {
 };
 
 export default async function OurStoryPage() {
-  const milestones = [
-    { year: "2008", title: "The Foundation", desc: "Seven Seas Intercontinental is established in Kathmandu with a vision to revolutionize the recruitment landscape by removing exploitative fees." },
-    { year: "2013", title: "Middle East Expansion", desc: "Opened our first coordination offices in Dubai and Doha to ensure on-the-ground support and grievance handling for our deployed workers." },
-    { year: "2018", title: "RBA Alignment", desc: "Expanded internal processes around Responsible Business Alliance (RBA) guidance and employer-paid recruitment practices." },
-    { year: "2023", title: "Operational Expansion", desc: "Continued investing in training capacity, documentation workflows, and worker-support processes." },
-  ];
+  const copy = await getPageCopy("about/our-story");
 
   return (
     <>
       <HeroInternal 
-        title="From Nepal to the World." 
-        subtitle="Our Story"
-        imageSrc="/images/hero_training_orientation_1782920391505.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <EditorialSection 
-        title="A Journey of Integrity."
-        subtitle="The Beginning"
+        title={copy.beginning.title}
+        subtitle={copy.beginning.subtitle}
       >
         <div className="relative mb-12">
           <div className="absolute -top-10 -left-6 text-brand-gold/10 text-9xl font-serif pointer-events-none leading-none">
             &ldquo;
           </div>
           <p className="text-2xl md:text-3xl leading-relaxed text-brand-black mb-12 font-light tracking-tight relative z-10">
-            Seven Seas Intercontinental was founded on a singular belief: international recruitment does not have to be exploitative. 
+            {copy.beginning.lead}
           </p>
         </div>
         <p className="text-lg text-brand-muted leading-relaxed mb-8">
-          Over the past 15+ years, we have grown from a small local agency into an ethical recruitment business focused on transparent processes. We recognized early on that the traditional recruitment model was broken — candidates were often burdened with debt, and employers were receiving underprepared workers.
+          {copy.beginning.paragraphs[0]}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed">
-          We rebuilt the model from the ground up. By pioneering the employer-paid model in Nepal and establishing world-class trade testing facilities, we proved that ethical recruitment is not just the right thing to do — it is the best way to do business.
+          {copy.beginning.paragraphs[1]}
         </p>
       </EditorialSection>
 
@@ -52,7 +48,7 @@ export default async function OurStoryPage() {
         <div className="relative z-10 text-center px-6">
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl lg:text-7xl font-semibold text-white tracking-tighter max-w-4xl mx-auto leading-tight">
-              "We don't just find workers. We build global careers."
+              {copy.quote.text}
             </h2>
             <div className="w-24 h-px bg-brand-gold mx-auto mt-12" />
           </ScrollReveal>
@@ -65,10 +61,10 @@ export default async function OurStoryPage() {
           <div className="mb-20">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                The History
+                {copy.timeline.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                Our Evolution.
+                {copy.timeline.heading}
               </h2>
             </ScrollReveal>
           </div>
@@ -78,7 +74,7 @@ export default async function OurStoryPage() {
             <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-brand-charcoal/10 -translate-x-1/2 hidden md:block" />
 
             <div className="space-y-16 md:space-y-32">
-              {milestones.map((item, i) => (
+              {copy.timeline.milestones.map((item, i) => (
                 <ScrollReveal key={item.year} delay={0.2} className="relative z-10">
                   <div className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 ${i % 2 === 0 ? "md:flex-row-reverse" : ""}`}>
                     
@@ -117,8 +113,8 @@ export default async function OurStoryPage() {
           <div className="md:w-1/2">
             <ScrollReveal>
               <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.05] mb-8">
-                The Philosophy <br/>
-                <span className="text-brand-gold text-3xl md:text-5xl italic font-serif">That Drives Us.</span>
+                {copy.philosophy.headingLead} <br/>
+                <span className="text-brand-gold text-3xl md:text-5xl italic font-serif">{copy.philosophy.headingHighlight}</span>
               </h2>
               <div className="w-24 h-px bg-gradient-to-r from-brand-gold to-transparent mb-8" />
             </ScrollReveal>
@@ -126,10 +122,10 @@ export default async function OurStoryPage() {
           <div className="md:w-1/2">
             <ScrollReveal delay={0.2}>
               <p className="text-xl leading-relaxed text-brand-white/80 font-light mb-6">
-                We measure our success not just by the number of workers we deploy, but by the generational impact those deployments have on their families back home.
+                {copy.philosophy.lead}
               </p>
               <p className="text-lg leading-relaxed text-brand-white/60">
-                Ethical recruitment is the cornerstone of sustainable business. When candidates are treated fairly and employers receive trained, motivated talent, the entire global economy benefits. This philosophy is deeply ingrained in every operation at Seven Seas.
+                {copy.philosophy.body}
               </p>
             </ScrollReveal>
           </div>

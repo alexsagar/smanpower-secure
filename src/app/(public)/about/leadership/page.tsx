@@ -6,6 +6,7 @@ import { Quote } from "lucide-react";
 import Image from "next/image";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listLeadershipMembers } from "@/lib/team-members";
+import { getPageCopy } from "@/services/page-copy.service";
 
 export const metadata: Metadata = {
   title: "Leadership | Seven Seas Intercontinental",
@@ -14,24 +15,25 @@ export const metadata: Metadata = {
 
 export default async function LeadershipPage() {
   const leaders = listLeadershipMembers(await getTeamMembers());
+  const copy = await getPageCopy("about/leadership");
 
   return (
     <>
       <HeroInternal
-        title="Guided by Experience."
-        subtitle="Our Leadership"
-        imageSrc="/images/corporate_office_interview_1782920412325.png"
+        title={copy.hero.title}
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <EditorialSection
-        title="Commitment from the Top Down."
-        subtitle="Executive Team"
+        title={copy.intro.title}
+        subtitle={copy.intro.subtitle}
       >
         <p className="text-2xl md:text-3xl leading-relaxed text-brand-black mb-12 font-light tracking-tight">
-          Ethical recruitment is not just a policy; it requires active leadership, continuous oversight, and an unwavering commitment to doing the right thing.
+          {copy.intro.lead}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed mb-6">
-          Our executive team brings decades of combined experience in international labor laws, cross-border deployment logistics, and human rights advocacy. They lead by example, ensuring that our zero-tolerance policy against exploitation is enforced at every level of the organization, from our sourcing partners in remote villages to our corporate offices in Kathmandu.
+          {copy.intro.body}
         </p>
       </EditorialSection>
 
@@ -45,12 +47,12 @@ export default async function LeadershipPage() {
           <ScrollReveal>
             <Quote className="w-16 h-16 text-brand-white mb-10 mx-auto" />
             <h2 className="text-3xl md:text-5xl text-brand-white lg:text-6xl font-light tracking-tight leading-tight max-w-5xl mx-auto mb-12">
-              "We have built Seven Seas on a foundation of transparency. When an employer partners with us, they should be able to expect clear processes and accountable conduct."
+              {copy.chairmanQuote.quote}
             </h2>
             <div className="flex flex-col items-center">
               <div className="w-16 h-px bg-brand-gold mb-6" />
-              <p className="text-xl font-semibold uppercase tracking-widest text-brand-gold">Chairman & Founder</p>
-              <p className="text-brand-white/60 mt-2">Seven Seas Intercontinental</p>
+              <p className="text-xl font-semibold uppercase tracking-widest text-brand-gold">{copy.chairmanQuote.attribution}</p>
+              <p className="text-brand-white/60 mt-2">{copy.chairmanQuote.organisation}</p>
             </div>
           </ScrollReveal>
         </div>
@@ -62,10 +64,10 @@ export default async function LeadershipPage() {
           <div className="mb-20 md:mb-32">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                The Board
+                {copy.board.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.1] text-brand-black max-w-2xl">
-                Meet the Directors.
+                {copy.board.heading}
               </h2>
             </ScrollReveal>
           </div>
@@ -102,7 +104,7 @@ export default async function LeadershipPage() {
               ))}
             </div>
           ) : (
-            <p className="text-brand-muted">Leadership profiles are being updated.</p>
+            <p className="text-brand-muted">{copy.board.emptyState}</p>
           )}
         </div>
       </section>
@@ -127,16 +129,16 @@ export default async function LeadershipPage() {
           <div className="md:w-1/2">
             <ScrollReveal delay={0.2}>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-6 block">
-                Our Core Belief
+                {copy.accountability.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl text-brand-white font-semibold tracking-tighter leading-[1.1] mb-8">
-                Accountability at the highest level.
+                {copy.accountability.heading}
               </h2>
               <p className="text-xl text-brand-white/80 leading-relaxed font-light mb-6">
-                We believe that ethical compliance cannot be outsourced or delegated. It must be woven into the fabric of the organization starting from the board room.
+                {copy.accountability.lead}
               </p>
               <p className="text-lg text-brand-white/60 leading-relaxed mb-10">
-                Our directors are deeply involved in the daily operations of our sourcing networks, training centers, and deployment pipelines. By maintaining a hands-on approach, we ensure that our promises of transparency and zero-fees are not just marketing slogans, but operational realities.
+                {copy.accountability.body}
               </p>
 
               <div className="flex items-center gap-4 border-l-2 border-brand-gold pl-6">
@@ -144,8 +146,8 @@ export default async function LeadershipPage() {
                   R
                 </div>
                 <div>
-                  <p className="text-sm font-bold tracking-widest uppercase">RBA-Aligned</p>
-                  <p className="text-xs text-brand-white/50">Executive leadership training context</p>
+                  <p className="text-sm font-bold tracking-widest uppercase">{copy.accountability.badgeTitle}</p>
+                  <p className="text-xs text-brand-white/50">{copy.accountability.badgeSubtitle}</p>
                 </div>
               </div>
             </ScrollReveal>

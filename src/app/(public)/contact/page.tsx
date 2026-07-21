@@ -3,6 +3,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { Mail, Phone, MapPin, MessageCircle, Clock, AlertTriangle, Building2, Globe2, Inbox, Printer } from "lucide-react";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { getPageCopy } from "@/services/page-copy.service";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -27,15 +28,31 @@ const globalOffices = [
   { region: "Operations Desk", city: "Doha, Qatar", desc: "Deployment support and regulatory compliance." }
 ];
 
+const CONTACT_ICONS = [
+  <MapPin className="w-5 h-5" key="pin" />,
+  <Inbox className="w-5 h-5" key="inbox" />,
+  <Phone className="w-5 h-5" key="phone" />,
+  <Printer className="w-5 h-5" key="printer" />,
+  <Mail className="w-5 h-5" key="mail" />,
+];
+const CONTACT_HREFS: Array<((value: string) => string) | undefined> = [
+  undefined,
+  undefined,
+  (value) => `tel:${value}`,
+  (value) => `tel:${value}`,
+  (value) => `mailto:${value}`,
+];
+
 export default async function ContactPage() {
+  const copy = await getPageCopy("contact");
   const siteSettings = await getSiteSettings();
   
   return (
     <>
       <HeroInternal 
-        title="Contact Our Nepal Manpower Agency" 
-        subtitle="Whether you are an international employer seeking to hire Nepali workers or a candidate looking for foreign demands, our Kathmandu-based team is ready to assist. Candidates should apply only through the official Demands page and should not send CVs or documents through the general corporate inquiry form."
-        imageSrc="/images/hero_training_orientation_1782920391505.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       {/* Main Contact Section */}
@@ -53,28 +70,24 @@ export default async function ContactPage() {
                 <div className="inline-flex items-center gap-3 mb-6">
                   <div className="w-12 h-[1px] bg-brand-gold" />
                   <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase">
-                    Global Inquiries
+                    {copy.details.eyebrow}
                   </span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-light tracking-tighter leading-[1.1] text-brand-black mb-8">
-                  Global Reach, Local Support.
+                  {copy.details.heading}
                 </h2>
                 <p className="text-lg leading-relaxed text-brand-muted font-light">
-                  Our Kathmandu-based team is ready to assist. Candidates should apply only through the official Demands page and should not send CVs or documents through the general corporate inquiry form.
+                  {copy.details.body}
                 </p>
               </ScrollReveal>
 
               <div className="grid gap-6">
-                {[
-                  { icon: <MapPin className="w-5 h-5" />, label: "Head Office", value: "Kathmandu Metropolitan City, Ward No. 8, Guheswori, Kathmandu, Nepal, 00977", href: undefined },
-                  { icon: <Inbox className="w-5 h-5" />, label: "P.O. Box", value: "7531", href: undefined },
-                  { icon: <Phone className="w-5 h-5" />, label: "Corporate Phone", value: "01-5107440", href: "tel:01-5107440" },
-                  { icon: <Printer className="w-5 h-5" />, label: "Fax", value: "+977-1-4479655", href: "tel:+977-1-4479655" },
-                  { icon: <Mail className="w-5 h-5" />, label: "General Enquiries", value: "info@smanpower.com", href: "mailto:info@smanpower.com" }
-                ].map((item, i) => (
+                {copy.details.items.map((entry, i) => {
+                  const item = { ...entry, href: CONTACT_HREFS[i]?.(entry.value) };
+                  return (
                   <ScrollReveal key={item.label} delay={i * 0.1} className="flex items-start gap-6 p-6 border border-brand-charcoal/10 bg-white/60 backdrop-blur-md hover:border-brand-gold hover:bg-white transition-all duration-500 group rounded-sm shadow-sm hover:shadow-xl">
                     <div className="w-12 h-12 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-500">
-                      <div className="text-brand-charcoal group-hover:text-brand-gold transition-colors duration-500">{item.icon}</div>
+                      <div className="text-brand-charcoal group-hover:text-brand-gold transition-colors duration-500">{CONTACT_ICONS[i] ?? CONTACT_ICONS[0]}</div>
                     </div>
                     <div>
                       <h3 className="text-[10px] font-semibold uppercase tracking-widest text-brand-charcoal/60 mb-2">
@@ -89,7 +102,8 @@ export default async function ContactPage() {
                       )}
                     </div>
                   </ScrollReveal>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -101,10 +115,10 @@ export default async function ContactPage() {
                   <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-b from-white to-transparent pointer-events-none" />
                   
                   <h3 className="text-3xl md:text-4xl font-light tracking-tighter text-brand-black mb-4 relative z-10">
-                    Send Us a Message
+                    {copy.form.heading}
                   </h3>
                   <p className="text-brand-muted mb-12 text-sm relative z-10 font-light">
-                    Our corporate relations team typically responds within 24 hours.
+                    {copy.form.body}
                   </p>
                   
                   <div className="relative z-10">
@@ -132,7 +146,7 @@ export default async function ContactPage() {
                 <Globe2 className="w-8 h-8 text-brand-gold" />
               </div>
               <h2 className="text-4xl md:text-6xl font-light tracking-tighter leading-[1.1] text-brand-black">
-                Our Global Footprint.
+                {copy.footprintHeading}
               </h2>
             </ScrollReveal>
           </div>

@@ -14,7 +14,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
 
       <EditorialSection 
         title={content.missionHeading || `Explore ${content.title}`}
-        subtitle="Overview"
+        subtitle={content.overviewSubtitle || "Overview"}
       >
         {content.missionText ? (
           content.missionText.map((text, idx) => (
@@ -38,10 +38,10 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
           <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
             <div className="mb-20 text-center">
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block">
-                Key Highlights
+                {content.featuresEyebrow || "Key Highlights"}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-white">
-                The Seven Seas Standard.
+                {content.featuresHeading || "The Seven Seas Standard."}
               </h2>
             </div>
             
@@ -71,10 +71,10 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
           <div className="container-wide mx-auto px-6 lg:px-12">
             <div className="mb-16">
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.3em] uppercase mb-4 block">
-                Official Records
+                {content.documentsEyebrow || "Official Records"}
               </span>
               <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                Licenses & Certifications.
+                {content.documentsHeading || "Licenses & Certifications."}
               </h2>
             </div>
             
@@ -84,7 +84,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
                   <div className="relative overflow-hidden border border-brand-charcoal/10 bg-white mb-6 p-2">
                     <div className="absolute inset-0 bg-brand-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
                       <span className="bg-brand-gold text-brand-black px-6 py-3 text-xs font-semibold tracking-widest uppercase shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        View Document
+                        {content.documentsCtaLabel || "View Document"}
                       </span>
                     </div>
                     <img 

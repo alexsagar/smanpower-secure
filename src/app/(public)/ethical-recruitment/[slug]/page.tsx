@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getContentBySlug, ethicalContent } from "@/lib/content";
+import { ethicalContent } from "@/lib/content";
+import { getDynamicPageContent } from "@/services/dynamic-page.service";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 export function generateStaticParams() {
@@ -12,7 +13,7 @@ export default async function EthicalDynamicPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const content = getContentBySlug("ethical-recruitment", slug);
+  const content = await getDynamicPageContent("ethical-recruitment", slug);
 
   if (!content) notFound();
 

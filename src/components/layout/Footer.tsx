@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { layoutCopy } from "@/lib/page-copy";
 import Image from "next/image";
 import React from "react";
 import { ExternalLink, ArrowRight } from "lucide-react";
@@ -82,7 +83,16 @@ function toSocialLabel(link: CmsSocialLink) {
   return link.label || link.platform;
 }
 
-export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFooterSettings; siteSettings: CmsSiteSettings }) {
+export function Footer({
+  footerSettings,
+  siteSettings,
+  copy = layoutCopy.footer,
+}: {
+  footerSettings: CmsFooterSettings;
+  siteSettings: CmsSiteSettings;
+  /** Resolved in the server layout; defaults keep the current wording. */
+  copy?: typeof layoutCopy.footer;
+}) {
   const legalIdentity = toLegalIdentity(siteSettings);
   const wordmark = toWordmarkParts(siteSettings);
   const addressLines = toAddressLines(siteSettings);
@@ -164,7 +174,7 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
 
             {/* Headquarters */}
             <div>
-              <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">Global Headquarters</h4>
+              <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.headquartersLabel}</h4>
               <address className="not-italic text-xs text-brand-charcoal/70 leading-relaxed space-y-1">
                 {addressLines.map((line, index) => (
                   <NoTranslate as="div" key={`${line}-${index}`}>{line}</NoTranslate>
@@ -201,7 +211,7 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
             {/* Contact */}
             {contactLinks.length > 0 && (
               <div className="md:col-span-1 order-2 lg:order-none min-w-0">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">Contact</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.contactLabel}</h4>
                 <div className="flex flex-col gap-3 min-w-0">
                   {contactLinks.map((link) =>
                     link.href ? (
@@ -229,7 +239,7 @@ export function Footer({ footerSettings, siteSettings }: { footerSettings: CmsFo
             {/* Socials */}
             {socialLinks.length > 0 && (
               <div className="md:col-span-2 order-5 lg:order-none min-w-0 lg:mt-10">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">Socials</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.socialsLabel}</h4>
                 <div className="flex flex-col gap-3">
                   {socialLinks.map((link) => {
                     const isKnownPlatform = isKnownSocialPlatform(link.platform);

@@ -19,12 +19,15 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, Code, Settings2, Save } from "lucide-react";
-import { DynamicHero } from "@/components/cms/DynamicHero";
-import { AdminPreviewBlockRenderer } from "./AdminPreviewBlockRenderer";
 import { HeroEditor } from "./HeroEditor";
 import { BlockEditor } from "./BlockEditor";
+import {
+  blockCategoryClasses,
+  blockSummary,
+  blockTypeCategory,
+  blockTypeLabel,
+} from "@/lib/cms/block-labels";
 import { toast } from "sonner";
-import type { AdminPreviewData } from "@/types/admin-preview";
 
 export const VISUAL_PAGE_EDITOR_DND_ID = "visual-page-editor-blocks";
 
@@ -64,17 +67,6 @@ function SortableBlockItem({
     transition,
   };
 
-  const getBlockSummary = () => {
-    switch (block.blockType) {
-      case "editorial": return block.content?.title || "Editorial Block";
-      case "manifesto": return block.content?.subtitle || "Manifesto Block";
-      case "statistics": return `${block.content?.stats?.length || 0} statistics`;
-      case "pillarGrid": return `${block.content?.pillars?.length || 0} pillars`;
-      case "serviceList": return `${block.content?.services?.length || 0} services`;
-      default: return `${block.blockType} block`;
-    }
-  };
-
   return (
     <div
       ref={setNodeRef}
@@ -93,10 +85,13 @@ function SortableBlockItem({
       <div className="flex-1 p-4 flex items-center justify-between">
         <div className="flex-1 cursor-pointer" onClick={() => onEdit(block)}>
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold text-sm capitalize">{block.blockType.replace(/([A-Z])/g, ' $1').trim()}</h4>
+            <h4 className="font-semibold text-sm">{blockTypeLabel(block.blockType)}</h4>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${blockCategoryClasses(blockTypeCategory(block.blockType))}`}>
+              {blockTypeCategory(block.blockType)}
+            </span>
             {!block.visible && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Hidden</span>}
           </div>
-          <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{getBlockSummary()}</p>
+          <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{blockSummary(block)}</p>
         </div>
         <div className="flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
           <button onClick={() => onEdit(block)} className="p-2 text-gray-500 hover:text-brand-black hover:bg-gray-100 rounded">
@@ -117,7 +112,7 @@ function SortableBlockItem({
   );
 }
 
-export function VisualPageEditor({ initialPage, previewData }: { initialPage: any; previewData: AdminPreviewData }) {
+export function VisualPageEditor({ initialPage }: { initialPage: any }) {
   const [page, setPage] = useState(initialPage);
   const [blocks, setBlocks] = useState(initialPage.blocks || []);
   const [activeEditor, setActiveEditor] = useState<"none" | "hero" | "block" | "json">("none");
@@ -177,7 +172,7 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[800px]">
+    <div className="min-h-[800px]">
 
       {/* LEFT: Editor Panel */}
       <div className="flex flex-col gap-6">
@@ -306,22 +301,6 @@ export function VisualPageEditor({ initialPage, previewData }: { initialPage: an
         </div>
       </div>
 
-      {/* RIGHT: Live Preview */}
-      <div className="bg-gray-100 rounded-xl overflow-hidden border border-gray-200 shadow-inner flex flex-col h-[800px] sticky top-6">
-        <div className="bg-gray-800 text-gray-300 text-xs px-4 py-2 flex justify-between items-center font-mono">
-          <span>Live Preview</span>
-          <span className="opacity-50">{1440}x{900}</span>
-        </div>
-        <div className="flex-1 overflow-y-auto bg-white" style={{ zoom: 0.75 }}>
-          {/* Render Actual Components! */}
-          {page.hero && <DynamicHero hero={page.hero} />}
-          {blocks.map((block: any) => (
-            block.visible !== false && (
-              <AdminPreviewBlockRenderer key={block.id} block={block} previewData={previewData} />
-            )
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

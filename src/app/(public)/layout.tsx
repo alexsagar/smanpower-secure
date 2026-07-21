@@ -16,6 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 import { getContentRepository } from "@/repositories/content-resolver";
+import { getPageCopy } from "@/services/page-copy.service";
 
 export default async function PublicLayout({
   children,
@@ -26,6 +27,7 @@ export default async function PublicLayout({
   const headerNav = await repo.getNavigation("header");
   const footerSettings = await repo.getFooterSettings();
   const siteSettings = await repo.getSiteSettings();
+  const layoutCopy = await getPageCopy("layout");
   const orgSchema = buildOrganizationSchema();
 
   return (
@@ -41,9 +43,9 @@ export default async function PublicLayout({
         )}
         <GoogleTranslateScript />
         <FirstVisitLoader />
-        <Header navigation={headerNav} />
+        <Header navigation={headerNav} copy={layoutCopy.header} />
         <main className="flex-1">{children}</main>
-        <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
+        <Footer footerSettings={footerSettings} siteSettings={siteSettings} copy={layoutCopy.footer} />
       </body>
     </html>
   );

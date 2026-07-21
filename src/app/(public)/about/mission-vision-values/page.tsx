@@ -4,30 +4,40 @@ import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Target, Globe, Shield, HeartHandshake } from "lucide-react";
+import { getPageCopy } from "@/services/page-copy.service";
 
 export const metadata: Metadata = {
   title: "Mission, Vision & Values | Seven Seas Intercontinental",
   description: "Discover our driving mission and the core values that shape our ethical recruitment practices at Seven Seas Intercontinental.",
 };
 
+const VALUE_ICONS = [
+  <Shield className="w-10 h-10" key="shield" />,
+  <Globe className="w-10 h-10" key="globe" />,
+  <Target className="w-10 h-10" key="target" />,
+  <HeartHandshake className="w-10 h-10" key="heart" />,
+];
+
 export default async function MissionVisionPage() {
+  const copy = await getPageCopy("about/mission-vision-values");
+
   return (
     <>
       <HeroInternal 
-        title="Purpose-Driven Recruitment." 
-        subtitle="Mission & Vision"
-        imageSrc="/images/corporate_office_interview_1782920412325.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <EditorialSection 
-        title="Our Vision for the Future of Work."
-        subtitle="The Vision"
+        title={copy.vision.title}
+        subtitle={copy.vision.subtitle}
       >
         <p className="text-2xl md:text-3xl leading-relaxed text-brand-black mb-12 font-light tracking-tight">
-          To be the most trusted, transparent, and ethical bridge between Nepal's highly capable workforce and global employment opportunities.
+          {copy.vision.lead}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed">
-          We envision a future where international recruitment is universally safe, employer-paid, and free from exploitation. By setting the gold standard in Nepal for responsible recruitment, we aim to elevate the dignity of Nepali workers on the global stage while providing our international partners with unparalleled talent.
+          {copy.vision.body}
         </p>
       </EditorialSection>
 
@@ -36,13 +46,13 @@ export default async function MissionVisionPage() {
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col items-center text-center">
           <ScrollReveal>
             <span className="text-brand-black text-[10px] font-semibold tracking-[0.3em] uppercase mb-6 block">
-              The Mission
+              {copy.mission.eyebrow}
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.05] text-brand-black max-w-4xl mx-auto mb-10">
-              Connecting Potential with Opportunity, Responsibly.
+              {copy.mission.heading}
             </h2>
             <p className="text-xl text-brand-black/80 max-w-2xl mx-auto leading-relaxed">
-              Our mission is to consistently deliver exceptional, deployment-ready talent to global employers while fiercely protecting the rights, dignity, and financial well-being of every candidate we represent.
+              {copy.mission.body}
             </p>
           </ScrollReveal>
         </div>
@@ -57,42 +67,17 @@ export default async function MissionVisionPage() {
           <div className="flex flex-col items-center text-center mb-20">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                The Principles
+                {copy.values.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.1] mb-6 text-brand-white">
-                Our Foundational Values.
+                {copy.values.heading}
               </h2>
               <div className="h-20 w-px bg-gradient-to-b from-brand-gold to-transparent mx-auto" />
             </ScrollReveal>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                step: "01",
-                title: "Ethical Integrity",
-                desc: "We strictly adhere to RBA guidelines and employer-paid principles. Zero recruitment fees to candidates, ensuring no one falls into debt bondage.",
-                icon: <Shield className="w-10 h-10" />
-              },
-              {
-                step: "02",
-                title: "Radical Transparency",
-                desc: "Clear communication with both employers and candidates. No hidden fees, no false promises, just documented reality at every single stage.",
-                icon: <Globe className="w-10 h-10" />
-              },
-              {
-                step: "03",
-                title: "Excellence in Preparation",
-                desc: "Through our dedicated trade testing and training centres, we ensure every worker is culturally and technically ready before deployment.",
-                icon: <Target className="w-10 h-10" />
-              },
-              {
-                step: "04",
-                title: "Human Dignity",
-                desc: "We treat every candidate with profound respect. Their success is our success, and their welfare is our absolute highest priority.",
-                icon: <HeartHandshake className="w-10 h-10" />
-              },
-            ].map((item, i) => (
+            {copy.values.items.map((item, i) => (
               <ScrollReveal key={item.title} delay={i * 0.15} className="group relative h-full">
                 {/* Massive background number */}
                 <div className="absolute -right-4 -top-8 text-[180px] font-bold text-white/[0.02] tracking-tighter pointer-events-none group-hover:text-brand-gold/[0.05] transition-colors duration-700">
@@ -104,7 +89,7 @@ export default async function MissionVisionPage() {
                   <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-brand-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   <div className="text-brand-gold mb-12 group-hover:scale-110 transition-transform duration-500 origin-left">
-                    {item.icon}
+                    {VALUE_ICONS[i] ?? VALUE_ICONS[0]}
                   </div>
                   
                   <h3 className="text-2xl lg:text-3xl font-semibold text-brand-white mb-6 tracking-tight">

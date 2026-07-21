@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getContentBySlug, trainingContent } from "@/lib/content";
+import { trainingContent } from "@/lib/content";
+import { getDynamicPageContent } from "@/services/dynamic-page.service";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 export function generateStaticParams() {
@@ -12,7 +13,7 @@ export default async function TrainingDynamicPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const content = getContentBySlug("training-facilities", slug);
+  const content = await getDynamicPageContent("training-facilities", slug);
 
   if (!content) notFound();
 

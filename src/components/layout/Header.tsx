@@ -10,11 +10,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GoogleTranslate } from "./GoogleTranslate";
 import { toPublicHref } from "@/lib/public-href";
+import { layoutCopy } from "@/lib/page-copy";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 import type { CmsNavigation } from "@/types/content";
 
-export function Header({ navigation }: { navigation: CmsNavigation[] }) {
+export function Header({
+  navigation,
+  copy = layoutCopy.header,
+}: {
+  navigation: CmsNavigation[];
+  /** Resolved in the server layout; defaults keep the current wording. */
+  copy?: typeof layoutCopy.header;
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -79,10 +87,10 @@ export function Header({ navigation }: { navigation: CmsNavigation[] }) {
               )}
             >
               <span className="block text-sm font-semibold tracking-wide uppercase leading-none">
-                Seven Seas
+                {copy.wordmarkLead}
               </span>
               <p className="text-[9px] uppercase tracking-[0.2em] text-brand-gold mt-1">
-                Intercontinental
+                {copy.wordmarkAccent}
               </p>
             </div>
           </NoTranslate>
@@ -138,7 +146,7 @@ export function Header({ navigation }: { navigation: CmsNavigation[] }) {
                 !scrolled && !activeDesktopDropdown && pathname === "/" ? "text-brand-white border-brand-white/40" : ""
               )}
             >
-              View Demands
+              {copy.viewDemandsLabel}
             </Button>
           </Link>
         </div>
@@ -175,7 +183,7 @@ export function Header({ navigation }: { navigation: CmsNavigation[] }) {
                     {navConfig[activeDesktopDropdown as keyof typeof navConfig].label}
                   </h2>
                   <p className="text-sm text-brand-muted leading-relaxed">
-                    Explore our corporate initiatives, comprehensive services, and structural processes built for long-term international workforce deployment.
+                    {copy.megaMenuDescription}
                   </p>
                 </div>
                 <div className="col-span-3 grid grid-cols-3 gap-y-4 gap-x-12">
@@ -251,7 +259,7 @@ export function Header({ navigation }: { navigation: CmsNavigation[] }) {
             <div className="p-6 bg-brand-off-white space-y-4">
               <Link href="/demands">
                 <Button variant="primary" fullWidth className="rounded-none">
-                  View Demands
+                  {copy.viewDemandsLabel}
                 </Button>
               </Link>
 

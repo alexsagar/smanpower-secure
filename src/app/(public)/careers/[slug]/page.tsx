@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getPageCopy } from "@/services/page-copy.service";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function CareerDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const copy = await getPageCopy("careers/detail");
   const { slug } = await params;
   const opening = await getCareer(slug);
   if (!opening) notFound();
@@ -38,22 +40,22 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
       <section className="py-24 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Department</span><span className="font-medium text-brand-black">{opening.department || "-"}</span></div>
-            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Location</span><span className="font-medium text-brand-black">{opening.location || "-"}</span></div>
-            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">Employment Type</span><span className="font-medium text-brand-black">{opening.employmentType || "-"}</span></div>
+            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.departmentLabel}</span><span className="font-medium text-brand-black">{opening.department || "-"}</span></div>
+            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.locationLabel}</span><span className="font-medium text-brand-black">{opening.location || "-"}</span></div>
+            <div><span className="block text-xs uppercase tracking-widest text-brand-muted mb-2">{copy.employmentTypeLabel}</span><span className="font-medium text-brand-black">{opening.employmentType || "-"}</span></div>
           </div>
           <div className="prose prose-lg max-w-none text-brand-black/80">
-            <h2>Description</h2>
+            <h2>{copy.descriptionHeading}</h2>
             <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.description) }} />
             {opening.requirements && (
               <>
-                <h2>Requirements</h2>
+                <h2>{copy.requirementsHeading}</h2>
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.requirements) }} />
               </>
             )}
             {opening.responsibilities && (
               <>
-                <h2>Responsibilities</h2>
+                <h2>{copy.responsibilitiesHeading}</h2>
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(opening.responsibilities) }} />
               </>
             )}
@@ -67,11 +69,11 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
             <div className="pt-8 border-t border-brand-charcoal/10">
               {safeApplicationUrl ? (
                 <Link href={safeApplicationUrl} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
-                  Apply Now
+                  {copy.applyNowLabel}
                 </Link>
               ) : opening.applicationEmail ? (
                 <a href={`mailto:${opening.applicationEmail}`} className="inline-flex items-center gap-4 bg-brand-black text-brand-white px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-sm font-semibold tracking-widest uppercase">
-                  Apply by Email
+                  {copy.applyByEmailLabel}
                 </a>
               ) : null}
             </div>
