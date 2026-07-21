@@ -152,10 +152,6 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
     setIsSaving(true);
     const heroPayload = JSON.parse(JSON.stringify(page.hero));
     // TEMPORARY diagnostic — trace hero state sent to server
-    console.log("[SAVE_DIAG] hero.videoId:", heroPayload?.videoId);
-    console.log("[SAVE_DIAG] hero.imageId:", heroPayload?.imageId);
-    console.log("[SAVE_DIAG] hero.posterImageId:", heroPayload?.posterImageId);
-    console.log("[SAVE_DIAG] hero.mobileImageId:", heroPayload?.mobileImageId);
     const { savePageAction } = await import("@/actions/content");
     const res = await savePageAction(
       page.id,
