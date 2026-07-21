@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
+import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import Image from "next/image";
 import { getTeamMembers } from "@/repositories/content-resolver";
@@ -12,28 +13,29 @@ export const metadata: Metadata = {
 };
 
 export default async function OurPeoplePage() {
+  const copy = await getPageCopy("about/our-people");
   const people = listPeopleMembers(await getTeamMembers());
 
   return (
     <>
       <HeroInternal 
-        title="The Heart of Seven Seas." 
-        subtitle="Our People"
-        imageSrc="/images/hero_training_orientation_1782920391505.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <EditorialSection 
-        title="Powered by Passion."
-        subtitle="Our Team"
+        title={copy.intro.title}
+        subtitle={copy.intro.subtitle}
       >
         <p className="text-2xl md:text-3xl leading-relaxed text-brand-black mb-12 font-light tracking-tight">
-          Behind every successful deployment is a team of over 150 dedicated professionals working tirelessly across Nepal and the Middle East.
+          {copy.intro.lead}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed mb-6">
-          Ethical recruitment requires more than just good intentions—it requires incredible logistical precision and deep human empathy. Our staff comprises former expatriate workers, legal experts, certified trainers, and logistics specialists who understand the migration journey firsthand.
+          {copy.intro.paragraphs[0]}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed">
-          We invest heavily in the continuous training of our own people, ensuring that every team member is fully versed in RBA guidelines, international labor laws, and modern human resources practices.
+          {copy.intro.paragraphs[1]}
         </p>
       </EditorialSection>
 
@@ -43,10 +45,10 @@ export default async function OurPeoplePage() {
           <div className="mb-20 text-center">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                The Engine
+                {copy.departments.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                The People Behind the Process.
+                {copy.departments.heading}
               </h2>
               <div className="w-20 h-px bg-brand-gold mx-auto mt-8" />
             </ScrollReveal>
@@ -78,7 +80,7 @@ export default async function OurPeoplePage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-brand-muted">Team profiles are being updated.</p>
+            <p className="text-center text-brand-muted">{copy.departments.emptyState}</p>
           )}
         </div>
       </section>
@@ -105,12 +107,12 @@ export default async function OurPeoplePage() {
             <div className="md:w-5/12">
               <ScrollReveal>
                 <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.05] mb-8 text-brand-white">
-                  A Culture of <br/>
-                  <span className="text-brand-gold italic font-serif">Excellence.</span>
+                  {copy.culture.headingLead}<br/>
+                  <span className="text-brand-gold italic font-serif">{copy.culture.headingHighlight}</span>
                 </h2>
                 <div className="w-24 h-px bg-brand-gold mb-8" />
                 <p className="text-xl leading-relaxed text-brand-white/80 font-light">
-                  We don't just demand high standards from the candidates we deploy; we demand it from ourselves.
+                  {copy.culture.lead}
                 </p>
               </ScrollReveal>
             </div>
@@ -120,8 +122,8 @@ export default async function OurPeoplePage() {
                 <div className="flex gap-6">
                   <div className="text-brand-gold text-4xl font-bold font-serif italic">01</div>
                   <div>
-                    <h4 className="text-2xl font-semibold mb-3">Continuous Learning</h4>
-                    <p className="text-brand-white/60 leading-relaxed">Our staff undergoes rigorous monthly training to stay updated on the latest compliance protocols and international labor laws.</p>
+                    <h4 className="text-2xl font-semibold mb-3">{copy.culture.items[0].title}</h4>
+                    <p className="text-brand-white/60 leading-relaxed">{copy.culture.items[0].desc}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -130,8 +132,8 @@ export default async function OurPeoplePage() {
                 <div className="flex gap-6">
                   <div className="text-brand-gold text-4xl font-bold font-serif italic">02</div>
                   <div>
-                    <h4 className="text-2xl font-semibold mb-3">Zero-Tolerance Policy</h4>
-                    <p className="text-brand-white/60 leading-relaxed">Every employee signs a strict ethical compliance agreement. Any breach of our zero-fee policy results in immediate termination.</p>
+                    <h4 className="text-2xl font-semibold mb-3">{copy.culture.items[1].title}</h4>
+                    <p className="text-brand-white/60 leading-relaxed">{copy.culture.items[1].desc}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -140,8 +142,8 @@ export default async function OurPeoplePage() {
                 <div className="flex gap-6">
                   <div className="text-brand-gold text-4xl font-bold font-serif italic">03</div>
                   <div>
-                    <h4 className="text-2xl font-semibold mb-3">Empathy First</h4>
-                    <p className="text-brand-white/60 leading-relaxed">We treat every candidate exactly how we would want our own family members treated if they were moving abroad for work.</p>
+                    <h4 className="text-2xl font-semibold mb-3">{copy.culture.items[2].title}</h4>
+                    <p className="text-brand-white/60 leading-relaxed">{copy.culture.items[2].desc}</p>
                   </div>
                 </div>
               </ScrollReveal>

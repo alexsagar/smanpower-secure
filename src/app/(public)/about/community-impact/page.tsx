@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
+import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Heart, BookOpen, Home, TrendingUp } from "lucide-react";
 
@@ -10,41 +11,36 @@ export const metadata: Metadata = {
   description: "Learn how Seven Seas Intercontinental positively impacts local communities across Nepal.",
 };
 
-export default async function CommunityImpactPage() {
-  const impactPillars = [
-    { title: "Economic Independence", desc: "By enforcing zero-fee recruitment, workers retain 100% of their earnings, instantly pulling their families into the middle class.", icon: <TrendingUp className="w-10 h-10" /> },
-    { title: "Education Access", desc: "Remittances generated through our safe deployment channels fund the education of thousands of children in rural Nepal every year.", icon: <BookOpen className="w-10 h-10" /> },
-    { title: "Healthcare Funding", desc: "Families of deployed workers can afford better medical care, significantly improving the life expectancy and health outcomes of their communities.", icon: <Heart className="w-10 h-10" /> },
-    { title: "Local Infrastructure", desc: "Returning workers invest their savings into local businesses, housing, and community infrastructure, creating secondary job markets.", icon: <Home className="w-10 h-10" /> },
-  ];
+const PILLAR_ICONS = [
+  <TrendingUp className="w-10 h-10" key="trending" />,
+  <BookOpen className="w-10 h-10" key="book" />,
+  <Heart className="w-10 h-10" key="heart" />,
+  <Home className="w-10 h-10" key="home" />,
+];
 
-  const stats = [
-    { number: "50k+", label: "Workers Deployed Safely" },
-    { number: "100%", label: "Zero-Fee Compliance" },
-    { number: "7", label: "Provinces Reached" },
-    { number: "$10M+", label: "Est. Annual Remittance Impact" },
-  ];
+export default async function CommunityImpactPage() {
+  const copy = await getPageCopy("about/community-impact");
 
   return (
     <>
       <HeroInternal 
-        title="Uplifting Communities." 
-        subtitle="Our Impact"
-        imageSrc="/images/hero_training_orientation_1782920391505.png"
+        title={copy.hero.title} 
+        subtitle={copy.hero.subtitle}
+        imageSrc={copy.hero.imageSrc}
       />
 
       <EditorialSection 
-        title="More Than Just Jobs."
-        subtitle="Community Empowerment"
+        title={copy.intro.title}
+        subtitle={copy.intro.subtitle}
       >
         <p className="text-2xl md:text-3xl leading-relaxed text-brand-black mb-12 font-light tracking-tight">
-          When we secure a safe, employer-paid international job for a Nepali worker, we are not just changing their life — we are uplifting their entire community.
+          {copy.intro.lead}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed mb-6">
-          Remittances are the backbone of Nepal's economy. By ensuring that our workers do not have to pay exorbitant recruitment fees, they are able to send 100% of their savings back home from day one. This money goes directly into local communities, funding education, healthcare, and infrastructure across all seven provinces.
+          {copy.intro.paragraphs[0]}
         </p>
         <p className="text-lg text-brand-muted leading-relaxed">
-          Through ethical recruitment, we turn international labor migration from a cycle of debt into an engine for sustainable national development.
+          {copy.intro.paragraphs[1]}
         </p>
       </EditorialSection>
 
@@ -53,7 +49,7 @@ export default async function CommunityImpactPage() {
         <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay" />
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center divide-x divide-brand-black/10">
-            {stats.map((stat, i) => (
+            {copy.stats.map((stat, i) => (
               <ScrollReveal key={stat.label} delay={i * 0.1}>
                 <div className="flex flex-col items-center">
                   <span className="text-5xl md:text-6xl font-bold text-brand-black tracking-tighter mb-4">
@@ -75,20 +71,20 @@ export default async function CommunityImpactPage() {
           <div className="mb-20 text-center">
             <ScrollReveal>
               <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
-                The Ripple Effect
+                {copy.pillars.eyebrow}
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                How Ethical Recruitment <br/>Transforms Nepal.
+                {copy.pillars.headingLine1}<br/>{copy.pillars.headingLine2}
               </h2>
             </ScrollReveal>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 lg:gap-y-24">
-            {impactPillars.map((pillar, i) => (
+            {copy.pillars.items.map((pillar, i) => (
               <ScrollReveal key={pillar.title} delay={i * 0.15}>
                 <div className="flex flex-col md:flex-row gap-8 items-start group">
                   <div className="w-20 h-20 shrink-0 rounded-full bg-brand-charcoal/5 flex items-center justify-center text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-white transition-colors duration-500">
-                    {pillar.icon}
+                    {PILLAR_ICONS[i] ?? PILLAR_ICONS[0]}
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold text-brand-black mb-4 group-hover:text-brand-gold transition-colors duration-300">
@@ -115,18 +111,18 @@ export default async function CommunityImpactPage() {
             <ScrollReveal>
               <div className="w-16 h-px bg-brand-gold mb-8" />
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white tracking-tighter leading-tight mb-8">
-                Returning with <br/>
-                <span className="text-brand-gold font-serif italic">More Than Capital.</span>
+                {copy.returning.headingLead}<br/>
+                <span className="text-brand-gold font-serif italic">{copy.returning.headingHighlight}</span>
               </h2>
               <p className="text-xl text-brand-white/80 leading-relaxed font-light">
-                Workers who deploy through our RBA-aligned pipelines don't just return with financial capital; they return with human capital. 
+                {copy.returning.lead}
               </p>
             </ScrollReveal>
           </div>
           <div className="md:w-1/2 flex items-center">
             <ScrollReveal delay={0.2}>
               <p className="text-lg text-brand-white/60 leading-relaxed pl-0 md:pl-12 md:border-l border-brand-white/10">
-                Having worked in world-class facilities abroad, they bring back international standards of safety, quality, and technical expertise. Many of our returning candidates go on to become entrepreneurs, foremen, and leaders within Nepal's own developing industries. By enabling safe migration, we are accelerating the transfer of global skills back to the local economy.
+                {copy.returning.body}
               </p>
             </ScrollReveal>
           </div>
