@@ -534,6 +534,25 @@ export const searchCopy = {
   },
 };
 
+// ── Global layout ─────────────────────────────────────────────
+// Header is a client component, so this copy is resolved in the server layout
+// and passed down as props rather than fetched in the component.
+
+export const layoutCopy = {
+  header: {
+    wordmarkLead: "Seven Seas",
+    wordmarkAccent: "Intercontinental",
+    viewDemandsLabel: "View Demands",
+    megaMenuDescription:
+      "Explore our corporate initiatives, comprehensive services, and structural processes built for long-term international workforce deployment.",
+  },
+  footer: {
+    headquartersLabel: "Global Headquarters",
+    contactLabel: "Contact",
+    socialsLabel: "Socials",
+  },
+};
+
 /** CMS page slug -> the default copy that page renders today. */
 export const PAGE_COPY_DEFAULTS = {
   "privacy-policy": privacyPolicyCopy,
@@ -554,6 +573,7 @@ export const PAGE_COPY_DEFAULTS = {
   "demands/detail": demandDetailCopy,
   "careers/detail": careerDetailCopy,
   search: searchCopy,
+  layout: layoutCopy,
 } as const;
 
 export type PageCopySlug = keyof typeof PAGE_COPY_DEFAULTS;
