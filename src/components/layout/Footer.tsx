@@ -122,14 +122,14 @@ export function Footer({
     .sort((a, b) => a.order - b.order || a.platform.localeCompare(b.platform) || a.label.localeCompare(b.label));
 
   return (
-    <footer className="bg-brand-off-white text-brand-charcoal relative pt-16 md:pt-20 pb-12 md:pb-16 border-t border-brand-charcoal/10 overflow-hidden">
+    <footer className="bg-brand-charcoal text-brand-white/80 relative pt-16 md:pt-20 pb-12 md:pb-16 border-t border-brand-white/10 overflow-hidden">
       <div className="mx-auto w-full max-w-[1760px] px-6 md:px-10 lg:px-16 xl:px-20 2xl:px-24">
 
         {/* TOP SECTION: Integrated CTA */}
         {(footerSettings.ctaText || footerSettings.tagline) && (
           <div className="mb-16 md:mb-24 flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
             <div className="md:w-3/5 lg:w-1/2">
-              <h2 className="text-4xl md:text-5xl font-light tracking-tighter text-brand-black leading-[1.1]">
+              <h2 className="text-4xl md:text-5xl font-light tracking-tighter text-brand-white leading-[1.1]">
                 {footerSettings.tagline}
               </h2>
             </div>
@@ -137,10 +137,10 @@ export function Footer({
               <div className="md:w-2/5 lg:w-1/2 flex justify-start md:justify-end w-full">
                 <Link
                   href={toPublicHref(footerSettings.ctaHref)}
-                  className="inline-flex items-center gap-6 bg-brand-charcoal text-brand-white px-8 md:px-10 py-5 hover:bg-brand-gold transition-colors duration-300 text-xs md:text-sm font-semibold tracking-widest uppercase group"
+                  className="inline-flex items-center gap-6 bg-brand-white text-brand-charcoal px-8 md:px-10 py-5 hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-xs md:text-sm font-semibold tracking-widest uppercase group"
                 >
                   <span className="relative z-10">{footerSettings.ctaText}</span>
-                  <ArrowRight className="w-4 h-4 text-brand-white group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="w-4 h-4 text-brand-charcoal group-hover:text-brand-black group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               </div>
             )}
@@ -162,10 +162,10 @@ export function Footer({
                   alt={siteSettings.companyName}
                   width={72}
                   height={72}
-                  className="h-[72px] w-[72px] shrink-0 object-contain grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  className="h-[72px] w-[72px] shrink-0 object-contain opacity-90 group-hover:opacity-100 transition-all duration-500"
                 />
                 <div className="flex flex-col justify-center">
-                  <NoTranslate as="p" className="max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-black group-hover:text-brand-gold transition-colors duration-300">
+                  <NoTranslate as="p" className="max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-white group-hover:text-brand-gold transition-colors duration-300">
                     {legalIdentity}
                   </NoTranslate>
                 </div>
@@ -174,8 +174,8 @@ export function Footer({
 
             {/* Headquarters */}
             <div>
-              <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.headquartersLabel}</h4>
-              <address className="not-italic text-xs text-brand-charcoal/70 leading-relaxed space-y-1">
+              <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.headquartersLabel}</h4>
+              <address className="not-italic text-xs text-brand-white/70 leading-relaxed space-y-1">
                 {addressLines.map((line, index) => (
                   <NoTranslate as="div" key={`${line}-${index}`}>{line}</NoTranslate>
                 ))}
@@ -187,16 +187,16 @@ export function Footer({
           {sections.map((section, idx) => (
             <div key={idx} className="md:col-span-1 lg:w-auto lg:flex-1 flex flex-col gap-10 min-w-0 order-3 lg:order-2">
               <div className="min-w-0">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{section.title}</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
                       <Link
                         href={toPublicHref(link.href)}
-                        className="text-sm text-brand-charcoal/80 hover:text-brand-charcoal transition-colors relative group py-1 inline-block break-words max-w-full"
+                        className="text-sm text-brand-white/80 hover:text-brand-white transition-colors relative group py-1 inline-block break-words max-w-full"
                       >
                         {link.label}
-                        <span className="absolute left-0 bottom-0 w-0 h-px bg-brand-charcoal/30 group-hover:w-full transition-all duration-500" />
+                        <span className="absolute left-0 bottom-0 w-0 h-px bg-brand-white/30 group-hover:w-full transition-all duration-500" />
                       </Link>
                     </li>
                   ))}
@@ -211,14 +211,14 @@ export function Footer({
             {/* Contact */}
             {contactLinks.length > 0 && (
               <div className="md:col-span-1 order-2 lg:order-none min-w-0">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.contactLabel}</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.contactLabel}</h4>
                 <div className="flex flex-col gap-3 min-w-0">
                   {contactLinks.map((link) =>
                     link.href ? (
                       <a
                         key={`${link.label}-${link.href}`}
                         href={link.href}
-                        className="w-fit max-w-full text-sm font-medium text-brand-charcoal/90 transition-colors group hover:text-brand-gold break-words"
+                        className="w-fit max-w-full text-sm font-medium text-brand-white/90 transition-colors group hover:text-brand-gold break-words"
                         style={{ overflowWrap: "anywhere" }}
                       >
                         <span className="relative inline-block">
@@ -227,7 +227,7 @@ export function Footer({
                         </span>
                       </a>
                     ) : (
-                      <p key={link.label} className="text-sm font-medium text-brand-charcoal/90 break-words" style={{ overflowWrap: "anywhere" }}>
+                      <p key={link.label} className="text-sm font-medium text-brand-white/90 break-words" style={{ overflowWrap: "anywhere" }}>
                         {link.protect ? <NoTranslate>{link.label}</NoTranslate> : link.label}
                       </p>
                     )
@@ -239,7 +239,7 @@ export function Footer({
             {/* Socials */}
             {socialLinks.length > 0 && (
               <div className="md:col-span-2 order-5 lg:order-none min-w-0 lg:mt-10">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted mb-4">{copy.socialsLabel}</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.socialsLabel}</h4>
                 <div className="flex flex-col gap-3">
                   {socialLinks.map((link) => {
                     const isKnownPlatform = isKnownSocialPlatform(link.platform);
@@ -250,7 +250,7 @@ export function Footer({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={toSocialLabel(link)}
-                        className="flex w-fit items-center gap-4 text-sm font-medium text-brand-charcoal/90 transition-colors group hover:text-brand-charcoal focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 focus:ring-offset-brand-off-white p-1 -ml-1 rounded"
+                        className="flex w-fit items-center gap-4 text-sm font-medium text-brand-white/90 transition-colors group hover:text-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 focus:ring-offset-brand-charcoal p-1 -ml-1 rounded"
                       >
                         {isKnownPlatform ? (
                           <SocialBrandIcon platform={link.platform} className="w-[16px] h-[16px] shrink-0" />
@@ -259,7 +259,7 @@ export function Footer({
                         )}
                         <span className="relative inline-block break-words max-w-[200px]">
                           <NoTranslate>{toSocialLabel(link)}</NoTranslate>
-                          <span className="absolute left-0 -bottom-1 w-0 h-px bg-brand-charcoal/30 group-hover:w-full transition-all duration-500" />
+                          <span className="absolute left-0 -bottom-1 w-0 h-px bg-brand-white/30 group-hover:w-full transition-all duration-500" />
                         </span>
                       </a>
                     );
@@ -273,12 +273,12 @@ export function Footer({
         </div>
 
         {/* BOTTOM SECTION: Typography & Copyright */}
-        <div className="flex flex-col items-center border-t border-brand-charcoal/10 pt-10 mt-8">
+        <div className="flex flex-col items-center border-t border-brand-white/10 pt-10 mt-8">
 
           <div className="w-full overflow-hidden flex justify-center mb-10 mt-0 select-none px-4">
             {/* The refined responsive lockup with slow highlight animation on the accent */}
             <NoTranslate as="h2"
-              className="text-[9vw] md:text-[8vw] lg:text-[7vw] xl:text-[85px] font-bold tracking-tight leading-[0.8] text-brand-charcoal text-center whitespace-nowrap pointer-events-none"
+              className="text-[9vw] md:text-[8vw] lg:text-[7vw] xl:text-[85px] font-bold tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
             >
               {wordmark.lead && (
                 <span className="inline-block mr-2 md:mr-3 lg:mr-4">{wordmark.lead}</span>
@@ -290,12 +290,12 @@ export function Footer({
           </div>
 
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8">
-            <p className="text-xs text-brand-muted uppercase tracking-[0.2em] text-center md:text-left">
+            <p className="text-xs text-brand-white/55 uppercase tracking-[0.2em] text-center md:text-left">
               {footerSettings.copyrightText}
             </p>
             <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-8 gap-y-4">
               {footerSettings.legalLinks.filter((link) => isSafeInternalHref(link.href)).map((link) => (
-                <Link key={link.label} href={toPublicHref(link.href)} className="text-xs text-brand-muted hover:text-brand-charcoal uppercase tracking-[0.2em] transition-colors">
+                <Link key={link.label} href={toPublicHref(link.href)} className="text-xs text-brand-white/55 hover:text-brand-gold uppercase tracking-[0.2em] transition-colors">
                   {link.label}
                 </Link>
               ))}

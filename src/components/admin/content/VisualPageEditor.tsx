@@ -18,7 +18,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, Code, Settings2, Save } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Copy, Trash2, Code, Settings2, Save } from "lucide-react";
 import { HeroEditor } from "./HeroEditor";
 import { BlockEditor } from "./BlockEditor";
 import {
@@ -152,10 +152,6 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
     setIsSaving(true);
     const heroPayload = JSON.parse(JSON.stringify(page.hero));
     // TEMPORARY diagnostic — trace hero state sent to server
-    console.log("[SAVE_DIAG] hero.videoId:", heroPayload?.videoId);
-    console.log("[SAVE_DIAG] hero.imageId:", heroPayload?.imageId);
-    console.log("[SAVE_DIAG] hero.posterImageId:", heroPayload?.posterImageId);
-    console.log("[SAVE_DIAG] hero.mobileImageId:", heroPayload?.mobileImageId);
     const { savePageAction } = await import("@/actions/content");
     const res = await savePageAction(
       page.id,
@@ -231,9 +227,6 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
                 </SortableContext>
               </DndContext>
 
-              <button className="w-full py-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:text-brand-black hover:border-brand-gold hover:bg-brand-gold/5 transition flex justify-center items-center gap-2 font-semibold text-sm">
-                <Plus className="w-4 h-4" /> Add Section
-              </button>
             </div>
           </div>
         )}

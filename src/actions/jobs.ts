@@ -1,10 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireCurrentAdminUser } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createJob(formData: FormData) {
+  // Server actions are callable endpoints: authenticate here, not only in the layout.
+  await requireCurrentAdminUser();
+
   const title = formData.get("title") as string;
   const slug = formData.get("slug") as string;
   const description = formData.get("description") as string;
@@ -46,6 +50,9 @@ export async function createJob(formData: FormData) {
 }
 
 export async function deleteJobAction(id: string) {
+  // Server actions are callable endpoints: authenticate here, not only in the layout.
+  await requireCurrentAdminUser();
+
   const job = await prisma.job.findUnique({ where: { id } });
   if (!job) throw new Error("Job not found");
 

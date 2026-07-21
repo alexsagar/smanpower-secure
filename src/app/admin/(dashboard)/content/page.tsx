@@ -31,7 +31,7 @@ export default async function AdminContentPage() {
                 Content Infrastructure
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-white">
               Website Pages
             </h1>
             <p className="text-white/60 text-lg max-w-xl leading-relaxed">
