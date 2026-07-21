@@ -79,8 +79,11 @@ async function getAdminPreviewData(blocks: Pick<CmsContentBlock, "blockType" | "
   };
 }
 
-export default async function PageEditor({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function PageEditor({ params }: { params: Promise<{ slug: string[] }> }) {
+  // Catch-all: CMS slugs contain "/" (e.g. "about/leadership"), so the route
+  // receives them as path segments and rejoins them into the stored slug.
+  const { slug: segments } = await params;
+  const slug = segments.join("/");
   
   const page = await prisma.cmsPage.findUnique({
     where: { slug },
