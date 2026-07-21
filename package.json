@@ -18,6 +18,7 @@
     "cms:import": "npx tsx src/scripts/cms-import.ts",
     "cms:audit": "npx tsx src/scripts/cms-audit.ts",
     "cms:repair-statistics": "npx tsx src/scripts/cms-repair-statistics.ts",
+    "cms:migrate-dynamic-pages": "npx tsx src/scripts/cms-migrate-dynamic-pages.ts",
     "admin:set-super-admin": "npx tsx src/scripts/set-super-admin.ts",
     "admin:create-user": "npx tsx src/scripts/create-user.ts",
     "admin:unlock-user": "npx tsx src/scripts/unlock-user.ts",

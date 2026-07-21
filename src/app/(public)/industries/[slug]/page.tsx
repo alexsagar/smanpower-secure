@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getContentBySlug, industriesContent } from "@/lib/content";
+import { industriesContent } from "@/lib/content";
+import { getDynamicPageContent } from "@/services/dynamic-page.service";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 export function generateStaticParams() {
@@ -11,7 +12,7 @@ import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const content = getContentBySlug("industries", slug);
+  const content = await getDynamicPageContent("industries", slug);
   if (!content) return buildPageMetadata({ path: `/industries/${slug}`, noIndex: true });
   
   return buildPageMetadata({
@@ -26,7 +27,7 @@ export default async function IndustriesDynamicPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const content = getContentBySlug("industries", slug);
+  const content = await getDynamicPageContent("industries", slug);
 
   if (!content) notFound();
 

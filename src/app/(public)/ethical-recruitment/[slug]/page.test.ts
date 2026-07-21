@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// The route now resolves content through the CMS service, which reaches the
+// server-only data layer on import.
+vi.mock("server-only", () => ({}));
 import { generateStaticParams } from "./page";
 
 describe("ethical recruitment dynamic route", () => {
