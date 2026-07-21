@@ -54,6 +54,7 @@ const DemandPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
   companyName: z.string().min(1, "Company Name is required"),
   companyLogoId: z.string().nullable().optional(),
+  featuredImageId: z.string().nullable().optional(),
   countryId: z.string().min(1, "Country is required"),
   industryId: z.string().nullable().optional(),
   city: z.string().nullable().optional(),
@@ -161,6 +162,7 @@ export async function createDemandAction(formData: FormData) {
               title: data.title,
               companyName: data.companyName,
               companyLogoId: data.companyLogoId || null,
+              featuredImageId: data.featuredImageId || null,
               countryId: data.countryId,
               industryId: data.industryId || null,
               city: data.city || null,
@@ -456,6 +458,7 @@ export async function updateDemandAction(id: string, formData: FormData) {
           title: data.title,
           companyName: data.companyName,
           companyLogoId: data.companyLogoId || null,
+              featuredImageId: data.featuredImageId || null,
           countryId: data.countryId,
           industryId: data.industryId || null,
           city: data.city || null,
@@ -528,7 +531,11 @@ export async function publishDemandAction(id: string) {
   if (DEMO_MODE) throw new Error("Cannot modify demands in demo mode.");
 
   const session = await auth();
-  
+
+  // Validation failures are returned, not thrown: Next redacts thrown Server Action
+  // errors in production builds, so on staging the admin only ever saw a generic
+  // "unexpected error" and could not tell what was blocking the publish.
+  try {
   const result = await prisma.$transaction(async (tx) => {
     // Validate it meets publish criteria (e.g., has positions)
     const demand = await tx.demand.findUnique({
@@ -570,7 +577,7 @@ export async function publishDemandAction(id: string) {
     }
 
     // Positions check
-    if (demand.positions.length === 0) throw new Error("NO_POSITIONS");
+    if (demand.positions.length === 0) throw new Error("At least one position is required to publish.");
     const validPos = demand.positions.some(p => 
       p.status === "OPEN" && 
       p.isPublic && 
@@ -610,6 +617,19 @@ export async function publishDemandAction(id: string) {
 
   revalidateDemandCaches(result.slug);
   return { success: true };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === "NOT_FOUND") {
+      return { success: false, formError: "Demand not found." };
+    }
+    console.error("Demand publish error:", err);
+    // Only surface our own validation messages; never leak driver/DB errors.
+    const isValidationError =
+      err instanceof Error && !(typeof (err as any).code === "string");
+    return {
+      success: false,
+      formError: isValidationError ? err.message : "Could not publish this demand.",
+    };
+  }
 }
 
 export async function closeDemandAction(id: string) {

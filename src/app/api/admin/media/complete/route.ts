@@ -9,6 +9,7 @@ import {
   isCloudinaryResourceTypeAllowedForPurpose,
   isAllowedExtensionForPurpose,
   isAllowedMimeTypeForPurpose,
+  cloudinaryMimeType,
 } from "@/lib/media-purposes";
 import cloudinary from "@/lib/cloudinary";
 import { logger } from "@/lib/logger";
@@ -254,7 +255,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to verify asset ownership or asset does not exist" }, { status: 400 });
     }
 
-    const verifiedMimeType = `${assetMeta.resource_type}/${assetMeta.format}`.toLowerCase();
+    const verifiedMimeType = cloudinaryMimeType(assetMeta.resource_type, assetMeta.format);
     const authoritativeResourceType = authoritativeMediaResourceTypeFromCloudinary(
       assetMeta.resource_type,
       verifiedMimeType

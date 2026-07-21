@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 describe("content resolver", () => {
   it("uses the demo repository only in allowed demo environments", async () => {
     vi.resetModules();

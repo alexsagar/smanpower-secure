@@ -193,8 +193,8 @@ export function DemandStep3Positions({ data, updateData }: { data: any; updateDa
                   </div>
                 </div>
 
-                <div className="md:col-span-8">
-                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Min Qualification</label>
+                <div className="md:col-span-4">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Min Qualification <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={pos.minimumQualification || ""}
@@ -203,7 +203,28 @@ export function DemandStep3Positions({ data, updateData }: { data: any; updateDa
                     placeholder="e.g. SLC pass or relevant experience"
                   />
                 </div>
+                {/* Required to publish: publishDemandAction rejects positions missing any of these three. */}
                 <div className="md:col-span-4">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Required Experience <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={pos.requiredExperience || ""}
+                    onChange={(e) => updatePosition(pos.id, "requiredExperience", e.target.value)}
+                    className="w-full border-brand-charcoal/20 rounded-sm text-sm"
+                    placeholder="e.g. 2 years, or 'Not required'"
+                  />
+                </div>
+                <div className="md:col-span-4">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Required Skills <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={pos.requiredSkills || ""}
+                    onChange={(e) => updatePosition(pos.id, "requiredSkills", e.target.value)}
+                    className="w-full border-brand-charcoal/20 rounded-sm text-sm"
+                    placeholder="e.g. Basic English, or 'Training provided'"
+                  />
+                </div>
+                <div className="md:col-span-12">
                   <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Other Benefits</label>
                   <input
                     type="text"

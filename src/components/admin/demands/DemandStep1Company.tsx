@@ -76,8 +76,21 @@ export function DemandStep1Company({ data, updateData }: { data: any; updateData
         <div className="row-span-2">
           <MediaInput
             label="Company Logo"
+            allowedResourceTypes={["IMAGE"]}
+            uploadPurpose="demand_image"
             value={data.companyLogoId || ""}
             onChange={(id) => updateData({ companyLogoId: id })}
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <MediaInput
+            label="Featured Image"
+            helperText="Optional. Shown at the top of the public demand page."
+            allowedResourceTypes={["IMAGE"]}
+            uploadPurpose="demand_image"
+            value={data.featuredImageId || ""}
+            onChange={(id) => updateData({ featuredImageId: id })}
           />
         </div>
 

@@ -1142,6 +1142,9 @@ export class PrismaContentRepository implements ContentRepository {
       companyLogo: r.companyLogo ? {
         ...mapPrismaMediaAsset(r.companyLogo as PrismaMediaRecord),
       } : undefined,
+      featuredImage: r.featuredImage ? {
+        ...mapPrismaMediaAsset(r.featuredImage as PrismaMediaRecord),
+      } : undefined,
       industry: r.industry?.name || undefined,
       industrySlug: r.industry?.slug || undefined,
       country: r.country?.name || "Unknown",
@@ -1231,6 +1234,7 @@ export class PrismaContentRepository implements ContentRepository {
       country: true,
       industry: true,
       companyLogo: true,
+      featuredImage: true,
       createdBy: { select: { name: true } },
       positions: { orderBy: { displayOrder: "asc" as const } },
       documents: { include: { mediaAsset: true } },

@@ -4,10 +4,11 @@ import Link from "next/link";
 import { getAdminMediaAssets, getAdminInsight } from "@/services/admin.service";
 import { notFound } from "next/navigation";
 
-export default async function EditInsightPage({ params }: { params: { id: string } }) {
+export default async function EditInsightPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const [assets, insight] = await Promise.all([
     getAdminMediaAssets(),
-    getAdminInsight(params.id)
+    getAdminInsight(resolvedParams.id)
   ]);
 
   if (!insight) {
