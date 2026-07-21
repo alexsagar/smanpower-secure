@@ -69,9 +69,17 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
                       </div>
                     </div>
 
-                    <h3 className="text-2xl font-semibold text-brand-charcoal group-hover:text-brand-white transition-colors duration-500 max-w-[200px] leading-tight">
-                      {industry.title}
-                    </h3>
+                    <div>
+                      <h3 className="text-2xl font-semibold text-brand-charcoal group-hover:text-brand-white transition-colors duration-500 max-w-[200px] leading-tight">
+                        {industry.title}
+                      </h3>
+                      {/* Optional: entries without a count keep the original layout. */}
+                      {industry.deploymentCount && (
+                        <p className="mt-3 font-serif italic text-xl text-brand-charcoal/60 group-hover:text-brand-gold transition-colors duration-500">
+                          {industry.deploymentCount}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                 </Link>
