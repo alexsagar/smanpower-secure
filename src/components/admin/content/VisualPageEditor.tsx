@@ -23,6 +23,12 @@ import { DynamicHero } from "@/components/cms/DynamicHero";
 import { AdminPreviewBlockRenderer } from "./AdminPreviewBlockRenderer";
 import { HeroEditor } from "./HeroEditor";
 import { BlockEditor } from "./BlockEditor";
+import {
+  blockCategoryClasses,
+  blockSummary,
+  blockTypeCategory,
+  blockTypeLabel,
+} from "@/lib/cms/block-labels";
 import { toast } from "sonner";
 import type { AdminPreviewData } from "@/types/admin-preview";
 
@@ -64,17 +70,6 @@ function SortableBlockItem({
     transition,
   };
 
-  const getBlockSummary = () => {
-    switch (block.blockType) {
-      case "editorial": return block.content?.title || "Editorial Block";
-      case "manifesto": return block.content?.subtitle || "Manifesto Block";
-      case "statistics": return `${block.content?.stats?.length || 0} statistics`;
-      case "pillarGrid": return `${block.content?.pillars?.length || 0} pillars`;
-      case "serviceList": return `${block.content?.services?.length || 0} services`;
-      default: return `${block.blockType} block`;
-    }
-  };
-
   return (
     <div
       ref={setNodeRef}
@@ -93,10 +88,13 @@ function SortableBlockItem({
       <div className="flex-1 p-4 flex items-center justify-between">
         <div className="flex-1 cursor-pointer" onClick={() => onEdit(block)}>
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold text-sm capitalize">{block.blockType.replace(/([A-Z])/g, ' $1').trim()}</h4>
+            <h4 className="font-semibold text-sm">{blockTypeLabel(block.blockType)}</h4>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${blockCategoryClasses(blockTypeCategory(block.blockType))}`}>
+              {blockTypeCategory(block.blockType)}
+            </span>
             {!block.visible && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Hidden</span>}
           </div>
-          <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{getBlockSummary()}</p>
+          <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{blockSummary(block)}</p>
         </div>
         <div className="flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
           <button onClick={() => onEdit(block)} className="p-2 text-gray-500 hover:text-brand-black hover:bg-gray-100 rounded">

@@ -4,6 +4,7 @@ import React from "react";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
 import { MediaInput } from "@/components/admin/MediaInput";
 import { ChevronLeft } from "lucide-react";
+import { blockTypeLabel } from "@/lib/cms/block-labels";
 import {
   ContentFieldEditor,
   humanizeKey,
@@ -39,9 +40,7 @@ export function BlockEditor({
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded text-gray-500">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h3 className="font-semibold capitalize">
-          {block.blockType.replace(/([A-Z])/g, " $1").trim()} Editor
-        </h3>
+        <h3 className="font-semibold">{blockTypeLabel(block.blockType)}</h3>
       </div>
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
