@@ -432,6 +432,91 @@ export const requestWorkforceCopy = {
   ],
 };
 
+// ── Collection wrappers ───────────────────────────────────────
+// Surrounding copy only; collection queries, filters and card rendering are
+// untouched.
+
+export const demandsCopy = {
+  badge: "Global Opportunities",
+  headingLead: "Foreign Job Demands ",
+  headingHighlight: "in Nepal.",
+  intro:
+    "Browse published foreign job demands shared by Seven Seas Intercontinental. Each demand includes position details, transparent fee structures, and worker-safety guidance for official applications.",
+  filtersLoading: "Loading filters...",
+  emptyState: {
+    heading: "No Demands Found",
+    body: "We couldn't find any demands matching your current filters. Please try adjusting your search criteria.",
+  },
+};
+
+export const successStoriesCopy = {
+  hero: {
+    title: "Impact Beyond Placement.",
+    subtitle: "Success Stories",
+    imageSrc: "/images/hero_training_orientation_1782920391505.png",
+  },
+  intro: {
+    eyebrow: "Real Results",
+    heading: "The human proof of ethical recruitment.",
+    body: "We measure our success not just by the numbers deployed, but by the lives uplifted and the businesses propelled forward. Read the accounts of those who have experienced the Seven Seas standard.",
+  },
+  emptyState: "More stories coming soon.",
+  readMoreLabel: "Read Full Story &rarr;",
+  cta: {
+    headingLead: "Write your own ",
+    headingHighlight: "success story.",
+    body: "Whether you are an employer seeking reliable talent or a candidate looking for a life-changing opportunity, we are ready to partner with you.",
+    buttonLabel: "Start Your Journey",
+  },
+};
+
+export const demandDetailCopy = {
+  privateBadge: "Draft / Private",
+  backLabel: "Back to List",
+  applyLabel: "Apply Job",
+  positions: {
+    heading: "Available Positions",
+    subtitle: "Review the details and salary information for each vacancy.",
+  },
+  documents: {
+    heading: "Official Documents",
+    subtitle: "Verified demand letters and approval documents.",
+  },
+  notices: {
+    safetyHeading: "Candidate Safety Notice",
+    feeHeading: "Fee Transparency",
+  },
+  applyPage: {
+    backLabel: "Back to Demand",
+    heading: "Candidate Application",
+  },
+};
+
+export const careerDetailCopy = {
+  employmentTypeLabel: "Employment Type",
+  responsibilitiesHeading: "Responsibilities",
+  applyByEmailLabel: "Apply by Email",
+};
+
+export const searchCopy = {
+  prompt: {
+    heading: "Enter a search term",
+    body: "Search across our global job openings, success stories, and facilities.",
+  },
+  noResults: {
+    // Rendered as: headingLead + the visitor's query + headingTrail
+    headingLead: "No exact matches found for \"",
+    headingTrail: "\"",
+    body: "Try using different keywords or check out our latest jobs below.",
+  },
+  sectionHeadings: {
+    jobs: "Active Jobs",
+    stories: "Success Stories",
+    facilities: "Facilities",
+    industries: "Industries",
+  },
+};
+
 /** CMS page slug -> the default copy that page renders today. */
 export const PAGE_COPY_DEFAULTS = {
   "privacy-policy": privacyPolicyCopy,
@@ -447,6 +532,11 @@ export const PAGE_COPY_DEFAULTS = {
   contact: contactCopy,
   "worker-grievance": workerGrievanceCopy,
   "employers/request-workforce": requestWorkforceCopy,
+  demands: demandsCopy,
+  "success-stories": successStoriesCopy,
+  "demands/detail": demandDetailCopy,
+  "careers/detail": careerDetailCopy,
+  search: searchCopy,
 } as const;
 
 export type PageCopySlug = keyof typeof PAGE_COPY_DEFAULTS;

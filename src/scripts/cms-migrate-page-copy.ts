@@ -13,6 +13,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { PAGE_COPY_DEFAULTS } from "@/lib/page-copy";
+import { talentDashboardDefaults } from "@/lib/talent-dashboard-content";
 
 const prisma = new PrismaClient();
 
@@ -150,8 +151,42 @@ async function migrate(dryRun: boolean) {
     console.log(`[NEW]     ${slug}`);
   }
 
+  // The homepage map_intelligence block renders TalentDashboard, whose content
+  // was previously hardcoded. Seed/backfill it from the same defaults.
+  const mapBlocks = await prisma.cmsContentBlock.findMany({
+    where: { blockType: "map_intelligence" },
+    include: { page: { select: { slug: true } } },
+  });
+
+  for (const block of mapBlocks) {
+    const current =
+      typeof block.content === "string" ? JSON.parse(block.content) : block.content;
+    const merged = backfillMissing(talentDashboardDefaults, current ?? {});
+    const label = `${block.page?.slug ?? "?"} / map_intelligence`;
+
+    if (deepEqual(merged, current)) {
+      unchanged++;
+      console.log(`[SAME]    ${label}`);
+      continue;
+    }
+
+    if (dryRun) {
+      backfilled++;
+      console.log(`[DRY-ADD] ${label}`);
+      continue;
+    }
+
+    await prisma.cmsContentBlock.update({
+      where: { id: block.id },
+      data: { content: merged as never },
+    });
+    backfilled++;
+    console.log(`[ADD]     ${label}`);
+  }
+
   console.log(
-    `\n${dryRun ? "Would create" : "Created"} ${created}, unchanged ${unchanged}.`
+    `\n${dryRun ? "Would create" : "Created"} ${created}, ` +
+      `${dryRun ? "would backfill" : "backfilled"} ${backfilled}, unchanged ${unchanged}.`
   );
 }
 

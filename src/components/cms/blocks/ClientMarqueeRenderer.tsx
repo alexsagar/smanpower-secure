@@ -19,8 +19,19 @@ export function ClientMarqueeRenderer({
   const heading = content.heading || "Global Network";
   const subheading = content.subheading || "Companies and group entities connected with our recruitment network";
   
-  // Clean heading formatting - fallback handles "Trusted by..." if it somehow sneaks in
-  const cleanHeading = heading.replace('Partners', '');
+  // The highlighted tail of the heading is an explicit CMS field. It falls back
+  // to the previous behaviour of detecting the word "Partners" so existing
+  // content renders unchanged, instead of silently rewriting an editor's text.
+  const headingHighlight =
+    typeof content.headingHighlight === "string"
+      ? content.headingHighlight
+      : heading.includes('Partners')
+        ? 'Partners'
+        : '';
+  const cleanHeading =
+    typeof content.headingLead === "string"
+      ? content.headingLead
+      : heading.replace(headingHighlight, '');
 
   return (
     <section className="py-16 lg:py-24 bg-brand-white border-t border-brand-charcoal/5 relative overflow-hidden">
@@ -28,7 +39,7 @@ export function ClientMarqueeRenderer({
         <ScrollReveal>
           <h2 className="text-3xl md:text-4xl font-light text-brand-black mb-4">
             {cleanHeading} 
-            {heading.includes('Partners') && <span className="font-serif italic text-brand-gold">Partners</span>}
+            {headingHighlight && <span className="font-serif italic text-brand-gold">{headingHighlight}</span>}
           </h2>
           {subheading && (
             <p className="text-brand-charcoal/60 text-sm uppercase tracking-widest font-bold">{subheading}</p>

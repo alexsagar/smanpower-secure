@@ -1,4 +1,5 @@
 import React from "react";
+import { getPageCopy } from "@/services/page-copy.service";
 import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
@@ -49,6 +50,7 @@ export async function generateMetadata(
 }
 
 export default async function DemandDetailPage({ params }: Props) {
+  const copy = await getPageCopy("demands/detail");
   const { slug } = await params;
   const demand = await getDemandBySlug(slug);
 
@@ -103,7 +105,7 @@ export default async function DemandDetailPage({ params }: Props) {
                 <DemandStatusBadgeComponent status={demand.statusBadge} />
                 {!demand.isPublic && (
                   <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wider">
-                    Draft / Private
+                    {copy.privateBadge}
                   </span>
                 )}
               </div>
@@ -117,14 +119,14 @@ export default async function DemandDetailPage({ params }: Props) {
                 href="/demands"
                 className="flex items-center justify-center gap-2 px-6 py-3 border border-brand-charcoal/20 text-brand-charcoal hover:bg-brand-charcoal/5 transition-colors text-sm font-semibold uppercase tracking-wider bg-white shadow-sm"
               >
-                <ArrowLeft className="w-4 h-4" /> Back to List
+                <ArrowLeft className="w-4 h-4" /> {copy.backLabel}
               </Link>
               {process.env.PUBLIC_APPLICATIONS_ENABLED === 'true' && demand.enableApplication && !isClosed && (
                 <Link
                   href={`/demands/${demand.slug}/apply`}
                   className="flex items-center justify-center bg-brand-gold text-brand-white px-8 py-3 text-sm font-bold uppercase tracking-wider hover:bg-brand-gold/90 transition-colors shadow-sm"
                 >
-                  Apply Job
+                  {copy.applyLabel}
                 </Link>
               )}
             </div>
@@ -146,8 +148,8 @@ export default async function DemandDetailPage({ params }: Props) {
         <div className="mb-16">
           <div className="flex items-end justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold font-serif text-brand-black">Available Positions</h2>
-              <p className="text-brand-charcoal/70 mt-1">Review the details and salary information for each vacancy.</p>
+              <h2 className="text-2xl font-bold font-serif text-brand-black">{copy.positions.heading}</h2>
+              <p className="text-brand-charcoal/70 mt-1">{copy.positions.subtitle}</p>
             </div>
           </div>
 
@@ -167,8 +169,8 @@ export default async function DemandDetailPage({ params }: Props) {
         {hasDocuments && (
           <div className="mb-16">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold font-serif text-brand-black">Official Documents</h2>
-              <p className="text-brand-charcoal/70 mt-1">Verified demand letters and approval documents.</p>
+              <h2 className="text-2xl font-bold font-serif text-brand-black">{copy.documents.heading}</h2>
+              <p className="text-brand-charcoal/70 mt-1">{copy.documents.subtitle}</p>
             </div>
 
             <DemandDocumentViewer documents={demand.documents} />
@@ -180,7 +182,7 @@ export default async function DemandDetailPage({ params }: Props) {
           <div className="bg-red-50 border border-red-100 p-6 rounded-sm flex gap-4">
             <ShieldAlert className="w-8 h-8 text-red-600 shrink-0" />
             <div>
-              <h3 className="font-bold text-red-900 mb-2">Candidate Safety Notice</h3>
+              <h3 className="font-bold text-red-900 mb-2">{copy.notices.safetyHeading}</h3>
               <p className="text-sm text-red-800">
                 {demand.candidateSafetyNotice || "Do not make any payment to individuals claiming to represent Seven Seas Intercontinental. Only pay official service fees at our main office and always demand a computer-generated receipt."}
               </p>
@@ -190,7 +192,7 @@ export default async function DemandDetailPage({ params }: Props) {
           <div className="bg-blue-50 border border-blue-100 p-6 rounded-sm flex gap-4">
             <ShieldAlert className="w-8 h-8 text-blue-600 shrink-0" />
             <div>
-              <h3 className="font-bold text-blue-900 mb-2">Fee Transparency</h3>
+              <h3 className="font-bold text-blue-900 mb-2">{copy.notices.feeHeading}</h3>
               <p className="text-sm text-blue-800">
                 {demand.feeTransparencyNotice || "Seven Seas Intercontinental operates in strict compliance with the Government of Nepal's foreign employment guidelines regarding service fees and costs."}
               </p>
