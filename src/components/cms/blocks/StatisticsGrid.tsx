@@ -14,7 +14,7 @@ export function StatisticsGrid({ stats }: { stats: CmsStatistic[] }) {
             <div key={stat.id} className="relative p-10 lg:p-14 border-b border-brand-charcoal/10 md:border-r lg:[&:nth-child(3n)]:border-r-0 group overflow-hidden flex flex-col justify-between min-h-[300px] lg:min-h-[350px]">
               <div className="absolute inset-0 bg-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="relative z-10 flex justify-between items-start">
-                <span className="text-brand-black/40 text-[10px] font-semibold tracking-[0.3em] uppercase group-hover:text-brand-black transition-colors duration-500">
+                <span className="font-brand text-brand-black/40 text-[10px] font-semibold tracking-[0.3em] uppercase group-hover:text-brand-black transition-colors duration-500">
                   {stat.label}
                 </span>
                 <span className="text-brand-black/20 text-[10px] font-mono">0{i + 1}</span>
@@ -26,7 +26,7 @@ export function StatisticsGrid({ stats }: { stats: CmsStatistic[] }) {
                 </span>
               </div>
               <div className="absolute bottom-10 left-10 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
-                <span className="text-brand-gold text-[10px] tracking-[0.2em] uppercase font-bold">{stat.description}</span>
+                <span className="font-brand text-brand-gold text-[10px] tracking-[0.2em] uppercase font-semibold">{stat.description}</span>
               </div>
             </div>
           ))}
