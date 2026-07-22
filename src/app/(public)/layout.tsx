@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleTranslateScript } from "@/components/layout/GoogleTranslateScript";
 import { FirstVisitLoader } from "@/components/loading/FirstVisitLoader";
+import { publicFontVariables } from "@/lib/fonts";
 import "@/app/globals.css";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -31,9 +32,13 @@ export default async function PublicLayout({
   const orgSchema = buildOrganizationSchema();
 
   return (
-    <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      className={`h-full antialiased ${publicFontVariables}`}
+      data-scroll-behavior="smooth"
+    >
       <body
-        className="min-h-full flex flex-col font-sans bg-brand-white text-brand-charcoal"
+        className="brand-headings min-h-full flex flex-col font-sans bg-brand-white text-brand-charcoal"
         suppressHydrationWarning
       >
         {orgSchema && (

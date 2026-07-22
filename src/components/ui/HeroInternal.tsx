@@ -71,13 +71,13 @@ export function HeroInternal({
           <div className="flex flex-col items-center mb-8">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-8 h-px bg-brand-gold/50" />
-              <span className="text-brand-gold text-[10px] font-semibold tracking-[0.4em] uppercase">
+              <span className="font-brand text-brand-gold text-[10px] font-semibold tracking-[0.4em] uppercase">
                 Seven Seas Intercontinental
               </span>
               <div className="w-8 h-px bg-brand-gold/50" />
             </div>
           </div>
-          <h1 className="text-brand-white font-bold tracking-tighter text-5xl md:text-6xl lg:text-[6rem] leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl">
+          <h1 className="font-heading text-brand-white font-light tracking-tighter text-5xl md:text-6xl lg:text-[6rem] leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl">
             {title}
           </h1>
         </ScrollReveal>

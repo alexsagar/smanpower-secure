@@ -9,7 +9,18 @@
   --color-brand-muted: #77736A;
   --color-brand-white: #FFFFFF;
 
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Semantic typography. next/font supplies the family names; the fallbacks
+     keep every surface rendering if a face fails to load.
+
+       font-body / font-sans  -> Inter          (copy, forms, tables, admin)
+       font-brand / font-heading -> Science Gothic (branding surfaces only)
+
+     Consume these through the utilities, not by naming a family directly, so
+     the faces can be changed in one place. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: var(--font-sans);
+  --font-brand: var(--font-science-gothic), var(--font-sans);
+  --font-heading: var(--font-brand);
 
 }
 
@@ -57,6 +68,26 @@
   a {
     @apply transition-colors duration-200;
   }
+}
+
+/* Display headings: the brand face at ExtraLight.
+ *
+ * Deliberately UNLAYERED so it beats the font-bold / font-semibold utilities
+ * already sitting on headings across the site. Science Gothic is only loaded
+ * at 200-400, so leaving those utilities in force would make the browser
+ * synthesise a fake bold — heavier and wider than the real thing, which is
+ * exactly what we are avoiding.
+ *
+ * Scope is h1/h2 inside .brand-headings (the public site only — the admin
+ * dashboard keeps Inter at its own weights). h3-h6 are card and UI titles and
+ * 200 is too fragile at those sizes, so they are left alone. `.font-serif` is
+ * excluded so the existing serif treatments are untouched. To opt a heading
+ * out, give it `.font-serif` or an inline style.
+ */
+.brand-headings h1:not(.font-serif),
+.brand-headings h2:not(.font-serif) {
+  font-family: var(--font-heading);
+  font-weight: 300;
 }
 
 @layer components {
