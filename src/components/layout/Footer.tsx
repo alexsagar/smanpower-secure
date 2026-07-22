@@ -129,7 +129,7 @@ export function Footer({
         {(footerSettings.ctaText || footerSettings.tagline) && (
           <div className="mb-16 md:mb-24 flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
             <div className="md:w-3/5 lg:w-1/2">
-              <h2 className="text-4xl md:text-5xl font-light tracking-tighter text-brand-white leading-[1.1]">
+              <h2 className="font-brand text-4xl md:text-5xl font-light tracking-tighter text-brand-white leading-[1.1]">
                 {footerSettings.tagline}
               </h2>
             </div>
@@ -174,7 +174,7 @@ export function Footer({
 
             {/* Headquarters */}
             <div>
-              <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.headquartersLabel}</h4>
+              <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.headquartersLabel}</h4>
               <address className="not-italic text-xs text-brand-white/70 leading-relaxed space-y-1">
                 {addressLines.map((line, index) => (
                   <NoTranslate as="div" key={`${line}-${index}`}>{line}</NoTranslate>
@@ -187,7 +187,7 @@ export function Footer({
           {sections.map((section, idx) => (
             <div key={idx} className="md:col-span-1 lg:w-auto lg:flex-1 flex flex-col gap-10 min-w-0 order-3 lg:order-2">
               <div className="min-w-0">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{section.title}</h4>
+                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
@@ -211,7 +211,7 @@ export function Footer({
             {/* Contact */}
             {contactLinks.length > 0 && (
               <div className="md:col-span-1 order-2 lg:order-none min-w-0">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.contactLabel}</h4>
+                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.contactLabel}</h4>
                 <div className="flex flex-col gap-3 min-w-0">
                   {contactLinks.map((link) =>
                     link.href ? (
@@ -239,7 +239,7 @@ export function Footer({
             {/* Socials */}
             {socialLinks.length > 0 && (
               <div className="md:col-span-2 order-5 lg:order-none min-w-0 lg:mt-10">
-                <h4 className="text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.socialsLabel}</h4>
+                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.socialsLabel}</h4>
                 <div className="flex flex-col gap-3">
                   {socialLinks.map((link) => {
                     const isKnownPlatform = isKnownSocialPlatform(link.platform);
@@ -277,8 +277,10 @@ export function Footer({
 
           <div className="w-full overflow-hidden flex justify-center mb-10 mt-0 select-none px-4">
             {/* The refined responsive lockup with slow highlight animation on the accent */}
+            {/* The gold accent keeps its serif italic treatment via its own
+                font-serif class, so the lockup's two-face contrast survives. */}
             <NoTranslate as="h2"
-              className="text-[9vw] md:text-[8vw] lg:text-[7vw] xl:text-[85px] font-bold tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
+              className="font-brand text-[9vw] md:text-[8vw] lg:text-[7vw] xl:text-[85px] font-light tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
             >
               {wordmark.lead && (
                 <span className="inline-block mr-2 md:mr-3 lg:mr-4">{wordmark.lead}</span>

@@ -87,10 +87,10 @@ export function Header({
                   : "text-brand-charcoal"
               )}
             >
-              <span className="block text-base font-semibold tracking-wide uppercase leading-none">
+              <span className="font-brand block text-base font-semibold tracking-wide uppercase leading-none">
                 {copy.wordmarkLead}
               </span>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-brand-gold mt-1.5">
+              <p className="font-brand text-[10px] uppercase tracking-[0.25em] text-brand-gold mt-1.5">
                 {copy.wordmarkAccent}
               </p>
             </div>
@@ -107,7 +107,11 @@ export function Header({
             >
               <button
                 className={cn(
-                  "relative py-2 text-[11px] font-semibold uppercase tracking-widest flex items-center gap-1",
+                  // Science Gothic runs wider than Inter, so the labels are set
+                  // at 10px/400 with tighter tracking. Measured total is 768px
+                  // against 773px for the previous Inter 11px/600 setting, so
+                  // the nav takes no more room than before.
+                  "font-brand relative py-2 text-[10px] font-normal uppercase tracking-wider flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
@@ -245,7 +249,7 @@ export function Header({
                     onClick={() =>
                       setActiveMobileDropdown(activeMobileDropdown === key ? null : key)
                     }
-                    className="w-full flex items-center justify-between py-4 text-left font-semibold uppercase tracking-wider text-sm text-brand-black"
+                    className="font-brand w-full flex items-center justify-between py-4 text-left font-semibold uppercase tracking-wider text-sm text-brand-black"
                   >
                     {section.label}
                     <ChevronDown
