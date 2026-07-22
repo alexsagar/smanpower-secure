@@ -67,7 +67,7 @@ export function Header({
       )}
       onMouseLeave={() => setActiveDesktopDropdown(null)}
     >
-      <div className="w-full px-6 lg:px-12 h-24 lg:h-28 flex items-center justify-between">
+      <div className="w-full px-6 lg:px-12 h-24 lg:h-28 flex items-center justify-between relative">
         {/* Logo */}
         <Link href="/" className="relative z-50 group shrink-0">
           <NoTranslate className="flex items-center gap-3">
@@ -90,7 +90,13 @@ export function Header({
               <span className="font-brand block text-base font-semibold tracking-wide uppercase leading-none">
                 {copy.wordmarkLead}
               </span>
-              <p className="font-brand text-[10px] uppercase tracking-[0.25em] text-brand-gold mt-1.5">
+              <div className={cn(
+                "h-[1px] w-full my-1.5 transition-colors duration-300",
+                !scrolled && !activeDesktopDropdown && pathname === "/"
+                  ? "bg-brand-gold/50"
+                  : "bg-brand-gold/70"
+              )} />
+              <p className="font-brand text-[10px] uppercase tracking-[0.25em] text-brand-gold">
                 {copy.wordmarkAccent}
               </p>
             </div>
@@ -98,7 +104,7 @@ export function Header({
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-4 xl:gap-5 h-full">
+        <nav className="hidden lg:flex flex-1 justify-center items-center gap-4 xl:gap-6 px-4 h-full whitespace-nowrap overflow-hidden">
           {Object.entries(navConfig).map(([key, section]) => (
             <div
               key={key}
@@ -108,10 +114,8 @@ export function Header({
               <button
                 className={cn(
                   // Science Gothic runs wider than Inter, so the labels are set
-                  // at 10px/400 with tighter tracking. Measured total is 768px
-                  // against 773px for the previous Inter 11px/600 setting, so
-                  // the nav takes no more room than before.
-                  "font-brand relative py-2 text-[10px] font-normal uppercase tracking-wider flex items-center gap-1",
+                  // smaller with tracking to look elegant and save horizontal space.
+                  "font-brand relative py-2 font-medium uppercase tracking-widest flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
@@ -122,6 +126,7 @@ export function Header({
                     ? "text-brand-white/90 hover:text-brand-white"
                     : "text-brand-charcoal hover:text-brand-gold"
                 )}
+                style={{ fontSize: "8px" }}
               >
                 {section.label}
               </button>

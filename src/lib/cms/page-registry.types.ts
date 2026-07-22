@@ -9,6 +9,7 @@ export type CmsBlockTypeId =
   | "map_intelligence"
   | "trust_centre"
   | "community"
+  | "testimonial"
   | "client_marquee"
   | "story_grid"
   | "insight_preview"

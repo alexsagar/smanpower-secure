@@ -312,6 +312,21 @@ describe("savePageAction", () => {
     );
   });
 
+  it("persists rich-text style marks without rewriting their serialized content", async () => {
+    prisma.mediaAsset.findMany.mockResolvedValue([]);
+    const richHeading = {
+      type: "doc",
+      content: [{ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Trusted", marks: [{ type: "brandStyle", attrs: { preset: "gold-emphasis" } }] }] }],
+    };
+    const { savePageAction } = await import("./content");
+
+    await savePageAction("page-1", "about", { id: "hero-1", richHeading, overlayEnabled: true }, []);
+
+    expect(tx.cmsHeroSection.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ richHeading }),
+    }));
+  });
+
   // The schema default is true; `?? false` silently disabled the overlay on any
   // hero saved while the field had no editor control.
   it("defaults overlayEnabled to true rather than false when unset", async () => {

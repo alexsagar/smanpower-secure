@@ -304,6 +304,35 @@ export interface CmsSocialLink {
   order: number;
 }
 
+export type AiServiceId = "chatgpt" | "gemini" | "claude" | "perplexity";
+
+export type AiServiceConfig = {
+  id: AiServiceId;
+  enabled: boolean;
+  order: number;
+  behavior: "prefilled-link" | "copy-and-open";
+  baseUrl: string;
+};
+
+export type CmsAiSummarySettings = {
+  heading: string;
+  companyUrl: string;
+  basePrompt: string;
+  services: Array<{
+    id: AiServiceId;
+    enabled: boolean;
+    order: number;
+  }>;
+};
+
+export type CmsFooterCertificationLogo = {
+  imageUrl: string;
+  accessibleName: string;
+  href?: string;
+  order: number;
+  enabled: boolean;
+};
+
 export interface CmsFooterSettings {
   tagline: string;
   ctaText: string;
@@ -315,6 +344,8 @@ export interface CmsFooterSettings {
   socialLinks?: CmsSocialLink[];
   legalLinks: { label: string; href: string }[];
   copyrightText: string;
+  aiSummary?: CmsAiSummarySettings;
+  certificationLogos?: CmsFooterCertificationLogo[];
 }
 
 // ── Domain Content ────────────────────────────────────────────

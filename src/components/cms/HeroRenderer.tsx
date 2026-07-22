@@ -1,5 +1,6 @@
 import React from "react";
 import { HeroInternal } from "@/components/ui/HeroInternal";
+import { RichTextRenderer } from "@/components/cms/RichTextRenderer";
 import type { CmsHeroSection } from "@/types/content";
 
 interface HeroRendererProps {
@@ -9,22 +10,9 @@ interface HeroRendererProps {
   fallbackImage: string;
 }
 
-function extractTextFromRichHeading(richHeading: any): string {
-  if (!richHeading || typeof richHeading !== 'object') return "";
-  let text = "";
-  if (richHeading.type === 'text' && richHeading.text) {
-    return richHeading.text;
-  }
-  if (Array.isArray(richHeading.content)) {
-    for (const node of richHeading.content) {
-      text += extractTextFromRichHeading(node);
-    }
-  }
-  return text;
-}
-
 export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackImage }: HeroRendererProps) {
-  let title = fallbackTitle;
+  const title = fallbackTitle;
+  let richTitle: React.ReactNode;
   let subtitle = fallbackSubtitle;
   let imageSrc = fallbackImage;
   let videoSrc: string | undefined;
@@ -32,10 +20,7 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
   let mobileFallbackSrc: string | undefined;
 
   if (hero) {
-    if (hero.richHeading) {
-      const extracted = extractTextFromRichHeading(hero.richHeading);
-      if (extracted) title = extracted;
-    }
+    if (hero.richHeading?.content?.length) richTitle = <RichTextRenderer content={hero.richHeading} />;
     if (hero.eyebrow) {
       subtitle = hero.eyebrow;
     }
@@ -54,6 +39,7 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
   return (
     <HeroInternal 
       title={title}
+      richTitle={richTitle}
       subtitle={subtitle}
       imageSrc={imageSrc}
       videoSrc={videoSrc}

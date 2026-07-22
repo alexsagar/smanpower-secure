@@ -71,6 +71,11 @@ const DEFAULT_FOOTER_SETTINGS: CmsFooterSettings = {
     { label: "Worker Grievance", href: "/worker-grievance" },
   ],
   copyrightText: `Copyright ${new Date().getFullYear()} Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved.`,
+  certificationLogos: [
+    { imageUrl: "/images/sedex.png", accessibleName: "Sedex", enabled: true, order: 1 },
+    { imageUrl: "/images/rba.png", accessibleName: "Responsible Business Alliance", enabled: true, order: 2 },
+    { imageUrl: "/images/iso.png", accessibleName: "ISO 9001:2015 Certified", enabled: true, order: 3 },
+  ],
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -610,7 +615,7 @@ export class PrismaContentRepository implements ContentRepository {
       prisma.siteSetting.findMany({
         where: {
           key: {
-            in: ["footer_mission", "footer_cta", "footer_legal_links", "footer_copyright", "footer_social_links"],
+            in: ["footer_mission", "footer_cta", "footer_legal_links", "footer_copyright", "footer_social_links", "footer_ai_summary_config", "footer_certification_logos"],
           },
         },
       }),
@@ -636,6 +641,19 @@ export class PrismaContentRepository implements ContentRepository {
         }))
     }));
 
+    const aiSummaryRaw = settingMap.get("footer_ai_summary_config");
+    let aiSummary: CmsFooterSettings["aiSummary"];
+    if (aiSummaryRaw) {
+      try {
+        const parsed = typeof aiSummaryRaw === "string" ? JSON.parse(aiSummaryRaw) : aiSummaryRaw;
+        if (parsed && typeof parsed === "object") {
+          aiSummary = parsed as CmsFooterSettings["aiSummary"];
+        }
+      } catch {
+        // ignore parsing error
+      }
+    }
+
     return {
       tagline: readString(settingMap.get("footer_mission")) || DEFAULT_FOOTER_SETTINGS.tagline,
       ctaText: ctaText && ctaHref ? ctaText : DEFAULT_FOOTER_SETTINGS.ctaText,
@@ -649,7 +667,11 @@ export class PrismaContentRepository implements ContentRepository {
       legalLinks: readLinkList(
         safeJsonParse(settingMap.get("footer_legal_links"), "footer_legal_links", []),
         DEFAULT_FOOTER_SETTINGS.legalLinks
-      )
+      ),
+      aiSummary,
+      certificationLogos: Array.isArray(safeJsonParse(settingMap.get("footer_certification_logos"), "footer_certification_logos", null))
+        ? safeJsonParse(settingMap.get("footer_certification_logos"), "footer_certification_logos", []) as CmsFooterSettings["certificationLogos"]
+        : DEFAULT_FOOTER_SETTINGS.certificationLogos,
     };
   }
 

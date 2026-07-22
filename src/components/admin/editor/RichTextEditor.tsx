@@ -5,7 +5,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Extension, Mark } from "@tiptap/core";
 import {
   Bold,
   Italic,
@@ -18,83 +17,7 @@ import {
   Heading3
 } from "lucide-react";
 import type { TiptapContent, TextStylePreset } from "@/types/content";
-
-// Custom extension to handle our brand style presets
-const BrandStyle = Mark.create({
-  name: 'brandStyle',
-  
-  addAttributes() {
-    return {
-      preset: {
-        default: 'default-body',
-        parseHTML: (element: any) => element.getAttribute('data-text-style'),
-        renderHTML: (attributes: any) => {
-          if (!attributes.preset) return {};
-          return { 'data-text-style': attributes.preset };
-        }
-      }
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: 'span[data-text-style]',
-      },
-    ]
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['span', HTMLAttributes, 0]
-  },
-  
-  addCommands() {
-    return {
-      setBrandStyle: (preset: TextStylePreset) => ({ commands }: { commands: any }) => {
-        return commands.setMark('brandStyle', { preset });
-      },
-      removeBrandStyle: () => ({ commands }: { commands: any }) => {
-        return commands.unsetMark('brandStyle');
-      }
-    } as any;
-  }
-});
-
-const FontSize = Mark.create({
-  name: 'fontSize',
-  addAttributes() {
-    return {
-      sizeClass: {
-        default: null,
-        parseHTML: (element: any) => element.getAttribute('data-font-size'),
-        renderHTML: (attributes: any) => {
-          if (!attributes.sizeClass) return {};
-          return { 'data-font-size': attributes.sizeClass };
-        }
-      }
-    };
-  },
-  parseHTML() {
-    return [
-      {
-        tag: 'span[data-font-size]',
-      },
-    ]
-  },
-  renderHTML({ HTMLAttributes }) {
-    return ['span', HTMLAttributes, 0]
-  },
-  addCommands() {
-    return {
-      setFontSize: (sizeClass: string) => ({ commands }: { commands: any }) => {
-        return commands.setMark('fontSize', { sizeClass });
-      },
-      removeFontSize: () => ({ commands }: { commands: any }) => {
-        return commands.unsetMark('fontSize');
-      }
-    } as any;
-  }
-});
+import { BrandStyle, FontSize } from "./rich-text-extensions";
 
 interface RichTextEditorProps {
   initialContent?: TiptapContent;
@@ -104,6 +27,7 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ initialContent, onChange, placeholder }: RichTextEditorProps) {
   const [mounted, setMounted] = useState(false);
+  const [, setEditorRevision] = useState(0);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -124,6 +48,7 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: RichTe
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON() as TiptapContent);
     },
+    onSelectionUpdate: () => setEditorRevision((revision) => revision + 1),
     editorProps: {
       attributes: {
         class: "prose prose-sm sm:prose-base focus:outline-none min-h-[200px] max-w-none p-4",
@@ -141,7 +66,7 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: RichTe
   }
 
   return (
-    <div className="border border-gray-300 rounded-md overflow-hidden bg-white flex flex-col">
+    <div className="rich-text-editor border border-gray-300 rounded-md overflow-hidden bg-white flex flex-col">
       {/* Toolbar */}
       <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1 items-center">
         
@@ -151,9 +76,9 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: RichTe
           onChange={(e) => {
             const size = e.target.value;
             if (!size) {
-              (editor.chain().focus() as any).removeFontSize().run();
+              editor.chain().focus().removeFontSize().run();
             } else {
-              (editor.chain().focus() as any).setFontSize(size).run();
+              editor.chain().focus().setFontSize(size).run();
             }
           }}
           value={editor.getAttributes('fontSize').sizeClass || ''}
@@ -256,11 +181,9 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: RichTe
           onChange={(e) => {
             const preset = e.target.value;
             if (preset === "default-body") {
-              // @ts-ignore
               editor.chain().focus().removeBrandStyle().run();
             } else {
-              // @ts-ignore
-              editor.chain().focus().setBrandStyle(preset).run();
+              editor.chain().focus().setBrandStyle(preset as TextStylePreset).run();
             }
           }}
           value={editor.getAttributes("brandStyle")?.preset || "default-body"}
