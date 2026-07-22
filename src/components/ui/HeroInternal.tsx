@@ -6,6 +6,7 @@ import { ManagedVideo } from "@/components/cms/ManagedVideo";
 
 interface HeroInternalProps {
   title: React.ReactNode;
+  richTitle?: React.ReactNode;
   subtitle: string;
   imageSrc: string;
   videoSrc?: string;
@@ -15,6 +16,7 @@ interface HeroInternalProps {
 
 export function HeroInternal({
   title,
+  richTitle,
   subtitle,
   imageSrc,
   videoSrc,
@@ -77,9 +79,15 @@ export function HeroInternal({
               <div className="w-8 h-px bg-brand-gold/50" />
             </div>
           </div>
-          <h1 className="font-heading text-brand-white font-light tracking-tighter text-5xl md:text-6xl lg:text-[6rem] leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl">
-            {title}
-          </h1>
+          {richTitle ? (
+            <div className="font-heading text-brand-white font-light tracking-tighter leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
+              {richTitle}
+            </div>
+          ) : (
+            <h1 className="font-heading text-brand-white font-light tracking-tighter text-5xl md:text-6xl lg:text-[6rem] leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl">
+              {title}
+            </h1>
+          )}
         </ScrollReveal>
         
         <ScrollReveal delay={0.2} className="mt-12 flex flex-col items-center">

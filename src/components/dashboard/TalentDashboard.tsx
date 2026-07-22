@@ -151,7 +151,7 @@ export default function TalentDashboard({
           {/* Top Right: Real-time Counters */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-8 flex items-center gap-2">
-              <Globe className="w-4 h-4 text-brand-gold" /> {content.pool.heading}
+              <Globe className="size-5 shrink-0 text-brand-gold md:size-6" /> {content.pool.heading}
             </h3>
             
             <div className="space-y-8">
@@ -176,7 +176,7 @@ export default function TalentDashboard({
           {/* Middle Right: Readiness Metrics */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-6 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-brand-gold" /> {content.readiness.heading}
+              <ShieldCheck className="size-5 shrink-0 text-brand-gold md:size-6" /> {content.readiness.heading}
             </h3>
             
             <div className="space-y-6">
@@ -215,7 +215,7 @@ export default function TalentDashboard({
           {/* Bottom Left: Skill Distribution (Spans 4 columns) */}
           <div className="lg:col-span-4 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-6 flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-brand-gold" /> {content.demographics.heading}
+              <GraduationCap className="size-5 shrink-0 text-brand-gold md:size-6" /> {content.demographics.heading}
             </h3>
             
             <div className="flex gap-8 items-center h-full pb-4">
@@ -242,7 +242,7 @@ export default function TalentDashboard({
           {/* Bottom Middle/Right: Sector Breakdown (Spans 8 columns) */}
           <div className="lg:col-span-8 bg-brand-white/[0.02] border border-brand-white/10 rounded-3xl p-8 backdrop-blur-md group hover:border-brand-gold/30 transition-all duration-700">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-white/50 mb-8 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-brand-gold" /> {content.sectors.heading}
+              <Briefcase className="size-5 shrink-0 text-brand-gold md:size-6" /> {content.sectors.heading}
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -15,6 +15,15 @@ import {
  * Block types that carry a managed video placement alongside the section image.
  */
 const MANAGED_VIDEO_BLOCK_TYPES = new Set(["image_text", "introduction"]);
+const TESTIMONIAL_TEMPLATE = {
+  quote: "Placeholder testimonial - replace in CMS before production.",
+  companyLogo: "",
+  personName: "",
+  designation: "",
+  companyName: "",
+  country: "",
+  isPublished: false,
+};
 
 export function BlockEditor({
   block,
@@ -25,13 +34,21 @@ export function BlockEditor({
   onChange: (block: any) => void;
   onBack: () => void;
 }) {
-  const updateContent = (key: string, value: unknown) => {
-    onChange({ ...block, content: { ...block.content, [key]: value } });
-  };
-
   const supportsManagedVideo = MANAGED_VIDEO_BLOCK_TYPES.has(block.blockType);
-  const content: Record<string, unknown> =
+  const rawContent: Record<string, unknown> =
     block.content && typeof block.content === "object" ? block.content : {};
+  const isEmployerTestimonials = block.blockType === "testimonial" || block.blockKey === "home-community";
+  const content: Record<string, unknown> = isEmployerTestimonials
+    ? {
+        eyebrow: rawContent.eyebrow === "Ethical Commitment" ? "Foreign Employer Testimonials" : rawContent.eyebrow || "Foreign Employer Testimonials",
+        heading: rawContent.heading || "Trusted by International Employers",
+        introduction: rawContent.introduction || "",
+        testimonials: Array.isArray(rawContent.testimonials) && rawContent.testimonials.length > 0 ? rawContent.testimonials : [TESTIMONIAL_TEMPLATE],
+      }
+    : rawContent;
+  const updateContent = (key: string, value: unknown) => {
+    onChange({ ...block, content: { ...content, [key]: value } });
+  };
   const contentKeys = orderContentKeys(content);
 
   return (
@@ -40,7 +57,7 @@ export function BlockEditor({
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded text-gray-500">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h3 className="font-semibold">{blockTypeLabel(block.blockType)}</h3>
+        <h3 className="font-semibold">{isEmployerTestimonials ? "Employer Testimonials" : blockTypeLabel(block.blockType)}</h3>
       </div>
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
 
@@ -86,7 +103,7 @@ export function BlockEditor({
           />
         )}
 
-        {block.richHeading !== undefined && (
+        {block.richHeading !== undefined && !isEmployerTestimonials && (
           <div>
             <label className="block text-sm font-semibold mb-2">Section Heading</label>
             <RichTextEditor

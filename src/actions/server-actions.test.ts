@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -19,7 +19,7 @@ describe("module-level server action files", () => {
     const files = execFileSync("git", ["ls-files", "src"], {
       cwd: process.cwd(),
       encoding: "utf8",
-    }).trim().split(/\r?\n/).filter((file) => /\.(ts|tsx)$/.test(file));
+    }).trim().split(/\r?\n/).filter((file) => /\.(ts|tsx)$/.test(file) && existsSync(join(process.cwd(), file)));
 
     const invalidExports = files.flatMap((file) => {
       const source = readFileSync(join(process.cwd(), file), "utf8");

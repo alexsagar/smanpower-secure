@@ -44,6 +44,7 @@ const sidebarItems = [
   { label: "SEO", href: "/admin/seo", icon: Search },
   { label: "Media", href: "/admin/media", icon: ImageIcon },
   { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Settings", href: "/admin/settings/footer", icon: Settings },
   { label: "Profile", href: "/admin/profile", icon: Settings },
 ];
 
