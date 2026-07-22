@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useActionState, useState, useRef } from "react";
 import { submitResetPassword, ResetPasswordState } from "@/actions/password-reset";

@@ -4,6 +4,8 @@ import Image from "next/image";
 import React from "react";
 import { ExternalLink, ArrowRight } from "lucide-react";
 import { SocialBrandIcon, isKnownSocialPlatform } from "./SocialBrandIcon";
+import { AiSummaryFooterSection } from "./AiSummaryFooterSection";
+import { FooterCertificationLogos } from "./FooterCertificationLogos";
 import type { CmsFooterSettings, CmsSiteSettings, CmsSocialLink } from "@/types/content";
 import { toPublicHref } from "@/lib/public-href";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
@@ -18,10 +20,6 @@ function splitBrandName(settings: CmsSiteSettings) {
     primary: words.length > 1 ? words.slice(0, -1).join(" ") : (words[0] || settings.companyName),
     secondary: words.length > 1 ? words[words.length - 1] : undefined,
   };
-}
-
-function toLegalIdentity(settings: CmsSiteSettings) {
-  return settings.companyLegalName || settings.companyName;
 }
 
 function toAddressLines(settings: CmsSiteSettings) {
@@ -93,7 +91,6 @@ export function Footer({
   /** Resolved in the server layout; defaults keep the current wording. */
   copy?: typeof layoutCopy.footer;
 }) {
-  const legalIdentity = toLegalIdentity(siteSettings);
   const wordmark = toWordmarkParts(siteSettings);
   const addressLines = toAddressLines(siteSettings);
   const contactLinks = toContactLinks(siteSettings);
@@ -164,9 +161,13 @@ export function Footer({
                   height={72}
                   className="h-[72px] w-[72px] shrink-0 object-contain opacity-90 group-hover:opacity-100 transition-all duration-500"
                 />
-                <div className="flex flex-col justify-center">
-                  <NoTranslate as="p" className="max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-white group-hover:text-brand-gold transition-colors duration-300">
-                    {legalIdentity}
+                <div className="flex flex-col justify-center min-w-[150px]">
+                  <NoTranslate as="span" className="font-brand block text-base font-semibold tracking-wide uppercase leading-none text-brand-white">
+                    {layoutCopy.header.wordmarkLead}
+                  </NoTranslate>
+                  <div className="h-[1px] w-full bg-brand-gold/50 my-1.5" />
+                  <NoTranslate as="p" className="font-brand text-[10px] uppercase tracking-[0.25em] text-brand-gold">
+                    {layoutCopy.header.wordmarkAccent}
                   </NoTranslate>
                 </div>
               </Link>
@@ -181,6 +182,7 @@ export function Footer({
                 ))}
               </address>
             </div>
+
           </div>
 
           {/* ZONE 2-5: Navigation Sections */}
@@ -272,6 +274,18 @@ export function Footer({
 
         </div>
 
+        {(footerSettings.aiSummary || footerSettings.certificationLogos?.length) && (
+          <div className="flex flex-col gap-6 border-t border-brand-white/10 pt-8 md:flex-row md:items-end md:justify-between">
+            {footerSettings.aiSummary && (
+              <AiSummaryFooterSection
+                settings={footerSettings.aiSummary}
+                basePrompt={footerSettings.aiSummary.basePrompt}
+              />
+            )}
+            <FooterCertificationLogos logos={footerSettings.certificationLogos} />
+          </div>
+        )}
+
         {/* BOTTOM SECTION: Typography & Copyright */}
         <div className="flex flex-col items-center border-t border-brand-white/10 pt-10 mt-8">
 
@@ -279,8 +293,10 @@ export function Footer({
             {/* The refined responsive lockup with slow highlight animation on the accent */}
             {/* The gold accent keeps its serif italic treatment via its own
                 font-serif class, so the lockup's two-face contrast survives. */}
-            <NoTranslate as="h2"
-              className="font-brand text-[9vw] md:text-[8vw] lg:text-[7vw] xl:text-[85px] font-light tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
+            <NoTranslate as="div"
+              data-testid="footer-wordmark"
+              className="font-brand font-light tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
+              style={{ fontSize: "min(16vw, 160px)" }}
             >
               {wordmark.lead && (
                 <span className="inline-block mr-2 md:mr-3 lg:mr-4">{wordmark.lead}</span>

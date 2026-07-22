@@ -32,6 +32,7 @@ const BLOCK_META: Record<string, BlockMeta> = {
   training_bento: { label: "Training Facilities", category: "Collection" },
   trust_centre: { label: "Trust Centre", category: "Collection" },
   community: { label: "Community", category: "Collection" },
+  testimonial: { label: "Employer Testimonials", category: "Collection" },
   client_marquee: { label: "Client Marquee", category: "Collection" },
   story_grid: { label: "Success Stories", category: "Collection" },
   insight_preview: { label: "Insights Preview", category: "Collection" },

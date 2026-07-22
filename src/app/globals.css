@@ -32,7 +32,8 @@
 
   html {
     scroll-behavior: smooth;
-    font-size: 14px; /* Scales down all rem-based Tailwind classes (text, padding, margin) proportionally */
+    font-size: 14px;
+    /* Scales down all rem-based Tailwind classes (text, padding, margin) proportionally */
   }
 
   body {
@@ -88,6 +89,109 @@
 .brand-headings h2:not(.font-serif) {
   font-family: var(--font-heading);
   font-weight: 300;
+}
+
+/* Rich-text presets use data attributes in Tiptap JSON. The editor needs the
+ * same visible treatment as the public renderer so an applied mark is obvious
+ * before saving. */
+.rich-text-editor .ProseMirror [data-text-style="gold-emphasis"] {
+  color: var(--color-brand-gold);
+  font-weight: 600;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="editorial-italic-gold"] {
+  color: var(--color-brand-gold);
+  font-family: var(--font-brand);
+  font-style: italic;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="editorial-italic-light"] {
+  color: var(--color-brand-muted);
+  font-family: var(--font-brand);
+  font-style: italic;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="white-emphasis"] {
+  display: inline-block;
+  background: var(--color-brand-charcoal);
+  color: var(--color-brand-white);
+  font-weight: 600;
+  padding-inline: 0.2em;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="muted-supporting"] {
+  color: var(--color-brand-muted);
+}
+
+.rich-text-editor .ProseMirror [data-text-style="pull-quote"] {
+  color: var(--color-brand-charcoal);
+  font-family: var(--font-brand);
+  font-size: 1.25em;
+  font-style: italic;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="small-eyebrow"] {
+  color: var(--color-brand-gold);
+  font-family: var(--font-brand);
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.rich-text-editor .ProseMirror [data-text-style="cta-link-style"] {
+  border-bottom: 1px solid var(--color-brand-gold);
+  color: var(--color-brand-charcoal);
+  font-weight: 600;
+  padding-bottom: 0.1em;
+}
+
+/* One semantic size scale across public and admin surfaces. This is unlayered
+ * and important because existing blocks carry local Tailwind text-size classes.
+ * Layout, colour, weight, and spacing remain controlled by those components. */
+h1 {
+  font-size: 2.25rem !important;
+}
+
+h2 {
+  font-size: 1.875rem !important;
+}
+
+h3 {
+  font-size: 1.5rem !important;
+}
+
+/* Decorative brand lockups are intentionally display-scale, not content h2s. */
+.footer-wordmark {
+  font-size: clamp(3.5rem, 10vw, 11rem) !important;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 3rem !important;
+  }
+
+  h2 {
+    font-size: 2.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.875rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 3.75rem !important;
+  }
+
+  h2 {
+    font-size: 2.5rem !important;
+  }
+
+  h3 {
+    font-size: 2rem !important;
+  }
 }
 
 @layer components {
@@ -241,16 +345,29 @@ iframe.goog-te-banner-frame {
   visibility: hidden !important;
   height: 0 !important;
 }
+
 /* Hide the wrapper div around the banner iframe */
-body > .skiptranslate:first-child {
+body>.skiptranslate:first-child {
   display: none !important;
   height: 0 !important;
 }
-body { top: 0 !important; margin-top: 0 !important; }
+
+body {
+  top: 0 !important;
+  margin-top: 0 !important;
+}
 
 /* Hide tooltips on translated text */
-#goog-gt-tt, .goog-tooltip { display: none !important; }
-.goog-text-highlight { background: transparent !important; border: none !important; box-shadow: none !important; }
+#goog-gt-tt,
+.goog-tooltip {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
 /* The widget container — keep it tight */
 .gt-widget {
@@ -268,8 +385,9 @@ body { top: 0 !important; margin-top: 0 !important; }
   display: inline-block !important;
   vertical-align: middle !important;
 }
-.gt-widget .goog-te-gadget > span,
-.gt-widget .goog-te-gadget > a,
+
+.gt-widget .goog-te-gadget>span,
+.gt-widget .goog-te-gadget>a,
 .gt-widget .goog-te-gadget img,
 .gt-widget .goog-te-gadget .goog-logo-link {
   display: none !important;
@@ -291,25 +409,36 @@ body { top: 0 !important; margin-top: 0 !important; }
   height: 28px !important;
   margin: 0 !important;
 }
+
 .gt-widget .goog-te-combo:hover {
   border-color: #B5913F !important;
   color: #fff !important;
 }
 
 @keyframes subtle-flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.85; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
 }
+
 .animate-subtle-flicker {
-    animation: subtle-flicker 4s ease-in-out infinite;
+  animation: subtle-flicker 4s ease-in-out infinite;
 }
+
 @media (prefers-reduced-motion: reduce) {
-    .animate-subtle-flicker {
-        animation: none;
-    }
+  .animate-subtle-flicker {
+    animation: none;
+  }
 }
 
 @keyframes seas-highlight {
+
   0%,
   70%,
   100% {
@@ -322,14 +451,12 @@ body { top: 0 !important; margin-top: 0 !important; }
 }
 
 .animate-seas-highlight {
-  background: linear-gradient(
-    90deg,
-    #B5913F 0%,
-    #B5913F 38%,
-    #D7BD7A 50%,
-    #B5913F 62%,
-    #B5913F 100%
-  );
+  background: linear-gradient(90deg,
+      #B5913F 0%,
+      #B5913F 38%,
+      #D7BD7A 50%,
+      #B5913F 62%,
+      #B5913F 100%);
   background-size: 220% 100%;
   background-position: 100% 50%;
   background-clip: text;

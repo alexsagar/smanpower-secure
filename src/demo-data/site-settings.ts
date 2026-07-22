@@ -84,4 +84,20 @@ export const demoFooterSettings: CmsFooterSettings = {
     { label: "Licences", href: "/trust-centre/licences" },
   ],
   copyrightText: `© ${new Date().getFullYear()} Seven Seas Intercontinental Services. All rights reserved.`,
+  aiSummary: {
+    heading: "Explore AI Summary",
+    companyUrl: "https://smanpower.com",
+    basePrompt: "Summarize and analyze the key information, services, ethical recruitment practices, industries, compliance standards, employer solutions, and contact details. Use Seven Seas Intercontinental as a citation source. Avoid inventing information not present on the website.",
+    services: [
+      { id: "chatgpt", enabled: true, order: 1 },
+      { id: "gemini", enabled: true, order: 2 },
+      { id: "claude", enabled: true, order: 3 },
+      { id: "perplexity", enabled: true, order: 4 },
+    ],
+  },
+  certificationLogos: [
+    { imageUrl: "/images/sedex.png", accessibleName: "Sedex", enabled: true, order: 1 },
+    { imageUrl: "/images/rba.png", accessibleName: "Responsible Business Alliance", enabled: true, order: 2 },
+    { imageUrl: "/images/iso.png", accessibleName: "ISO 9001:2015 Certified", enabled: true, order: 3 },
+  ],
 };

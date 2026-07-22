@@ -451,36 +451,27 @@ export const demoHomepageBlocks: CmsContentBlock[] = [
     },
   },
 
-  // SECTION 11: Community & Candidate Welfare
+  // SECTION 11: Foreign Employer Testimonials
   {
-    id: "block-home-community",
-    blockKey: "home-community",
-    blockType: "community",
+    id: "block-home-testimonials",
+    blockKey: "home-testimonials",
+    blockType: "testimonial",
     pageSlug: "home",
     order: 10,
     visible: true,
-    richHeading: richHeading([
-      { text: "Supporting People " },
-      { text: "Beyond Placement.", style: "editorial-italic-gold" },
-    ]),
     content: {
-      eyebrow: "Ethical Commitment",
-      description:
-        "Our responsibility doesn't end when a candidate boards a flight. We actively engage in candidate awareness, family support programmes, and safe recruitment education across communities in Nepal to ensure workers are informed, protected, and supported throughout their employment journey.",
-      ctaText: "View Community Projects",
-      ctaHref: "/about/community-impact",
-      cards: [
-        {
-          icon: "Users",
-          title: "Family Support Programmes",
-          desc: "Providing financial literacy, communication assistance, and dedicated helplines for families of deployed workers back home.",
-        },
-        {
-          icon: "Shield",
-          title: "Safe Recruitment Education",
-          desc: "Running community seminars across rural Nepal to educate aspiring migrants on their rights, ethical sourcing, and avoiding fraud.",
-        },
-      ],
+      eyebrow: "Foreign Employer Testimonials",
+      heading: "Trusted by International Employers",
+      introduction: "",
+      testimonials: [{
+        quote: "Placeholder testimonial - replace in CMS before production.",
+        companyLogo: "",
+        personName: "",
+        designation: "",
+        companyName: "",
+        country: "",
+        isPublished: false,
+      }],
     },
   },
 

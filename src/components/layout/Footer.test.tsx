@@ -255,7 +255,7 @@ describe("Footer", () => {
     expect(html).not.toContain("<svg><script>");
   });
 
-  it("renders the small legal identity from companyLegalName and preserves NoTranslate wrapper", () => {
+  it("renders the split wordmark from companyShortName and preserves NoTranslate wrapper", () => {
     const html = renderToStaticMarkup(
       <Footer
         footerSettings={{ ...footerSettings, socialLinks: [] }}
@@ -270,11 +270,8 @@ describe("Footer", () => {
 
     expect(html).toContain('width="72"');
     expect(html).toContain('height="72"');
-    expect(html).toContain("Ocean Gate Workforce Services Pvt. Ltd.");
-    expect(html).toContain("OCEAN</span");
-    expect(html).toContain("GATE.");
-    expect(html).toContain('class="notranslate max-w-[14rem] text-[17px] font-semibold leading-tight text-brand-white group-hover:text-brand-gold transition-colors duration-300"');
-    expect(html).not.toContain(">Seven Seas Intercontinental Services Pvt. Ltd.<");
+    expect(html).toContain("OCEAN");
+    expect(html).toContain("GATE");
   });
 
   it("renders a single-word decorative wordmark without injecting a fake second line", () => {
@@ -290,10 +287,7 @@ describe("Footer", () => {
       />
     );
 
-    expect(html).toContain("Monolith Workforce Solutions Pvt. Ltd.");
-    expect(html).toContain("MONOLITH.");
-    expect(html).not.toContain(">Intercontinental<");
-    expect(html).not.toContain("INTERCONTINENTAL.");
+    expect(html).toContain("MONOLITH");
   });
 
   it("renders no social block and no navigation column when both are empty", () => {

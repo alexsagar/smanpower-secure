@@ -11,7 +11,7 @@ import { IndustryGridBlock } from "@/components/cms/blocks/IndustryGridBlock";
 import { TrainingBentoBlock } from "@/components/cms/blocks/TrainingBentoBlock";
 import { MapIntelligenceBlock } from "@/components/cms/blocks/MapIntelligenceBlock";
 import { TrustCentreBlock } from "@/components/cms/blocks/TrustCentreBlock";
-import { CommunityBlock } from "@/components/cms/blocks/CommunityBlock";
+import { EmployerTestimonialsBlock } from "@/components/cms/blocks/EmployerTestimonialsBlock";
 import { StoryGridBlock } from "@/components/cms/blocks/StoryGridBlock";
 import { InsightPreviewBlock } from "@/components/cms/blocks/InsightPreviewBlock";
 import { FinalCTABlock } from "@/components/cms/blocks/FinalCTABlock";
@@ -89,7 +89,8 @@ export function AdminPreviewBlockRenderer({
     case "trust_centre":
       return <TrustCentreBlock block={block} lang={lang} />;
     case "community":
-      return <CommunityBlock block={block} lang={lang} />;
+    case "testimonial":
+      return <EmployerTestimonialsBlock block={block} />;
     case "story_grid":
       return <StoryGridBlock block={block} lang={lang} />;
     case "insight_preview":
