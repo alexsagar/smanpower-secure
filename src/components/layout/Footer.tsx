@@ -175,7 +175,7 @@ export function Footer({
 
             {/* Headquarters */}
             <div>
-              <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.headquartersLabel}</h4>
+              <h4 className="footer-heading font-brand uppercase text-brand-white/55 mb-4">{copy.headquartersLabel}</h4>
               <address className="not-italic text-xs text-brand-white/70 leading-relaxed space-y-1">
                 {addressLines.map((line, index) => (
                   <NoTranslate as="div" key={`${line}-${index}`}>{line}</NoTranslate>
@@ -189,7 +189,7 @@ export function Footer({
           {sections.map((section, idx) => (
             <div key={idx} className="md:col-span-1 lg:w-auto lg:flex-1 flex flex-col gap-10 min-w-0 order-3 lg:order-2">
               <div className="min-w-0">
-                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{section.title}</h4>
+                <h4 className="footer-heading font-brand uppercase text-brand-white/55 mb-4">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
@@ -213,7 +213,7 @@ export function Footer({
             {/* Contact */}
             {contactLinks.length > 0 && (
               <div className="md:col-span-1 order-2 lg:order-none min-w-0">
-                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.contactLabel}</h4>
+                <h4 className="footer-heading font-brand uppercase text-brand-white/55 mb-4">{copy.contactLabel}</h4>
                 <div className="flex flex-col gap-3 min-w-0">
                   {contactLinks.map((link) =>
                     link.href ? (
@@ -241,7 +241,7 @@ export function Footer({
             {/* Socials */}
             {socialLinks.length > 0 && (
               <div className="md:col-span-2 order-5 lg:order-none min-w-0 lg:mt-10">
-                <h4 className="font-brand text-[10px] font-semibold uppercase tracking-widest text-brand-white/55 mb-4">{copy.socialsLabel}</h4>
+                <h4 className="footer-heading font-brand uppercase text-brand-white/55 mb-4">{copy.socialsLabel}</h4>
                 <div className="flex flex-col gap-3">
                   {socialLinks.map((link) => {
                     const isKnownPlatform = isKnownSocialPlatform(link.platform);

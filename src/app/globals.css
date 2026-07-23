@@ -12,12 +12,12 @@
   /* Semantic typography. next/font supplies the family names; the fallbacks
      keep every surface rendering if a face fails to load.
 
-       font-body / font-sans  -> Inter          (copy, forms, tables, admin)
+       font-body / font-sans  -> Manrope        (copy, forms, tables, admin)
        font-brand / font-heading -> Science Gothic (branding surfaces only)
 
      Consume these through the utilities, not by naming a family directly, so
      the faces can be changed in one place. */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body: var(--font-sans);
   --font-brand: var(--font-science-gothic), var(--font-sans);
   --font-heading: var(--font-brand);
@@ -80,7 +80,7 @@
  * exactly what we are avoiding.
  *
  * Scope is h1/h2 inside .brand-headings (the public site only — the admin
- * dashboard keeps Inter at its own weights). h3-h6 are card and UI titles and
+ * dashboard keeps Manrope at its own weights). h3-h6 are card and UI titles and
  * 200 is too fragile at those sizes, so they are left alone. `.font-serif` is
  * excluded so the existing serif treatments are untouched. To opt a heading
  * out, give it `.font-serif` or an inline style.
@@ -146,52 +146,117 @@
   padding-bottom: 0.1em;
 }
 
-/* One semantic size scale across public and admin surfaces. This is unlayered
- * and important because existing blocks carry local Tailwind text-size classes.
- * Layout, colour, weight, and spacing remain controlled by those components. */
-h1 {
-  font-size: 2.25rem !important;
+/* ===== Typography roles ==========================================
+ *
+ * Semantic HTML (h1..h6) and visual size are deliberately decoupled. The tag
+ * only carries document structure for accessibility and SEO; the visual role
+ * is chosen with a role class so a card <h3> and a page <h3> can look nothing
+ * alike while keeping correct heading order.
+ *
+ * Two layers:
+ *   1. Page-level tag defaults — the true page/section hierarchy. Scoped to
+ *      `.brand-headings` (the public site body) so the admin dashboard keeps
+ *      its own modest @layer base scale. Unlayered, so they beat Tailwind
+ *      text-size utilities but stay overridable by the role classes below.
+ *   2. Role classes — used on any heading that is NOT a page/section title
+ *      (card titles, footer headings, eyebrows, compact labels). Marked
+ *      !important so a role always wins over both the tag default and any
+ *      local Tailwind size utility. Role classes set size/rhythm only; font
+ *      family, colour and transforms stay with the component.
+ * ================================================================= */
+
+/* --- Page-level tag defaults (public site) --- */
+.brand-headings h1 {
+  font-size: clamp(2.5rem, 5vw, 4.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
 }
 
-h2 {
-  font-size: 1.875rem !important;
+.brand-headings h2 {
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
 
-h3 {
-  font-size: 1.5rem !important;
+.brand-headings h3 {
+  font-size: clamp(1.5rem, 2.2vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* h4 has no page-scale default on purpose: nearly every h4 in the codebase is
+ * a compact label (footer column, feature title), and enlarging them all would
+ * be a regression. A true page-level h4 uses the .subsection-title role. */
+
+/* --- Visual role classes (any surface) --- */
+.page-title {
+  font-size: clamp(2.5rem, 5vw, 4.75rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.section-title {
+  font-size: clamp(2rem, 3.5vw, 3.5rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.subsection-title {
+  font-size: clamp(1.5rem, 2.2vw, 2.25rem) !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Standard content card (recruitment-process, medium content cards). */
+.card-title {
+  font-size: clamp(1.25rem, 1.5vw, 1.75rem) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 600 !important;
+}
+
+/* Compact contact-style card labels (Head Office, Corporate Phone, Fax…). */
+.compact-card-title {
+  font-size: clamp(1.125rem, 1.3vw, 1.5rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.07em !important;
+  font-weight: 600 !important;
+}
+
+.footer-heading {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 600 !important;
+}
+
+.eyebrow {
+  font-size: clamp(0.625rem, 0.8vw, 0.75rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.28em !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+}
+
+.body {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important;
+  line-height: 1.7 !important;
+}
+
+.small-body {
+  font-size: clamp(0.9375rem, 1vw, 1rem) !important;
+  line-height: 1.6 !important;
+}
+
+.caption {
+  font-size: clamp(0.75rem, 0.9vw, 0.875rem) !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.01em !important;
 }
 
 /* Decorative brand lockups are intentionally display-scale, not content h2s. */
 .footer-wordmark {
   font-size: clamp(3.5rem, 10vw, 11rem) !important;
-}
-
-@media (min-width: 768px) {
-  h1 {
-    font-size: 3rem !important;
-  }
-
-  h2 {
-    font-size: 2.25rem !important;
-  }
-
-  h3 {
-    font-size: 1.875rem !important;
-  }
-}
-
-@media (min-width: 1024px) {
-  h1 {
-    font-size: 3.75rem !important;
-  }
-
-  h2 {
-    font-size: 2.5rem !important;
-  }
-
-  h3 {
-    font-size: 2rem !important;
-  }
 }
 
 @layer components {

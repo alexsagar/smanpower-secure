@@ -90,7 +90,7 @@ export default async function ContactPage() {
                       <div className="text-brand-charcoal group-hover:text-brand-gold transition-colors duration-500">{CONTACT_ICONS[i] ?? CONTACT_ICONS[0]}</div>
                     </div>
                     <div>
-                      <h3 className="text-[10px] font-semibold uppercase tracking-widest text-brand-charcoal/60 mb-2">
+                      <h3 className="compact-card-title uppercase text-brand-charcoal/60 mb-2">
                         {item.label}
                       </h3>
                       {item.href ? (

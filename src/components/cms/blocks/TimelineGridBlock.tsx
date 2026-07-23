@@ -32,7 +32,7 @@ export function TimelineGridBlock({ block, lang }: { block: CmsContentBlock; lan
                       {item.step}
                     </div>
                     <div className="relative z-10 pt-4 border-t-2 border-brand-gold/30">
-                      <h3 className="text-2xl font-semibold text-brand-black mb-3">{item.title}</h3>
+                      <h3 className="card-title text-brand-black mb-3">{item.title}</h3>
                       <p className="text-brand-muted leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
