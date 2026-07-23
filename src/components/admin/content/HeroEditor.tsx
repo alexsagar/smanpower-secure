@@ -5,14 +5,14 @@ import { ChevronLeft } from "lucide-react";
 
 export function HeroEditor({ hero, onChange, onBack }: { hero: any, onChange: (hero: any) => void, onBack: () => void }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
-      <div className="p-4 border-b border-gray-100 flex items-center gap-4">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+      <div className="p-4 border-b border-gray-100 flex items-center gap-4 bg-white">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded text-gray-500">
           <ChevronLeft className="w-5 h-5" />
         </button>
         <h3 className="font-semibold">Edit Hero Section</h3>
       </div>
-      <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+      <div className="p-6 space-y-6">
         
         <div>
           <label className="block text-sm font-semibold mb-2">Eyebrow</label>

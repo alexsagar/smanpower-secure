@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { requirePermission, SETTINGS_PERMISSIONS } from "@/lib/permissions";
 import { z } from "zod";
+import type { CmsSocialLink } from "@/types/content";
+import { FOOTER_SOCIAL_PLATFORMS } from "@/lib/footer-social";
 
 const aiSummarySchema = z.object({
   heading: z.string().min(1).max(200),
@@ -41,6 +43,31 @@ const certificationLogosSchema = z.array(certificationLogoSchema).max(12).refine
   (logos) => new Set(logos.map((logo) => logo.order)).size === logos.length,
   "Order values must be unique"
 );
+
+const socialLinkSchema = z.object({
+  platform: z.enum(FOOTER_SOCIAL_PLATFORMS),
+  label: z.string().min(1).max(120),
+  url: z
+    .string()
+    .url()
+    .refine((value) => {
+      try {
+        return new URL(value).protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Link must use HTTPS"),
+  isActive: z.boolean(),
+  order: z.number().int().min(0),
+});
+
+const socialLinksSchema = z
+  .array(socialLinkSchema)
+  .max(12)
+  .refine(
+    (links) => new Set(links.map((link) => link.order)).size === links.length,
+    "Order values must be unique",
+  );
 
 export type AiSummaryConfigInput = z.infer<typeof aiSummarySchema>;
 export type CertificationLogosInput = z.infer<typeof certificationLogosSchema>;
@@ -97,6 +124,31 @@ export async function saveFooterCertificationLogosAction(input: CertificationLog
     return { success: true };
   } catch (error) {
     logger.error("Failed to save footer certification logos", error as Error, {});
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+export async function saveFooterSocialLinksAction(input: CmsSocialLink[]) {
+  await requirePermission(SETTINGS_PERMISSIONS.UPDATE);
+
+  try {
+    // zod is the trust boundary: it narrows platform to the controlled enum and
+    // rejects non-HTTPS/invalid URLs regardless of what the client sends.
+    const validated = socialLinksSchema.parse(input);
+
+    await prisma.siteSetting.upsert({
+      where: { key: "footer_social_links" },
+      update: { value: validated },
+      create: { key: "footer_social_links", value: validated, group: "footer" },
+    });
+
+    logger.info("Updated footer social links", { action: "UPDATE_FOOTER_SOCIAL_LINKS" });
+
+    revalidateTag("content", "max");
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error) {
+    logger.error("Failed to save footer social links", error as Error, {});
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
