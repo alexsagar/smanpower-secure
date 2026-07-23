@@ -9,6 +9,7 @@ import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getPublishedStories } from "@/repositories/content-resolver";
 import { getPageSeo } from "@/repositories/content-resolver";
+import { resolveImageMediaUrl } from "@/lib/media-resolver";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/success-stories");
@@ -68,9 +69,10 @@ export default async function SuccessStoriesPage() {
                         <div className="relative aspect-[4/3] overflow-hidden group bg-brand-charcoal">
                           <div className="absolute inset-0 bg-brand-black/20 group-hover:bg-transparent transition-colors duration-700 z-10" />
                           <Image 
-                            src={story.featuredImage?.secureUrl || "/images/hero_training_orientation_1782920391505.png"} 
+                            src={story.featuredImage ? resolveImageMediaUrl(story.featuredImage, { width: 1440 }) : "/images/hero_training_orientation_1782920391505.png"}
                             alt={story.featuredImage?.altText || story.title} 
                             fill 
+                            sizes="(max-width: 1024px) 100vw, 50vw"
                             className="object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1.5s]" 
                           />
                           <div className={`absolute ${i % 2 === 0 ? '-bottom-4 -right-4' : '-bottom-4 -left-4'} w-32 h-32 bg-brand-gold/20 blur-[40px] rounded-full z-0`} />

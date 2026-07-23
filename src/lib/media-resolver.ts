@@ -6,6 +6,7 @@
 // ============================================================
 
 import type { CmsMediaAsset } from "@/types/content";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
 
 export function resolveMediaUrl(asset?: CmsMediaAsset): string {
   if (!asset) return "/images/placeholder.png";
@@ -19,4 +20,10 @@ export function resolveMediaUrl(asset?: CmsMediaAsset): string {
   }
 
   return "/images/placeholder.png";
+}
+
+/** Frontend-only delivery URL for typed CMS images; videos and documents stay untouched. */
+export function resolveImageMediaUrl(asset?: CmsMediaAsset, dimensions?: { width?: number; height?: number }): string {
+  const src = resolveMediaUrl(asset);
+  return asset?.resourceType === "image" ? getCloudinaryImageUrl(src, dimensions) : src;
 }

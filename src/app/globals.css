@@ -4,6 +4,8 @@
   --color-brand-black: #000000;
   --color-brand-charcoal: #171717;
   --color-brand-gold: #B5913F;
+  /* Darker gold that meets WCAG AA (4.5:1) for small text on off-white/white. */
+  --color-brand-gold-dark: #7A6224;
   --color-brand-off-white: #F7F5F0;
   --color-brand-stone: #EDE9E1;
   --color-brand-muted: #77736A;

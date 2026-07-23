@@ -4,17 +4,17 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
-import { resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { ManagedVideo } from "../ManagedVideo";
 
 export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   void lang;
   const content = block.content as any;
-  const mediaUrl = resolveMediaUrl(block.image);
+  const mediaUrl = resolveImageMediaUrl(block.image, { width: 1440 });
   const videoUrl = resolveMediaUrl(block.video);
-  const posterUrl = resolveMediaUrl(block.videoPoster || block.image);
-  const mobileFallbackUrl = resolveMediaUrl(block.mobileImage || block.videoPoster || block.image);
+  const posterUrl = resolveImageMediaUrl(block.videoPoster || block.image, { width: 1440 });
+  const mobileFallbackUrl = resolveImageMediaUrl(block.mobileImage || block.videoPoster || block.image, { width: 960 });
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-off-white overflow-hidden">
@@ -62,6 +62,7 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
                   src={mediaUrl}
                   alt={block.image?.altText || "Introduction image"}
                   fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
                   className="object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
                 />
               )}

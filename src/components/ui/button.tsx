@@ -36,7 +36,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variant === "ghost" &&
             "bg-transparent text-brand-charcoal hover:bg-brand-stone",
           variant === "gold" &&
-            "bg-brand-gold text-white hover:bg-brand-gold-dark",
+            "bg-brand-gold text-brand-black hover:bg-brand-gold-dark hover:text-white",
           // Sizes
           size === "sm" && "h-9 px-4 text-sm",
           size === "md" && "h-11 px-6 text-sm",
