@@ -490,6 +490,7 @@ export class PrismaContentRepository implements ContentRepository {
           variant: "secondary"
         } : undefined,
         overlayEnabled: page.hero.overlayEnabled,
+        overlayOpacity: page.hero.overlayOpacity,
         textAlignment: "left",
         verticalAlignment: "center",
         image: page.hero.image ? mapPrismaMediaAsset(page.hero.image as PrismaMediaRecord) as any : undefined,

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ManagedVideo } from "@/components/cms/ManagedVideo";
+import { MediaOverlay } from "@/components/cms/MediaOverlay";
 
 interface HeroInternalProps {
   title: React.ReactNode;
@@ -12,6 +13,8 @@ interface HeroInternalProps {
   videoSrc?: string;
   posterSrc?: string;
   mobileFallbackSrc?: string;
+  overlayEnabled?: boolean;
+  overlayOpacity?: number | null;
 }
 
 export function HeroInternal({
@@ -22,6 +25,8 @@ export function HeroInternal({
   videoSrc,
   posterSrc,
   mobileFallbackSrc,
+  overlayEnabled = true,
+  overlayOpacity,
 }: HeroInternalProps) {
   return (
     <section className="relative h-[70dvh] min-h-[600px] w-full bg-brand-black overflow-hidden flex flex-col justify-center mt-20 group">
@@ -53,9 +58,12 @@ export function HeroInternal({
             priority
           />
         )}
-        {/* Dark Vignette and Gradient Overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.7)_100%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-black via-brand-black/40 to-brand-off-white" />
+        {/* Configurable CMS overlay drives the darkening (0–100 → 0–1). */}
+        <MediaOverlay enabled={overlayEnabled} opacity={overlayOpacity} />
+        {/* Decorative edge vignette and the structural fade into the page
+            background below — both independent of the configurable overlay. */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-brand-off-white" />
         {/* Cinematic Film Grain */}
         <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
       </div>

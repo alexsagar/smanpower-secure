@@ -37,7 +37,7 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
   }
 
   return (
-    <HeroInternal 
+    <HeroInternal
       title={title}
       richTitle={richTitle}
       subtitle={subtitle}
@@ -45,6 +45,8 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
       videoSrc={videoSrc}
       posterSrc={posterSrc}
       mobileFallbackSrc={mobileFallbackSrc}
+      overlayEnabled={hero?.overlayEnabled ?? true}
+      overlayOpacity={hero?.overlayOpacity}
     />
   );
 }
