@@ -11,14 +11,33 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import type { CmsHeroSection, CmsMediaAsset } from "@/types/content";
+import type { CmsHeroSection, CmsMediaAsset, CmsFooterCertificationLogo } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
 import { ManagedVideo } from "./ManagedVideo";
 
 interface DynamicHeroProps {
   hero: CmsHeroSection;
+  /**
+   * Certification logos to surface as compact hero trust badges. Reuses the
+   * same CMS-managed list as the footer (Settings → Footer → Certification
+   * Logos), so editors manage one source and no hero-specific schema exists.
+   */
+  certificationLogos?: CmsFooterCertificationLogo[];
   lang?: string;
+}
+
+// Mirrors FooterCertificationLogos: only render logos an editor enabled with a
+// safe local/HTTPS image source, in their chosen order.
+function getVisibleCertificationLogos(logos?: CmsFooterCertificationLogo[]) {
+  return (logos ?? [])
+    .filter(
+      (logo) =>
+        logo.enabled &&
+        logo.accessibleName.trim() &&
+        (logo.imageUrl.startsWith("/") || /^https:\/\//.test(logo.imageUrl)),
+    )
+    .sort((a, b) => a.order - b.order || a.accessibleName.localeCompare(b.accessibleName));
 }
 
 function getPlayableVideo(hero: CmsHeroSection) {
@@ -66,12 +85,13 @@ function getMobileFallbackImageUrl(hero: CmsHeroSection) {
   return hero.mobileImage ? resolveMediaUrl(hero.mobileImage) : undefined;
 }
 
-export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
+export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHeroProps) {
   void lang;
   const imageUrl = resolveMediaUrl(hero.image);
   const playableVideo = getPlayableVideo(hero);
   const posterUrl = getFallbackImageUrl(hero);
   const mobileFallbackUrl = getMobileFallbackImageUrl(hero);
+  const trustBadges = getVisibleCertificationLogos(certificationLogos);
 
   return (
     <section className="relative min-h-[100dvh] py-16 lg:py-24 w-full bg-brand-black overflow-hidden flex flex-col justify-center">
@@ -140,12 +160,38 @@ export function DynamicHero({ hero, lang = "en" }: DynamicHeroProps) {
 
         {hero.richDescription && (
           <ScrollReveal delay={0.2} className="mt-8 md:mt-12 flex flex-col items-center">
-            {/* Visual Anchor Line */}
-            <div className="h-10 md:h-16 w-px bg-gradient-to-b from-brand-gold to-transparent mb-6" />
-
             <div className="text-white opacity-80 max-w-md text-center uppercase tracking-[0.2em] text-xs leading-loose">
               <RichTextRenderer content={hero.richDescription} />
             </div>
+          </ScrollReveal>
+        )}
+
+        {/* Certification trust badges — reuse the CMS-managed footer logos.
+            Placed below the supporting paragraph and above the floating CTA
+            bar, centred to match the hero's existing lockup. */}
+        {trustBadges.length > 0 && (
+          <ScrollReveal delay={0.3} className="mt-10 md:mt-14 flex flex-col items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
+              {trustBadges.map((logo) => (
+                <span
+                  key={`${logo.accessibleName}-${logo.order}`}
+                  className="flex h-7 w-7 md:h-8 md:w-8 shrink-0 items-center justify-center overflow-hidden"
+                  style={{ borderRadius: "9999px" }}
+                >
+                  <Image
+                    src={logo.imageUrl}
+                    alt={logo.accessibleName}
+                    width={64}
+                    height={64}
+                    unoptimized
+                    className="h-full w-full object-contain opacity-90"
+                  />
+                </span>
+              ))}
+            </div>
+            <p className="text-white/55 text-[10px] md:text-[11px] tracking-[0.14em] max-w-sm text-center">
+              RBA Member • Sedex Compliant • ISO 9001:2015 Certified
+            </p>
           </ScrollReveal>
         )}
       </div>
