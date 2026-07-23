@@ -87,7 +87,7 @@ export function Header({
                   : "text-brand-charcoal"
               )}
             >
-              <span className="font-brand block text-base font-semibold tracking-wide uppercase leading-none">
+              <span className="font-brand block text-sm font-semibold tracking-wide uppercase leading-none">
                 {copy.wordmarkLead}
               </span>
               <div className={cn(
