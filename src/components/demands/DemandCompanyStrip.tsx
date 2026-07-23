@@ -4,6 +4,7 @@ import { Building2, MapPin, Briefcase, Calendar, CheckCircle2 } from "lucide-rea
 import { CmsDemand } from "@/types/content";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
 
 interface DemandCompanyStripProps {
   demand: CmsDemand;
@@ -21,9 +22,10 @@ export function DemandCompanyStrip({ demand }: DemandCompanyStripProps) {
           {demand.companyLogo ? (
             <div className="relative w-full h-full">
               <Image
-                src={resolveMediaUrl(demand.companyLogo)}
+                src={getCloudinaryImageUrl(resolveMediaUrl(demand.companyLogo), { width: 192, height: 192 })}
                 alt={demand.companyName}
                 fill
+                sizes="96px"
                 className="object-contain"
               />
             </div>

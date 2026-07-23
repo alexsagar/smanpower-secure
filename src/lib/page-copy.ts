@@ -59,23 +59,59 @@ export const privacyPolicyCopy = {
   headingHighlight: "Policy",
   lastUpdatedLabel: "Last updated:",
   intro:
-    "At Seven Seas Intercontinental, we are committed to protecting the privacy and security of our clients, partners, and candidates. This Privacy Policy outlines how we collect, use, and protect your personal information.",
+    "At Seven Seas Intercontinental, protecting the privacy and dignity of our clients, partners, and candidates is inseparable from our commitment to ethical recruitment. This Privacy Policy explains what personal information we collect, why we collect it, how we use and safeguard it, and the rights you hold over it. It applies to our website, our recruitment and deployment services, and every interaction you have with us.",
   sections: [
     {
-      heading: "1. Information We Collect",
-      body: "We may collect personal information such as your name, contact details, employment history, and educational background when you submit a job application, inquire about our services, or interact with our website.",
+      heading: "1. Who We Are",
+      body: "Seven Seas Intercontinental is a licensed recruitment agency based in Nepal, operating under the ethical recruitment guidelines of the Government of Nepal and international employer-pays principles. For the purposes of applicable data-protection law, Seven Seas Intercontinental is the data controller responsible for the personal information described in this policy.",
     },
     {
-      heading: "2. How We Use Your Information",
-      body: "The information we collect is strictly used to facilitate the recruitment process, respond to inquiries, and improve our services. We do not sell or rent your personal information to third parties.",
+      heading: "2. Information We Collect",
+      body: "We collect information you provide directly and information generated through your use of our services. This may include your full name, date of birth, gender, nationality, and passport or government-identification details; contact details such as address, phone number, and email; employment history, skills, qualifications, and educational background; trade-test and training records; medical-fitness and visa-related documentation required for deployment; and any information you share when you apply for a position, request our services, or correspond with our team.",
     },
     {
-      heading: "3. Data Security",
-      body: "We employ industry-standard security measures to ensure that your personal information is protected from unauthorized access, alteration, or disclosure.",
+      heading: "3. How We Collect Information",
+      body: "We collect information when you submit a job application or CV, register for trade testing or orientation, contact us by phone, email, or web form, or interact with our website. We may also receive information lawfully from prospective employers, partner agencies, government bodies, and background- or reference-verification sources as part of the recruitment and deployment process.",
     },
     {
-      heading: "4. Your Rights",
-      body: "You have the right to access, update, or request the deletion of your personal information at any time. For any privacy-related concerns, please contact us at info@smanpower.com.",
+      heading: "4. How We Use Your Information",
+      body: "We use your information to assess your suitability for roles, facilitate the recruitment, documentation, and deployment process, communicate with you and with prospective employers, arrange trade testing, training, medical checks, and visa processing, comply with legal and regulatory obligations, and improve our services. We never charge candidates recruitment fees, and we do not sell or rent your personal information to third parties.",
+    },
+    {
+      heading: "5. Legal Basis for Processing",
+      body: "We process your personal information where it is necessary to take steps at your request before entering into a contract, to perform our services, to comply with legal obligations under Nepali and destination-country law, to pursue our legitimate interests in operating an ethical recruitment business, or on the basis of your consent — which you may withdraw at any time.",
+    },
+    {
+      heading: "6. Sharing and Disclosure",
+      body: "We share your information only as needed to deliver our services: with prospective and confirmed employers considering your application, with government authorities, embassies, and regulators for licensing, permits, and visa processing, and with trusted service providers such as medical centres, training partners, and travel providers acting on our behalf. We require all such parties to protect your information and to use it only for the agreed purpose.",
+    },
+    {
+      heading: "7. International Data Transfers",
+      body: "Because we place candidates with employers abroad, your information may be transferred to and processed in countries outside Nepal. Where this happens, we take reasonable steps to ensure your information continues to be handled securely and in line with the purposes described in this policy.",
+    },
+    {
+      heading: "8. Data Retention",
+      body: "We keep your personal information only for as long as necessary to fulfil the purposes for which it was collected, including active recruitment, deployment, and any legal, regulatory, or contractual record-keeping obligations. When information is no longer required, we securely delete or anonymise it.",
+    },
+    {
+      heading: "9. Data Security",
+      body: "We employ organisational and technical safeguards — including access controls, secure storage, and staff confidentiality obligations — designed to protect your personal information from unauthorised access, alteration, disclosure, or loss. While no system can be guaranteed completely secure, we continuously review and improve our controls.",
+    },
+    {
+      heading: "10. Cookies and Website Analytics",
+      body: "Our website may use cookies and similar technologies to keep the site working, remember your preferences, and understand how visitors use our pages so we can improve them. You can control or disable cookies through your browser settings; some features may not function as intended if cookies are disabled.",
+    },
+    {
+      heading: "11. Your Rights",
+      body: "Subject to applicable law, you have the right to access the personal information we hold about you, request correction of inaccurate information, request deletion, object to or restrict certain processing, and withdraw consent where processing is based on consent. To exercise any of these rights, please contact us at info@smanpower.com and we will respond within a reasonable time.",
+    },
+    {
+      heading: "12. Changes to This Policy",
+      body: "We may update this Privacy Policy from time to time to reflect changes in our practices, services, or legal obligations. The revised version, together with its effective date, will be posted on this page, and continued use of our services after any update constitutes acceptance of the updated policy.",
+    },
+    {
+      heading: "13. Contact Us",
+      body: "If you have any questions, concerns, or requests regarding this Privacy Policy or how your personal information is handled, please contact our team at info@smanpower.com. We take every privacy concern seriously and are committed to resolving it promptly.",
     },
   ],
 };
@@ -85,28 +121,52 @@ export const termsOfServiceCopy = {
   headingHighlight: "Service",
   lastUpdatedLabel: "Last updated:",
   intro:
-    "By accessing and using the Seven Seas Intercontinental website and services, you agree to comply with and be bound by the following terms and conditions.",
+    "By accessing and using the Seven Seas Intercontinental website and services, you agree to comply with and be bound by the following terms and conditions. Please read them carefully — they explain your rights and responsibilities, our commitments to ethical recruitment, and the limits of our role in the international employment process.",
   sections: [
     {
       heading: "1. Acceptance of Terms",
-      body: "These Terms of Service govern your use of our website and services. If you do not agree with any part of these terms, please refrain from using our services.",
+      body: "These Terms of Service govern your use of our website and services. By browsing our site, submitting an application, or engaging our recruitment services, you confirm that you accept these terms in full. If you do not agree with any part of them, please refrain from using our services.",
     },
     {
-      heading: "2. Use of Services",
-      body: "Our platform connects candidates with foreign job opportunities. While we strive to ensure the accuracy of all job postings, we cannot guarantee employment, visa approvals, or specific conditions set by foreign employers.",
+      heading: "2. Eligibility",
+      body: "Our services are intended for candidates who are legally eligible to work abroad and for employers lawfully seeking to hire international workers. You confirm that you are of legal working age and that all information and documents you provide to us are true, accurate, and your own.",
     },
     {
-      heading: "3. Zero-Tolerance Policy",
-      body: "We operate strictly under the ethical recruitment guidelines of the Government of Nepal. Any fraudulent activities, forged documents, or illegal payments will result in immediate disqualification and reporting to the authorities.",
+      heading: "3. Use of Services",
+      body: "Our platform connects candidates with foreign job opportunities and helps employers source qualified Nepali talent. While we strive to ensure the accuracy of all job postings, we cannot guarantee employment, visa approvals, salaries, or specific conditions set by foreign employers, as these depend on third parties and government authorities beyond our control.",
     },
     {
-      heading: "4. Limitation of Liability",
-      body: "Seven Seas Intercontinental shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website content.",
+      heading: "4. Employer-Pays & Zero-Fee Principle",
+      body: "In line with ethical recruitment standards and the guidelines of the Government of Nepal, we operate on an employer-pays basis. We do not charge candidates recruitment fees. If anyone requests payment from you in our name for securing a job, do not pay — report it to us immediately so we can act.",
+    },
+    {
+      heading: "5. Candidate Responsibilities",
+      body: "You agree to provide honest information, attend scheduled interviews, medicals, and orientations, and comply with the lawful requirements of the recruitment and deployment process. Providing false information, forged documents, or attempting to bypass official procedures may result in disqualification.",
+    },
+    {
+      heading: "6. Zero-Tolerance Policy",
+      body: "We operate strictly under the ethical recruitment guidelines of the Government of Nepal. Any fraudulent activity, forged documentation, illegal payment, or misrepresentation will result in immediate disqualification and reporting to the relevant authorities.",
+    },
+    {
+      heading: "7. Intellectual Property",
+      body: "All content on this website — including text, graphics, logos, images, and page layouts — is the property of Seven Seas Intercontinental or its licensors and is protected by applicable law. You may not reproduce, distribute, or use our content for commercial purposes without our prior written consent.",
+    },
+    {
+      heading: "8. Third-Party Links & Employers",
+      body: "Our website and services may reference third-party employers, partners, or external websites. We are not responsible for the content, policies, or practices of third parties, and any engagement you have with a foreign employer is subject to the contract agreed between you and that employer.",
+    },
+    {
+      heading: "9. Limitation of Liability",
+      body: "To the fullest extent permitted by law, Seven Seas Intercontinental shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website content, or from the acts or omissions of foreign employers, government bodies, or other third parties.",
+    },
+    {
+      heading: "10. Changes to These Terms",
+      body: "We may revise these Terms of Service from time to time to reflect changes in our services, practices, or legal obligations. The updated version and its effective date will be posted on this page, and your continued use of our services after any change constitutes acceptance of the revised terms.",
     },
   ],
   // Rendered with the contact address as a mailto link.
   contactSection: {
-    heading: "5. Contact Us",
+    heading: "11. Contact Us",
     bodyLead:
       "If you have any questions regarding these terms, please contact our administrative team at ",
     email: "info@smanpower.com",

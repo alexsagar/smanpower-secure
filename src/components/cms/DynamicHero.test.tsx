@@ -53,7 +53,7 @@ describe("DynamicHero media rendering", () => {
     );
 
     expect(html).toContain("<video");
-    expect(html).toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/hero.mp4"');
+    expect(html).not.toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/hero.mp4"');
     expect(html).not.toContain("f_mp4,q_auto:good");
     expect(html).not.toContain("f_webm,q_auto:good");
     expect(html).not.toContain('src="https://cdn.example.com/poster.jpg" autoPlay');
@@ -102,7 +102,7 @@ describe("DynamicHero media rendering", () => {
       />
     );
 
-    expect(html).toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/selected-video.mp4"');
+    expect(html).not.toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/selected-video.mp4"');
     expect(html).toContain('poster="https://cdn.example.com/old-image.jpg"');
     expect(html).not.toContain('src="https://cdn.example.com/old-image.jpg" autoPlay');
     expect(html).not.toContain("hidden md:block");
@@ -157,7 +157,7 @@ describe("DynamicHero media rendering", () => {
       />
     );
 
-    expect(html).toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/selected-video.mp4"');
+    expect(html).not.toContain('src="https://cdn.example.com/demo-cloud/video/upload/v123/cms/selected-video.mp4"');
     expect(html).toContain('srcSet="/_next/image?url=https%3A%2F%2Fcdn.example.com%2Fmobile.jpg');
     expect(html).toContain("hidden md:block");
   });

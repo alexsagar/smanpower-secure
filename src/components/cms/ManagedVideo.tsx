@@ -52,6 +52,7 @@ export function ManagedVideo({
   const [hasError, setHasError] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
   const prefersReducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
@@ -87,6 +88,10 @@ export function ManagedVideo({
         .catch(() => undefined);
     }
   }, [src, muted, autoPlay, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!prefersReducedMotion) requestAnimationFrame(() => setShouldLoad(true));
+  }, [prefersReducedMotion]);
 
   const togglePlayback = async () => {
     const video = videoRef.current;
@@ -129,14 +134,14 @@ export function ManagedVideo({
       {showVideo ? (
         <video
           ref={videoRef}
-          src={sources?.length ? undefined : src}
+          src={shouldLoad && !sources?.length ? src : undefined}
           poster={posterSrc}
           autoPlay={autoPlay}
           muted={muted}
           loop={loop}
           playsInline
           controls={controls}
-          preload={preload}
+          preload={shouldLoad ? preload : "none"}
           aria-hidden={decorative || undefined}
           onError={() => setHasError(true)}
           onLoadedData={() => setIsReady(true)}
@@ -148,7 +153,7 @@ export function ManagedVideo({
           onPause={() => setIsPlaying(false)}
           className={`${hasMobileFallback ? "hidden md:block" : ""} motion-reduce:hidden ${videoClassName || ""}`}
         >
-          {sources?.map((source) => (
+          {shouldLoad && sources?.map((source) => (
             <source key={`${source.type}:${source.src}`} src={source.src} type={source.type} />
           ))}
           {alt}
@@ -160,7 +165,7 @@ export function ManagedVideo({
           type="button"
           onClick={togglePlayback}
           className="motion-reduce:hidden absolute bottom-6 right-6 z-20 rounded-full bg-black/60 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-black/75"
-          aria-label={isPlaying ? "Pause background video" : "Play background video"}
+          aria-label={isPlaying ? "Pause video" : "Play video"}
         >
           {isPlaying ? "Pause video" : "Play video"}
         </button>

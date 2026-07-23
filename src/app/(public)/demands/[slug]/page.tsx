@@ -14,7 +14,7 @@ import { DemandStatusBadgeComponent } from "@/components/demands/DemandStatusBad
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema } from "@/lib/seo/schema";
-import { resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl } from "@/lib/media-resolver";
 import Script from "next/script";
 
 interface Props {
@@ -89,7 +89,7 @@ export default async function DemandDetailPage({ params }: Props) {
           {demand.featuredImage && (
             <div className="relative w-full aspect-[21/9] mb-8 overflow-hidden rounded-sm bg-brand-charcoal/5 border border-brand-charcoal/10 shadow-sm">
               <Image
-                src={resolveMediaUrl(demand.featuredImage)}
+                src={resolveImageMediaUrl(demand.featuredImage, { width: 1440 })}
                 alt={demand.featuredImage.altText || demand.title}
                 fill
                 priority

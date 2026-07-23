@@ -32,7 +32,6 @@ export function CoreValuesBlock({ block, lang }: { block: CmsContentBlock; lang:
             <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.1] mb-6 text-brand-white">
               {content.title}
             </h2>
-            <div className="h-20 w-px bg-gradient-to-b from-brand-gold to-transparent mx-auto" />
           </ScrollReveal>
         </div>
 

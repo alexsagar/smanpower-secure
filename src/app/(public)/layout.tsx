@@ -29,7 +29,7 @@ export default async function PublicLayout({
   const footerSettings = await repo.getFooterSettings();
   const siteSettings = await repo.getSiteSettings();
   const layoutCopy = await getPageCopy("layout");
-  const orgSchema = buildOrganizationSchema();
+  const orgSchema = buildOrganizationSchema(siteSettings, footerSettings);
 
   return (
     <html

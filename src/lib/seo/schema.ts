@@ -1,20 +1,26 @@
 import { getSiteUrl, siteConfig } from "./site-config";
+import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
 
 /**
  * Builds the Organization JSON-LD schema based strictly on verified data.
  * Does not emit unverified or fake information.
  */
-export const buildOrganizationSchema = () => {
+export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: CmsFooterSettings) => {
   const siteUrl = getSiteUrl();
   if (!siteUrl) return null;
 
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": siteConfig.name,
+    "@id": `${siteUrl}/#organization`,
+    "name": settings?.companyName || siteConfig.name,
     "url": siteUrl,
-    // Add only verified data here. 
-    // Logo, sameAs, contactPoint should only be added if fetched from approved DB configs.
+    ...(settings?.companyLegalName ? { "legalName": settings.companyLegalName } : {}),
+    ...(settings?.logoUrl ? { "logo": settings.logoUrl } : {}),
+    ...(settings?.address || settings?.country ? { "address": { "@type": "PostalAddress", ...(settings.address ? { streetAddress: settings.address } : {}), ...(settings.city ? { addressLocality: settings.city } : {}), ...(settings.province ? { addressRegion: settings.province } : {}), ...(settings.postalCode ? { postalCode: settings.postalCode } : {}), ...(settings.country ? { addressCountry: settings.country } : {}) } } : {}),
+    ...(settings?.phone ? { "telephone": settings.phone } : {}),
+    ...(settings?.email ? { "email": settings.email } : {}),
+    ...(footer?.socialLinks?.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url).length ? { "sameAs": footer.socialLinks.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url) } : {}),
   };
 };
 
@@ -82,7 +88,6 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
     "description": demand.generalNotes || demand.seoTitle || position.title, // Ensure safe serialization
     "datePosted": demand.publishedAt ? new Date(demand.publishedAt).toISOString() : new Date().toISOString(),
     ...(validThrough ? { "validThrough": validThrough } : {}),
-    "employmentType": "FULL_TIME", // Defaulting to full time as typical for overseas
     "hiringOrganization": {
       "@type": "Organization",
       "name": demand.companyName,

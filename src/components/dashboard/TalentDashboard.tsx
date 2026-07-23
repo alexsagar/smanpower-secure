@@ -94,7 +94,8 @@ export default function TalentDashboard({
             </div>
 
             {/* Map Container */}
-            <div className="relative w-full aspect-[16/10] flex items-center justify-center">
+            <p className="sr-only">{content.map.provinces.map((province) => `${province.district}: ${province.activeTalent}, ${province.topSector}`).join(". ")}</p>
+            <div className="relative w-full aspect-[16/10] flex items-center justify-center" aria-hidden="true">
               <div className="absolute inset-0 w-full h-full p-4">
                 <NepalMap 
                   colorMode="province"

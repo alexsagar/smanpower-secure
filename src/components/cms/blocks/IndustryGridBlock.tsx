@@ -6,6 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
 
 export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   void lang;
@@ -58,7 +59,7 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
                     {industry.image && (
                       <>
                         <Image
-                          src={industry.image}
+                          src={getCloudinaryImageUrl(industry.image, { width: 960, height: 960 })}
                           alt={industry.imageAlt || industry.title}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"

@@ -11,9 +11,9 @@ export function GoogleTranslateScript() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Only initialize once
-    if (document.getElementById("google-translate-script") || scriptLoaded.current) return;
-    scriptLoaded.current = true;
+    const load = () => {
+      if (document.getElementById("google-translate-script") || scriptLoaded.current) return;
+      scriptLoaded.current = true;
 
     (window as any).googleTranslateElementInit = () => {
       try {
@@ -37,11 +37,16 @@ export function GoogleTranslateScript() {
     script.onerror = () => {
       console.warn("Failed to load Google Translate script");
     };
-    document.body.appendChild(script);
+      document.body.appendChild(script);
+    };
+
+    window.addEventListener("ssis-load-google-translate", load);
+    if (parseGoogtransCookie(document.cookie) !== "en") setTimeout(load, 0);
 
     return () => {
       // We don't remove the script on unmount because this is a singleton
       // that lives at the layout level, but we ensure we don't recreate it.
+      window.removeEventListener("ssis-load-google-translate", load);
     };
   }, []);
 
