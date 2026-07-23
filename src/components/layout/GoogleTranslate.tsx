@@ -44,6 +44,7 @@ export function GoogleTranslate() {
   }, []);
 
   const handleLanguageChange = (langCode: string) => {
+    window.dispatchEvent(new Event("ssis-load-google-translate"));
     // 1. Sync state across UI
     setGoogleTranslateCookie(langCode as any);
     dispatchLanguageChange(langCode as any);
@@ -76,8 +77,8 @@ export function GoogleTranslate() {
     <div className="relative" ref={dropdownRef}>
       {/* Premium Custom Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Select language"
+        onClick={() => { setIsOpen(!isOpen); window.dispatchEvent(new Event("ssis-load-google-translate")); }}
+        aria-label={`Select language (${currentLangObj.name})`}
         aria-expanded={isOpen}
         className="flex items-center gap-2 p-2 px-4 transition-all duration-300 rounded-full border border-brand-charcoal/20 hover:border-brand-gold hover:bg-brand-charcoal/5 group bg-brand-white/50 backdrop-blur-sm"
       >

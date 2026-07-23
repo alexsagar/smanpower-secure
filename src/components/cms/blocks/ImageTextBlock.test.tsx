@@ -44,7 +44,7 @@ describe("ImageTextBlock media rendering", () => {
 
     expect(html).toContain("<video");
     expect(html).toContain("controls");
-    expect(html).toContain('preload="metadata"');
+    expect(html).toContain('preload="none"');
     expect(html).not.toContain("autoplay");
   });
 });

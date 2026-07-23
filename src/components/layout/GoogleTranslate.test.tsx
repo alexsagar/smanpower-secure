@@ -15,7 +15,7 @@ describe("GoogleTranslate Component", () => {
     const html = renderToStaticMarkup(<GoogleTranslate />);
     // Static markup should render English initially and a button
     expect(html).toContain("English");
-    expect(html).toContain('aria-label="Select language"');
+    expect(html).toContain('aria-label="Select language (English)"');
   });
 
   it("does not render duplicate script containers", () => {
@@ -65,12 +65,17 @@ describe("GoogleTranslateScript", () => {
     }));
     vi.doMock("next/navigation", () => ({ usePathname: () => "/" }));
 
-    (globalThis as { window?: unknown }).window = {};
+    const listeners: Record<string, () => void> = {};
+    (globalThis as { window?: unknown }).window = {
+      addEventListener: vi.fn((name: string, callback: () => void) => { listeners[name] = callback; }),
+      removeEventListener: vi.fn(),
+    };
     (globalThis as { document?: unknown }).document = documentMock;
 
     const { GoogleTranslateScript } = await import("./GoogleTranslateScript");
     GoogleTranslateScript();
-    GoogleTranslateScript();
+    listeners["ssis-load-google-translate"]?.();
+    listeners["ssis-load-google-translate"]?.();
 
     expect(scripts).toHaveLength(1);
     expect(scripts[0]?.id).toBe("google-translate-script");

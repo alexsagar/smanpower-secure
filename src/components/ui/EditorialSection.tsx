@@ -34,7 +34,6 @@ export function EditorialSection({ title, subtitle, children, className, dark = 
             <h2 className={cn("text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter leading-[1.05]", dark ? "text-brand-white" : "text-brand-black")}>
               {title}
             </h2>
-            <div className="h-32 w-px bg-gradient-to-b from-brand-gold to-transparent mt-12 origin-top animate-[scale-y_1s_ease-out]" />
           </ScrollReveal>
         </div>
         

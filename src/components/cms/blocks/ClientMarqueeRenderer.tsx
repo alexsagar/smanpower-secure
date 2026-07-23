@@ -5,6 +5,7 @@ import Image from "next/image";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsClientPartner, CmsContentBlock } from "@/types/content";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
 
 export function ClientMarqueeRenderer({ 
   block, 
@@ -58,7 +59,7 @@ export function ClientMarqueeRenderer({
               {clients.map((client, idx) => (
                 <div key={idx} className="flex items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[200px]">
                   {client.logoUrl ? (
-                    <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 240, height: 120 })} alt={client.name} width={120} height={60} sizes="120px" className="object-contain max-h-16" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -70,7 +71,7 @@ export function ClientMarqueeRenderer({
               {clients.map((client, idx) => (
                 <div key={`dup-${idx}`} className="flex items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[200px]">
                   {client.logoUrl ? (
-                    <Image src={client.logoUrl} alt={client.name} width={120} height={60} className="object-contain max-h-16" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 240, height: 120 })} alt={client.name} width={120} height={60} sizes="120px" className="object-contain max-h-16" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -91,11 +92,11 @@ export function ClientMarqueeRenderer({
             <div className="flex shrink-0 justify-around items-center gap-8 px-4">
               {groups.map((group, idx) => (
                 <div key={idx} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
-                  <span className="text-brand-gold text-xs font-bold tracking-[0.2em] uppercase mb-1">
+                  <span className="text-brand-gold-dark text-xs font-bold tracking-[0.2em] uppercase mb-1">
                     {group.type.replace("_", " ")}
                   </span>
                   {group.logoUrl ? (
-                    <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 240, height: 100 })} alt={group.name} width={120} height={50} sizes="120px" className="object-contain max-h-12" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
@@ -106,11 +107,11 @@ export function ClientMarqueeRenderer({
             <div className="flex shrink-0 justify-around items-center gap-8 px-4">
               {groups.map((group, idx) => (
                 <div key={`dup-group-${idx}`} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
-                  <span className="text-brand-gold text-xs font-bold tracking-[0.2em] uppercase mb-1">
+                  <span className="text-brand-gold-dark text-xs font-bold tracking-[0.2em] uppercase mb-1">
                     {group.type.replace("_", " ")}
                   </span>
                   {group.logoUrl ? (
-                    <Image src={group.logoUrl} alt={group.name} width={120} height={50} className="object-contain max-h-12" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 240, height: 100 })} alt={group.name} width={120} height={50} sizes="120px" className="object-contain max-h-12" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}

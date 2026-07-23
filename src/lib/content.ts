@@ -13,6 +13,27 @@ export interface PageContent {
     title: string;
     image: string;
   }[];
+  /** "Our Process" numbered steps. Rendered as its own section when present. */
+  process?: {
+    title: string;
+    desc: string;
+  }[];
+  processEyebrow?: string;
+  processHeading?: string;
+  /** Frequently asked questions. Rendered as its own section when present. */
+  faqs?: {
+    q: string;
+    a: string;
+  }[];
+  faqsEyebrow?: string;
+  faqsHeading?: string;
+  /** Closing call-to-action band. Rendered when present. */
+  cta?: {
+    heading: string;
+    body: string;
+    buttonLabel?: string;
+    buttonHref?: string;
+  };
   /**
    * Labels rendered by DynamicPageTemplate itself. Optional: when absent the
    * template falls back to the wording it has always shown.
@@ -24,6 +45,131 @@ export interface PageContent {
   documentsHeading?: string;
   documentsCtaLabel?: string;
 }
+
+/**
+ * Section content shared by every child page in a category (process, FAQs,
+ * closing CTA). Kept at category level because the recruitment journey and the
+ * common questions are genuinely the same across a category — this fills every
+ * page out to 5-6 sections without fabricating mismatched per-page filler, and
+ * an individual page can still override any field with its own data.
+ */
+export const categoryDefaults: Record<string, Partial<PageContent>> = {
+  employers: {
+    processEyebrow: "How We Work",
+    processHeading: "From Requirement to Deployment.",
+    process: [
+      { title: "Requirement Analysis", desc: "We study your roles, headcount, timelines, and destination-country standards to build a precise sourcing brief." },
+      { title: "Sourcing & Screening", desc: "Candidates are identified across Nepal and put through background, medical, and behavioural screening before you ever see a shortlist." },
+      { title: "Trade Testing & Interviews", desc: "You interview pre-vetted talent and validate practical skills — remotely or on-site — in our Kathmandu facilities." },
+      { title: "Documentation & Deployment", desc: "We manage visas, DOFE clearances, orientation, and travel, then support both worker and employer after arrival." },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "What Employers Ask.",
+    faqs: [
+      { q: "Do candidates pay any recruitment fees?", a: "No. We operate strictly on the employer-pays principle. Candidates are never charged placement or processing fees." },
+      { q: "How quickly can you mobilise a workforce?", a: "Timelines depend on role, volume, and government processing, but our streamlined documentation and DOFE relationships keep deployment on schedule." },
+      { q: "Can we interview candidates before selection?", a: "Yes. You can conduct interviews and monitor trade tests remotely by live video or send your own assessors to our facilities." },
+    ],
+    cta: {
+      heading: "Ready to build your global team?",
+      body: "Share your workforce requirements and our corporate relations team will prepare a tailored deployment proposal.",
+      buttonLabel: "Request Workforce",
+      buttonHref: "/employers/request-workforce",
+    },
+  },
+  "ethical-recruitment": {
+    processEyebrow: "Our Safeguards",
+    processHeading: "Ethics Built Into Every Step.",
+    process: [
+      { title: "Responsible Sourcing", desc: "We source only through vetted, audited partners — never unregulated brokers — so no candidate is charged a fee to be recruited." },
+      { title: "Transparent Contracts", desc: "Every candidate receives their contract in their own language and fully understands wages, roles, and conditions before committing." },
+      { title: "Continuous Monitoring", desc: "Our supply chain is audited regularly, and any partner found charging fees or misleading workers is immediately blacklisted." },
+      { title: "Ongoing Welfare Support", desc: "Deployed workers reach our welfare team through multilingual, retaliation-free grievance channels at any time." },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "Ethical Recruitment, Explained.",
+    faqs: [
+      { q: "What does the employer-pays principle mean?", a: "All recruitment costs — flights, visas, medicals, and agency fees — are borne by the employer, never the worker." },
+      { q: "How do you prevent forced labour?", a: "Workers keep their own passports and documents, contracts are transparent, and our sourcing network is audited against RBA standards." },
+      { q: "What happens if a worker has a complaint abroad?", a: "They can report anonymously through our 24/7 grievance channels, and dedicated welfare officers investigate every case." },
+    ],
+    cta: {
+      heading: "Recruitment done the right way.",
+      body: "Partner with an agency that treats worker dignity and transparency as non-negotiable.",
+      buttonLabel: "Talk to Our Team",
+      buttonHref: "/contact",
+    },
+  },
+  industries: {
+    processEyebrow: "How We Deliver",
+    processHeading: "Sector-Specific Sourcing.",
+    process: [
+      { title: "Sector Mapping", desc: "We translate your industry's role requirements and standards into a targeted sourcing plan for the Nepali talent pool." },
+      { title: "Skill Verification", desc: "Candidates prove practical competency through trade testing in environments that mirror the actual work site." },
+      { title: "Readiness Training", desc: "Pre-deployment orientation covers safety, culture, and industry-specific practices so workers are productive from day one." },
+      { title: "Deployment & Support", desc: "We handle documentation and travel, then stay engaged through our on-ground offices in destination countries." },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "Sourcing For Your Sector.",
+    faqs: [
+      { q: "Are candidates skill-tested for this industry?", a: "Yes. Every candidate is trade-tested against sector standards before being shortlisted for deployment." },
+      { q: "Can you supply workers at scale?", a: "Our nationwide sourcing network lets us run industry-specific recruitment drives to meet high-volume requirements." },
+      { q: "Which destination countries do you serve?", a: "We deploy across the Gulf, Europe, and Asia, with coordination offices supporting workers after arrival." },
+    ],
+    cta: {
+      heading: "Need skilled talent for your sector?",
+      body: "Tell us your requirements and we will source, screen, and deploy candidates matched to your industry.",
+      buttonLabel: "Request Workforce",
+      buttonHref: "/employers/request-workforce",
+    },
+  },
+  "training-facilities": {
+    processEyebrow: "How We Prepare",
+    processHeading: "Ready Before They Fly.",
+    process: [
+      { title: "Skills Assessment", desc: "We benchmark each candidate's current ability against the destination role to design the right preparation plan." },
+      { title: "Hands-On Training", desc: "Candidates practise with the exact tools, equipment, and safety protocols they will use abroad." },
+      { title: "Orientation & Language", desc: "Cultural orientation, legal awareness, and targeted language instruction prepare workers for life and work overseas." },
+      { title: "Final Trade Test", desc: "A rigorous practical test — which employers can watch live — validates readiness before deployment." },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "About Our Facilities.",
+    faqs: [
+      { q: "Can employers inspect the facilities?", a: "Yes. Transparency is a core value — employers are welcome to inspect our centres or take a virtual tour." },
+      { q: "Can we observe trade tests?", a: "Employers can monitor testing sessions live via secure video links or send their own assessors." },
+      { q: "What does orientation cover?", a: "Local laws and customs, workplace safety, financial literacy, and stress management for a smooth transition abroad." },
+    ],
+    cta: {
+      heading: "See how we prepare our talent.",
+      body: "Arrange a visit or virtual tour of our training and trade-testing facilities in Kathmandu.",
+      buttonLabel: "Contact Us",
+      buttonHref: "/contact",
+    },
+  },
+  "trust-centre": {
+    processEyebrow: "How We Stay Accountable",
+    processHeading: "Compliance You Can Verify.",
+    process: [
+      { title: "Government Licensing", desc: "We operate under full authorization from Nepal's Department of Foreign Employment, maintained through regular audits." },
+      { title: "International Standards", desc: "Our processes are certified against ISO quality management and aligned with the Responsible Business Alliance code." },
+      { title: "Open Documentation", desc: "Licenses, certifications, and compliance records are available for employer review under our open-book policy." },
+      { title: "Independent Audits", desc: "We submit to unannounced third-party checks and maintain a flawless regulatory compliance record." },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "Trust & Compliance.",
+    faqs: [
+      { q: "Is Seven Seas government licensed?", a: "Yes. We are fully licensed by the Department of Foreign Employment (DOFE), Nepal, with a clean compliance record." },
+      { q: "What certifications do you hold?", a: "We hold ISO 9001:2015 for quality management and operate on a Responsible Business Alliance–aligned framework." },
+      { q: "Can we review your compliance documents?", a: "Absolutely. Our major licenses, tax clearances, and certifications are open for partner review." },
+    ],
+    cta: {
+      heading: "Partner with confidence.",
+      body: "Work with a licensed, audited, and internationally certified recruitment partner.",
+      buttonLabel: "Talk to Our Team",
+      buttonHref: "/contact",
+    },
+  },
+};
 
 export const employersContent: PageContent[] = [
   {
@@ -540,6 +686,11 @@ export function getContentBySlug(category: string, slug: string): PageContent | 
     "training-facilities": trainingContent,
     "trust-centre": trustContent,
   };
-  
-  return map[category]?.find((p) => p.slug === slug);
+
+  const page = map[category]?.find((p) => p.slug === slug);
+  if (!page) return undefined;
+
+  // Layer the category-wide process / FAQ / CTA sections underneath the page's
+  // own data so every child page renders 5-6 sections; page fields win.
+  return { ...categoryDefaults[category], ...page };
 }

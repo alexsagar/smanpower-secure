@@ -81,7 +81,7 @@ export function TrustCentreBlock({ block, lang }: { block: CmsContentBlock; lang
                       <span className="text-[10px] tracking-wider uppercase">{doc.date}</span>
                     </div>
 
-                    <button className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-charcoal/5 group-hover:bg-brand-gold hover:scale-110 transition-all duration-300 group/btn">
+                    <button type="button" aria-label={`Download ${doc.title}`} className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-charcoal/5 group-hover:bg-brand-gold hover:scale-110 transition-all duration-300 group/btn">
                       <Download className="w-3 h-3 text-brand-black group-hover/btn:text-brand-black" />
                     </button>
                   </div>

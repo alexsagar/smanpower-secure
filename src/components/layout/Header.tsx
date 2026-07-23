@@ -87,7 +87,7 @@ export function Header({
                   : "text-brand-charcoal"
               )}
             >
-              <span className="font-brand block text-base font-semibold tracking-wide uppercase leading-none">
+              <span className="font-brand block text-sm font-semibold tracking-wide uppercase leading-none">
                 {copy.wordmarkLead}
               </span>
               <div className={cn(
@@ -115,7 +115,7 @@ export function Header({
                 className={cn(
                   // Science Gothic runs wider than Manrope, so the labels are set
                   // smaller with tracking to look elegant and save horizontal space.
-                  "font-brand relative py-2 font-medium uppercase tracking-widest flex items-center gap-1",
+                  "font-brand relative min-h-11 px-2 py-2 font-medium uppercase tracking-widest flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
@@ -126,7 +126,7 @@ export function Header({
                     ? "text-brand-white/90 hover:text-brand-white"
                     : "text-brand-charcoal hover:text-brand-gold"
                 )}
-                style={{ fontSize: "8px" }}
+                style={{ fontSize: "7.5px" }}
               >
                 {section.label}
               </button>
@@ -138,6 +138,7 @@ export function Header({
         <div className="hidden lg:flex items-center gap-3 xl:gap-5 shrink-0">
           <Link
             href="/search"
+            aria-label="Search Seven Seas Intercontinental"
             className={cn(
               "p-2 transition-colors rounded-full hover:bg-brand-white/10",
               !scrolled && !activeDesktopDropdown && pathname === "/"
@@ -145,7 +146,7 @@ export function Header({
                 : "text-brand-charcoal hover:text-brand-gold"
             )}
           >
-            <Search className="w-4 h-4 xl:w-5 xl:h-5" />
+            <Search aria-hidden="true" className="w-4 h-4 xl:w-5 xl:h-5" />
           </Link>
 
           <div className="hidden xl:flex items-center">
@@ -192,6 +193,7 @@ export function Header({
               : "text-brand-charcoal"
           )}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>

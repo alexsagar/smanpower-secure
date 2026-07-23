@@ -2,17 +2,17 @@ import React from "react";
 import Image from "next/image";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
-import { resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { CheckCircle, FileText } from "lucide-react";
 import { ManagedVideo } from "../ManagedVideo";
 
 export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   const content = block.content as any;
-  const mediaUrl = resolveMediaUrl(block.image);
+  const mediaUrl = resolveImageMediaUrl(block.image, { width: 1440 });
   const videoUrl = resolveMediaUrl(block.video);
-  const posterUrl = resolveMediaUrl(block.videoPoster || block.image);
-  const mobileFallbackUrl = resolveMediaUrl(block.mobileImage || block.videoPoster || block.image);
+  const posterUrl = resolveImageMediaUrl(block.videoPoster || block.image, { width: 1440 });
+  const mobileFallbackUrl = resolveImageMediaUrl(block.mobileImage || block.videoPoster || block.image, { width: 960 });
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-white">
@@ -39,6 +39,7 @@ export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: 
                     src={mediaUrl}
                     alt={block.image?.altText || "Section image"}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"
                   />
                 )}
@@ -64,7 +65,7 @@ export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: 
                     <div key={idx} className="flex gap-4">
                       <CheckCircle className="w-6 h-6 text-brand-gold shrink-0 mt-1" />
                       <div>
-                        <h4 className="font-bold text-brand-charcoal text-lg">{feature.title}</h4>
+                        <h3 className="font-bold text-brand-charcoal text-lg">{feature.title}</h3>
                         <p className="text-brand-charcoal/70 mt-1">{feature.desc}</p>
                       </div>
                     </div>
