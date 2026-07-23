@@ -121,28 +121,52 @@ export const termsOfServiceCopy = {
   headingHighlight: "Service",
   lastUpdatedLabel: "Last updated:",
   intro:
-    "By accessing and using the Seven Seas Intercontinental website and services, you agree to comply with and be bound by the following terms and conditions.",
+    "By accessing and using the Seven Seas Intercontinental website and services, you agree to comply with and be bound by the following terms and conditions. Please read them carefully — they explain your rights and responsibilities, our commitments to ethical recruitment, and the limits of our role in the international employment process.",
   sections: [
     {
       heading: "1. Acceptance of Terms",
-      body: "These Terms of Service govern your use of our website and services. If you do not agree with any part of these terms, please refrain from using our services.",
+      body: "These Terms of Service govern your use of our website and services. By browsing our site, submitting an application, or engaging our recruitment services, you confirm that you accept these terms in full. If you do not agree with any part of them, please refrain from using our services.",
     },
     {
-      heading: "2. Use of Services",
-      body: "Our platform connects candidates with foreign job opportunities. While we strive to ensure the accuracy of all job postings, we cannot guarantee employment, visa approvals, or specific conditions set by foreign employers.",
+      heading: "2. Eligibility",
+      body: "Our services are intended for candidates who are legally eligible to work abroad and for employers lawfully seeking to hire international workers. You confirm that you are of legal working age and that all information and documents you provide to us are true, accurate, and your own.",
     },
     {
-      heading: "3. Zero-Tolerance Policy",
-      body: "We operate strictly under the ethical recruitment guidelines of the Government of Nepal. Any fraudulent activities, forged documents, or illegal payments will result in immediate disqualification and reporting to the authorities.",
+      heading: "3. Use of Services",
+      body: "Our platform connects candidates with foreign job opportunities and helps employers source qualified Nepali talent. While we strive to ensure the accuracy of all job postings, we cannot guarantee employment, visa approvals, salaries, or specific conditions set by foreign employers, as these depend on third parties and government authorities beyond our control.",
     },
     {
-      heading: "4. Limitation of Liability",
-      body: "Seven Seas Intercontinental shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website content.",
+      heading: "4. Employer-Pays & Zero-Fee Principle",
+      body: "In line with ethical recruitment standards and the guidelines of the Government of Nepal, we operate on an employer-pays basis. We do not charge candidates recruitment fees. If anyone requests payment from you in our name for securing a job, do not pay — report it to us immediately so we can act.",
+    },
+    {
+      heading: "5. Candidate Responsibilities",
+      body: "You agree to provide honest information, attend scheduled interviews, medicals, and orientations, and comply with the lawful requirements of the recruitment and deployment process. Providing false information, forged documents, or attempting to bypass official procedures may result in disqualification.",
+    },
+    {
+      heading: "6. Zero-Tolerance Policy",
+      body: "We operate strictly under the ethical recruitment guidelines of the Government of Nepal. Any fraudulent activity, forged documentation, illegal payment, or misrepresentation will result in immediate disqualification and reporting to the relevant authorities.",
+    },
+    {
+      heading: "7. Intellectual Property",
+      body: "All content on this website — including text, graphics, logos, images, and page layouts — is the property of Seven Seas Intercontinental or its licensors and is protected by applicable law. You may not reproduce, distribute, or use our content for commercial purposes without our prior written consent.",
+    },
+    {
+      heading: "8. Third-Party Links & Employers",
+      body: "Our website and services may reference third-party employers, partners, or external websites. We are not responsible for the content, policies, or practices of third parties, and any engagement you have with a foreign employer is subject to the contract agreed between you and that employer.",
+    },
+    {
+      heading: "9. Limitation of Liability",
+      body: "To the fullest extent permitted by law, Seven Seas Intercontinental shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website content, or from the acts or omissions of foreign employers, government bodies, or other third parties.",
+    },
+    {
+      heading: "10. Changes to These Terms",
+      body: "We may revise these Terms of Service from time to time to reflect changes in our services, practices, or legal obligations. The updated version and its effective date will be posted on this page, and your continued use of our services after any change constitutes acceptance of the revised terms.",
     },
   ],
   // Rendered with the contact address as a mailto link.
   contactSection: {
-    heading: "5. Contact Us",
+    heading: "11. Contact Us",
     bodyLead:
       "If you have any questions regarding these terms, please contact our administrative team at ",
     email: "info@smanpower.com",

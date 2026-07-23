@@ -101,11 +101,6 @@ export function HeroInternal({
         </ScrollReveal>
         
         <ScrollReveal delay={0.2} className="mt-12 flex flex-col items-center">
-          {/* Glowing Line */}
-          <div className="relative mb-8">
-            <div className="h-16 w-px bg-gradient-to-b from-brand-gold to-transparent relative z-10" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 h-8 w-4 bg-brand-gold blur-xl opacity-30" />
-          </div>
           <p className="text-brand-white/80 max-w-lg text-center uppercase tracking-[0.2em] text-xs font-semibold">
             {subtitle}
           </p>

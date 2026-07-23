@@ -40,6 +40,38 @@ function asDocuments(value: unknown): PageContent["documents"] {
     .filter((item) => item.title || item.image);
 }
 
+function asProcess(value: unknown): PageContent["process"] {
+  return asArray<Record<string, unknown>>(value)
+    ?.map((item) => ({
+      title: asString(item.title) ?? "",
+      desc: asString(item.desc) ?? "",
+    }))
+    .filter((item) => item.title || item.desc);
+}
+
+function asFaqs(value: unknown): PageContent["faqs"] {
+  return asArray<Record<string, unknown>>(value)
+    ?.map((item) => ({
+      q: asString(item.q) ?? "",
+      a: asString(item.a) ?? "",
+    }))
+    .filter((item) => item.q || item.a);
+}
+
+function asCta(value: unknown, fallback?: PageContent["cta"]): PageContent["cta"] {
+  if (!value || typeof value !== "object") return fallback;
+  const item = value as Record<string, unknown>;
+  const heading = asString(item.heading);
+  const body = asString(item.body);
+  if (!heading && !body) return fallback;
+  return {
+    heading: heading ?? fallback?.heading ?? "",
+    body: body ?? fallback?.body ?? "",
+    buttonLabel: asString(item.buttonLabel) ?? fallback?.buttonLabel,
+    buttonHref: asString(item.buttonHref) ?? fallback?.buttonHref,
+  };
+}
+
 /**
  * Builds the CMS block content for a dynamic page from a PageContent record.
  * Shared with the migration script so the stored shape and the shape read back
@@ -64,6 +96,13 @@ export function buildDynamicPageBlockContent(entry: PageContent) {
     paragraphs: entry.missionText ?? [],
     features: entry.features ?? [],
     documents: entry.documents ?? [],
+    process: entry.process ?? [],
+    processEyebrow: entry.processEyebrow ?? "",
+    processHeading: entry.processHeading ?? "",
+    faqs: entry.faqs ?? [],
+    faqsEyebrow: entry.faqsEyebrow ?? "",
+    faqsHeading: entry.faqsHeading ?? "",
+    cta: entry.cta ?? null,
   };
 }
 
@@ -76,6 +115,9 @@ export function mapBlockContentToPageContent(
   const features = asFeatures(content.features) ?? fallback?.features;
   const documents = asDocuments(content.documents) ?? fallback?.documents;
   const missionText = asArray<string>(content.paragraphs) ?? fallback?.missionText;
+  const process = asProcess(content.process) ?? fallback?.process;
+  const faqs = asFaqs(content.faqs) ?? fallback?.faqs;
+  const cta = asCta(content.cta, fallback?.cta);
 
   return {
     slug,
@@ -85,6 +127,10 @@ export function mapBlockContentToPageContent(
     documentsEyebrow: asString(content.documentsEyebrow) ?? fallback?.documentsEyebrow,
     documentsHeading: asString(content.documentsHeading) ?? fallback?.documentsHeading,
     documentsCtaLabel: asString(content.documentsCtaLabel) ?? fallback?.documentsCtaLabel,
+    processEyebrow: asString(content.processEyebrow) ?? fallback?.processEyebrow,
+    processHeading: asString(content.processHeading) ?? fallback?.processHeading,
+    faqsEyebrow: asString(content.faqsEyebrow) ?? fallback?.faqsEyebrow,
+    faqsHeading: asString(content.faqsHeading) ?? fallback?.faqsHeading,
     title: asString(content.title) ?? fallback?.title ?? "",
     subtitle: asString(content.subtitle) ?? fallback?.subtitle ?? "",
     heroImage: asString(content.heroImage) ?? fallback?.heroImage ?? "",
@@ -92,5 +138,8 @@ export function mapBlockContentToPageContent(
     ...(missionText ? { missionText } : {}),
     ...(features ? { features } : {}),
     ...(documents ? { documents } : {}),
+    ...(process ? { process } : {}),
+    ...(faqs ? { faqs } : {}),
+    ...(cta ? { cta } : {}),
   };
 }

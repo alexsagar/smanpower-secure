@@ -86,7 +86,6 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
             <ScrollReveal delay={0.4}>
               <div className="relative">
                 <div className="absolute -left-6 top-2 h-full w-px bg-brand-charcoal/10 hidden lg:block" />
-                <div className="absolute -left-6 top-2 h-1/3 w-px bg-brand-gold hidden lg:block" />
 
                 <div className="space-y-8 text-brand-charcoal/75 text-base lg:text-lg leading-relaxed font-medium">
                   {content.paragraphs?.map((p: string, i: number) => (
