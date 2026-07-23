@@ -113,7 +113,7 @@ export function Header({
             >
               <button
                 className={cn(
-                  // Science Gothic runs wider than Inter, so the labels are set
+                  // Science Gothic runs wider than Manrope, so the labels are set
                   // smaller with tracking to look elegant and save horizontal space.
                   "font-brand relative py-2 font-medium uppercase tracking-widest flex items-center gap-1",
                   "transition-colors duration-200",

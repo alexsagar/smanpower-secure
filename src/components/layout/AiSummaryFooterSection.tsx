@@ -17,7 +17,7 @@ export function AiSummaryFooterSection({ settings, basePrompt }: AiSummaryFooter
 
   return (
     <div className="flex flex-col gap-3 mt-8">
-      <h4 className="font-brand text-sm font-semibold uppercase tracking-widest text-brand-white/55">
+      <h4 className="footer-heading font-brand uppercase text-brand-white/55">
         {settings.heading || "Explore AI Summary"}
       </h4>
       <div className="flex items-center gap-4">

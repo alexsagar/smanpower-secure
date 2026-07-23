@@ -4,7 +4,7 @@ import { SessionInvalidError, UnauthenticatedError } from "@/lib/auth-errors";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
 import { Toaster } from "sonner";
-import { inter } from "@/lib/fonts";
+import { manrope } from "@/lib/fonts";
 import "@/app/globals.css";
 import type { Metadata } from "next";
 import { SessionTimeoutManager } from "@/components/admin/SessionTimeoutManager";
@@ -58,7 +58,7 @@ export default async function AdminLayout({
   };
 
   return (
-    <html lang="en" className={`h-full antialiased ${inter.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={`h-full antialiased ${manrope.variable}`} data-scroll-behavior="smooth">
       <body className="h-full font-sans bg-brand-off-white text-brand-charcoal">
         <SessionTimeoutManager config={sessionTimeoutConfig} />
         <div className="flex h-full">

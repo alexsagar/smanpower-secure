@@ -83,7 +83,7 @@ export function PillarGridBlock({ block, lang }: { block: CmsContentBlock; lang:
 
                   <div className="relative z-10">
                     <div className="h-px w-8 bg-brand-charcoal/20 group-hover:bg-brand-gold group-hover:w-16 transition-all duration-500 mb-6" />
-                    <h3 className="text-xl lg:text-2xl font-semibold text-brand-black group-hover:text-brand-gold transition-colors duration-500 leading-snug">
+                    <h3 className="card-title text-brand-black group-hover:text-brand-gold transition-colors duration-500">
                       {step.title}
                     </h3>
                   </div>

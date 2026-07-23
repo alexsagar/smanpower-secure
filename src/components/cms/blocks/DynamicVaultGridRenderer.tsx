@@ -55,7 +55,7 @@ export function DynamicVaultGridRenderer({ block, documents }: { block: CmsConte
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-semibold text-brand-black mt-12 pr-4 leading-tight tracking-tight transition-colors duration-500 group-hover:text-brand-gold">
+                    <h3 className="card-title text-brand-black mt-12 pr-4 transition-colors duration-500 group-hover:text-brand-gold">
                       {item.title}
                     </h3>
                     <div className="w-12 h-px bg-brand-charcoal/10 mt-6 group-hover:w-full group-hover:bg-brand-gold/30 transition-all duration-700" />
