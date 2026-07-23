@@ -44,6 +44,22 @@ const certificationLogosSchema = z.array(certificationLogoSchema).max(12).refine
   "Order values must be unique"
 );
 
+const footerContactSchema = z.object({
+  address: z.string().max(200).optional(),
+  addressLine2: z.string().max(200).optional(),
+  city: z.string().max(120).optional(),
+  province: z.string().max(120).optional(),
+  country: z.string().max(120).optional(),
+  postalCode: z.string().max(40).optional(),
+  phone: z.string().max(60).optional(),
+  fax: z.string().max(60).optional(),
+  email: z.string().max(160).optional(),
+  whatsapp: z.string().max(60).optional(),
+  officeHours: z.string().max(200).optional(),
+});
+
+export type FooterContactInput = z.infer<typeof footerContactSchema>;
+
 const socialLinkSchema = z.object({
   platform: z.enum(FOOTER_SOCIAL_PLATFORMS),
   label: z.string().min(1).max(120),
@@ -124,6 +140,33 @@ export async function saveFooterCertificationLogosAction(input: CertificationLog
     return { success: true };
   } catch (error) {
     logger.error("Failed to save footer certification logos", error as Error, {});
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+export async function saveFooterContactAction(input: FooterContactInput) {
+  await requirePermission(SETTINGS_PERMISSIONS.UPDATE);
+
+  try {
+    const parsed = footerContactSchema.parse(input);
+    // Store only non-empty fields so unset values keep falling back to defaults.
+    const value = Object.fromEntries(
+      Object.entries(parsed).filter(([, v]) => typeof v === "string" && v.trim() !== ""),
+    );
+
+    await prisma.siteSetting.upsert({
+      where: { key: "footer_contact" },
+      update: { value },
+      create: { key: "footer_contact", value, group: "footer" },
+    });
+
+    logger.info("Updated footer contact info", { action: "UPDATE_FOOTER_CONTACT" });
+
+    revalidateTag("content", "max");
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error) {
+    logger.error("Failed to save footer contact info", error as Error, {});
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }

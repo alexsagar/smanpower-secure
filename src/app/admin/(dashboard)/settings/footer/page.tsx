@@ -5,8 +5,20 @@ import { requirePermission, SETTINGS_PERMISSIONS } from "@/lib/permissions";
 import { Metadata } from "next";
 import { CertificationLogosSettingsForm } from "./CertificationLogosSettingsForm";
 import { SocialLinksSettingsForm } from "./SocialLinksSettingsForm";
+import { ContactSettingsForm } from "./ContactSettingsForm";
 import { prisma } from "@/lib/prisma";
 import type { CmsSocialLink } from "@/types/content";
+
+async function getFooterContact(): Promise<Record<string, string>> {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "footer_contact" } });
+  const value = setting?.value;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string",
+    ),
+  );
+}
 
 export const metadata: Metadata = {
   title: "Footer Settings | Admin",
@@ -43,11 +55,20 @@ export default async function FooterSettingsPage() {
   const repo = new PrismaContentRepository();
   const settings = await repo.getFooterSettings();
   const socialLinks = await getEditableSocialLinks();
+  const contact = await getFooterContact();
 
   return (
     <div className="p-6 md:p-10 max-w-4xl">
       <h1 className="text-2xl font-semibold mb-6">Footer Settings</h1>
-      
+
+      <div className="bg-white rounded border border-neutral-200 shadow-sm p-6 mb-8">
+        <h2 className="text-lg font-medium mb-4">Contact Information</h2>
+        <p className="text-sm text-neutral-600 mb-6">
+          Address, phone, email, fax and other contact details shown in the footer. Leave a field empty to fall back to the default.
+        </p>
+        <ContactSettingsForm initialData={contact} />
+      </div>
+
       <div className="bg-white rounded border border-neutral-200 shadow-sm p-6 mb-8">
         <h2 className="text-lg font-medium mb-4">Explore AI Summary</h2>
         <p className="text-sm text-neutral-600 mb-6">
