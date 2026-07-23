@@ -175,7 +175,7 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
               {trustBadges.map((logo) => (
                 <span
                   key={`${logo.accessibleName}-${logo.order}`}
-                  className="flex h-12 w-12 md:h-16 md:w-16 shrink-0 items-center justify-center overflow-hidden"
+                  className="flex h-20 w-20 md:h-24 md:w-24 shrink-0 items-center justify-center overflow-hidden"
                   style={{ borderRadius: "9999px" }}
                 >
                   <Image
