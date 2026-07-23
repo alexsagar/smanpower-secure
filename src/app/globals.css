@@ -30,12 +30,31 @@
   :root {
     --background: #F7F5F0;
     --foreground: #171717;
+
+    /* Single source of truth for the fixed header height. Mirrors the
+       Header's `h-24 lg:h-28` (6rem / 7rem at the 14px root). Every hero top
+       offset and anchor scroll-margin reads this so the intentionally taller
+       navbar never overlaps content and stays in sync in one place. */
+    --site-header-height: 6rem;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --site-header-height: 7rem;
+    }
   }
 
   html {
     scroll-behavior: smooth;
     font-size: 14px;
     /* Scales down all rem-based Tailwind classes (text, padding, margin) proportionally */
+  }
+
+  /* Keep section anchors / hash links clear of the fixed header instead of
+     scrolling their heading underneath it. */
+  :target,
+  [id] {
+    scroll-margin-top: var(--site-header-height);
   }
 
   body {

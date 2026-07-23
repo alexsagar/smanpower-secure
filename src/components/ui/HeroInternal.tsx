@@ -29,7 +29,7 @@ export function HeroInternal({
   overlayOpacity,
 }: HeroInternalProps) {
   return (
-    <section className="relative h-[70dvh] min-h-[600px] w-full bg-brand-black overflow-hidden flex flex-col justify-center mt-20 group">
+    <section className="relative h-[70dvh] min-h-[600px] w-full bg-brand-black overflow-hidden flex flex-col justify-center mt-[var(--site-header-height)] group">
       {/* Background Image with Slow Pan Effect */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
         {videoSrc ? (
@@ -46,24 +46,26 @@ export function HeroInternal({
             decorative
             showPlaybackToggle
             containerClassName="absolute inset-0"
-            videoClassName="absolute inset-0 h-full w-full object-cover scale-110 opacity-40 grayscale-[20%]"
-            fallbackClassName="scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-40 grayscale-[20%]"
+            videoClassName="absolute inset-0 h-full w-full object-cover scale-110 opacity-70 grayscale-[20%]"
+            fallbackClassName="scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-70 grayscale-[20%]"
           />
         ) : (
           <Image
             src={imageSrc}
             alt="Header Background"
             fill
-            className="object-cover scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-40 grayscale-[20%]"
+            className="object-cover scale-110 transition-transform duration-[20000ms] group-hover:scale-125 opacity-70 grayscale-[20%]"
             priority
           />
         )}
         {/* Configurable CMS overlay drives the darkening (0–100 → 0–1). */}
         <MediaOverlay enabled={overlayEnabled} opacity={overlayOpacity} />
-        {/* Decorative edge vignette and the structural fade into the page
-            background below — both independent of the configurable overlay. */}
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)]" />
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-brand-off-white" />
+        {/* Decorative edge vignette (kept light so the photo stays visible; the
+            configurable MediaOverlay above supplies the primary darkening) and a
+            short structural fade into the page background — confined to the final
+            ~20% so the lower hero no longer washes out to a white fog. */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,transparent_80%,var(--color-brand-off-white)_100%)]" />
         {/* Cinematic Film Grain */}
         <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
       </div>
@@ -88,7 +90,7 @@ export function HeroInternal({
             </div>
           </div>
           {richTitle ? (
-            <div className="font-heading text-brand-white font-light tracking-tighter leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0">
+            <div className="font-heading text-brand-white font-light tracking-tighter leading-[0.9] max-w-5xl mx-auto drop-shadow-2xl [&_h1]:m-0 [&_h2]:m-0 [&_h3]:m-0 [&_p]:m-0 [&_h1]:text-inherit [&_h2]:text-inherit [&_h3]:text-inherit">
               {richTitle}
             </div>
           ) : (
@@ -104,7 +106,7 @@ export function HeroInternal({
             <div className="h-16 w-px bg-gradient-to-b from-brand-gold to-transparent relative z-10" />
             <div className="absolute top-0 left-1/2 -translate-x-1/2 h-8 w-4 bg-brand-gold blur-xl opacity-30" />
           </div>
-          <p className="text-brand-charcoal opacity-90 max-w-lg text-center uppercase tracking-[0.2em] text-xs font-semibold">
+          <p className="text-brand-white/80 max-w-lg text-center uppercase tracking-[0.2em] text-xs font-semibold">
             {subtitle}
           </p>
         </ScrollReveal>
