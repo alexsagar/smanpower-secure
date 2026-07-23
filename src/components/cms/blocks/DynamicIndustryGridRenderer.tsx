@@ -48,7 +48,7 @@ export function DynamicIndustryGridRenderer({ block, industries }: { block: CmsC
                       <ArrowUpRight className="w-4 h-4 text-brand-charcoal/30 group-hover:text-brand-gold transition-colors duration-500" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-semibold text-brand-black group-hover:text-brand-white mt-12 pr-4 leading-tight tracking-tight transition-colors duration-500">
+                  <h3 className="card-title text-brand-black group-hover:text-brand-white mt-12 pr-4 transition-colors duration-500">
                     {item.name}
                   </h3>
                 </div>

@@ -43,7 +43,7 @@ export function SolutionsGridBlock({ block, lang }: { block: CmsContentBlock; la
                   <div className="text-brand-gold mb-8 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 origin-left">
                     {getIcon(item.icon, "w-8 h-8")}
                   </div>
-                  <h3 className="text-2xl font-semibold text-brand-white mb-4 group-hover:text-brand-gold transition-colors">{item.title}</h3>
+                  <h3 className="card-title text-brand-white mb-4 group-hover:text-brand-gold transition-colors">{item.title}</h3>
                   <p className="text-brand-white/60 leading-relaxed mb-8">{item.desc}</p>
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                     {content.ctaText || "Explore Service"} <ArrowRight className="w-4 h-4" />

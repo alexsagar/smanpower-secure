@@ -76,7 +76,7 @@ export function EditorialBlock({ block, lang }: { block: CmsContentBlock; lang: 
               // It's a feature text card
               return (
                 <div key={i} className={`border p-8 transition-colors ${dark ? 'bg-brand-white/5 border-brand-white/10 hover:bg-brand-white/10' : 'bg-brand-off-white border-brand-charcoal/10 hover:bg-brand-charcoal/5'}`}>
-                  <h3 className="text-lg font-semibold text-brand-gold mb-3">{item.title}</h3>
+                  <h3 className="card-title text-brand-gold mb-3">{item.title}</h3>
                   <p className={`text-sm leading-relaxed ${dark ? 'text-white/70' : 'text-brand-muted'}`}>{item.desc}</p>
                 </div>
               );

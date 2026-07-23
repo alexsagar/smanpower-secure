@@ -102,7 +102,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
 
                   <div className="absolute bottom-8 left-8">
                     <div className="text-brand-gold text-[10px] tracking-[0.3em] uppercase font-bold mb-2">{trFacility.label}</div>
-                    <h3 className="text-xl lg:text-2xl font-semibold text-white">{trFacility.title}</h3>
+                    <h3 className="card-title text-white">{trFacility.title}</h3>
                   </div>
                 </ScrollReveal>
               )}
@@ -120,7 +120,7 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
 
                   <div className="absolute bottom-8 left-8">
                     <div className="text-brand-gold text-[10px] tracking-[0.3em] uppercase font-bold mb-2">{brFacility.label}</div>
-                    <h3 className="text-xl lg:text-2xl font-semibold text-white">{brFacility.title}</h3>
+                    <h3 className="card-title text-white">{brFacility.title}</h3>
                   </div>
                 </ScrollReveal>
               )}

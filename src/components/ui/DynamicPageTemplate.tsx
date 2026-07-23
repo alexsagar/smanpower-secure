@@ -51,7 +51,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
                   <div className="text-brand-gold text-4xl font-serif italic mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
                     0{i + 1}
                   </div>
-                  <h3 className="text-2xl font-semibold text-brand-white mb-4 tracking-tight group-hover:text-brand-gold transition-colors">
+                  <h3 className="card-title text-brand-white mb-4 group-hover:text-brand-gold transition-colors">
                     {feature.title}
                   </h3>
                   <p className="text-brand-white/60 leading-relaxed font-light">
@@ -93,7 +93,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
                       className="w-full aspect-[3/4] object-cover filter grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                     />
                   </div>
-                  <h3 className="text-lg font-semibold text-brand-black group-hover:text-brand-gold transition-colors text-center border-b border-brand-charcoal/10 pb-4">
+                  <h3 className="card-title text-brand-black group-hover:text-brand-gold transition-colors text-center border-b border-brand-charcoal/10 pb-4">
                     {doc.title}
                   </h3>
                 </div>

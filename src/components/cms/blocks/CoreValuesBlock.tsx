@@ -52,7 +52,7 @@ export function CoreValuesBlock({ block, lang }: { block: CmsContentBlock; lang:
                   {getIcon(item.icon, "w-10 h-10")}
                 </div>
                 
-                <h3 className="text-2xl lg:text-3xl font-semibold text-brand-white mb-6 tracking-tight">
+                <h3 className="card-title text-brand-white mb-6">
                   {item.title}
                 </h3>
                 

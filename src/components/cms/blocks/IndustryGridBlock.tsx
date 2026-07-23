@@ -86,7 +86,7 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
                     </div>
 
                     <div>
-                      <h3 className="text-2xl font-semibold text-brand-charcoal group-hover:text-brand-white transition-colors duration-500 max-w-[200px] leading-tight">
+                      <h3 className="card-title text-brand-charcoal group-hover:text-brand-white transition-colors duration-500 max-w-[200px]">
                         {industry.title}
                       </h3>
                       {/* Optional: entries without a count keep the original layout. */}
