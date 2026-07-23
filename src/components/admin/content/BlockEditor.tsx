@@ -52,14 +52,17 @@ export function BlockEditor({
   const contentKeys = orderContentKeys(content);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full max-h-[700px]">
-      <div className="p-4 border-b border-gray-100 flex items-center gap-4 sticky top-0 bg-white z-10">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+      {/* Non-sticky header: the admin `<main>` is the single scroll container,
+          so a sticky header here would float over unrelated content and add a
+          second scrollbar. It scrolls naturally above its own fields instead. */}
+      <div className="p-4 border-b border-gray-100 flex items-center gap-4 bg-white">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded text-gray-500">
           <ChevronLeft className="w-5 h-5" />
         </button>
         <h3 className="font-semibold">{isEmployerTestimonials ? "Employer Testimonials" : blockTypeLabel(block.blockType)}</h3>
       </div>
-      <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+      <div className="p-6 space-y-6">
 
         {/* Managed media placements (dedicated columns, not block content) */}
         {block.imageId !== undefined && (

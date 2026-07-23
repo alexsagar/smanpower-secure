@@ -210,16 +210,19 @@ export function Header({
             onMouseLeave={() => setActiveDesktopDropdown(null)}
           >
             <div className="container-wide py-12">
-              <div className="grid grid-cols-4 gap-x-12">
-                <div className="col-span-1 border-r border-brand-charcoal/10 pr-12">
-                  <h2 className="text-2xl font-semibold text-brand-black mb-4">
+              <div className="grid grid-cols-[minmax(200px,260px)_minmax(0,1fr)] gap-x-12">
+                <div className="min-w-0 border-r border-brand-charcoal/10 pr-12">
+                  {/* card-title keeps this compact: the global .brand-headings h2
+                      scale is a page-level size that would overflow this narrow
+                      intro column and cross the divider. */}
+                  <h2 className="card-title text-brand-black mb-4 break-words">
                     {navConfig[activeDesktopDropdown as keyof typeof navConfig].label}
                   </h2>
                   <p className="text-sm text-brand-muted leading-relaxed">
                     {copy.megaMenuDescription}
                   </p>
                 </div>
-                <div className="col-span-3 grid grid-cols-3 gap-y-4 gap-x-12">
+                <div className="min-w-0 grid grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-12">
                   {navConfig[activeDesktopDropdown as keyof typeof navConfig].items.map((item) => (
                     <Link
                       key={item.href}

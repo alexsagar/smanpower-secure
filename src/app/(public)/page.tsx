@@ -23,10 +23,11 @@ export default async function HomePage() {
   
   const hero = await repo.getHeroByPageSlug("home");
   const blocks = await repo.getContentBlocksByPageSlug("home");
+  const footerSettings = await repo.getFooterSettings();
 
   return (
     <>
-      {hero && <DynamicHero hero={hero} />}
+      {hero && <DynamicHero hero={hero} certificationLogos={footerSettings.certificationLogos} />}
       
       {blocks.map(block => (
         <ContentBlockRenderer key={block.id} block={block} />
