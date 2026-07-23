@@ -15,6 +15,7 @@ import type { CmsHeroSection, CmsMediaAsset, CmsFooterCertificationLogo } from "
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
 import { ManagedVideo } from "./ManagedVideo";
+import { MediaOverlay } from "./MediaOverlay";
 
 interface DynamicHeroProps {
   hero: CmsHeroSection;
@@ -123,14 +124,10 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
             priority
           />
         ) : null}
-        {hero.overlayEnabled && (
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(to bottom, transparent, rgba(0,0,0,${(hero.overlayOpacity || 60) / 100}), #000000)`
-            }}
-          />
-        )}
+        <MediaOverlay enabled={hero.overlayEnabled} opacity={hero.overlayOpacity} />
+        {/* Structural bottom fade keeps the floating CTA bar legible regardless
+            of the configurable overlay above. */}
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-brand-black/80" />
       </div>
 
       {/* Architectural 4-Column Grid Lines */}
