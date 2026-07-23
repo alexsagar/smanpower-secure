@@ -126,7 +126,7 @@ export function Header({
                     ? "text-brand-white/90 hover:text-brand-white"
                     : "text-brand-charcoal hover:text-brand-gold"
                 )}
-                style={{ fontSize: "7px" }}
+                style={{ fontSize: "7.5px" }}
               >
                 {section.label}
               </button>
