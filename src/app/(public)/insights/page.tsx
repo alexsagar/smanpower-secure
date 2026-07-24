@@ -8,6 +8,10 @@ import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { prisma } from "@/lib/prisma";
 
+// Read directly from the DB, so ISR keeps the list fresh instead of serving the
+// build-time snapshot. revalidateInsightCaches also purges this path on publish.
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await prisma.sEOPageMeta.findUnique({
     where: { pagePath_lang: { pagePath: "/insights", lang: "en" } },

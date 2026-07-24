@@ -22,7 +22,7 @@ import { TrustCentreBlock } from "./blocks/TrustCentreBlock";
 import { EmployerTestimonialsBlock } from "./blocks/EmployerTestimonialsBlock";
 import { ClientMarqueeBlock } from "./blocks/ClientMarqueeBlock";
 import { StoryGridBlock } from "./blocks/StoryGridBlock";
-import { InsightPreviewBlock } from "./blocks/InsightPreviewBlock";
+import { InsightPreviewBlockServer } from "./blocks/InsightPreviewBlockServer";
 import { FinalCTABlock } from "./blocks/FinalCTABlock";
 import { ImageTextBlock } from "./blocks/ImageTextBlock";
 import { EditorialBlock } from "./blocks/EditorialBlock";
@@ -72,7 +72,7 @@ export function ContentBlockRenderer({ block, lang = "en" }: ContentBlockRendere
     case "story_grid":
       return <StoryGridBlock block={block} lang={lang} />;
     case "insight_preview":
-      return <InsightPreviewBlock block={block} lang={lang} />;
+      return <InsightPreviewBlockServer block={block} lang={lang} />;
     case "final_cta":
       return <FinalCTABlock block={block} lang={lang} />;
     case "image_text":

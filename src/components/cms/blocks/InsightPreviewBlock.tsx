@@ -5,11 +5,27 @@ import { ArrowRight, FileText, CheckCircle, Clock, ShieldCheck, Download, HeartH
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
+import { toPublicHref } from "@/lib/public-href";
 
-export function InsightPreviewBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
+export type InsightCard = { category: string; date: string; title: string; slug?: string };
+
+/**
+ * Presentational only — no data fetching, so it stays safe to render from the
+ * client-side admin preview. The public site passes live published insights via
+ * `articles` (see InsightPreviewBlockServer); the admin preview omits them and
+ * the block falls back to the CMS block's demo `articles`.
+ */
+export function InsightPreviewBlock({
+  block,
+  lang,
+  articles: liveArticles,
+}: { block: CmsContentBlock; lang: string; articles?: InsightCard[] }) {
   void lang;
   const content = block.content as any;
-  
+  const articles = liveArticles && liveArticles.length > 0
+    ? liveArticles
+    : (content.articles as any[] | undefined) ?? [];
+
   return (
     <>
       {/* SECTION 13: INSIGHTS AND NEWSROOM */}
@@ -47,8 +63,12 @@ export function InsightPreviewBlock({ block, lang }: { block: CmsContentBlock; l
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
-            {content.articles?.map((news: any, i: number) => (
-              <ScrollReveal key={i} delay={i * 0.1} className="group cursor-pointer block relative">
+            {articles.map((news: any, i: number) => {
+              const CardTag: any = news.slug ? Link : "div";
+              const cardProps = news.slug ? { href: toPublicHref(`/insights/${news.slug}`) } : {};
+              return (
+              <ScrollReveal key={news.slug ?? i} delay={i * 0.1} className="group cursor-pointer block relative">
+                <CardTag {...cardProps} className="block">
                 <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-brand-charcoal/40 mb-4 group-hover:text-brand-gold/70 transition-colors">
                   <span>{news.category}</span>
                   <span className="w-1 h-1 rounded-full bg-brand-charcoal/20 group-hover:bg-brand-gold/50 transition-colors" />
@@ -65,8 +85,10 @@ export function InsightPreviewBlock({ block, lang }: { block: CmsContentBlock; l
                   <span>{content.readArticleLabel || "Read Article"}</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>
+                </CardTag>
               </ScrollReveal>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
