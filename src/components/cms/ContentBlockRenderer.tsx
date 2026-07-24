@@ -18,7 +18,7 @@ import { PillarGridBlock } from "./blocks/PillarGridBlock";
 import { IndustryGridBlock } from "./blocks/IndustryGridBlock";
 import { TrainingBentoBlock } from "./blocks/TrainingBentoBlock";
 import { MapIntelligenceBlock } from "./blocks/MapIntelligenceBlock";
-import { TrustCentreBlock } from "./blocks/TrustCentreBlock";
+import { TrustCentreBlockServer } from "./blocks/TrustCentreBlockServer";
 import { EmployerTestimonialsBlock } from "./blocks/EmployerTestimonialsBlock";
 import { ClientMarqueeBlock } from "./blocks/ClientMarqueeBlock";
 import { StoryGridBlock } from "./blocks/StoryGridBlock";
@@ -63,7 +63,7 @@ export function ContentBlockRenderer({ block, lang = "en" }: ContentBlockRendere
     case "map_intelligence":
       return <MapIntelligenceBlock block={block} lang={lang} />;
     case "trust_centre":
-      return <TrustCentreBlock block={block} lang={lang} />;
+      return <TrustCentreBlockServer block={block} lang={lang} />;
     case "community":
     case "testimonial":
       return <EmployerTestimonialsBlock block={block} />;
