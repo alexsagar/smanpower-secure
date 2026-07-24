@@ -6,10 +6,21 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 
-export function TrustCentreBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
+export type TrustDoc = { id: string; title: string; type: string; date: string; href?: string };
+
+export function TrustCentreBlock({
+  block,
+  lang,
+  documents: liveDocuments,
+}: { block: CmsContentBlock; lang: string; documents?: TrustDoc[] }) {
   void lang;
   const content = block.content as any;
-  
+  // Live compliance documents drive the cards; the CMS block supplies the
+  // heading/eyebrow/cta. Fall back to the block's demo list when none exist.
+  const documents: any[] = liveDocuments && liveDocuments.length > 0
+    ? liveDocuments
+    : (content.documents as any[] | undefined) ?? [];
+
   return (
     <>
       {/* SECTION 10: TRUST CENTRE */}
@@ -54,7 +65,7 @@ export function TrustCentreBlock({ block, lang }: { block: CmsContentBlock; lang
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {content.documents?.map((doc: any, i: number) => (
+            {documents.map((doc: any, i: number) => (
               <ScrollReveal key={i} delay={i * 0.1} className="group relative">
                 {/* Glowing border effect on hover */}
                 <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl blur-xl" />
@@ -81,9 +92,15 @@ export function TrustCentreBlock({ block, lang }: { block: CmsContentBlock; lang
                       <span className="text-[10px] tracking-wider uppercase">{doc.date}</span>
                     </div>
 
-                    <button type="button" aria-label={`Download ${doc.title}`} className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-charcoal/5 group-hover:bg-brand-gold hover:scale-110 transition-all duration-300 group/btn">
-                      <Download className="w-3 h-3 text-brand-black group-hover/btn:text-brand-black" />
-                    </button>
+                    {doc.href ? (
+                      <a href={doc.href} target="_blank" rel="noopener noreferrer" aria-label={`View ${doc.title}`} className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-charcoal/5 group-hover:bg-brand-gold hover:scale-110 transition-all duration-300 group/btn">
+                        <Download className="w-3 h-3 text-brand-black group-hover/btn:text-brand-black" />
+                      </a>
+                    ) : (
+                      <button type="button" aria-label={`Download ${doc.title}`} className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-charcoal/5 group-hover:bg-brand-gold hover:scale-110 transition-all duration-300 group/btn">
+                        <Download className="w-3 h-3 text-brand-black group-hover/btn:text-brand-black" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </ScrollReveal>

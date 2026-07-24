@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { createDocument } from "@/actions/compliance";
+import { MediaInput } from "./MediaInput";
 import { Loader2 } from "lucide-react";
 
 export function ComplianceForm() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fileUrl, setFileUrl] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -54,6 +56,20 @@ export function ComplianceForm() {
         <div>
           <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Description</label>
           <textarea name="description" rows={4} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="Details about this compliance record..." />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Certificate / Document File</label>
+          {/* Hidden field carries the URL into the form action. */}
+          <input type="hidden" name="fileUrl" value={fileUrl} readOnly />
+          <MediaInput
+            value={fileUrl}
+            onChange={(_, url) => setFileUrl(url)}
+            label="Upload certificate image or PDF"
+            allowedResourceTypes={["IMAGE", "DOCUMENT"]}
+            uploadPurpose="cms_image"
+            helperText="Shown as a downloadable/viewable document on the Trust Centre and homepage."
+          />
         </div>
       </div>
 
