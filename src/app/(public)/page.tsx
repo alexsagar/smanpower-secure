@@ -6,6 +6,10 @@ import { Metadata } from "next";
 
 import { getPageSeo } from "@/repositories/content-resolver";
 
+// insight_preview now renders live published insights; ISR keeps the homepage
+// fresh (revalidateInsightCaches also purges "/" on publish).
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/");
   return buildPageMetadata({
