@@ -62,10 +62,10 @@ export function HeroInternal({
         <MediaOverlay enabled={overlayEnabled} opacity={overlayOpacity} />
         {/* Decorative edge vignette (kept light so the photo stays visible; the
             configurable MediaOverlay above supplies the primary darkening) and a
-            short structural fade into the page background — confined to the final
-            ~20% so the lower hero no longer washes out to a white fog. */}
+            short structural fade at the bottom edge — a faint black tint over the
+            final ~12% so the lower hero grounds into the page without a white fog. */}
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,transparent_80%,var(--color-brand-off-white)_100%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,transparent_88%,rgba(0,0,0,0.28)_100%)]" />
         {/* Cinematic Film Grain */}
         <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-15 mix-blend-overlay pointer-events-none" />
       </div>
