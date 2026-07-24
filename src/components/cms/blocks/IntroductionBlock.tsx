@@ -8,9 +8,19 @@ import { resolveImageMediaUrl, resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { ManagedVideo } from "../ManagedVideo";
 
+/** Extracts a YouTube video id from watch, youtu.be, embed or shorts URLs. */
+function getYouTubeId(url?: string): string | null {
+  if (!url) return null;
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/
+  );
+  return m ? m[1] : null;
+}
+
 export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   void lang;
   const content = block.content as any;
+  const youTubeId = getYouTubeId(content.youtubeUrl);
   const mediaUrl = resolveImageMediaUrl(block.image, { width: 1440 });
   const videoUrl = resolveMediaUrl(block.video);
   const posterUrl = resolveImageMediaUrl(block.videoPoster || block.image, { width: 1440 });
@@ -44,7 +54,16 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-0 items-end">
           <div className="lg:col-span-7 relative">
             <ScrollReveal delay={0.2} className="relative aspect-[4/3] lg:aspect-[16/10] w-full max-w-3xl overflow-hidden group">
-              {videoUrl ? (
+              {youTubeId ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
+                  title={content.imageTag || "The Foundation"}
+                  className="absolute inset-0 h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              ) : videoUrl ? (
                 <ManagedVideo
                   src={videoUrl}
                   posterSrc={posterUrl}
@@ -66,7 +85,7 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
                   className="object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
                 />
               )}
-              <div className="absolute inset-0 bg-brand-charcoal/10 group-hover:bg-transparent transition-colors duration-1000" />
+              <div className="absolute inset-0 bg-brand-charcoal/10 group-hover:bg-transparent transition-colors duration-1000 pointer-events-none" />
               
               {content.imageTag && (
                 <div className="absolute bottom-0 right-0 lg:bottom-6 lg:right-6">

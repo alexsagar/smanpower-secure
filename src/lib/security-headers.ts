@@ -13,7 +13,7 @@ export function getSecurityHeaderEntries() {
     "style-src 'self' 'unsafe-inline' https:",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com",
     "connect-src 'self' https:",
-    "frame-src 'self' https://challenges.cloudflare.com https://translate.google.com",
+    "frame-src 'self' https://challenges.cloudflare.com https://translate.google.com https://www.youtube-nocookie.com https://www.youtube.com",
   ].join("; ");
 
   const headers = [
