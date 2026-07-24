@@ -6,7 +6,7 @@ import { Quote } from "lucide-react";
 import Image from "next/image";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listLeadershipMembers } from "@/lib/team-members";
-import { getPageCopy } from "@/services/page-copy.service";
+import { getPageCopy, getPageCopyImage } from "@/services/page-copy.service";
 
 export const metadata: Metadata = {
   title: "Leadership | Seven Seas Intercontinental",
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 export default async function LeadershipPage() {
   const leaders = listLeadershipMembers(await getTeamMembers());
   const copy = await getPageCopy("about/leadership");
+  const accountabilityImage = await getPageCopyImage("about/leadership");
 
   return (
     <>
@@ -118,8 +119,8 @@ export default async function LeadershipPage() {
               <div className="relative h-[500px] w-full">
                 <div className="absolute inset-4 border border-brand-gold/30 z-20 pointer-events-none" />
                 <Image
-                  src="/images/hero_training_orientation_1782920391505.png"
-                  alt="Leadership Philosophy"
+                  src={accountabilityImage?.secureUrl ?? "/images/hero_training_orientation_1782920391505.png"}
+                  alt={accountabilityImage?.altText || "Leadership Philosophy"}
                   fill
                   className="object-cover z-10 grayscale"
                 />

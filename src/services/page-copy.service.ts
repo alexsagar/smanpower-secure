@@ -29,3 +29,24 @@ export async function getPageCopy<S extends PageCopySlug>(
     return defaults;
   }
 }
+
+/**
+ * Resolves the managed section image on a page's page_copy block, if an editor
+ * has uploaded one. Pages fall back to their hardcoded asset when this is null.
+ */
+export async function getPageCopyImage(
+  slug: PageCopySlug
+): Promise<{ secureUrl: string; altText: string } | null> {
+  try {
+    const page = await getPageBySlug(slug);
+    const block = page?.blocks?.find(
+      (candidate) => candidate.visible && candidate.blockType === PAGE_COPY_BLOCK_TYPE
+    );
+    const image = block?.image;
+    return image?.secureUrl
+      ? { secureUrl: image.secureUrl, altText: image.altText || "" }
+      : null;
+  } catch {
+    return null;
+  }
+}
