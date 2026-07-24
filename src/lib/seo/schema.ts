@@ -25,6 +25,48 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
 };
 
 /**
+ * Builds BlogPosting JSON-LD for an insight/article detail page. Emits only
+ * verified fields from the article record — no invented data.
+ */
+export const buildArticleSchema = (article: {
+  title: string;
+  slug: string;
+  summary?: string | null;
+  metaDescription?: string | null;
+  imageUrl?: string | null;
+  authorName?: string | null;
+  publishDate?: Date | string | null;
+  updatedAt?: Date | string | null;
+}) => {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl) return null;
+
+  const url = `${siteUrl}/insights/${article.slug}`;
+  const toIso = (d?: Date | string | null) =>
+    d ? (typeof d === "string" ? d : d.toISOString()) : undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": { "@type": "WebPage", "@id": url },
+    "headline": article.title,
+    "url": url,
+    ...(article.metaDescription || article.summary
+      ? { "description": article.metaDescription || article.summary }
+      : {}),
+    ...(article.imageUrl ? { "image": [article.imageUrl] } : {}),
+    ...(article.publishDate ? { "datePublished": toIso(article.publishDate) } : {}),
+    "dateModified": toIso(article.updatedAt) || toIso(article.publishDate),
+    "author": { "@type": "Organization", "name": article.authorName || siteConfig.name },
+    "publisher": {
+      "@type": "Organization",
+      "name": siteConfig.name,
+      "@id": `${siteUrl}/#organization`,
+    },
+  };
+};
+
+/**
  * Strict business rule function to determine if a specific Demand Position
  * is eligible for public JobPosting JSON-LD schema generation.
  */
