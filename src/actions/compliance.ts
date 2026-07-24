@@ -14,6 +14,7 @@ export async function createDocument(formData: FormData) {
   const description = formData.get("description") as string;
   const isPublic = formData.get("isPublic") === "on";
   const isVerified = formData.get("isVerified") === "on";
+  const fileUrl = (formData.get("fileUrl") as string) || null;
 
   if (!title || !documentType) {
     return { error: "Title and Document Type are required." };
@@ -23,6 +24,7 @@ export async function createDocument(formData: FormData) {
   if (!process.env.DATABASE_URL) {
     revalidatePath("/admin/compliance");
     revalidatePath("/trust-centre");
+    revalidatePath("/");
     redirect("/admin/compliance");
   }
 
@@ -34,6 +36,7 @@ export async function createDocument(formData: FormData) {
         description,
         isPublic,
         isVerified,
+        fileUrl,
       }
     });
   } catch (error: any) {
@@ -43,5 +46,6 @@ export async function createDocument(formData: FormData) {
 
   revalidatePath("/admin/compliance");
   revalidatePath("/trust-centre");
+  revalidatePath("/");
   redirect("/admin/compliance");
 }
