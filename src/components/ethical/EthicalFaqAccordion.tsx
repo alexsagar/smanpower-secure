@@ -11,7 +11,7 @@ export function EthicalFaqAccordion({ faqs }: { faqs: Faq[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <dl className="max-w-4xl border-t border-brand-charcoal/15">
+    <dl className="max-w-4xl mx-auto border-t border-brand-charcoal/15">
       {faqs.map((faq, i) => {
         const isOpen = open === i;
         return (

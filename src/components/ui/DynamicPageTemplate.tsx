@@ -115,13 +115,14 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
       {content.faqs && content.faqs.length > 0 && (
         <section className="py-24 lg:py-32 bg-white text-brand-black relative border-t border-brand-charcoal/10">
           <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
-            <div className="mb-16 max-w-3xl">
+            <div className="mb-16 text-center max-w-3xl mx-auto">
               <span className="text-brand-gold-dark text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
                 {content.faqsEyebrow || "Common Questions"}
               </span>
-              <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
+              <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black mb-6">
                 {content.faqsHeading || "Frequently Asked Questions."}
               </h2>
+              <div className="w-20 h-1 bg-brand-gold mx-auto" />
             </div>
 
             <EthicalFaqAccordion faqs={content.faqs} />
