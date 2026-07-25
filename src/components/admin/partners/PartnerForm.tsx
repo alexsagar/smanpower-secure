@@ -94,7 +94,7 @@ export function PartnerForm({ partners, onSave, onDelete }: PartnerFormProps) {
                 
                 <div className="h-20 flex items-center justify-center bg-brand-off-white rounded-md mb-2">
                   {p.logoUrl ? (
-                    <Image src={p.logoUrl} alt={p.name} width={120} height={60} className="object-contain" />
+                    <Image src={p.logoUrl} alt={p.name || "Partner logo"} width={120} height={60} className="object-contain" />
                   ) : (
                     <span className="text-muted-foreground text-sm font-semibold">{p.name} (Text Only)</span>
                   )}
@@ -137,8 +137,8 @@ export function PartnerForm({ partners, onSave, onDelete }: PartnerFormProps) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold mb-2">Company Name *</label>
-                <input required name="name" defaultValue={editing.name} className="w-full p-3 border rounded-md" />
+                <label className="block text-sm font-semibold mb-2">Company Name</label>
+                <input name="name" defaultValue={editing.name} className="w-full p-3 border rounded-md" placeholder="Optional — leave blank for logo-only" />
               </div>
               
               <div>

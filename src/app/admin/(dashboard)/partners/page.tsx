@@ -20,7 +20,7 @@ export default async function AdminPartnersPage() {
     await requirePermission(PARTNER_PERMISSIONS.MANAGE);
 
     const id = formData.get("id") as string;
-    const name = formData.get("name") as string;
+    const name = (formData.get("name") as string) || ""; // optional: logo-only partners
     const category = formData.get("category") as any;
     const logoUrl = formData.get("logoUrl") as string;
     const website = formData.get("website") as string;
