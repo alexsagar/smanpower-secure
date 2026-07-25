@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Loader2, Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { MediaInput } from "@/components/admin/MediaInput";
+import { confirmToast } from "@/lib/confirm-toast";
 import Image from "next/image";
 
 type Partner = {
@@ -27,6 +29,24 @@ export function PartnerForm({ partners, onSave, onDelete }: PartnerFormProps) {
   const [isNew, setIsNew] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string>("");
+  const [isPending, startTransition] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    const ok = await confirmToast("Delete this partner?", { confirmLabel: "Delete" });
+    if (!ok) return;
+    setDeletingId(id);
+    startTransition(async () => {
+      try {
+        await onDelete(id);
+        toast.success("Partner deleted");
+      } catch {
+        toast.error("Failed to delete partner");
+      } finally {
+        setDeletingId(null);
+      }
+    });
+  }
 
   function handleEdit(p: Partner) {
     setEditing(p);
@@ -58,9 +78,10 @@ export function PartnerForm({ partners, onSave, onDelete }: PartnerFormProps) {
       await onSave(formData);
       setEditing(null);
       setIsNew(false);
+      toast.success("Partner saved");
     } catch (err) {
       console.error(err);
-      alert("Failed to save partner");
+      toast.error("Failed to save partner");
     } finally {
       setIsSaving(false);
     }
@@ -87,8 +108,8 @@ export function PartnerForm({ partners, onSave, onDelete }: PartnerFormProps) {
                   <button onClick={() => handleEdit(p)} className="p-2 text-muted-foreground hover:text-brand-black transition bg-brand-off-white rounded-full">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button onClick={() => { if(confirm("Delete this partner?")) onDelete(p.id); }} className="p-2 text-muted-foreground hover:text-red-600 transition bg-brand-off-white rounded-full">
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={() => handleDelete(p.id)} disabled={isPending && deletingId === p.id} className="p-2 text-muted-foreground hover:text-red-600 transition bg-brand-off-white rounded-full disabled:opacity-50">
+                    {isPending && deletingId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                   </button>
                 </div>
                 

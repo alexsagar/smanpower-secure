@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -16,6 +16,7 @@ import {
   type TeamActionState,
 } from "@/actions/team";
 import { MediaInput } from "@/components/admin/MediaInput";
+import { confirmToast } from "@/lib/confirm-toast";
 
 const initialState: TeamActionState = { success: false, message: "" };
 
@@ -162,6 +163,7 @@ function IconAction({
   fields: Record<string, string>;
 }) {
   const router = useRouter();
+  const confirmedRef = useRef(false);
   const [state, formAction] = useActionState(
     (state: TeamActionState, formData: FormData) =>
       runTeamActionWithRefresh(action, state, formData, router),
@@ -171,7 +173,18 @@ function IconAction({
     <form
       action={formAction}
       onSubmit={(event) => {
-        if (confirmMessage && !confirm(confirmMessage)) event.preventDefault();
+        if (confirmMessage && !confirmedRef.current) {
+          event.preventDefault();
+          const form = event.currentTarget;
+          confirmToast(confirmMessage, { confirmLabel: "Confirm" }).then((ok) => {
+            if (ok) {
+              confirmedRef.current = true;
+              form.requestSubmit();
+            }
+          });
+        } else {
+          confirmedRef.current = false;
+        }
       }}
       className="inline-flex"
       title={state.message || title}

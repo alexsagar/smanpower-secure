@@ -321,11 +321,11 @@
 }
 
 .marquee-scroll {
-  animation: marquee 40s linear infinite;
+  animation: marquee 90s linear infinite;
 }
 
 .marquee-scroll-reverse {
-  animation: marquee-reverse 40s linear infinite;
+  animation: marquee-reverse 90s linear infinite;
 }
 
 @keyframes marquee {
