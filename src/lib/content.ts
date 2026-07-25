@@ -178,7 +178,7 @@ export const employersContent: PageContent[] = [
     slug: "candidate-sourcing",
     title: "Global Candidate Sourcing Network.",
     subtitle: "Sourcing",
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Identifying Top Talent Across Nepal.",
     missionText: [
       "Our sourcing network is deeply integrated across all seven provinces of Nepal. We don't just rely on walk-ins; we actively identify and engage with skilled candidates in their local communities.",
@@ -194,7 +194,7 @@ export const employersContent: PageContent[] = [
     slug: "screening",
     title: "Rigorous Candidate Screening.",
     subtitle: "Screening",
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Quality Assured at Every Step.",
     missionText: [
       "Before a candidate is ever presented to an employer, they undergo a rigorous, multi-stage screening process. This ensures they possess both the technical skills and the psychological readiness for international deployment.",
@@ -210,7 +210,7 @@ export const employersContent: PageContent[] = [
     slug: "trade-testing",
     title: "World-Class Trade Testing.",
     subtitle: "Testing",
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Practical Validation of Skills.",
     missionText: [
       "We operate our own state-of-the-art trade testing facilities in Kathmandu. Candidates are required to demonstrate their practical skills using the exact tools and equipment they will use in the host country.",
@@ -226,7 +226,7 @@ export const employersContent: PageContent[] = [
     slug: "training",
     title: "Pre-Deployment Training.",
     subtitle: "Training",
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Prepared for Day One.",
     missionText: [
       "Technical skills are only half the equation. Our mandatory pre-deployment orientation ensures candidates understand the cultural norms, labor laws, and safety regulations of their destination country.",
@@ -242,7 +242,7 @@ export const employersContent: PageContent[] = [
     slug: "documentation",
     title: "Documentation & Processing.",
     subtitle: "Documentation",
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Frictionless Legal Compliance.",
     missionText: [
       "International deployment involves navigating a labyrinth of bureaucratic requirements. Our dedicated processing team handles everything from passport acquisition to final embassy approvals.",
@@ -258,7 +258,7 @@ export const employersContent: PageContent[] = [
     slug: "deployment",
     title: "Deployment & Post-Arrival Support.",
     subtitle: "Deployment",
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Beyond the Flight.",
     missionText: [
       "Our responsibility does not end when the candidate boards the plane. We manage flight logistics, airport transfers, and maintain a 24/7 welfare hotline.",
@@ -274,7 +274,7 @@ export const employersContent: PageContent[] = [
     slug: "workforce-intelligence",
     title: "Workforce Intelligence & Analytics.",
     subtitle: "Intelligence",
-    heroImage: "/images/corporate_office_interview_1782920412325.png"
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp"
   }
 ];
 
@@ -283,7 +283,7 @@ export const ethicalContent: PageContent[] = [
     slug: "rba-aligned-practices",
     title: "RBA-Aligned Recruitment Practices.",
     subtitle: "RBA Alignment",
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "What RBA Alignment Means — And How We Apply It.",
     overviewSubtitle: "The Standard Explained",
     missionText: [
@@ -323,7 +323,7 @@ export const ethicalContent: PageContent[] = [
     slug: "worker-rights",
     title: "Protecting Worker Rights.",
     subtitle: "Worker Rights",
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "The Rights Every Worker Carries — At Every Stage.",
     overviewSubtitle: "Rights, Defined",
     missionText: [
@@ -363,7 +363,7 @@ export const ethicalContent: PageContent[] = [
     slug: "recruitment-fees",
     title: "Zero Recruitment Fees Policy.",
     subtitle: "Fee Transparency",
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "The Employer-Pays Principle, In Full.",
     overviewSubtitle: "Why Fees Matter",
     missionText: [
@@ -403,7 +403,7 @@ export const ethicalContent: PageContent[] = [
     slug: "grievance-process",
     title: "Transparent Grievance Process.",
     subtitle: "Grievances",
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Access To Remedy That Actually Works.",
     overviewSubtitle: "The Right to be Heard",
     missionText: [
@@ -449,7 +449,7 @@ export const ethicalContent: PageContent[] = [
     slug: "policies",
     title: "Our Ethical Policies.",
     subtitle: "Policies",
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "The Governance Behind The Promise.",
     overviewSubtitle: "The Framework",
     missionText: [
@@ -492,7 +492,7 @@ export const industriesContent: PageContent[] = [
     slug: "security-services", 
     title: "Security Services Talent.", 
     subtitle: "Security", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Vigilance and Discipline.",
     missionText: [
       "Nepal has a legendary history of providing some of the world's most disciplined and reliable security personnel. We source ex-military, ex-police, and highly trained civilian guards for international deployment.",
@@ -508,7 +508,7 @@ export const industriesContent: PageContent[] = [
     slug: "construction-and-technical-trades", 
     title: "Construction & Technical Trades.", 
     subtitle: "Construction", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Building the Future.",
     missionText: [
       "The global construction boom requires a workforce that is both highly skilled and resilient. We supply everything from general laborers to specialized civil engineers, masons, and heavy equipment operators.",
@@ -524,7 +524,7 @@ export const industriesContent: PageContent[] = [
     slug: "hospitality-and-hotels", 
     title: "Hospitality & Hotels Staffing.", 
     subtitle: "Hospitality", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "The Art of Service.",
     missionText: [
       "Nepalese hospitality is world-renowned for its warmth and genuine care. We supply luxury hotels, resorts, and restaurants globally with top-tier service staff.",
@@ -540,7 +540,7 @@ export const industriesContent: PageContent[] = [
     slug: "facility-management", 
     title: "Facility Management Professionals.", 
     subtitle: "Facilities", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Maintaining Excellence.",
     missionText: [
       "Modern mega-structures and corporate campuses require dedicated professionals to maintain operations. We supply complete facility management teams.",
@@ -556,7 +556,7 @@ export const industriesContent: PageContent[] = [
     slug: "aviation-and-ground-handling", 
     title: "Aviation & Ground Handling.", 
     subtitle: "Aviation", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Keeping Operations Flying.",
     missionText: [
       "The aviation sector demands precision and absolute reliability. We supply trained personnel for airports and airlines across the Middle East and beyond.",
@@ -572,7 +572,7 @@ export const industriesContent: PageContent[] = [
     slug: "manufacturing", 
     title: "Manufacturing & Assembly.", 
     subtitle: "Manufacturing", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Powering Production.",
     missionText: [
       "We supply the workforce engine that powers global manufacturing. From assembly line operators to quality control inspectors, our candidates are ready to scale your production.",
@@ -588,7 +588,7 @@ export const industriesContent: PageContent[] = [
     slug: "healthcare-support", 
     title: "Healthcare Support Staff.", 
     subtitle: "Healthcare", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Compassionate Care.",
     missionText: [
       "The global demand for healthcare support is unprecedented. We source compassionate, qualified, and verified support staff for hospitals and care facilities.",
@@ -604,7 +604,7 @@ export const industriesContent: PageContent[] = [
     slug: "logistics-and-transport", 
     title: "Logistics & Transport.", 
     subtitle: "Logistics", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Moving the World.",
     missionText: [
       "Global supply chains rely on dependable drivers and logistics personnel. We supply internationally licensed drivers and supply chain workers.",
@@ -623,7 +623,7 @@ export const trainingContent: PageContent[] = [
     slug: "training-centres", 
     title: "Our Training Centres.", 
     subtitle: "Facilities", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "State-of-the-Art Preparation.",
     missionText: [
       "We believe that a prepared candidate is a successful candidate. Our expansive training facilities in Kathmandu are designed to replicate international working environments.",
@@ -639,7 +639,7 @@ export const trainingContent: PageContent[] = [
     slug: "trade-test-centre", 
     title: "Trade Test Centre.", 
     subtitle: "Testing", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Validating Excellence.",
     missionText: [
       "Our Trade Test Centre is a rigorous evaluation hub. We do not rely solely on certificates or past experience; we require candidates to prove their practical competency.",
@@ -655,7 +655,7 @@ export const trainingContent: PageContent[] = [
     slug: "orientation", 
     title: "Candidate Orientation.", 
     subtitle: "Orientation", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Beyond the Technical.",
     missionText: [
       "Technical competency is only half of the equation for a successful deployment. Our mandatory orientation program prepares candidates for life abroad.",
@@ -671,7 +671,7 @@ export const trainingContent: PageContent[] = [
     slug: "language", 
     title: "Language Preparation.", 
     subtitle: "Language", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Breaking Barriers.",
     missionText: [
       "Effective communication is critical for safety and efficiency on any job site. Our language labs provide targeted instruction in English and basic Arabic.",
@@ -687,7 +687,7 @@ export const trainingContent: PageContent[] = [
     slug: "facility-gallery", 
     title: "Facility Gallery.", 
     subtitle: "Gallery", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "See For Yourself.",
     missionText: [
       "Transparency is one of our core values. We are proud of the investments we have made in our training infrastructure and welcome employer inspections.",
@@ -706,7 +706,7 @@ export const trustContent: PageContent[] = [
     slug: "licences", 
     title: "Our Recruitment Licences.", 
     subtitle: "Licences", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Government Approved.",
     missionText: [
       "Seven Seas Intercontinental operates with full authorization from the Government of Nepal, Department of Foreign Employment (DOFE).",
@@ -727,7 +727,7 @@ export const trustContent: PageContent[] = [
     slug: "certifications", 
     title: "Global Certifications.", 
     subtitle: "Certifications", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Internationally Recognized.",
     missionText: [
       "Our commitment to quality and ethics is validated by international standards bodies. We hold ISO certifications for Quality Management Systems.",
@@ -743,7 +743,7 @@ export const trustContent: PageContent[] = [
     slug: "compliance-documents", 
     title: "Compliance Documents.", 
     subtitle: "Compliance", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Total Transparency.",
     missionText: [
       "We believe that trust is built on transparency. All our major compliance documents, tax clearances, and operational licenses are available for employer review.",
@@ -759,7 +759,7 @@ export const trustContent: PageContent[] = [
     slug: "policies", 
     title: "Ethical Recruitment Policies.", 
     subtitle: "Policies", 
-    heroImage: "/images/hero_training_orientation_1782920391505.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "The Rules We Live By.",
     missionText: [
       "Our internal policies are strict, uncompromising, and designed to protect the most vulnerable. They dictate our zero-tolerance stance on forced labor and recruitment fees.",
@@ -775,7 +775,7 @@ export const trustContent: PageContent[] = [
     slug: "verified-partners", 
     title: "Verified Partnerships.", 
     subtitle: "Partnerships", 
-    heroImage: "/images/trade_test_centre_1782920400836.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "A Trusted Network.",
     missionText: [
       "A recruitment agency is only as ethical as its sourcing network. We do not use unregulated brokers. Instead, we rely on a heavily vetted network of verified sourcing partners.",
@@ -791,7 +791,7 @@ export const trustContent: PageContent[] = [
     slug: "grievance", 
     title: "Grievance & Complaint Support.", 
     subtitle: "Support", 
-    heroImage: "/images/corporate_office_interview_1782920412325.png",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Always Listening.",
     missionText: [
       "Even with the best preparation, issues can arise during deployment. Our Grievance Mechanism provides a safe, anonymous way for workers to report concerns.",
