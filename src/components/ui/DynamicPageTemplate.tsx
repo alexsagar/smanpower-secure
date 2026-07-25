@@ -78,22 +78,31 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {content.documents.map((doc, i) => (
                 <ScrollReveal key={i} delay={i * 0.05}>
-                  <div className="group cursor-pointer bg-white border border-brand-charcoal/10 p-4 shadow-sm hover:shadow-xl hover:border-brand-gold transition-all duration-300">
-                    <div className="relative overflow-hidden mb-4 bg-brand-off-white">
-                      <div className="absolute inset-0 bg-brand-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
-                        <span className="bg-brand-gold text-brand-black px-6 py-3 text-xs font-semibold tracking-widest uppercase shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                          {content.documentsCtaLabel || "View Document"}
+                  <div className="group h-full bg-white border border-brand-charcoal/15 p-8 hover:border-brand-gold hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-brand-gold opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <div>
+                      <div className="flex items-center justify-between mb-8">
+                        <span className="text-xs font-mono font-bold tracking-widest text-brand-gold-dark bg-brand-gold/10 border border-brand-gold/30 px-3.5 py-1.5">
+                          DOC 0{i + 1}
                         </span>
+                        <div className="w-10 h-10 border border-brand-charcoal/10 rounded-full flex items-center justify-center bg-brand-off-white group-hover:bg-brand-gold group-hover:border-brand-gold transition-all duration-300">
+                          <FileText className="w-4 h-4 text-brand-black transition-colors" />
+                        </div>
                       </div>
-                      <img
-                        src={doc.image}
-                        alt={doc.title}
-                        className="w-full aspect-[3/4] object-contain p-4 bg-white group-hover:scale-105 transition-all duration-700"
-                      />
+
+                      <h3 className="text-2xl font-semibold text-brand-black group-hover:text-brand-gold-dark transition-colors leading-snug">
+                        {doc.title}
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-semibold text-brand-black group-hover:text-brand-gold-dark transition-colors text-center border-t border-brand-charcoal/10 pt-4">
-                      {doc.title}
-                    </h3>
+
+                    <div className="mt-8 pt-6 border-t border-brand-charcoal/10 flex items-center justify-between text-xs text-brand-muted font-light">
+                      <span className="flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-brand-gold-dark" />
+                        Official Record
+                      </span>
+                      <span className="font-semibold text-brand-gold-dark uppercase tracking-wider">Verified</span>
+                    </div>
                   </div>
                 </ScrollReveal>
               ))}
