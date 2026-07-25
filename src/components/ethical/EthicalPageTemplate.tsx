@@ -4,6 +4,7 @@ import { ShieldCheck, ChevronRight, CheckCircle2, ArrowRight } from "lucide-reac
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { EthicalEditorialOverview } from "./EthicalEditorialOverview";
+import { EthicalProcessTimeline } from "./EthicalProcessTimeline";
 import { EthicalFaqAccordion } from "./EthicalFaqAccordion";
 import { GrievanceActionWidget, FeeMatrixWidget, PolicyDownloadWidget } from "./EthicalInteractiveWidgets";
 import type { PageContent } from "@/lib/content";
@@ -121,41 +122,13 @@ export function EthicalPageTemplate({ content }: { content: PageContent }) {
       {content.slug === "recruitment-fees" && <FeeMatrixWidget />}
       {content.slug === "policies" && <PolicyDownloadWidget />}
 
-      {/* Due Diligence Process Timeline */}
+      {/* Due Diligence Process Timeline Grid */}
       {content.process && content.process.length > 0 && (
-        <section className="py-24 lg:py-32 bg-brand-off-white text-brand-black relative border-t border-brand-charcoal/10">
-          <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
-            <div className="mb-16 max-w-3xl">
-              <span className="text-brand-gold-dark text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
-                {content.processEyebrow || "Due Diligence Operational Cycle"}
-              </span>
-              <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
-                {content.processHeading || "Enforcement Stage by Stage."}
-              </h2>
-            </div>
-
-            <ol className="relative max-w-4xl border-l border-brand-gold/40 ml-4 space-y-12">
-              {content.process.map((step, i) => (
-                <ScrollReveal key={step.title} delay={i * 0.05}>
-                  <li className="relative pl-10 md:pl-14 group">
-                    <span className="absolute -left-[13px] top-0 w-6 h-6 bg-brand-off-white border border-brand-gold-dark flex items-center justify-center group-hover:bg-brand-gold transition-colors duration-300">
-                      <span className="w-1.5 h-1.5 bg-brand-gold-dark group-hover:bg-brand-black transition-colors" />
-                    </span>
-                    <span className="text-brand-gold-dark text-xs font-mono font-semibold tracking-widest block uppercase mb-1">
-                      Stage {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-2xl font-semibold tracking-tight text-brand-black mb-3 group-hover:text-brand-gold-dark transition-colors">
-                      {step.title}
-                    </h3>
-                    <p className="text-brand-muted leading-relaxed font-light text-base max-w-3xl">
-                      {step.desc}
-                    </p>
-                  </li>
-                </ScrollReveal>
-              ))}
-            </ol>
-          </div>
-        </section>
+        <EthicalProcessTimeline
+          eyebrow={content.processEyebrow}
+          heading={content.processHeading}
+          steps={content.process}
+        />
       )}
 
       {/* FAQ Accordion */}
