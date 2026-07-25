@@ -12,6 +12,8 @@ export interface PageContent {
   documents?: {
     title: string;
     image: string;
+    /** Direct link to the document file (e.g. Cloudinary PDF/JPG). Optional. */
+    fileUrl?: string;
   }[];
   /** "Our Process" numbered steps. Rendered as its own section when present. */
   process?: {
@@ -716,9 +718,9 @@ export const trustContent: PageContent[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     documents: [
-      { title: "License of Foreign Employment", fileUrl: "/docs/recruitment-licence.pdf", image: "" },
-      { title: "Authority Certificate — Sending Trainee Workers to Japan", fileUrl: "/docs/japan-trainee-certificate.pdf", image: "" },
-      { title: "Certificate of Incorporation of Company", fileUrl: "/docs/incorporation-certificate.pdf", image: "" }
+      { title: "License of Foreign Employment", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998968/SSIS_License_of_Foreign_Employment_xwnjyf.pdf", image: "" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998960/WhatsApp_Image_2026-07-24_at_1.41.30_PM_knnzf2.jpg", image: "" },
+      { title: "Certificate of Incorporation of Company", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998959/WhatsApp_Image_2026-07-24_at_1.40.38_PM_wb8zdf.jpg", image: "" }
     ]
   },
   { 
