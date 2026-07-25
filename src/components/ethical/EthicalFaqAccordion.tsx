@@ -6,30 +6,29 @@ import { cn } from "@/lib/utils";
 
 type Faq = { q: string; a: string };
 
-/** Accordion styled to match the site's dark editorial sections (gold accents,
- *  sharp rectangles). Purely presentational — content comes from the CMS. */
+/** Accordion styled to match the site's editorial theme (gold accents, light background) */
 export function EthicalFaqAccordion({ faqs }: { faqs: Faq[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <dl className="max-w-4xl border-t border-brand-white/10">
+    <dl className="max-w-4xl border-t border-brand-charcoal/15">
       {faqs.map((faq, i) => {
         const isOpen = open === i;
         return (
-          <div key={faq.q} className="border-b border-brand-white/10">
+          <div key={faq.q} className="border-b border-brand-charcoal/15">
             <dt>
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
-                className="w-full py-7 flex items-start justify-between gap-6 text-left group"
+                className="w-full py-6 flex items-start justify-between gap-6 text-left group"
               >
-                <span className="text-lg md:text-xl font-light text-brand-white leading-snug group-hover:text-brand-gold transition-colors">
+                <span className="text-lg md:text-xl font-medium text-brand-black leading-snug group-hover:text-brand-gold-dark transition-colors">
                   {faq.q}
                 </span>
                 <Plus
                   className={cn(
-                    "w-5 h-5 shrink-0 mt-1 text-brand-gold transition-transform duration-300",
+                    "w-5 h-5 shrink-0 mt-1 text-brand-gold-dark transition-transform duration-300",
                     isOpen && "rotate-45"
                   )}
                 />
@@ -42,7 +41,7 @@ export function EthicalFaqAccordion({ faqs }: { faqs: Faq[] }) {
               )}
             >
               <div className="overflow-hidden">
-                <p className="text-brand-white/60 leading-relaxed font-light pb-8 max-w-3xl">
+                <p className="text-brand-muted leading-relaxed font-light pb-8 max-w-3xl text-base">
                   {faq.a}
                 </p>
               </div>

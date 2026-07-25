@@ -83,21 +83,17 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function EthicalPillarsHub({ pillars = ETHICAL_PILLARS }: { pillars?: EthicalPillarItem[] }) {
   return (
-    <section className="py-24 lg:py-32 bg-brand-black text-brand-white relative overflow-hidden border-b border-brand-white/10">
-      {/* Background accents */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[url('/images/noise.png')] opacity-5 mix-blend-overlay pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-brand-gold/5 blur-[140px] rounded-full pointer-events-none" />
-
+    <section className="py-24 lg:py-32 bg-brand-off-white text-brand-black relative overflow-hidden border-b border-brand-charcoal/10">
       <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
         <ScrollReveal>
-          <div className="max-w-3xl mb-20">
-            <span className="text-brand-gold text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
+          <div className="max-w-3xl mb-16">
+            <span className="text-brand-gold-dark text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
               Core Pillars of Ethical Deployment
             </span>
-            <h2 className="text-4xl sm:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-white">
+            <h2 className="text-4xl sm:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
               Institutional Frameworks Built On Human Dignity.
             </h2>
-            <p className="text-lg text-brand-white/60 font-light leading-relaxed mt-6">
+            <p className="text-lg text-brand-muted font-light leading-relaxed mt-6">
               Explore our six pillars of responsible workforce mobilization. Each policy is enforced through continuous due diligence and independent third-party audits.
             </p>
           </div>
@@ -110,43 +106,43 @@ export function EthicalPillarsHub({ pillars = ETHICAL_PILLARS }: { pillars?: Eth
               <ScrollReveal key={pillar.slug} delay={idx * 0.05}>
                 <Link
                   href={pillar.href}
-                  className="group relative flex flex-col h-full border border-brand-white/10 bg-brand-white/[0.02] p-8 lg:p-10 hover:border-brand-gold/50 hover:bg-brand-white/[0.05] transition-all duration-500 rounded-none overflow-hidden"
+                  className="group relative flex flex-col h-full border border-brand-charcoal/10 bg-white p-8 lg:p-10 hover:border-brand-gold hover:shadow-xl transition-all duration-300 rounded-none overflow-hidden"
                 >
-                  {/* Top gold bar animation */}
+                  {/* Top gold line animation */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-brand-gold opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  {/* Corner Accent */}
-                  <div className="absolute top-4 right-4 text-brand-white/20 group-hover:text-brand-gold transition-colors duration-300">
-                    <ArrowUpRight className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  {/* Corner Icon */}
+                  <div className="absolute top-6 right-6 text-brand-charcoal/30 group-hover:text-brand-gold transition-colors duration-300">
+                    <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </div>
 
                   {/* Icon & Tag */}
                   <div className="flex items-center justify-between mb-8">
-                    <div className="w-14 h-14 bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-black transition-all duration-300">
+                    <div className="w-14 h-14 bg-brand-off-white border border-brand-charcoal/10 flex items-center justify-center text-brand-gold-dark group-hover:bg-brand-gold group-hover:text-brand-black transition-all duration-300">
                       <IconComponent className="w-7 h-7" />
                     </div>
-                    <span className="text-[10px] font-semibold tracking-widest uppercase text-brand-gold/70 bg-brand-gold/5 border border-brand-gold/20 px-3 py-1">
+                    <span className="text-[10px] font-semibold tracking-widest uppercase text-brand-gold-dark bg-brand-gold/10 border border-brand-gold/30 px-3 py-1">
                       {pillar.tag}
                     </span>
                   </div>
 
                   {/* Title & Subtitle */}
                   <div className="mb-4">
-                    <span className="text-xs text-brand-white/40 uppercase tracking-widest block mb-1">
+                    <span className="text-xs text-brand-muted uppercase tracking-widest block mb-1">
                       {pillar.subtitle}
                     </span>
-                    <h3 className="text-2xl font-semibold tracking-tight text-brand-white group-hover:text-brand-gold transition-colors">
+                    <h3 className="text-2xl font-semibold tracking-tight text-brand-black group-hover:text-brand-gold-dark transition-colors">
                       {pillar.title}
                     </h3>
                   </div>
 
                   {/* Description */}
-                  <p className="text-sm text-brand-white/60 leading-relaxed font-light mb-8 flex-grow">
+                  <p className="text-sm text-brand-muted leading-relaxed font-light mb-8 flex-grow">
                     {pillar.description}
                   </p>
 
                   {/* Read More Link */}
-                  <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold border-b border-brand-gold/30 pb-1 group-hover:border-brand-gold w-fit transition-all">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-dark border-b border-brand-gold/40 pb-1 group-hover:border-brand-gold-dark w-fit transition-all">
                     <span>View Policy Details</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </div>

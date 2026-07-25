@@ -33,7 +33,7 @@ export default async function EthicalRecruitmentPage() {
   const hasBlocks = Boolean(page.blocks && page.blocks.length > 0);
 
   return (
-    <main className="min-h-screen bg-brand-black text-brand-white">
+    <main className="min-h-screen bg-brand-off-white text-brand-black">
       {/* High impact Ethical Hero */}
       {page.hero ? (
         <HeroRenderer 

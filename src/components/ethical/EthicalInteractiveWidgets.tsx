@@ -2,41 +2,41 @@
 
 import React from "react";
 import Link from "next/link";
-import { ShieldAlert, PhoneCall, Mail, MessageSquare, Download, Check, X, FileText, Lock } from "lucide-react";
+import { ShieldAlert, PhoneCall, Mail, MessageSquare, Download, Check, FileText } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function GrievanceActionWidget() {
   return (
-    <section className="py-20 bg-brand-black text-brand-white border-t border-brand-white/10 relative overflow-hidden">
+    <section className="py-20 bg-brand-off-white text-brand-black border-t border-brand-charcoal/10 relative overflow-hidden">
       <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
-        <div className="bg-brand-white/[0.03] border border-brand-gold/30 p-8 lg:p-12 relative">
+        <div className="bg-white border border-brand-charcoal/15 p-8 lg:p-12 relative shadow-md">
           <div className="absolute top-0 right-0 px-4 py-1.5 bg-brand-gold text-brand-black font-semibold text-[10px] uppercase tracking-widest">
             24/7 Redressal Active
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7">
-              <div className="flex items-center gap-3 text-brand-gold mb-4">
+              <div className="flex items-center gap-3 text-brand-gold-dark mb-4">
                 <ShieldAlert className="w-6 h-6" />
                 <span className="text-xs font-semibold uppercase tracking-widest">Confidential & Retaliation-Free</span>
               </div>
-              <h3 className="text-3xl font-semibold text-brand-white tracking-tight mb-4">
+              <h3 className="text-3xl font-semibold text-brand-black tracking-tight mb-4">
                 Deployed Worker or Family Member Need Help?
               </h3>
-              <p className="text-brand-white/70 font-light leading-relaxed text-base max-w-2xl mb-6">
+              <p className="text-brand-muted font-light leading-relaxed text-base max-w-2xl mb-6">
                 Our welfare hotline operates in Nepali, English, Arabic, and Hindi. Reports can be submitted anonymously and are acknowledged within 24 hours.
               </p>
-              <div className="flex flex-wrap gap-4 text-xs text-brand-white/60">
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold" /> Anonymous options</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold" /> 48-Hr escalation SLA</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold" /> Dedicated welfare officer</span>
+              <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> Anonymous options</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> 48-Hr escalation SLA</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> Dedicated welfare officer</span>
               </div>
             </div>
 
             <div className="lg:col-span-5 flex flex-col gap-4">
               <Link
                 href="/worker-grievance"
-                className="w-full bg-brand-gold text-brand-black font-semibold px-6 py-4 text-xs uppercase tracking-widest text-center hover:bg-brand-white transition-colors shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-brand-black text-brand-white font-semibold px-6 py-4 text-xs uppercase tracking-widest text-center hover:bg-brand-gold hover:text-brand-black transition-colors shadow-md flex items-center justify-center gap-2"
               >
                 <MessageSquare className="w-4 h-4" />
                 Submit Anonymous Grievance
@@ -44,16 +44,16 @@ export function GrievanceActionWidget() {
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <a
                   href="tel:+97714000000"
-                  className="p-3 border border-brand-white/10 bg-brand-white/5 hover:border-brand-gold text-brand-white flex items-center gap-2 transition-colors"
+                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors"
                 >
-                  <PhoneCall className="w-4 h-4 text-brand-gold" />
+                  <PhoneCall className="w-4 h-4 text-brand-gold-dark" />
                   <span>+977 (1) Helpline</span>
                 </a>
                 <a
                   href="mailto:welfare@smanpower.com"
-                  className="p-3 border border-brand-white/10 bg-brand-white/5 hover:border-brand-gold text-brand-white flex items-center gap-2 transition-colors"
+                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors"
                 >
-                  <Mail className="w-4 h-4 text-brand-gold" />
+                  <Mail className="w-4 h-4 text-brand-gold-dark" />
                   <span>Welfare Desk</span>
                 </a>
               </div>
@@ -75,39 +75,39 @@ export function FeeMatrixWidget() {
   ];
 
   return (
-    <section className="py-20 bg-brand-black text-brand-white border-t border-brand-white/10">
+    <section className="py-20 bg-brand-off-white text-brand-black border-t border-brand-charcoal/10">
       <div className="container-wide mx-auto px-6 lg:px-12">
         <ScrollReveal>
           <div className="mb-12">
-            <span className="text-brand-gold text-xs font-semibold tracking-widest uppercase mb-2 block">
+            <span className="text-brand-gold-dark text-xs font-semibold tracking-widest uppercase mb-2 block">
               Employer-Pays Principle Allocation
             </span>
-            <h3 className="text-3xl font-semibold tracking-tight text-brand-white">
+            <h3 className="text-3xl font-semibold tracking-tight text-brand-black">
               Fee Allocation Matrix: Worker vs Employer
             </h3>
           </div>
         </ScrollReveal>
 
-        <div className="overflow-x-auto border border-brand-white/10 bg-brand-white/[0.02]">
+        <div className="overflow-x-auto border border-brand-charcoal/15 bg-white shadow-sm">
           <table className="w-full text-left text-sm font-light">
-            <thead className="bg-brand-white/5 text-brand-gold text-xs uppercase tracking-widest font-semibold border-b border-brand-white/10">
+            <thead className="bg-brand-stone/60 text-brand-black text-xs uppercase tracking-widest font-semibold border-b border-brand-charcoal/15">
               <tr>
                 <th className="p-5">Recruitment Cost Component</th>
                 <th className="p-5 text-center">Candidate / Worker Fee</th>
                 <th className="p-5">Employer / Agency Allocation</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-white/10">
+            <tbody className="divide-y divide-brand-charcoal/10">
               {MATRIX.map((row, i) => (
-                <tr key={i} className="hover:bg-brand-white/[0.03] transition-colors">
-                  <td className="p-5 font-medium text-brand-white">{row.item}</td>
+                <tr key={i} className="hover:bg-brand-off-white transition-colors">
+                  <td className="p-5 font-medium text-brand-black">{row.item}</td>
                   <td className="p-5 text-center">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 font-semibold text-xs border border-emerald-500/30">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-300">
                       <Check className="w-3.5 h-3.5" />
                       {row.worker}
                     </span>
                   </td>
-                  <td className="p-5 text-brand-white/70">{row.employer}</td>
+                  <td className="p-5 text-brand-muted">{row.employer}</td>
                 </tr>
               ))}
             </tbody>
@@ -127,14 +127,14 @@ export function PolicyDownloadWidget() {
   ];
 
   return (
-    <section className="py-20 bg-brand-black text-brand-white border-t border-brand-white/10">
+    <section className="py-20 bg-brand-off-white text-brand-black border-t border-brand-charcoal/10">
       <div className="container-wide mx-auto px-6 lg:px-12">
         <ScrollReveal>
           <div className="mb-12">
-            <span className="text-brand-gold text-xs font-semibold tracking-widest uppercase mb-2 block">
+            <span className="text-brand-gold-dark text-xs font-semibold tracking-widest uppercase mb-2 block">
               Governance Repository
             </span>
-            <h3 className="text-3xl font-semibold tracking-tight text-brand-white">
+            <h3 className="text-3xl font-semibold tracking-tight text-brand-black">
               Official Ethical Policy Downloads
             </h3>
           </div>
@@ -144,17 +144,17 @@ export function PolicyDownloadWidget() {
           {DOCUMENTS.map((doc, idx) => (
             <div
               key={idx}
-              className="p-6 border border-brand-white/10 bg-brand-white/[0.02] hover:border-brand-gold/50 transition-all flex items-center justify-between gap-4 group"
+              className="p-6 border border-brand-charcoal/15 bg-white hover:border-brand-gold shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-4 group"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold shrink-0">
+                <div className="w-12 h-12 bg-brand-off-white border border-brand-charcoal/10 flex items-center justify-center text-brand-gold-dark shrink-0">
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-brand-white group-hover:text-brand-gold transition-colors text-base">
+                  <h4 className="font-semibold text-brand-black group-hover:text-brand-gold-dark transition-colors text-base">
                     {doc.title}
                   </h4>
-                  <div className="flex items-center gap-3 text-xs text-brand-white/40 font-mono mt-1">
+                  <div className="flex items-center gap-3 text-xs text-brand-muted font-mono mt-1">
                     <span>{doc.code}</span>
                     <span>•</span>
                     <span>{doc.size}</span>
@@ -163,7 +163,7 @@ export function PolicyDownloadWidget() {
               </div>
               <Link
                 href={doc.href}
-                className="h-10 px-4 bg-brand-white/5 border border-brand-white/20 hover:border-brand-gold hover:text-brand-gold text-xs font-semibold uppercase tracking-wider text-brand-white flex items-center gap-2 shrink-0 transition-all"
+                className="h-10 px-4 bg-brand-black text-brand-white hover:bg-brand-gold hover:text-brand-black text-xs font-semibold uppercase tracking-wider flex items-center gap-2 shrink-0 transition-all shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>View</span>
