@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { Scale, Mail } from "lucide-react";
+import { Scale, Mail, ArrowRight, CheckCircle2, FileText, ChevronRight } from "lucide-react";
 import { getPageCopy } from "@/services/page-copy.service";
 
 export const metadata: Metadata = {
@@ -10,7 +10,6 @@ export const metadata: Metadata = {
     "The terms and conditions governing use of the Seven Seas Intercontinental website and recruitment services.",
 };
 
-// Stable anchor id from a numbered section heading, matching the privacy page.
 function sectionId(heading: string) {
   return heading
     .replace(/^\s*\d+\.\s*/, "")
@@ -27,62 +26,77 @@ export default async function TermsOfServicePage() {
     year: "numeric",
   });
 
-  // The contact block is a distinct copy shape; render it as the final numbered
-  // section so the table of contents and numbering stay continuous.
   const tocItems = [
     ...copy.sections.map((s) => s.heading),
     copy.contactSection.heading,
   ];
 
   return (
-    <div className="bg-brand-off-white min-h-screen relative overflow-hidden font-sans">
-      {/* Ambient Background Effects */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-brand-gold/10 to-transparent pointer-events-none" />
-      <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[600px] bg-brand-gold/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+    <div className="bg-brand-off-white min-h-screen relative overflow-hidden font-sans text-brand-black">
+      {/* Background Glow */}
+      <div className="absolute top-0 right-1/4 w-[700px] h-[700px] bg-brand-gold/5 blur-[140px] rounded-full pointer-events-none" />
 
-      {/* Page Header */}
-      <header className="relative z-10 pt-32 pb-16 border-b border-brand-charcoal/10">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Scale aria-hidden="true" className="w-5 h-5 text-brand-gold" />
-            <span className="text-brand-gold text-[11px] font-semibold tracking-[0.3em] uppercase">
-              Legal &amp; Compliance
-            </span>
+      {/* Header Banner */}
+      <header className="relative z-10 pt-36 pb-20 bg-brand-off-white border-b border-brand-charcoal/10">
+        <div className="container-wide mx-auto px-6 lg:px-12">
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="mb-8">
+            <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
+              <li><Link href="/" className="hover:text-brand-gold-dark transition-colors">Home</Link></li>
+              <li><ChevronRight className="w-3 h-3 text-brand-gold-dark" /></li>
+              <li className="text-brand-gold-dark">Terms of Service</li>
+            </ol>
+          </nav>
+
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-white border border-brand-gold/40 text-brand-gold-dark text-[10px] font-semibold uppercase tracking-[0.25em] mb-6 shadow-sm">
+              <Scale className="w-4 h-4 text-brand-gold-dark" />
+              Legal Framework &amp; Service Conditions
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tighter leading-[1.05] text-brand-black mb-6">
+              {copy.headingLead}{" "}
+              <span className="font-serif italic text-brand-gold-dark">{copy.headingHighlight}</span>
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-widest text-brand-muted">
+              <span className="px-3 py-1 bg-white border border-brand-charcoal/10">
+                {copy.lastUpdatedLabel} {lastUpdated}
+              </span>
+              <span>•</span>
+              <span className="text-brand-gold-dark font-mono">DOC REF: POL-TOS-2026</span>
+            </div>
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-[1.05] text-brand-black mb-6 max-w-3xl">
-            {copy.headingLead}{" "}
-            <span className="font-serif italic text-brand-gold">{copy.headingHighlight}</span>
-          </h1>
-          <p className="text-brand-charcoal/60 text-sm font-medium uppercase tracking-widest">
-            {copy.lastUpdatedLabel} {lastUpdated}
-          </p>
         </div>
       </header>
 
-      {/* Body: section cards + sticky right-rail table of contents */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 py-16 lg:py-24">
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,220px)] lg:gap-16">
-          {/* Table of Contents (right rail) */}
-          <aside className="hidden lg:block lg:order-2">
+      {/* Body Section */}
+      <div className="relative z-10 container-wide mx-auto px-6 lg:px-12 py-16 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          
+          {/* Sticky Table of Contents (Desktop Right Rail) */}
+          <aside className="lg:col-span-4 lg:order-2">
             <nav
-              aria-label="Terms of service sections"
-              className="sticky top-[calc(var(--site-header-height)+2rem)]"
+              aria-label="Terms of service table of contents"
+              className="sticky top-32 bg-white border border-brand-charcoal/10 p-6 lg:p-8 shadow-sm"
             >
-              <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-brand-charcoal/40 mb-6">
-                On this page
-              </p>
-              <ol className="space-y-3 border-l border-brand-charcoal/10">
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-brand-gold-dark mb-6 border-b border-brand-charcoal/10 pb-4">
+                <FileText className="w-4 h-4" />
+                <span>On This Page</span>
+              </div>
+              <ol className="space-y-3">
                 {tocItems.map((heading, i) => (
                   <li key={heading}>
                     <a
                       href={`#${sectionId(heading)}`}
-                      className="group flex gap-3 -ml-px border-l border-transparent pl-4 py-1 text-sm text-brand-charcoal/60 hover:text-brand-gold hover:border-brand-gold transition-colors"
+                      className="group flex items-start gap-3 py-1.5 text-xs text-brand-muted hover:text-brand-gold-dark transition-colors"
                     >
-                      <span className="text-xs font-semibold text-brand-gold/70 tabular-nums pt-0.5">
-                        {String(i + 1).padStart(2, "0")}
+                      <span className="font-mono text-brand-gold-dark font-semibold shrink-0">
+                        {String(i + 1).padStart(2, "0")}.
                       </span>
-                      <span className="leading-snug">{heading.replace(/^\s*\d+\.\s*/, "")}</span>
+                      <span className="leading-tight font-medium group-hover:underline">
+                        {heading.replace(/^\s*\d+\.\s*/, "")}
+                      </span>
                     </a>
                   </li>
                 ))}
@@ -90,79 +104,100 @@ export default async function TermsOfServicePage() {
             </nav>
           </aside>
 
-          {/* Sections */}
-          <div className="min-w-0 lg:order-1">
-            <p className="text-xl md:text-2xl font-light leading-relaxed text-brand-charcoal mb-16 border-l-2 border-brand-gold pl-6">
-              {copy.intro}
-            </p>
+          {/* Main Legal Sections Column */}
+          <main className="lg:col-span-8 lg:order-1 min-w-0">
+            {/* Lead Statement Box */}
+            <div className="bg-white border-t-4 border-brand-gold border-x border-b border-brand-charcoal/10 p-8 sm:p-10 shadow-md mb-12">
+              <p className="text-xl sm:text-2xl font-serif text-brand-black leading-relaxed font-normal">
+                {copy.intro}
+              </p>
+              <div className="mt-6 pt-4 border-t border-brand-charcoal/10 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-dark">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Binding Agreement &amp; Employer-Pays Commitment</span>
+              </div>
+            </div>
 
-            <div className="space-y-px bg-brand-charcoal/10">
+            {/* Individual Numbered Section Cards */}
+            <div className="space-y-6">
               {copy.sections.map((section, i) => {
                 const title = section.heading.replace(/^\s*\d+\.\s*/, "");
                 return (
                   <section
                     key={section.heading}
                     id={sectionId(section.heading)}
-                    className="bg-brand-off-white p-8 md:p-10 group"
+                    className="bg-white border border-brand-charcoal/10 p-8 lg:p-10 hover:border-brand-gold/60 hover:shadow-md transition-all duration-300 relative group rounded-none"
                   >
-                    <div className="flex items-baseline gap-4 mb-4">
-                      <span className="text-brand-gold/50 text-sm font-semibold tabular-nums group-hover:text-brand-gold transition-colors">
-                        {String(i + 1).padStart(2, "0")}
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-brand-charcoal/10">
+                      <span className="text-xs font-mono font-bold tracking-widest text-brand-gold-dark bg-brand-gold/10 border border-brand-gold/30 px-3 py-1">
+                        SECTION {String(i + 1).padStart(2, "0")}
                       </span>
-                      <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-black">
-                        {title}
-                      </h2>
+                      <Scale className="w-4 h-4 text-brand-gold-dark opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <p className="text-brand-charcoal/80 leading-relaxed md:pl-8">{section.body}</p>
+
+                    <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-brand-black mb-4">
+                      {title}
+                    </h2>
+
+                    <p className="text-base text-brand-charcoal leading-relaxed font-light">
+                      {section.body}
+                    </p>
                   </section>
                 );
               })}
 
-              {/* Contact section */}
+              {/* Contact Section Card */}
               <section
                 id={sectionId(copy.contactSection.heading)}
-                className="bg-brand-off-white p-8 md:p-10 group"
+                className="bg-white border border-brand-charcoal/10 p-8 lg:p-10 hover:border-brand-gold/60 hover:shadow-md transition-all duration-300 relative group rounded-none"
               >
-                <div className="flex items-baseline gap-4 mb-4">
-                  <span className="text-brand-gold/50 text-sm font-semibold tabular-nums group-hover:text-brand-gold transition-colors">
-                    {String(copy.sections.length + 1).padStart(2, "0")}
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-brand-charcoal/10">
+                  <span className="text-xs font-mono font-bold tracking-widest text-brand-gold-dark bg-brand-gold/10 border border-brand-gold/30 px-3 py-1">
+                    SECTION {String(copy.sections.length + 1).padStart(2, "0")}
                   </span>
-                  <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-black">
-                    {copy.contactSection.heading.replace(/^\s*\d+\.\s*/, "")}
-                  </h2>
+                  <Scale className="w-4 h-4 text-brand-gold-dark opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <p className="text-brand-charcoal/80 leading-relaxed md:pl-8">
+
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-brand-black mb-4">
+                  {copy.contactSection.heading.replace(/^\s*\d+\.\s*/, "")}
+                </h2>
+
+                <p className="text-base text-brand-charcoal leading-relaxed font-light">
                   {copy.contactSection.bodyLead}
                   <a
-                    href={`mailto:${copy.contactSection.email}`}
-                    className="text-brand-gold font-semibold hover:underline"
+                    href="mailto:info@smanpower.com"
+                    className="text-brand-gold-dark font-semibold hover:underline"
                   >
-                    {copy.contactSection.email}
+                    info@smanpower.com
                   </a>
                   {copy.contactSection.bodyAfter}
                 </p>
               </section>
             </div>
 
-            {/* Contact CTA */}
-            <div className="mt-16 border border-brand-charcoal/10 bg-brand-white p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {/* Contact CTA Card */}
+            <div className="mt-12 bg-brand-black text-brand-white p-8 sm:p-10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h2 className="text-2xl font-light tracking-tight text-brand-black mb-2">
+                <span className="text-brand-gold text-xs font-semibold uppercase tracking-widest block mb-2">
+                  Legal Assistance &amp; Terms Clarification
+                </span>
+                <h3 className="text-2xl font-semibold text-brand-white tracking-tight mb-2">
                   Questions about these terms?
-                </h2>
-                <p className="text-brand-charcoal/60 leading-relaxed">
-                  Our administrative team is happy to clarify anything before you proceed.
+                </h3>
+                <p className="text-brand-white/70 text-sm font-light leading-relaxed">
+                  Our administrative team is available to clarify any contractual or policy questions.
                 </p>
               </div>
-              <Link
-                href={`mailto:${copy.contactSection.email}`}
-                className="inline-flex items-center gap-2 shrink-0 bg-brand-charcoal text-brand-white px-6 py-3 text-xs font-semibold uppercase tracking-widest hover:bg-brand-gold hover:text-brand-black transition-colors"
+              <a
+                href="mailto:info@smanpower.com"
+                className="inline-flex items-center gap-3 shrink-0 bg-brand-gold text-brand-black font-semibold px-6 py-4 text-xs uppercase tracking-widest hover:bg-white transition-colors shadow-lg"
               >
-                <Mail aria-hidden="true" className="w-4 h-4" />
-                {copy.contactSection.email}
-              </Link>
+                <Mail className="w-4 h-4" />
+                <span>info@smanpower.com</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
-          </div>
+          </main>
+
         </div>
       </div>
     </div>
