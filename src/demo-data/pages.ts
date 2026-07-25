@@ -33,7 +33,7 @@ const createPage = (
   missionHeading: string,
   missionText: string[],
   features: { title: string; desc: string }[] = [],
-  documents: { title: string; image: string }[] = []
+  documents: { title: string; image: string; fileUrl?: string }[] = []
 ): CmsPage => {
   const blocks: CmsContentBlock[] = [
     {
@@ -259,9 +259,9 @@ export const demoPages: CmsPage[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     [
-      { title: "DOFE Operating License", image: "/images/hero_training_orientation_1782920391505.png" },
-      { title: "Company Registration", image: "/images/trade_test_centre_1782920400836.png" },
-      { title: "Tax Clearance Certificate", image: "/images/corporate_office_interview_1782920412325.png" }
+      { title: "License of Foreign Employment", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998968/SSIS_License_of_Foreign_Employment_xwnjyf.pdf", image: "" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998960/WhatsApp_Image_2026-07-24_at_1.41.30_PM_knnzf2.jpg", image: "" },
+      { title: "Certificate of Incorporation of Company", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998959/WhatsApp_Image_2026-07-24_at_1.40.38_PM_wb8zdf.jpg", image: "" }
     ]
   ),
   createPage(

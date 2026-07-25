@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { ethicalContent } from "@/lib/content";
 import { getDynamicPageContent } from "@/services/dynamic-page.service";
-import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
+import { EthicalPageTemplate } from "@/components/ethical/EthicalPageTemplate";
 
 export function generateStaticParams() {
   return ethicalContent.map((c) => ({ slug: c.slug }));
@@ -17,5 +17,5 @@ export default async function EthicalDynamicPage({
 
   if (!content) notFound();
 
-  return <DynamicPageTemplate content={content} />;
+  return <EthicalPageTemplate content={content} />;
 }

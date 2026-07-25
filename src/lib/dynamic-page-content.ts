@@ -36,8 +36,9 @@ function asDocuments(value: unknown): PageContent["documents"] {
     ?.map((item) => ({
       title: asString(item.title) ?? "",
       image: asString(item.image) ?? "",
+      ...(asString(item.fileUrl) ? { fileUrl: asString(item.fileUrl) } : {}),
     }))
-    .filter((item) => item.title || item.image);
+    .filter((item) => item.title || item.image || item.fileUrl);
 }
 
 function asProcess(value: unknown): PageContent["process"] {
