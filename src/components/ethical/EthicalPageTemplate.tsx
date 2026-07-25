@@ -2,8 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { ShieldCheck, ChevronRight, CheckCircle2, ArrowRight } from "lucide-react";
 import { HeroInternal } from "@/components/ui/HeroInternal";
-import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { EthicalEditorialOverview } from "./EthicalEditorialOverview";
 import { EthicalFaqAccordion } from "./EthicalFaqAccordion";
 import { GrievanceActionWidget, FeeMatrixWidget, PolicyDownloadWidget } from "./EthicalInteractiveWidgets";
 import type { PageContent } from "@/lib/content";
@@ -53,11 +53,10 @@ export function EthicalPageTemplate({ content }: { content: PageContent }) {
         </div>
       </section>
 
-      {/* Main Editorial Content */}
-      <section className="py-16 lg:py-24 bg-brand-off-white text-brand-black relative">
+      {/* Breadcrumb Navigation Container */}
+      <div className="bg-brand-off-white pt-10 pb-2">
         <div className="container-wide mx-auto px-6 lg:px-12">
-          {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="mb-10">
+          <nav aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
               <li>
                 <Link href="/" className="hover:text-brand-gold-dark transition-colors">Home</Link>
@@ -70,26 +69,15 @@ export function EthicalPageTemplate({ content }: { content: PageContent }) {
               <li className="text-brand-gold-dark">{content.subtitle || content.title}</li>
             </ol>
           </nav>
-
-          <EditorialSection
-            title={content.missionHeading || `Explore ${content.title}`}
-            subtitle={content.overviewSubtitle || "Operational Context"}
-          >
-            {content.missionText?.map((text, idx) => (
-              <p
-                key={idx}
-                className={`leading-relaxed mb-8 font-light tracking-tight ${
-                  idx === 0
-                    ? "text-2xl md:text-3xl text-brand-black border-l-2 border-brand-gold pl-6 py-2"
-                    : "text-lg text-brand-muted"
-                }`}
-              >
-                {text}
-              </p>
-            ))}
-          </EditorialSection>
         </div>
-      </section>
+      </div>
+
+      {/* Redesigned Luxury Editorial Overview Section */}
+      <EthicalEditorialOverview
+        title={content.missionHeading || `Explore ${content.title}`}
+        subtitle={content.overviewSubtitle || "Overview"}
+        paragraphs={content.missionText}
+      />
 
       {/* Key Highlights / Features Grid */}
       {content.features && content.features.length > 0 && (
