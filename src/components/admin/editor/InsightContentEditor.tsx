@@ -19,6 +19,30 @@ import {
 } from "lucide-react";
 import { MediaPicker } from "../MediaPicker";
 
+/** Toolbar button — module-scoped so it isn't recreated on every render. */
+function ToolbarButton({
+  active,
+  onClick,
+  icon: Icon,
+  title,
+}: {
+  active?: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className={`p-1.5 rounded ${active ? "bg-gray-200 text-brand-black" : "text-gray-600 hover:bg-gray-200"}`}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+}
+
 /**
  * Rich-text editor for insight article bodies. Emits an HTML string into a
  * hidden input named `name`, so the existing form (which reads
@@ -65,27 +89,6 @@ export function InsightContentEditor({
   if (!mounted || !editor) {
     return <div className="min-h-[300px] border border-gray-200 rounded-md bg-gray-50 animate-pulse" />;
   }
-
-  const ToolbarButton = ({
-    active,
-    onClick,
-    icon: Icon,
-    title,
-  }: {
-    active?: boolean;
-    onClick: () => void;
-    icon: React.ComponentType<{ className?: string }>;
-    title: string;
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={`p-1.5 rounded ${active ? "bg-gray-200 text-brand-black" : "text-gray-600 hover:bg-gray-200"}`}
-    >
-      <Icon className="w-4 h-4" />
-    </button>
-  );
 
   return (
     <div>

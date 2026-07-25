@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { getPageBySlug } from "@/repositories/content-resolver";
 import { HeroRenderer } from "@/components/cms/HeroRenderer";
 import { ContentBlockRenderer } from "@/components/cms/ContentBlockRenderer";
-
+import { EthicalHero } from "@/components/ethical/EthicalHero";
+import { EthicalPillarsHub } from "@/components/ethical/EthicalPillarsHub";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-
 import { getPageSeo } from "@/repositories/content-resolver";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,22 +27,38 @@ export default async function EthicalRecruitmentPage() {
     notFound();
   }
 
-  const defaultTitle = "Commitment to Ethical Recruitment Practices";
-  const defaultSubtitle = "At Seven Seas Intercontinental, ethical recruitment means clear communication, fee transparency, worker-safety guidance, and responsible documentation practices. Our process is guided by international labour principles and RBA-aligned controls where applicable.";
-  const defaultImage = "/images/hero_training_orientation_1782920391505.png";
+  const defaultTitle = "Doing What Is Right. Always.";
+  const defaultSubtitle = "At Seven Seas Intercontinental, ethical recruitment is our foundation—not an afterthought. We enforce zero recruitment fees, total contract transparency, and RBA-aligned worker protections across every deployment.";
+
+  const hasBlocks = Boolean(page.blocks && page.blocks.length > 0);
 
   return (
-    <>
-      <HeroRenderer 
-        hero={page.hero}
-        fallbackTitle={defaultTitle}
-        fallbackSubtitle={defaultSubtitle}
-        fallbackImage={defaultImage}
-      />
+    <main className="min-h-screen bg-brand-off-white text-brand-black">
+      {/* High impact Ethical Hero */}
+      {page.hero ? (
+        <HeroRenderer 
+          hero={page.hero}
+          fallbackTitle={defaultTitle}
+          fallbackSubtitle={defaultSubtitle}
+          fallbackImage="/images/hero_training_orientation_1782920391505.png"
+        />
+      ) : (
+        <EthicalHero title={defaultTitle} subtitle={defaultSubtitle} />
+      )}
 
-      {page.blocks?.map((block) => (
-        <ContentBlockRenderer key={block.id} block={block} />
-      ))}
-    </>
+      {/* Render CMS blocks */}
+      {hasBlocks ? (
+        page.blocks?.map((block) => (
+          <ContentBlockRenderer key={block.id} block={block} />
+        ))
+      ) : (
+        <EthicalPillarsHub />
+      )}
+
+      {/* Institutional Ethical Pillars Hub to ensure next level presentation */}
+      {hasBlocks && (
+        <EthicalPillarsHub />
+      )}
+    </main>
   );
 }
