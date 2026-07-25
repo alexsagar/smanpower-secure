@@ -716,9 +716,9 @@ export const trustContent: PageContent[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     documents: [
-      { title: "Sedex SMETA Compliance Certification", image: "/images/sedex.png" },
-      { title: "Responsible Business Alliance (RBA) Certificate", image: "/images/rba.png" },
-      { title: "ISO 9001:2015 Quality Management System Certificate", image: "/images/iso.png" }
+      { title: "DOFE Operating License", image: "/images/hero_training_orientation_1782920391505.png" },
+      { title: "Company Registration", image: "/images/trade_test_centre_1782920400836.png" },
+      { title: "Tax Clearance Certificate", image: "/images/corporate_office_interview_1782920412325.png" }
     ]
   },
   { 
@@ -735,11 +735,6 @@ export const trustContent: PageContent[] = [
       { title: "ISO 9001:2015", desc: "Certified for rigorous Quality Management Systems." },
       { title: "RBA Alignment", desc: "Operational framework built on the Responsible Business Alliance code." },
       { title: "Continuous Audits", desc: "Subject to unannounced third-party compliance checks." }
-    ],
-    documents: [
-      { title: "Sedex SMETA Compliance Certification", image: "/images/sedex.png" },
-      { title: "Responsible Business Alliance (RBA) Certificate", image: "/images/rba.png" },
-      { title: "ISO 9001:2015 Quality Management System Certificate", image: "/images/iso.png" }
     ]
   },
   { 
@@ -756,11 +751,6 @@ export const trustContent: PageContent[] = [
       { title: "Tax Clearances", desc: "Up-to-date financial compliance with the Government of Nepal." },
       { title: "Chamber of Commerce", desc: "Registered and active members of the national business chamber." },
       { title: "NAFEA Membership", desc: "Active members of the Nepal Association of Foreign Employment Agencies." }
-    ],
-    documents: [
-      { title: "Sedex SMETA Compliance Certification", image: "/images/sedex.png" },
-      { title: "Responsible Business Alliance (RBA) Certificate", image: "/images/rba.png" },
-      { title: "ISO 9001:2015 Quality Management System Certificate", image: "/images/iso.png" }
     ]
   },
   { 
