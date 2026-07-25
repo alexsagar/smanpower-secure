@@ -1,7 +1,7 @@
-type ImageDeliveryOptions = { width?: number; height?: number };
+type ImageDeliveryOptions = { width?: number; height?: number; trim?: boolean };
 
 /** Add safe, non-destructive image delivery transforms without changing CMS URLs. */
-export function getCloudinaryImageUrl(src: string, { width, height }: ImageDeliveryOptions = {}) {
+export function getCloudinaryImageUrl(src: string, { width, height, trim }: ImageDeliveryOptions = {}) {
   try {
     const url = new URL(src);
     const parts = url.pathname.split("/");
@@ -12,6 +12,8 @@ export function getCloudinaryImageUrl(src: string, { width, height }: ImageDeliv
     const transformEnd = versionIndex < 0 ? parts.length : versionIndex;
     const existing = parts.slice(uploadIndex + 2, transformEnd).join(",");
     const additions = [
+      // Trim uniform/transparent padding baked into the source (e.g. logo whitespace).
+      trim && !/(^|,)e_trim(:|,|$)/.test(existing) && "e_trim",
       !/(^|,)f_auto(,|$)/.test(existing) && "f_auto",
       !/(^|,)q_auto(?::[^,]+)?(,|$)/.test(existing) && "q_auto",
       !(width || height) ? false : !/(^|,)c_(fit|limit)(,|$)/.test(existing) && "c_limit",
