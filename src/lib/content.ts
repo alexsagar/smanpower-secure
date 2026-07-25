@@ -716,9 +716,9 @@ export const trustContent: PageContent[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     documents: [
-      { title: "DOFE Operating License", image: "/images/hero_training_orientation_1782920391505.png" },
-      { title: "Company Registration", image: "/images/trade_test_centre_1782920400836.png" },
-      { title: "Tax Clearance Certificate", image: "/images/corporate_office_interview_1782920412325.png" }
+      { title: "License of Foreign Employment", image: "/images/hero_training_orientation_1782920391505.png" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", image: "/images/trade_test_centre_1782920400836.png" },
+      { title: "Certificate of Incorporation of Company", image: "/images/corporate_office_interview_1782920412325.png" }
     ]
   },
   { 
