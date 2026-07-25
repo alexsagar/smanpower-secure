@@ -259,9 +259,9 @@ export const demoPages: CmsPage[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     [
-      { title: "Government Recruitment Licence (No. 1234/078/079)", image: "" },
-      { title: "ISO 9001:2015 Quality Management System Certification", image: "" },
-      { title: "RBA-Aligned Zero-Fee Ethical Recruitment Policy", image: "" }
+      { title: "License of Foreign Employment", fileUrl: "/docs/recruitment-licence.pdf", image: "" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", fileUrl: "/docs/japan-trainee-certificate.pdf", image: "" },
+      { title: "Certificate of Incorporation of Company", fileUrl: "/docs/incorporation-certificate.pdf", image: "" }
     ]
   ),
   createPage(
