@@ -88,7 +88,7 @@ export function DynamicPageTemplate({ content }: { content: PageContent }) {
                       <img
                         src={doc.image}
                         alt={doc.title}
-                        className="w-full aspect-[3/4] object-cover filter grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                        className="w-full aspect-[3/4] object-contain p-4 bg-white group-hover:scale-105 transition-all duration-700"
                       />
                     </div>
                     <h3 className="text-lg font-semibold text-brand-black group-hover:text-brand-gold-dark transition-colors text-center border-t border-brand-charcoal/10 pt-4">
