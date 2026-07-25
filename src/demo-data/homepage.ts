@@ -443,10 +443,9 @@ export const demoHomepageBlocks: CmsContentBlock[] = [
       ctaText: "Access Full Vault",
       ctaHref: "/trust-centre",
       documents: [
-        { title: "Recruitment Licence", type: "Government Auth.", date: "Updated 2024", id: "001/055/056" },
-        { title: "ISO 9001:2015", type: "Quality Management", date: "Valid till 2026", id: "CERT-9923-AQ" },
-        { title: "Ethical Recruitment", type: "Corporate Policy", date: "v2.1 Active", id: "POL-04-ER" },
-        { title: "Worker Welfare", type: "Corporate Policy", date: "v1.4 Active", id: "POL-12-WW" },
+        { title: "License of Foreign Employment", type: "Government Licence", date: "Updated 2024", id: "001" },
+        { title: "Authority Certificate — Sending Trainee Workers to Japan", type: "Certification", date: "2023", id: "002" },
+        { title: "Certificate of Incorporation of Company", type: "Certification", date: "2023", id: "003" },
       ],
     },
   },

@@ -259,9 +259,9 @@ export const demoPages: CmsPage[] = [
       { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
     ],
     [
-      { title: "License of Foreign Employment", image: "/images/rba.png" },
-      { title: "Authority Certificate — Sending Trainee Workers to Japan", image: "/images/sedex.png" },
-      { title: "Certificate of Incorporation of Company", image: "/images/iso.png" }
+      { title: "License of Foreign Employment", image: "" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", image: "" },
+      { title: "Certificate of Incorporation of Company", image: "" }
     ]
   ),
   createPage(
