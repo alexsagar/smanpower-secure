@@ -43,18 +43,18 @@ export function GrievanceActionWidget() {
               </Link>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <a
-                  href="tel:+97714000000"
-                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors"
+                  href="tel:+977015107440"
+                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors font-medium"
                 >
-                  <PhoneCall className="w-4 h-4 text-brand-gold-dark" />
-                  <span>+977 (1) Helpline</span>
+                  <PhoneCall className="w-4 h-4 text-brand-gold-dark shrink-0" />
+                  <span>+977 (1) 510-7440</span>
                 </a>
                 <a
-                  href="mailto:welfare@smanpower.com"
-                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors"
+                  href="mailto:info@smanpower.com"
+                  className="p-3 border border-brand-charcoal/15 bg-brand-off-white hover:border-brand-gold text-brand-black flex items-center gap-2 transition-colors font-medium"
                 >
-                  <Mail className="w-4 h-4 text-brand-gold-dark" />
-                  <span>Welfare Desk</span>
+                  <Mail className="w-4 h-4 text-brand-gold-dark shrink-0" />
+                  <span>info@smanpower.com</span>
                 </a>
               </div>
             </div>
