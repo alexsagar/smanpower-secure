@@ -5,7 +5,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsComplianceDocument, CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
 
-type VaultPreviewItem = { title: string; documentType: CmsComplianceDocument["documentType"] | string };
+type VaultPreviewItem = { title: string; documentType: CmsComplianceDocument["documentType"] | string; fileUrl?: string | null };
 
 export function DynamicVaultGridRenderer({ block, documents }: { block: CmsContentBlock; documents: VaultPreviewItem[] }) {
   const content = block.content as any;
@@ -38,12 +38,17 @@ export function DynamicVaultGridRenderer({ block, documents }: { block: CmsConte
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-brand-charcoal/10">
-          {documents.map((item, i) => (
+          {documents.map((item, i) => {
+            // Uploaded documents open their file directly; items without a file
+            // fall back to the category landing page.
+            const cardClass = "group block h-full min-h-[300px] border-r border-b border-brand-charcoal/10 bg-brand-off-white p-10 relative overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-2xl z-10 hover:z-20";
+            const Card = ({ children }: { children: React.ReactNode }) =>
+              item.fileUrl
+                ? <a href={item.fileUrl} target="_blank" rel="noopener noreferrer" className={cardClass}>{children}</a>
+                : <Link href={`/trust-centre/${item.documentType}`} className={cardClass}>{children}</Link>;
+            return (
             <ScrollReveal key={item.title} delay={i * 0.1} className="h-full">
-              <Link
-                href={`/trust-centre/${item.documentType}`}
-                className="group block h-full min-h-[300px] border-r border-b border-brand-charcoal/10 bg-brand-off-white p-10 relative overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-2xl z-10 hover:z-20"
-              >
+              <Card>
                 <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 <div className="flex justify-between items-start mb-auto h-full flex-col relative z-10">
                   <div className="w-full flex justify-between items-start">
@@ -61,9 +66,10 @@ export function DynamicVaultGridRenderer({ block, documents }: { block: CmsConte
                     <div className="w-12 h-px bg-brand-charcoal/10 mt-6 group-hover:w-full group-hover:bg-brand-gold/30 transition-all duration-700" />
                   </div>
                 </div>
-              </Link>
+              </Card>
             </ScrollReveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

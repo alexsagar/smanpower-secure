@@ -55,11 +55,11 @@ export function ClientMarqueeRenderer({
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-brand-white to-transparent z-10 pointer-events-none" />
 
           <div className="flex w-max marquee-scroll hover:[animation-play-state:paused]">
-            <div className="flex shrink-0 justify-around items-center gap-8 px-4">
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {clients.map((client, idx) => (
-                <div key={idx} className="flex items-center justify-center h-28 px-8 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[200px]">
+                <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 360, height: 180 })} alt={client.name} width={180} height={90} sizes="180px" className="object-contain max-h-20 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 480, height: 240, trim: true })} alt={client.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -67,11 +67,11 @@ export function ClientMarqueeRenderer({
               ))}
             </div>
             {/* Duplicate for infinite effect */}
-            <div className="flex shrink-0 justify-around items-center gap-8 px-4">
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {clients.map((client, idx) => (
-                <div key={`dup-${idx}`} className="flex items-center justify-center h-28 px-8 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[200px]">
+                <div key={`dup-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 360, height: 180 })} alt={client.name} width={180} height={90} sizes="180px" className="object-contain max-h-20 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 480, height: 240, trim: true })} alt={client.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -89,14 +89,11 @@ export function ClientMarqueeRenderer({
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-brand-white to-transparent z-10 pointer-events-none" />
 
           <div className="flex w-max marquee-scroll-reverse hover:[animation-play-state:paused]">
-            <div className="flex shrink-0 justify-around items-center gap-8 px-4">
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {groups.map((group, idx) => (
-                <div key={idx} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
-                  <span className="text-brand-gold-dark text-xs font-bold tracking-[0.2em] uppercase mb-1">
-                    {group.type.replace("_", " ")}
-                  </span>
+                <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 240, height: 100 })} alt={group.name} width={120} height={50} sizes="120px" className="object-contain max-h-12" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 480, height: 240, trim: true })} alt={group.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
@@ -104,14 +101,11 @@ export function ClientMarqueeRenderer({
               ))}
             </div>
             {/* Duplicate for infinite effect */}
-            <div className="flex shrink-0 justify-around items-center gap-8 px-4">
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {groups.map((group, idx) => (
-                <div key={`dup-group-${idx}`} className="flex flex-col items-center justify-center h-24 px-8 bg-brand-off-white border border-brand-charcoal/5 rounded-2xl grayscale hover:grayscale-0 hover:border-brand-gold/30 hover:shadow-xl hover:shadow-brand-gold/5 transition-all duration-500 cursor-pointer min-w-[250px]">
-                  <span className="text-brand-gold-dark text-xs font-bold tracking-[0.2em] uppercase mb-1">
-                    {group.type.replace("_", " ")}
-                  </span>
+                <div key={`dup-group-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 240, height: 100 })} alt={group.name} width={120} height={50} sizes="120px" className="object-contain max-h-12" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 480, height: 240, trim: true })} alt={group.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
