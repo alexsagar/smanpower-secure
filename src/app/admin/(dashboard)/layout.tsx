@@ -76,7 +76,20 @@ export default async function AdminLayout({
             </main>
           </div>
         </div>
-        <Toaster position="top-center" richColors theme="light" />
+        <Toaster
+          position="top-center"
+          richColors
+          theme="light"
+          toastOptions={{
+            style: {
+              padding: "16px 20px",
+              fontSize: "15px",
+              borderRadius: "0px",
+              border: "1px solid rgba(0,0,0,0.08)",
+              boxShadow: "0 20px 50px -12px rgba(0,0,0,0.35)",
+            },
+          }}
+        />
       </body>
     </html>
   );

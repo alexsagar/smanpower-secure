@@ -28,6 +28,7 @@ import {
   blockTypeLabel,
 } from "@/lib/cms/block-labels";
 import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 
 export const VISUAL_PAGE_EDITOR_DND_ID = "visual-page-editor-blocks";
 
@@ -139,11 +140,10 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
     setBlocks([...blocks, newBlock]);
   };
 
-  const deleteBlock = (id: string) => {
-    if (confirm("Are you sure you want to delete this section?")) {
-      setBlocks(blocks.filter((b: any) => b.id !== id));
-      if (editingBlock?.id === id) setActiveEditor("none");
-    }
+  const deleteBlock = async (id: string) => {
+    if (!(await confirmToast("Delete this section?", { confirmLabel: "Delete" }))) return;
+    setBlocks(blocks.filter((b: any) => b.id !== id));
+    if (editingBlock?.id === id) setActiveEditor("none");
   };
 
   const [isSaving, setIsSaving] = useState(false);
