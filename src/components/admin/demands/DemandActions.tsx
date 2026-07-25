@@ -4,6 +4,7 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Globe, X, Archive, MoreVertical } from "lucide-react";
+import { toast } from "sonner";
 import { publishDemandAction, closeDemandAction, archiveDemandAction } from "@/actions/demands";
 
 interface DemandActionsProps {
@@ -59,12 +60,12 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
       }
 
       if (!res.success) {
-        alert((res as any).formError || "Action failed.");
+        toast.error((res as any).formError || "Action failed.");
       }
 
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "An error occurred.");
+      toast.error(err.message || "An error occurred.");
     } finally {
       setIsLoading(false);
       setConfirmAction(null);

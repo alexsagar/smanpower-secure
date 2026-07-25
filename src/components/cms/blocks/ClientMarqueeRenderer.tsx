@@ -57,9 +57,9 @@ export function ClientMarqueeRenderer({
           <div className="flex w-max marquee-scroll hover:[animation-play-state:paused]">
             <div className="flex shrink-0 justify-around items-center gap-8 px-4">
               {clients.map((client, idx) => (
-                <div key={idx} className="flex items-center justify-center h-32 px-6 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer min-w-[220px]">
+                <div key={idx} className="flex items-center justify-center h-44 px-10 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[280px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 400, height: 240 })} alt={client.name} width={200} height={120} sizes="200px" className="object-contain max-h-28 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 560, height: 360 })} alt={client.name} width={280} height={180} sizes="280px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -69,9 +69,9 @@ export function ClientMarqueeRenderer({
             {/* Duplicate for infinite effect */}
             <div className="flex shrink-0 justify-around items-center gap-8 px-4">
               {clients.map((client, idx) => (
-                <div key={`dup-${idx}`} className="flex items-center justify-center h-32 px-6 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer min-w-[220px]">
+                <div key={`dup-${idx}`} className="flex items-center justify-center h-44 px-10 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[280px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 400, height: 240 })} alt={client.name} width={200} height={120} sizes="200px" className="object-contain max-h-28 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 560, height: 360 })} alt={client.name} width={280} height={180} sizes="280px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}

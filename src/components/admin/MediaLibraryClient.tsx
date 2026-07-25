@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, AlertCircle, FileText, Video, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 
 export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) {
   const [assets, setAssets] = useState(initialAssets);
@@ -19,7 +21,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
 
   const handleDelete = async () => {
     if (!selectedAsset) return;
-    if (!confirm("Are you sure you want to delete this media asset? This might break pages where it's used.")) return;
+    if (!(await confirmToast("Delete this media asset? This might break pages where it's used.", { confirmLabel: "Delete" }))) return;
 
     setIsDeleting(true);
     try {
@@ -37,7 +39,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
       setSelectedAsset(null);
       router.refresh();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsDeleting(false);
     }
@@ -176,7 +178,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: any[] }) 
             <button
               onClick={() => {
                 navigator.clipboard.writeText(selectedAsset.fileUrl);
-                alert("URL copied!");
+                toast.success("URL copied!");
               }}
               className="w-full bg-gray-100 hover:bg-gray-200 text-black py-2 text-sm font-semibold rounded transition"
             >
