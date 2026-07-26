@@ -215,7 +215,9 @@ describe("publishDemandAction", () => {
 
     await publishDemandAction("demand-1");
 
-    expect(revalidatePath).toHaveBeenCalledWith("/demands/gulf-welders", "page");
-    expect(revalidatePath).toHaveBeenCalledWith("/admin/demands", "page");
+    // Literal paths take no `type` argument — see revalidatePath docs. The rest
+    // of the suite already asserts this single-argument form.
+    expect(revalidatePath).toHaveBeenCalledWith("/demands/gulf-welders");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/demands");
   });
 });
