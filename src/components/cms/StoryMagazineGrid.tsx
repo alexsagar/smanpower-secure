@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Quote, ArrowUpRight, Building2, UserCheck, MapPin, Briefcase, Sparkles, Newspaper } from "lucide-react";
 import type { CmsSuccessStory } from "@/types/content";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
 import { stripWrappingQuotes } from "@/lib/utils";
 
 interface StoryMagazineGridProps {
@@ -114,7 +114,7 @@ export function StoryMagazineGrid({
                           ? resolveImageMediaUrl(leadStory.featuredImage, { width: 1200 })
                           : "/images/placeholder.png"
                       }
-                      alt={leadStory.featuredImage?.altText || leadStory.title}
+                      alt={isFilenameLike(leadStory.featuredImage?.altText) ? leadStory.title : leadStory.featuredImage!.altText}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
@@ -217,7 +217,7 @@ export function StoryMagazineGrid({
                               ? resolveImageMediaUrl(story.featuredImage, { width: 800 })
                               : "/images/placeholder.png"
                           }
-                          alt={story.featuredImage?.altText || story.title}
+                          alt={isFilenameLike(story.featuredImage?.altText) ? story.title : story.featuredImage!.altText}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"

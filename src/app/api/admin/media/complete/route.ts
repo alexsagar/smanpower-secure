@@ -342,7 +342,11 @@ export async function POST(request: Request) {
               : assetMeta.duration,
           tags: assetMeta.tags || [],
           folder: verifiedFolder,
-          altText: sanitizedName, // Sanitized
+          // Deliberately null, not the filename: seeding alt text with
+          // "1.webp" gives screen readers nothing useful and leaks upload
+          // filenames into captions. Editors fill this in; consumers fall back
+          // to the surrounding title.
+          altText: null,
           isPublic: config.isPublic,
           status: "REAL_APPROVED",
         }
