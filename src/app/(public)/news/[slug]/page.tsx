@@ -5,9 +5,9 @@ import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
-import { ArrowLeft, ArrowUpRight, Clock, User, ShieldCheck, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: article.metaTitle || `${article.title} | Seven Seas Newsroom`,
     description: article.metaDescription || article.summary || undefined,
     path: `/news/${slug}`,
-    ogImage: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia as any, { width: 1200 }) : article.featuredImage || undefined),
+    ogImage: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 }) : article.featuredImage || undefined),
     noIndex: article.noIndex || false,
   });
 }
@@ -53,11 +53,9 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     ? new Date(article.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
     : "";
   const minutes = readingMinutes(article.content);
-
-  const isFilename = (str?: string) => !str || /\.(webp|jpg|jpeg|png|gif|svg)$/i.test(str.trim());
-  const caption = article.featuredMedia?.caption && !isFilename(article.featuredMedia.caption)
+  const caption = article.featuredMedia?.caption && !isFilenameLike(article.featuredMedia.caption)
     ? article.featuredMedia.caption
-    : (article.featuredMedia?.altText && !isFilename(article.featuredMedia.altText) ? article.featuredMedia.altText : undefined);
+    : (article.featuredMedia?.altText && !isFilenameLike(article.featuredMedia.altText) ? article.featuredMedia.altText : undefined);
 
   return (
     <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
@@ -115,11 +113,6 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               {minutes} min read
             </span>
           </div>
-
-          <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-[11px]">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Verified Press Release</span>
-          </div>
         </div>
 
         {/* 2-Column Layout: Left Main Content (8 cols) + Right Sticky Sidebar (4 cols) */}
@@ -133,10 +126,10 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                   <Image
                     src={
                       article.featuredMedia
-                        ? resolveImageMediaUrl(article.featuredMedia as any, { width: 1200 })
+                        ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 })
                         : article.featuredImage || "/images/trade_test_centre_1782920400836.png"
                     }
-                    alt={isFilename(article.featuredMedia?.altText) ? article.title : (article.featuredMedia?.altText || article.title)}
+                    alt={isFilenameLike(article.featuredMedia?.altText) ? article.title : (article.featuredMedia?.altText || article.title)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 800px"
                     className="object-cover"

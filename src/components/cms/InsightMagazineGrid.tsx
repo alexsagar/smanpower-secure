@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Clock, User, Tag, Sparkles, Newspaper, BookOpen, ShieldCheck, FileText } from "lucide-react";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { ArrowUpRight, Clock, User, Tag, Sparkles, Newspaper, BookOpen, FileText } from "lucide-react";
+import { resolveImageMediaUrl, type MediaLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
 
 export interface InsightArticleItem {
@@ -17,7 +17,7 @@ export interface InsightArticleItem {
   isFeatured?: boolean;
   category?: { name: string } | null;
   author?: { name: string } | null;
-  featuredImage?: any | null;
+  featuredImage?: MediaLike | null;
 }
 
 interface InsightMagazineGridProps {
@@ -59,7 +59,7 @@ export function InsightMagazineGrid({
       <div className="border-t-2 border-b-2 border-brand-black py-4 mb-16 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-brand-white/40">
         <div className="flex items-center gap-4 text-xs tracking-widest uppercase font-mono text-brand-charcoal/70">
           <Newspaper className="w-4 h-4 text-brand-gold" />
-          <span>Vol. XXVIII • Global Workforce Edition</span>
+          <span>Global Workforce</span>
           <span className="hidden sm:inline-block text-brand-charcoal/30">•</span>
           <span className="hidden sm:inline-block font-sans font-semibold text-brand-black">
             {articles.length} Published {articles.length === 1 ? "Report" : "Reports"}
@@ -118,10 +118,6 @@ export function InsightMagazineGrid({
                   <span className="text-xs uppercase font-mono tracking-widest text-brand-muted">
                     {leadArticle.category?.name || "Key Report"}
                   </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 text-emerald-700 font-bold text-xs uppercase tracking-widest">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Verified Intelligence</span>
                 </div>
               </div>
 
@@ -195,10 +191,7 @@ export function InsightMagazineGrid({
                       <strong>Classification:</strong> {leadArticle.category?.name || "General Intelligence"}
                     </p>
                     <p>
-                      <strong>Authoritative Source:</strong> {leadArticle.author?.name || "Seven Seas Recruitment Research"}
-                    </p>
-                    <p>
-                      <strong>Compliance Status:</strong> Verified & Reviewed
+                      <strong>Source:</strong> {leadArticle.author?.name || "Seven Seas Intercontinental"}
                     </p>
                   </div>
                 </div>

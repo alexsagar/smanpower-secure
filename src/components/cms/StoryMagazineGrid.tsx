@@ -37,10 +37,10 @@ export function StoryMagazineGrid({
       <div className="border-t-2 border-b-2 border-brand-black py-4 mb-16 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4 text-xs tracking-widest uppercase font-mono text-brand-charcoal/70">
           <Newspaper className="w-4 h-4 text-brand-gold" />
-          <span>Vol. XXIV • Global Recruitment Edition</span>
+          <span>Global Recruitment</span>
           <span className="hidden sm:inline-block text-brand-charcoal/30">•</span>
           <span className="hidden sm:inline-block font-sans font-semibold text-brand-black">
-            {stories.length} Verified {stories.length === 1 ? "Story" : "Stories"}
+            {stories.length} Published {stories.length === 1 ? "Story" : "Stories"}
           </span>
         </div>
 
@@ -172,7 +172,7 @@ export function StoryMagazineGrid({
                         </p>
                       )}
                       <p className="text-[11px] uppercase tracking-widest text-brand-muted">
-                        Verified Publication
+                        {leadStory.storyType === "EMPLOYER" ? "Employer Partnership" : "Candidate Story"}
                       </p>
                     </div>
 

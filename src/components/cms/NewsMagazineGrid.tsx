@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Clock, User, Tag, Sparkles, Newspaper, ShieldCheck, FileText } from "lucide-react";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { ArrowUpRight, Clock, User, Tag, Sparkles, Newspaper, FileText } from "lucide-react";
+import { resolveImageMediaUrl, type MediaLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
 
 export interface NewsArticleItem {
@@ -16,7 +16,7 @@ export interface NewsArticleItem {
   publishDate?: Date | null;
   newsType?: string | null;
   author?: { name: string } | null;
-  featuredMedia?: any | null;
+  featuredMedia?: MediaLike | null;
   featuredImage?: string | null;
 }
 
@@ -118,10 +118,6 @@ export function NewsMagazineGrid({
                   <span className="text-xs uppercase font-mono tracking-widest text-brand-muted">
                     {leadArticle.newsType || "Official Notice"}
                   </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 text-emerald-700 font-bold text-xs uppercase tracking-widest">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Verified Announcement</span>
                 </div>
               </div>
 

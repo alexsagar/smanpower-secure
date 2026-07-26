@@ -6,8 +6,8 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { sanitizeHtml } from "@/lib/html-safety";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
-import { ArrowLeft, ArrowUpRight, Quote, ShieldCheck, MapPin, Briefcase, Building2, UserCheck, Newspaper } from "lucide-react";
+import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { ArrowLeft, ArrowUpRight, Quote, MapPin, Briefcase, Building2, UserCheck, Newspaper } from "lucide-react";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return buildPageMetadata({
-    title: story.metaTitle || `${story.title} | Seven Seas Chronicle`,
+    title: story.metaTitle || `${story.title} | Seven Seas Intercontinental`,
     description: story.metaDescription || story.summary || story.title,
     path: `/success-stories/${slug}`,
     canonicalOverride: story.canonicalUrl,
@@ -39,10 +39,9 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
   const relatedStories = allStories.filter((s) => s.slug !== slug).slice(0, 3);
 
   const kicker = story.storyType === "EMPLOYER" ? "Corporate Partnership Case Study" : "Voices of the Field • Candidate Story";
-  const isFilename = (str?: string) => !str || /\.(webp|jpg|jpeg|png|gif|svg)$/i.test(str.trim());
-  const caption = story.featuredImage?.caption && !isFilename(story.featuredImage.caption)
+  const caption = story.featuredImage?.caption && !isFilenameLike(story.featuredImage.caption)
     ? story.featuredImage.caption
-    : (story.featuredImage?.altText && !isFilename(story.featuredImage.altText) ? story.featuredImage.altText : undefined);
+    : (story.featuredImage?.altText && !isFilenameLike(story.featuredImage.altText) ? story.featuredImage.altText : undefined);
 
   return (
     <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
@@ -108,11 +107,6 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
               </span>
             )}
           </div>
-
-          <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-[11px]">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Verified Partnership</span>
-          </div>
         </div>
 
         {/* Main Content Grid: Sidebar Factsheet + Article Body */}
@@ -124,7 +118,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
                 <div className="relative aspect-[4/5] overflow-hidden bg-brand-charcoal">
                   <Image
                     src={resolveImageMediaUrl(story.featuredImage, { width: 800 })}
-                    alt={isFilename(story.featuredImage.altText) ? story.title : (story.featuredImage.altText || story.title)}
+                    alt={isFilenameLike(story.featuredImage.altText) ? story.title : (story.featuredImage.altText || story.title)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 340px"
                     className="object-cover"
