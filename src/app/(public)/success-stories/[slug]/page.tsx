@@ -38,8 +38,10 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
   const allStories = await getPublishedStories();
   const relatedStories = allStories.filter((s) => s.slug !== slug).slice(0, 3);
 
-  const kicker = story.storyType === "EMPLOYER" ? "Corporate Partnership Case Study" : "Voices of the Field • Candidate Story";
-  const caption = story.featuredImage?.altText || story.personName || story.title;
+  const isFilename = (str?: string) => !str || /\.(webp|jpg|jpeg|png|gif|svg)$/i.test(str.trim());
+  const caption = story.featuredImage?.caption && !isFilename(story.featuredImage.caption)
+    ? story.featuredImage.caption
+    : (story.featuredImage?.altText && !isFilename(story.featuredImage.altText) ? story.featuredImage.altText : undefined);
 
   return (
     <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
@@ -121,7 +123,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
                 <div className="relative aspect-[4/5] overflow-hidden bg-brand-charcoal">
                   <Image
                     src={resolveImageMediaUrl(story.featuredImage, { width: 800 })}
-                    alt={story.featuredImage.altText || story.title}
+                    alt={isFilename(story.featuredImage.altText) ? story.title : (story.featuredImage.altText || story.title)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 340px"
                     className="object-cover"
