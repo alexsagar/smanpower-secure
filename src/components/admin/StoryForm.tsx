@@ -46,6 +46,10 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
       personName: formData.get("personName") as string,
+      // Checkboxes must always be sent: the payload schema defaults them to
+      // false, so an omitted flag silently clears it on every save.
+      showPersonName: formData.get("showPersonName") === "on",
+      featured: formData.get("featured") === "on",
       storyType: formData.get("storyType") as string,
       imageId: selectedImageId || null,
       summary: formData.get("summary") as string,
@@ -95,6 +99,10 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Person or Company Name</label>
             <input name="personName" defaultValue={initialData?.personName} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. Rajendra Thapa" />
+            <label className="flex items-center gap-2 mt-3 text-xs text-brand-charcoal cursor-pointer">
+              <input type="checkbox" name="showPersonName" defaultChecked={initialData?.showPersonName ?? false} className="accent-brand-gold" />
+              Show this name publicly on the story page
+            </label>
           </div>
         </div>
 
@@ -112,14 +120,19 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
               setSelectedImageId(assetId);
               setSelectedImageUrl(assetUrl);
             }} />
+            <label className="flex items-center gap-2 mt-3 text-xs text-brand-charcoal cursor-pointer">
+              <input type="checkbox" name="featured" defaultChecked={initialData?.isFeatured ?? false} className="accent-brand-gold" />
+              Feature on the homepage
+            </label>
           </div>
         </div>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Summary (Short)</label>
+          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Occupation &amp; Location</label>
           <input name="summary" defaultValue={initialData?.summary} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. Heavy Equipment Operator — Doha, Qatar" />
+          <p className="text-[11px] text-brand-muted mt-2">Shown under the story title on the homepage card and the story page.</p>
         </div>
         <div>
           <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Pull Quote (Optional)</label>

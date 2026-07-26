@@ -13,6 +13,22 @@ interface PageMetaProps {
 }
 
 /**
+ * Append the site name unless the title already carries the brand.
+ *
+ * Page-level fallbacks and CMS-authored meta titles routinely end in "| Seven
+ * Seas Nepal" or similar, and appending unconditionally produced titles like
+ * "… | Seven Seas Nepal | Seven Seas Intercontinental" — visible in search
+ * results and in the browser tab.
+ */
+export function buildBrandedTitle(title?: string): string {
+  if (!title?.trim()) return siteConfig.name;
+  const stem = siteConfig.brandStem || siteConfig.name;
+  return title.toLowerCase().includes(stem.toLowerCase())
+    ? title
+    : `${title} | ${siteConfig.name}`;
+}
+
+/**
  * Centralized metadata builder for App Router.
  * Ensures consistent canonicals, titles, and prevents private data leaks.
  */
@@ -28,7 +44,7 @@ export const buildPageMetadata = ({
   const canonicalUrl = buildCanonicalUrl(path, canonicalOverride);
   const shouldNoIndex = noIndex || isStagingNoIndexEnabled();
   
-  const finalTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
+  const finalTitle = buildBrandedTitle(title);
   const finalDescription = description || siteConfig.description;
 
   // Use a secure default branded image for OG, avoiding random or unverified stock images

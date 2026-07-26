@@ -2,6 +2,7 @@ import React from "react";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
 import { MediaInput } from "@/components/admin/MediaInput";
 import { ChevronLeft } from "lucide-react";
+import { DEFAULT_OVERLAY_OPACITY } from "@/lib/overlay";
 
 export function HeroEditor({ hero, onChange, onBack }: { hero: any, onChange: (hero: any) => void, onBack: () => void }) {
   return (
@@ -146,13 +147,13 @@ export function HeroEditor({ hero, onChange, onBack }: { hero: any, onChange: (h
 
           <div>
             <label className="block text-sm font-semibold mb-2">
-              Overlay Opacity ({hero.overlayOpacity ?? 60}%)
+              Overlay Opacity ({hero.overlayOpacity ?? DEFAULT_OVERLAY_OPACITY}%)
             </label>
             <input
               type="range"
               min={0}
               max={100}
-              value={hero.overlayOpacity ?? 60}
+              value={hero.overlayOpacity ?? DEFAULT_OVERLAY_OPACITY}
               onChange={(e) =>
                 onChange({ ...hero, overlayOpacity: Number(e.target.value) })
               }

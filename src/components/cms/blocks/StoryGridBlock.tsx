@@ -54,7 +54,7 @@ export function StoryGridBlock({ block, lang, stories }: { block: CmsContentBloc
             {cards.map((story: StoryCard, i: number) => (
               <ScrollReveal key={i} delay={0.2 * i} className="group cursor-pointer relative h-[450px] lg:h-[650px] rounded-3xl overflow-hidden block">
                 <div className="absolute inset-0 z-0">
-                  <Image src={story.imageSrc || '/placeholder.png'} alt={story.imageAlt || ''} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
+                  <Image src={story.imageSrc || '/images/placeholder.png'} alt={story.imageAlt || ''} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/20 to-transparent" />
                 </div>
 

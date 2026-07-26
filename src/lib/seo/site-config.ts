@@ -30,6 +30,12 @@ export const getSiteUrl = (): string => {
 
 export const siteConfig = {
   name: "Seven Seas Intercontinental",
+  /**
+   * Brand stem used to detect a title that already carries the brand, so the
+   * metadata builder doesn't append it twice. Matches "Seven Seas",
+   * "Seven Seas Nepal", "Seven Seas Intercontinental", etc.
+   */
+  brandStem: "Seven Seas",
   description: "Global Manpower Recruitment and HR Solutions",
   defaultLocale: "en",
   themeColor: "#0f172a", // standard theme color

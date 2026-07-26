@@ -7,8 +7,13 @@
  * previously let a stored `60` reach a CSS property expecting `0.6`.
  */
 
-/** Used wherever a hero has an overlay enabled but no explicit stored value. */
-export const DEFAULT_OVERLAY_OPACITY = 60;
+/**
+ * Used wherever a hero has an overlay enabled but no explicit stored value —
+ * which is every sub-page hero, since DynamicPageTemplate and
+ * EthicalPageTemplate render HeroInternal without overlay props. Heroes with a
+ * stored CMS value (the homepage and the other authored heroes) are unaffected.
+ */
+export const DEFAULT_OVERLAY_OPACITY = 45;
 
 /**
  * Clamp a CMS overlay opacity (0–100, possibly missing/NaN) and convert it to a

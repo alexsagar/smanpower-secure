@@ -46,7 +46,7 @@ export const getPublishedDemands = (filters?: CmsDemandFilters) => getContentRep
 export const getDemandBySlug = (slug: string) => getContentRepository().getDemandBySlug(slug);
 export const getDemandFilterOptions = () => getContentRepository().getDemandFilterOptions();
 export const getFeaturedStories = () => getContentRepository().getFeaturedStories();
-export const getPublishedStories = () => getContentRepository().getPublishedStories();
+export const getPublishedStories = (limit?: number) => getContentRepository().getPublishedStories(limit);
 export const getStoryBySlug = (slug: string) => getContentRepository().getStoryBySlug(slug);
 export const getPublishedTestimonials = () => getContentRepository().getPublishedTestimonials();
 export const getIndustries = () => getContentRepository().getIndustries();

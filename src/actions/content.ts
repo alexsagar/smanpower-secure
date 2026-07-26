@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { DEFAULT_OVERLAY_OPACITY } from "@/lib/overlay";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { requirePermission, SETTINGS_PERMISSIONS } from "@/lib/permissions";
@@ -91,7 +92,7 @@ export async function savePageAction(
             // Schema default is true; `?? false` silently disabled the overlay
             // for any hero saved before the field was editable.
             overlayEnabled: hero.overlayEnabled ?? true,
-            overlayOpacity: hero.overlayOpacity ?? 60,
+            overlayOpacity: hero.overlayOpacity ?? DEFAULT_OVERLAY_OPACITY,
             accessibilityDescription: hero.accessibilityDescription || null,
           },
         });
