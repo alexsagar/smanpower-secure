@@ -18,6 +18,7 @@ import {
   ImagePlus,
 } from "lucide-react";
 import { MediaPicker } from "../MediaPicker";
+import type { MediaPurpose } from "@/lib/media-purposes";
 
 /** Toolbar button — module-scoped so it isn't recreated on every render. */
 function ToolbarButton({
@@ -52,9 +53,13 @@ function ToolbarButton({
 export function InsightContentEditor({
   name,
   initialHtml,
+  placeholder = "Write your insight — add headings, images, lists and quotes…",
+  uploadPurpose = "insight_image",
 }: {
   name: string;
   initialHtml?: string;
+  placeholder?: string;
+  uploadPurpose?: MediaPurpose;
 }) {
   const [mounted, setMounted] = useState(false);
   const [html, setHtml] = useState(initialHtml || "");
@@ -66,9 +71,7 @@ export function InsightContentEditor({
     extensions: [
       StarterKit.configure({ link: { openOnClick: false } }),
       Image.configure({ inline: false }),
-      Placeholder.configure({
-        placeholder: "Write your insight — add headings, images, lists and quotes…",
-      }),
+      Placeholder.configure({ placeholder }),
     ],
     content: initialHtml || "",
     onUpdate: ({ editor }) => setHtml(editor.getHTML()),
@@ -136,7 +139,7 @@ export function InsightContentEditor({
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         allowedResourceTypes={["IMAGE"]}
-        uploadPurpose="insight_image"
+        uploadPurpose={uploadPurpose}
         onSelect={(media) => {
           editor.chain().focus().setImage({ src: media.fileUrl, alt: media.altText || "" }).run();
           setPickerOpen(false);

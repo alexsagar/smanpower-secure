@@ -6,10 +6,22 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 
-export function StoryGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
+export interface StoryCard {
+  type: "candidate" | "employer";
+  country?: string;
+  title: string;
+  desc?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  slug?: string;
+}
+
+export function StoryGridBlock({ block, lang, stories }: { block: CmsContentBlock; lang: string; stories?: StoryCard[] }) {
   void lang;
   const content = block.content as any;
-  
+  // Real backend stories win; the block's authored stories are the empty-state fallback.
+  const cards: StoryCard[] = stories?.length ? stories : (content.stories ?? []);
+
   return (
     <>
       {/* SECTION 12: SUCCESS STORIES */}
@@ -39,7 +51,7 @@ export function StoryGridBlock({ block, lang }: { block: CmsContentBlock; lang: 
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            {content.stories?.map((story: any, i: number) => (
+            {cards.map((story: StoryCard, i: number) => (
               <ScrollReveal key={i} delay={0.2 * i} className="group cursor-pointer relative h-[450px] lg:h-[650px] rounded-3xl overflow-hidden block">
                 <div className="absolute inset-0 z-0">
                   <Image src={story.imageSrc || '/placeholder.png'} alt={story.imageAlt || ''} fill className="object-cover transition-transform duration-1000 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
@@ -64,6 +76,12 @@ export function StoryGridBlock({ block, lang }: { block: CmsContentBlock; lang: 
                     </div>
                   </div>
                 </div>
+
+                {story.slug && (
+                  <Link href={`/success-stories/${story.slug}`} className="absolute inset-0 z-20">
+                    <span className="sr-only">{story.title}</span>
+                  </Link>
+                )}
               </ScrollReveal>
             ))}
           </div>
