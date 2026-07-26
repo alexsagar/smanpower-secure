@@ -8,6 +8,11 @@ import { getPublishedStories } from "@/repositories/content-resolver";
 import { getPageSeo } from "@/repositories/content-resolver";
 import { StoryMagazineGrid } from "@/components/cms/StoryMagazineGrid";
 
+// Without this the page is prerendered once at build time and never refreshes,
+// so newly published stories never appear. Matches /insights, /news and the
+// homepage; on-demand revalidation on publish is the fast path, this is the net.
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/success-stories");
   return buildPageMetadata({

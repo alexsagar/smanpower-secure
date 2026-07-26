@@ -33,16 +33,14 @@ const InsightPayloadSchema = z.object({
 });
 
 function revalidateInsightCaches(slug?: string) {
-  revalidatePath("/admin/insights", "page");
-  revalidatePath("/insights", "page");
-  revalidatePath("/", "page"); // homepage insight_preview shows the latest published insights
+  revalidatePath("/admin/insights");
+  revalidatePath("/insights");
+  revalidatePath("/"); // homepage insight_preview shows the latest published insights
   if (slug) {
-    revalidatePath(`/insights/${slug}`, "page");
-    // @ts-expect-error Next.js 16 signature issue
-    revalidateTag(`insight:${slug}`);
+    revalidatePath(`/insights/${slug}`);
+    revalidateTag(`insight:${slug}`, "max");
   }
-  // @ts-expect-error Next.js 16 signature issue
-  revalidateTag("insights:list");
+  revalidateTag("insights:list", "max");
 }
 
 export async function createInsightAction(formData: FormData) {

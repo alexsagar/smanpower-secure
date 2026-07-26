@@ -89,18 +89,16 @@ const DemandPayloadSchema = z.object({
 
 function revalidateDemandCaches(slug?: string) {
   // Only invalidate the real affected outputs using route patterns
-  revalidatePath("/admin/demands", "page");
-  revalidatePath("/demands", "page");
+  revalidatePath("/admin/demands");
+  revalidatePath("/demands");
   if (slug) {
-    revalidatePath(`/demands/${slug}`, "page");
+    revalidatePath(`/demands/${slug}`);
   }
   
-  // @ts-ignore
-  revalidateTag("demands:list");
+  revalidateTag("demands:list", "max");
   
   if (slug) {
-    // @ts-ignore
-    revalidateTag(`demand:${slug}`);
+    revalidateTag(`demand:${slug}`, "max");
   }
 }
 
