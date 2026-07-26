@@ -26,7 +26,7 @@ const nepalOperations = [
     location: "Kathmandu, Nepal",
     desc: "Executive sourcing, client agreements, candidate documentation, and international deployment administration.",
     badge: "Head Office",
-    license: "Govt. Lic No: 1083/073/074",
+    license: "Executive Hub",
   },
   {
     facility: "Trade Assessment & Skill Testing Center",
