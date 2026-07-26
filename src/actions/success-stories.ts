@@ -37,6 +37,7 @@ const SuccessStoryPayloadSchema = z.object({
 function revalidateStoryCaches(slug?: string) {
   revalidatePath("/admin/success-stories", "page");
   revalidatePath("/success-stories", "page");
+  revalidatePath("/", "page"); // homepage story_grid shows the featured/latest stories
   if (slug) {
     revalidatePath(`/success-stories/${slug}`, "page");
     // @ts-expect-error Next.js 16 signature issue

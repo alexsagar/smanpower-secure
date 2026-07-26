@@ -844,19 +844,21 @@ export class PrismaContentRepository implements ContentRepository {
       industry: s.industry?.name || undefined,
       country: s.country?.name || undefined,
       storyDate: s.storyDate ? s.storyDate.toISOString() : undefined,
-      image: s.featuredImage ? {
+      // Field names must match CmsSuccessStory — the public pages read these directly.
+      featuredImageId: s.featuredImageId || null,
+      featuredImage: s.featuredImage ? {
         ...mapPrismaMediaAsset(s.featuredImage as PrismaMediaRecord),
         altText: s.featuredImage.altText || s.title,
-      } : undefined,
-      seo: {
-        metaTitle: s.metaTitle || undefined,
-        metaDescription: s.metaDescription || undefined,
-        canonicalUrl: s.canonicalUrl || undefined,
-        ogImage: s.ogImage || undefined,
-        ogTitle: s.ogTitle || undefined,
-        ogDescription: s.ogDescription || undefined,
-        noIndex: s.noIndex || false
-      },
+      } : null,
+      status: s.status,
+      isPublished: s.status === "PUBLISHED",
+      isFeatured: s.isFeatured ?? false,
+      metaTitle: s.metaTitle || undefined,
+      metaDescription: s.metaDescription || undefined,
+      canonicalUrl: s.canonicalUrl || undefined,
+      ogImage: s.ogImage || undefined,
+      noIndex: s.noIndex || false,
+      createdAt: s.createdAt ? s.createdAt.toISOString() : "",
       publishedAt: s.publishedAt ? s.publishedAt.toISOString() : undefined
     };
   }
