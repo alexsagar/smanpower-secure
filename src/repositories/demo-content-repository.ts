@@ -265,8 +265,9 @@ export class DemoContentRepository implements ContentRepository {
     return demoStories.filter((s) => s.isFeatured && s.isPublished);
   }
 
-  async getPublishedStories(): Promise<CmsSuccessStory[]> {
-    return demoStories.filter((s) => s.isPublished);
+  async getPublishedStories(limit?: number): Promise<CmsSuccessStory[]> {
+    const published = demoStories.filter((s) => s.isPublished);
+    return limit ? published.slice(0, limit) : published;
   }
 
   async getStoryBySlug(slug: string): Promise<CmsSuccessStory | null> {

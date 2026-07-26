@@ -17,6 +17,33 @@
 export type PageCopy = Record<string, unknown>;
 
 /** Deep-merges stored CMS copy over the defaults, field by field. */
+const COPY_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+  rarr: "→", larr: "←", mdash: "—", ndash: "–", hellip: "…",
+  ldquo: "“", rdquo: "”", lsquo: "‘", rsquo: "’",
+  laquo: "«", raquo: "»", times: "×", middot: "·", bull: "•",
+};
+
+/**
+ * CMS copy is rendered as React text, so an editor who types "&rarr;" would see
+ * it literally on the page. Decode the handful of entities editors actually
+ * paste, once, where all stored copy is merged. Not a general HTML decoder —
+ * these values are text, never markup.
+ */
+export function decodeCopyEntities(value: string): string {
+  return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, token: string) => {
+    if (token.startsWith("#")) {
+      const codePoint = token[1]?.toLowerCase() === "x"
+        ? parseInt(token.slice(2), 16)
+        : parseInt(token.slice(1), 10);
+      return Number.isFinite(codePoint) && codePoint > 0 && codePoint <= 0x10ffff
+        ? String.fromCodePoint(codePoint)
+        : match;
+    }
+    return COPY_ENTITIES[token.toLowerCase()] ?? match;
+  });
+}
+
 export function mergePageCopy<T extends PageCopy>(defaults: T, stored: unknown): T {
   if (!stored || typeof stored !== "object" || Array.isArray(stored)) {
     return defaults;
@@ -32,7 +59,7 @@ export function mergePageCopy<T extends PageCopy>(defaults: T, stored: unknown):
 
     // Blank strings fall back so a cleared field cannot silently empty the page.
     if (typeof fallbackValue === "string") {
-      if (typeof value === "string" && value.trim()) result[key] = value;
+      if (typeof value === "string" && value.trim()) result[key] = decodeCopyEntities(value);
       continue;
     }
 
@@ -526,7 +553,9 @@ export const successStoriesCopy = {
     body: "We measure our success not just by the numbers deployed, but by the lives uplifted and the businesses propelled forward. Read the accounts of those who have experienced the Seven Seas standard.",
   },
   emptyState: "More stories coming soon.",
-  readMoreLabel: "Read Full Story &rarr;",
+  // Plain text only — this is rendered as a React string, so an HTML entity
+  // here shows up literally as "&rarr;". The button supplies its own arrow icon.
+  readMoreLabel: "Read Full Story",
   cta: {
     headingLead: "Write your own ",
     headingHighlight: "success story.",
