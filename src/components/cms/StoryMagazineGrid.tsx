@@ -111,7 +111,7 @@ export function StoryMagazineGrid({
                       src={
                         leadStory.featuredImage
                           ? resolveImageMediaUrl(leadStory.featuredImage, { width: 1200 })
-                          : "/images/hero_training_orientation_1782920391505.png"
+                          : "/images/placeholder.png"
                       }
                       alt={leadStory.featuredImage?.altText || leadStory.title}
                       fill
@@ -214,7 +214,7 @@ export function StoryMagazineGrid({
                           src={
                             story.featuredImage
                               ? resolveImageMediaUrl(story.featuredImage, { width: 800 })
-                              : "/images/hero_training_orientation_1782920391505.png"
+                              : "/images/placeholder.png"
                           }
                           alt={story.featuredImage?.altText || story.title}
                           fill
