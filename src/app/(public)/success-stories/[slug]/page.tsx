@@ -38,6 +38,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
   const allStories = await getPublishedStories();
   const relatedStories = allStories.filter((s) => s.slug !== slug).slice(0, 3);
 
+  const kicker = story.storyType === "EMPLOYER" ? "Corporate Partnership Case Study" : "Voices of the Field • Candidate Story";
   const isFilename = (str?: string) => !str || /\.(webp|jpg|jpeg|png|gif|svg)$/i.test(str.trim());
   const caption = story.featuredImage?.caption && !isFilename(story.featuredImage.caption)
     ? story.featuredImage.caption
