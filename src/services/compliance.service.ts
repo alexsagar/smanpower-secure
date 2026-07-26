@@ -12,7 +12,7 @@ export async function getComplianceDocuments() {
   try {
     return await prisma.complianceDocument.findMany({
       where: { isPublic: true },
-      orderBy: { order: "asc" },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
     });
   } catch (error) {
     logger.error("Failed to load public compliance documents", error instanceof Error ? error : new Error(String(error)));

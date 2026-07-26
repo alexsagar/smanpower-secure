@@ -437,7 +437,7 @@ export async function getAdminComplianceDocs() {
   if (DEMO_MODE) return demoComplianceDocs;
   try {
     return await prisma.complianceDocument.findMany({
-      orderBy: { order: "asc" },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
     });
   } catch (error) {
     logger.error("Failed to load admin compliance docs", error instanceof Error ? error : new Error(String(error)));

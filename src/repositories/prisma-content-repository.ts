@@ -932,7 +932,13 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getPublicTrustDocuments(): Promise<CmsComplianceDocument[]> {
-    const docs = await prisma.complianceDocument.findMany({ where: { isPublic: true } });
+    // The `order` column was ignored here, so Postgres returned these in
+    // whatever order it liked and the homepage trust section shuffled. `id` is
+    // the tiebreak so equal `order` values still render deterministically.
+    const docs = await prisma.complianceDocument.findMany({
+      where: { isPublic: true },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
+    });
     return docs.map(d => ({
       id: d.id,
       title: d.title,
