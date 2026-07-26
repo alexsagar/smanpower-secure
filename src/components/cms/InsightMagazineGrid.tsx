@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowUpRight, Clock, User, Tag, Sparkles, Newspaper, BookOpen, FileText } from "lucide-react";
 import { resolveImageMediaUrl, type MediaLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
+import { readingMinutes } from "@/lib/utils";
 
 export interface InsightArticleItem {
   id: string;
@@ -25,11 +26,6 @@ interface InsightMagazineGridProps {
   emptyStateHeading?: string;
   emptyStateBody?: string;
   readMoreLabel?: string;
-}
-
-function calculateReadingMinutes(html: string): number {
-  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
 }
 
 export function InsightMagazineGrid({
@@ -137,7 +133,7 @@ export function InsightMagazineGrid({
                   </span>
                   <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-6">
                     <Clock className="w-3.5 h-3.5 text-brand-gold" />
-                    {calculateReadingMinutes(leadArticle.content)} min read
+                    {readingMinutes(leadArticle.content)} min read
                   </span>
                   {leadArticle.publishDate && (
                     <span className="border-l border-brand-black/15 pl-6">
@@ -256,7 +252,7 @@ export function InsightMagazineGrid({
                       {/* Content */}
                       <div className="p-6">
                         <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-brand-muted mb-3 font-medium">
-                          <span>{calculateReadingMinutes(article.content)} min read</span>
+                          <span>{readingMinutes(article.content)} min read</span>
                           {article.publishDate && (
                             <span>
                               • {new Date(article.publishDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}

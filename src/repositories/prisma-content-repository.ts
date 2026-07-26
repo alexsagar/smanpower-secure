@@ -813,11 +813,12 @@ export class PrismaContentRepository implements ContentRepository {
     return stories.map(s => this.mapStoryToCms(s));
   }
 
-  async getPublishedStories(): Promise<CmsSuccessStory[]> {
+  async getPublishedStories(limit?: number): Promise<CmsSuccessStory[]> {
     const stories = await prisma.successStory.findMany({
       where: { status: "PUBLISHED" },
       include: { featuredImage: true, industry: true, country: true },
-      orderBy: { storyDate: 'desc' }
+      orderBy: { storyDate: 'desc' },
+      ...(limit ? { take: limit } : {})
     });
     return stories.map(s => this.mapStoryToCms(s));
   }

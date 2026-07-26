@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { stripWrappingQuotes } from "@/lib/utils";
 import { ArrowLeft, ArrowUpRight, Quote, MapPin, Briefcase, Building2, UserCheck, Newspaper } from "lucide-react";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return buildPageMetadata({
-    title: story.metaTitle || `${story.title} | Seven Seas Intercontinental`,
+    title: story.metaTitle || story.title,
     description: story.metaDescription || story.summary || story.title,
     path: `/success-stories/${slug}`,
     canonicalOverride: story.canonicalUrl,
@@ -35,8 +36,8 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
     notFound();
   }
 
-  const allStories = await getPublishedStories();
-  const relatedStories = allStories.filter((s) => s.slug !== slug).slice(0, 3);
+  // Fetch one more than we show, so dropping the current story still leaves 3.
+  const relatedStories = (await getPublishedStories(4)).filter((s) => s.slug !== slug).slice(0, 3);
 
   const kicker = story.storyType === "EMPLOYER" ? "Corporate Partnership Case Study" : "Voices of the Field • Candidate Story";
   const caption = story.featuredImage?.caption && !isFilenameLike(story.featuredImage.caption)
@@ -184,7 +185,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
             {story.quote && (
               <blockquote className="text-xl md:text-2xl font-serif italic border-l-4 border-brand-gold pl-6 py-2 mb-10 text-brand-black bg-brand-off-white/60 flex items-start gap-4">
                 <Quote className="w-8 h-8 text-brand-gold shrink-0" />
-                <span>&ldquo;{story.quote}&rdquo;</span>
+                <span>&ldquo;{stripWrappingQuotes(story.quote)}&rdquo;</span>
               </blockquote>
             )}
 

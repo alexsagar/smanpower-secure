@@ -7,6 +7,7 @@ import { buildArticleSchema } from "@/lib/seo/schema";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, FileText, Bookmark } from "lucide-react";
 
@@ -19,18 +20,13 @@ async function getInsight(slug: string) {
   });
 }
 
-function readingMinutes(html: string): number {
-  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const insight = await getInsight(slug);
   if (!insight) return buildPageMetadata({ title: "Not Found", path: "" });
 
   const base = buildPageMetadata({
-    title: insight.metaTitle || `${insight.title} | Seven Seas Intercontinental`,
+    title: insight.metaTitle || insight.title,
     description: insight.metaDescription || insight.summary || undefined,
     path: `/insights/${slug}`,
     canonicalOverride: insight.canonicalUrl || undefined,

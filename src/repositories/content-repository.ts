@@ -54,7 +54,7 @@ export interface ContentRepository {
 
   // ── Stories & Testimonials ───────────────────────────
   getFeaturedStories(): Promise<CmsSuccessStory[]>;
-  getPublishedStories(): Promise<CmsSuccessStory[]>;
+  getPublishedStories(limit?: number): Promise<CmsSuccessStory[]>;
   getStoryBySlug(slug: string): Promise<CmsSuccessStory | null>;
   getPublishedTestimonials(): Promise<CmsTestimonial[]>;
 

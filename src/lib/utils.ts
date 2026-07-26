@@ -51,6 +51,23 @@ export function truncate(text: string, length: number): string {
   return text.substring(0, length).replace(/\s+\S*$/, "") + "...";
 }
 
+/** Rough reading time in minutes from the plain-text length of an HTML body. */
+export function readingMinutes(html: string): number {
+  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+/**
+ * Strip quote marks already wrapping a stored pull-quote, so a renderer that
+ * adds its own typographic quotes doesn't produce doubles ("“…”" -> "…").
+ * Editors routinely paste quotes with the marks included.
+ */
+export function stripWrappingQuotes(text: string): string {
+  return text.trim().replace(/^["'‘’“”«»]+/, "")
+    .replace(/["'‘’“”«»]+$/, "")
+    .trim();
+}
+
 /** Capitalize first letter */
 export function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);

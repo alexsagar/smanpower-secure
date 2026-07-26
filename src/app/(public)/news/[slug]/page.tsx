@@ -6,6 +6,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
 
@@ -18,18 +19,13 @@ async function getNews(slug: string) {
   });
 }
 
-function readingMinutes(html: string): number {
-  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const article = await getNews(slug);
   if (!article) return buildPageMetadata({ title: "Not Found", path: "" });
 
   return buildPageMetadata({
-    title: article.metaTitle || `${article.title} | Seven Seas Newsroom`,
+    title: article.metaTitle || article.title,
     description: article.metaDescription || article.summary || undefined,
     path: `/news/${slug}`,
     ogImage: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 }) : article.featuredImage || undefined),

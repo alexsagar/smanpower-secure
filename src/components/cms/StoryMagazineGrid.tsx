@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Quote, ArrowUpRight, Building2, UserCheck, MapPin, Briefcase, Sparkles, Newspaper } from "lucide-react";
 import type { CmsSuccessStory } from "@/types/content";
 import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { stripWrappingQuotes } from "@/lib/utils";
 
 interface StoryMagazineGridProps {
   stories: CmsSuccessStory[];
@@ -159,7 +160,7 @@ export function StoryMagazineGrid({
                   {leadStory.quote && (
                     <blockquote className="mb-8 font-serif text-lg md:text-xl italic text-brand-black/80 flex gap-3 items-start">
                       <Quote className="w-6 h-6 text-brand-gold shrink-0 mt-1" />
-                      <span>&ldquo;{leadStory.quote}&rdquo;</span>
+                      <span>&ldquo;{stripWrappingQuotes(leadStory.quote)}&rdquo;</span>
                     </blockquote>
                   )}
 
@@ -250,7 +251,7 @@ export function StoryMagazineGrid({
 
                         {story.quote && (
                           <blockquote className="text-xs italic font-serif text-brand-charcoal/90 border-l-2 border-brand-gold pl-3 py-1 mb-4 bg-brand-off-white/50">
-                            &ldquo;{story.quote}&rdquo;
+                            &ldquo;{stripWrappingQuotes(story.quote)}&rdquo;
                           </blockquote>
                         )}
                       </div>
