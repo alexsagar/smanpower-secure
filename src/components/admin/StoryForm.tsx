@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MediaSelector, MediaAssetMinimal } from "./MediaSelector";
 import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction } from "@/actions/success-stories";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { InsightContentEditor } from "./editor/InsightContentEditor";
 
 export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[], initialData?: any }) {
   const [selectedImageId, setSelectedImageId] = useState<string>(initialData?.featuredImageId || "");
@@ -49,6 +50,7 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
       imageId: selectedImageId || null,
       summary: formData.get("summary") as string,
       content: formData.get("content") as string,
+      quote: formData.get("quote") as string,
       // SEO
       metaTitle: formData.get("metaTitle") as string,
       metaDescription: formData.get("metaDescription") as string,
@@ -120,8 +122,17 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
           <input name="summary" defaultValue={initialData?.summary} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. Heavy Equipment Operator — Doha, Qatar" />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Full Content (Quote or Body)</label>
-          <textarea name="content" defaultValue={initialData?.content} required rows={6} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="Enter the full story..." />
+          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Pull Quote (Optional)</label>
+          <textarea name="quote" defaultValue={initialData?.quote} rows={2} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="A short quote highlighted above the story body..." />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Story Body</label>
+          <InsightContentEditor
+            name="content"
+            initialHtml={initialData?.content}
+            placeholder="Write the story — add headings, images, lists and pull quotes…"
+            uploadPurpose="cms_image"
+          />
         </div>
       </div>
 

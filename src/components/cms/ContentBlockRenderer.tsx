@@ -21,7 +21,7 @@ import { MapIntelligenceBlock } from "./blocks/MapIntelligenceBlock";
 import { TrustCentreBlockServer } from "./blocks/TrustCentreBlockServer";
 import { EmployerTestimonialsBlock } from "./blocks/EmployerTestimonialsBlock";
 import { ClientMarqueeBlock } from "./blocks/ClientMarqueeBlock";
-import { StoryGridBlock } from "./blocks/StoryGridBlock";
+import { StoryGridBlockServer } from "./blocks/StoryGridBlockServer";
 import { InsightPreviewBlockServer } from "./blocks/InsightPreviewBlockServer";
 import { FinalCTABlock } from "./blocks/FinalCTABlock";
 import { ImageTextBlock } from "./blocks/ImageTextBlock";
@@ -70,7 +70,7 @@ export function ContentBlockRenderer({ block, lang = "en" }: ContentBlockRendere
     case "client_marquee":
       return <ClientMarqueeBlock block={block} lang={lang} />;
     case "story_grid":
-      return <StoryGridBlock block={block} lang={lang} />;
+      return <StoryGridBlockServer block={block} lang={lang} />;
     case "insight_preview":
       return <InsightPreviewBlockServer block={block} lang={lang} />;
     case "final_cta":
