@@ -130,8 +130,11 @@ export async function getAdminStories() {
 export async function getAdminStory(id: string) {
   await requirePermission(SUCCESS_STORY_PERMISSIONS.VIEW);
   if (DEMO_MODE) return null;
+  // featuredImage must be included: the edit form seeds its image selection from
+  // it, and a form that loads blank saves featuredImageId back as null.
   return await prisma.successStory.findUnique({
-    where: { id }
+    where: { id },
+    include: { featuredImage: true }
   });
 }
 

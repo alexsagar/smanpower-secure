@@ -1,3 +1,4 @@
+import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getStoryBySlug } from "@/repositories/content-resolver";
@@ -41,32 +42,23 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
       />
       <section className="py-24 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl">
-          <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-widest text-brand-muted mb-12 border-b border-brand-charcoal/10 pb-8">
-            {story.personName && (
-              <>
-                <span>{story.personName}</span>
-                <span className="w-1 h-1 bg-brand-gold rounded-full" />
-              </>
-            )}
-            {story.industry && (
-              <>
-                <span>{story.industry}</span>
-                <span className="w-1 h-1 bg-brand-gold rounded-full" />
-              </>
-            )}
-            {story.country && <span>{story.country}</span>}
+          {/* Byline: name (when consented), occupation/location, industry, country.
+              Built from a filtered list so a missing part never leaves a dangling separator. */}
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-widest text-brand-muted mb-12 border-b border-brand-charcoal/10 pb-8">
+            {[story.personName, story.summary, story.industry, story.country]
+              .filter(Boolean)
+              .map((part, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 && <span className="w-1 h-1 bg-brand-gold rounded-full" />}
+                  <span>{part}</span>
+                </React.Fragment>
+              ))}
           </div>
 
           {story.quote && (
             <blockquote className="text-2xl font-light italic border-l-4 border-brand-gold pl-6 mb-12 text-brand-charcoal">
               "{story.quote}"
             </blockquote>
-          )}
-
-          {story.summary && (
-            <p className="text-xl md:text-2xl leading-relaxed text-brand-black font-light mb-12">
-              {story.summary}
-            </p>
           )}
 
           {/* Body — same editorial typography as insight articles. */}
