@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const nepalOperations = [
   {
     facility: "Corporate Headquarters",
-    location: "Sinamangal-9, Kathmandu, Nepal",
+    location: "Kathmandu, Nepal",
     desc: "Executive sourcing, client agreements, candidate documentation, and international deployment administration.",
     badge: "Head Office",
     license: "Govt. Lic No: 1083/073/074",
