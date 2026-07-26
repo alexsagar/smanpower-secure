@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Clock, User, Sparkles, Newspaper } from "lucide-react";
-import { resolveImageMediaUrl, type MediaLike } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, isFilenameLike, type MediaLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
 import { readingMinutes } from "@/lib/utils";
 
@@ -107,8 +107,12 @@ export function EditorialMagazineGrid({
   const href = (slug: string) => toPublicHref(`${basePath}/${slug}`);
   const imageFor = (item: MagazineItem, width: number) =>
     item.image ? resolveImageMediaUrl(item.image, { width }) : imageFallback;
-  const altFor = (item: MagazineItem) =>
-    (typeof item.image === "object" && item.image?.altText) || item.title;
+  // Never fall back to an upload filename ("1.webp") — that is useless to a
+  // screen reader and shows through if the image fails to load.
+  const altFor = (item: MagazineItem) => {
+    const alt = typeof item.image === "object" ? item.image?.altText : undefined;
+    return isFilenameLike(alt) ? item.title : alt!;
+  };
   const plural = (count: number, [one, many]: [string, string]) => (count === 1 ? one : many);
 
   return (

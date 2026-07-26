@@ -1,7 +1,7 @@
 import "server-only";
 import type { CmsContentBlock } from "@/types/content";
 import { getFeaturedStories, getPublishedStories } from "@/repositories/content-resolver";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
 import { StoryGridBlock, type StoryCard } from "./StoryGridBlock";
 
 /**
@@ -20,7 +20,7 @@ export async function StoryGridBlockServer({ block, lang }: { block: CmsContentB
     title: s.title,
     desc: s.summary || "",
     imageSrc: s.featuredImage ? resolveImageMediaUrl(s.featuredImage, { width: 1440 }) : undefined,
-    imageAlt: s.featuredImage?.altText || s.title,
+    imageAlt: isFilenameLike(s.featuredImage?.altText) ? s.title : s.featuredImage!.altText,
     slug: s.slug,
   }));
 
