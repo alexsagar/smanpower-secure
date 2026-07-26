@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -88,9 +87,10 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       {articleSchema && (
-        <Script id={`insight-schema-${insight.id}`} type="application/ld+json" strategy="beforeInteractive">
-          {JSON.stringify(articleSchema)}
-        </Script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
       )}
 
       <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
