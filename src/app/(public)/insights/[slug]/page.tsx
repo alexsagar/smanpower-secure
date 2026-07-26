@@ -8,7 +8,7 @@ import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { resolveImageMediaUrl } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
-import { ArrowLeft, ArrowUpRight, Clock, User, ShieldCheck, Newspaper, Calendar, Tag, FileText } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Clock, User, ShieldCheck, Newspaper, Calendar, Tag, FileText, Bookmark } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -95,7 +95,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
       <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
         {/* Top Editorial Navigation Bar */}
-        <div className="container-wide mx-auto px-6 lg:px-12 max-w-5xl mb-10">
+        <div className="container-wide mx-auto px-6 lg:px-12 max-w-6xl mb-8">
           <div className="border-t-2 border-b border-brand-black/20 py-3 flex items-center justify-between">
             <Link
               href="/insights"
@@ -111,110 +111,170 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        {/* Centered Editorial Header Section */}
-        <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl text-center">
-          <div className="inline-flex items-center gap-2 bg-brand-black text-brand-gold text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 mb-6 border border-brand-gold/30">
-            <Tag className="w-3 h-3" />
-            <span>{insight.category?.name || "Industry Insight"}</span>
-          </div>
+        <div className="container-wide mx-auto px-6 lg:px-12 max-w-6xl">
+          {/* Left-Aligned Header Section */}
+          <header className="max-w-4xl mb-10">
+            <div className="inline-flex items-center gap-2 bg-brand-black text-brand-gold text-[10px] font-bold uppercase tracking-widest px-3 py-1 mb-6 border border-brand-gold/30">
+              <Tag className="w-3 h-3" />
+              <span>{insight.category?.name || "Industry Insight"}</span>
+            </div>
 
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-[1.08] text-brand-black tracking-tight mb-8 max-w-4xl mx-auto">
-            {insight.title}
-          </h1>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-[1.06] text-brand-black tracking-tight mb-6">
+              {insight.title}
+            </h1>
 
-          {insight.summary && (
-            <p className="font-serif text-xl md:text-2xl text-brand-charcoal/90 leading-relaxed max-w-3xl mx-auto italic mb-8 border-l-2 border-r-2 border-brand-gold px-6 py-2">
-              &ldquo;{insight.summary}&rdquo;
-            </p>
-          )}
-
-          {/* Centered Byline Strip */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-semibold uppercase tracking-widest text-brand-charcoal/70 border-y border-brand-black/15 py-4 my-8 bg-brand-white/40 max-w-3xl mx-auto">
-            <span className="text-brand-black font-bold flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-brand-gold" />
-              {insight.author?.name || "Editorial Team"}
-            </span>
-            {publishedLabel && (
-              <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-6">
-                <Calendar className="w-3.5 h-3.5 text-brand-gold" />
-                <time dateTime={insight.publishDate?.toISOString()}>{publishedLabel}</time>
-              </span>
+            {insight.summary && (
+              <p className="font-sans text-lg md:text-xl text-brand-charcoal/80 leading-relaxed border-l-4 border-brand-gold pl-5 italic bg-brand-white/80 py-3">
+                {insight.summary}
+              </p>
             )}
-            <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-6">
-              <Clock className="w-3.5 h-3.5 text-brand-gold" />
-              {minutes} min read
-            </span>
-          </div>
-        </div>
+          </header>
 
-        {/* Centered Panoramic Hero Image */}
-        {insight.featuredImage && (
-          <div className="container-wide mx-auto px-6 lg:px-12 max-w-5xl my-10">
-            <figure className="bg-brand-white border-2 border-brand-black p-3 shadow-xl">
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-charcoal">
-                <Image
-                  src={resolveImageMediaUrl(insight.featuredImage as any, { width: 1400 })}
-                  alt={isFilename(insight.featuredImage.altText) ? insight.title : (insight.featuredImage.altText || insight.title)}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  priority
+          {/* Left-Aligned Byline Strip */}
+          <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-semibold uppercase tracking-widest text-brand-charcoal/70 mb-12 border-y border-brand-black/15 py-4 bg-brand-white/40">
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-brand-black font-bold flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-brand-gold" />
+                {insight.author?.name || "Editorial Team"}
+              </span>
+              {publishedLabel && (
+                <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">
+                  <Calendar className="w-3.5 h-3.5 text-brand-gold" />
+                  <time dateTime={insight.publishDate?.toISOString()}>{publishedLabel}</time>
+                </span>
+              )}
+              <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">
+                <Clock className="w-3.5 h-3.5 text-brand-gold" />
+                {minutes} min read
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-[11px]">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Verified Report</span>
+            </div>
+          </div>
+
+          {/* 2-Column Layout: Left Main Article (8 cols) + Right Sticky Sidebar (4 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+            {/* Left Column: Main Article Content */}
+            <main className="lg:col-span-8 space-y-8">
+              {/* Feature Hero Photo */}
+              {insight.featuredImage && (
+                <figure className="bg-brand-white border-2 border-brand-black p-3 shadow-lg">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-charcoal">
+                    <Image
+                      src={resolveImageMediaUrl(insight.featuredImage as any, { width: 1200 })}
+                      alt={isFilename(insight.featuredImage.altText) ? insight.title : (insight.featuredImage.altText || insight.title)}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 800px"
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                  {caption && (
+                    <figcaption className="mt-3 text-xs text-brand-charcoal/80 leading-relaxed font-serif italic border-t border-brand-black/10 pt-2">
+                      {caption}
+                    </figcaption>
+                  )}
+                </figure>
+              )}
+
+              {/* Main Body Card */}
+              <div className="bg-brand-white border border-brand-black/15 p-8 md:p-12 shadow-sm">
+                <div
+                  className="prose prose-lg max-w-none 
+                    font-sans text-brand-black/85 leading-relaxed
+                    prose-p:text-brand-black/85 prose-p:leading-relaxed prose-p:mb-6
+                    prose-p:first-of-type:first-letter:text-6xl 
+                    prose-p:first-of-type:first-letter:font-serif 
+                    prose-p:first-of-type:first-letter:float-left 
+                    prose-p:first-of-type:first-letter:mr-3.5 
+                    prose-p:first-of-type:first-letter:leading-none 
+                    prose-p:first-of-type:first-letter:text-brand-black
+                    prose-headings:font-serif prose-headings:font-normal prose-headings:text-brand-black
+                    prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:border-b prose-h2:border-brand-black/15 prose-h2:pb-3 prose-h2:mt-10
+                    prose-strong:text-brand-black prose-strong:font-bold
+                    prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:border-brand-gold prose-blockquote:text-brand-black/90
+                    prose-img:rounded-none prose-img:border prose-img:border-brand-black/20 prose-img:shadow-md"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(insight.content) }}
                 />
               </div>
-              {caption && (
-                <figcaption className="mt-3 text-xs text-brand-charcoal/80 leading-relaxed font-serif italic border-t border-brand-black/10 pt-2 text-center">
-                  {caption}
-                </figcaption>
+            </main>
+
+            {/* Right Column: Sticky Metadata & Related Reports Sidebar */}
+            <aside className="lg:col-span-4 lg:sticky lg:top-[calc(var(--site-header-height)+2rem)] lg:self-start space-y-8">
+              {/* Factsheet Box */}
+              <div className="bg-brand-white border border-brand-black/20 p-6 shadow-sm font-sans">
+                <h3 className="font-serif text-lg font-bold text-brand-black uppercase tracking-wider border-b-2 border-brand-black pb-2 mb-4 flex items-center justify-between">
+                  <span>At a Glance</span>
+                  <span className="text-[10px] font-mono font-normal text-brand-muted">ARTICLE BRIEF</span>
+                </h3>
+
+                <dl className="space-y-4 text-xs">
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Category</dt>
+                    <dd className="font-semibold text-brand-black mt-0.5">
+                      {insight.category?.name || "General Insight"}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Author / Publisher</dt>
+                    <dd className="font-semibold text-brand-black mt-0.5">
+                      {insight.author?.name || "Seven Seas Editorial"}
+                    </dd>
+                  </div>
+
+                  {publishedLabel && (
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Published Date</dt>
+                      <dd className="text-brand-charcoal mt-0.5">{publishedLabel}</dd>
+                    </div>
+                  )}
+
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Reading Time</dt>
+                    <dd className="text-brand-charcoal mt-0.5">{minutes} minutes</dd>
+                  </div>
+
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Language</dt>
+                    <dd className="text-brand-charcoal mt-0.5 uppercase">{insight.lang || "en"}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Related Reports Widget in Right Sidebar */}
+              {relatedInsights.length > 0 && (
+                <div className="bg-brand-white border border-brand-black/20 p-6 shadow-sm font-sans">
+                  <h4 className="font-serif text-base font-bold text-brand-black uppercase tracking-wider border-b-2 border-brand-black pb-2 mb-4 flex items-center justify-between">
+                    <span>In This Edition</span>
+                    <Bookmark className="w-4 h-4 text-brand-gold" />
+                  </h4>
+
+                  <div className="space-y-4">
+                    {relatedInsights.map((relItem) => (
+                      <article key={relItem.id} className="border-b border-brand-black/10 pb-3 last:border-0 last:pb-0 group">
+                        <span className="text-[9px] uppercase font-mono tracking-widest text-brand-gold font-bold block mb-1">
+                          {relItem.category?.name || "Report"}
+                        </span>
+                        <Link href={toPublicHref(`/insights/${relItem.slug}`)}>
+                          <h5 className="font-serif text-sm font-normal text-brand-black group-hover:text-brand-gold transition-colors line-clamp-2 leading-snug">
+                            {relItem.title}
+                          </h5>
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                </div>
               )}
-            </figure>
+            </aside>
           </div>
-        )}
 
-        {/* Single Column Centered Article Body */}
-        <div className="container-wide mx-auto px-6 lg:px-12 max-w-3xl">
-          <main className="bg-brand-white border border-brand-black/15 p-8 md:p-14 shadow-sm mb-16">
-            <div
-              className="prose prose-lg max-w-none 
-                font-sans text-brand-black/85 leading-relaxed
-                prose-p:text-brand-black/85 prose-p:leading-relaxed prose-p:mb-6
-                prose-p:first-of-type:first-letter:text-6xl 
-                prose-p:first-of-type:first-letter:font-serif 
-                prose-p:first-of-type:first-letter:float-left 
-                prose-p:first-of-type:first-letter:mr-3.5 
-                prose-p:first-of-type:first-letter:leading-none 
-                prose-p:first-of-type:first-letter:text-brand-black
-                prose-headings:font-serif prose-headings:font-normal prose-headings:text-brand-black
-                prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:border-b prose-h2:border-brand-black/15 prose-h2:pb-3 prose-h2:mt-10
-                prose-strong:text-brand-black prose-strong:font-bold
-                prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:border-brand-gold prose-blockquote:text-brand-black/90
-                prose-img:rounded-none prose-img:border prose-img:border-brand-black/20 prose-img:shadow-md"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(insight.content) }}
-            />
-
-            {/* Article End Brief Box */}
-            <div className="mt-12 pt-8 border-t-2 border-brand-black bg-brand-off-white/60 p-6 font-sans">
-              <h4 className="font-serif text-base font-bold text-brand-black uppercase tracking-wider mb-3 flex items-center justify-between">
-                <span>Article Dossier</span>
-                <span className="text-[10px] font-mono font-normal text-brand-muted">VERIFIED</span>
-              </h4>
-              <dl className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Category</dt>
-                  <dd className="font-semibold text-brand-black mt-0.5">{insight.category?.name || "General Insight"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Author</dt>
-                  <dd className="font-semibold text-brand-black mt-0.5">{insight.author?.name || "Seven Seas Editorial"}</dd>
-                </div>
-              </dl>
-            </div>
-          </main>
-        </div>
-
-        {/* Related Insights Section */}
-        {relatedInsights.length > 0 && (
-          <div className="container-wide mx-auto px-6 lg:px-12 max-w-5xl">
-            <section className="pt-12 border-t-2 border-brand-black">
+          {/* Bottom Full-Width Related Reports Section */}
+          {relatedInsights.length > 0 && (
+            <section className="mt-24 pt-12 border-t-2 border-brand-black">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="font-serif text-2xl md:text-3xl font-normal text-brand-black">
                   More Intelligence Reports in this Edition
@@ -254,8 +314,8 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 ))}
               </div>
             </section>
-          </div>
-        )}
+          )}
+        </div>
       </article>
     </>
   );
