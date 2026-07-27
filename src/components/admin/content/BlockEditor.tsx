@@ -38,7 +38,17 @@ export function BlockEditor({
   const rawContent: Record<string, unknown> =
     block.content && typeof block.content === "object" ? block.content : {};
   const isEmployerTestimonials = block.blockType === "testimonial" || block.blockKey === "home-community";
-  const content: Record<string, unknown> = isEmployerTestimonials
+  const isImageGallery = block.blockType === "image_gallery";
+  const content: Record<string, unknown> = isImageGallery
+    ? {
+        items: Array.isArray(rawContent.items) && rawContent.items.length
+          ? rawContent.items.map((item) => {
+              const value = item && typeof item === "object" ? item as Record<string, unknown> : {};
+              return { title: typeof value.title === "string" ? value.title : typeof value.caption === "string" ? value.caption : "", imageUrl: typeof value.imageUrl === "string" ? value.imageUrl : "" };
+            })
+          : [{ title: "", imageUrl: "" }],
+      }
+    : isEmployerTestimonials
     ? {
         eyebrow: rawContent.eyebrow === "Ethical Commitment" ? "Foreign Employer Testimonials" : rawContent.eyebrow || "Foreign Employer Testimonials",
         heading: rawContent.heading || "Trusted by International Employers",

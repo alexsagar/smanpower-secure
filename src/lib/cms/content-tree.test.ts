@@ -56,6 +56,12 @@ describe("hierarchy", () => {
     expect(main.nodes.map((n) => n.slug)).toEqual(["home", "about", "employers"]);
   });
 
+  it("places the CMS gallery page in Resources", () => {
+    const groups = buildContentTree([...SAMPLE, page("gallery", "Gallery")]);
+
+    expect(groups.find((g) => g.key === "resources")!.nodes.map((n) => n.slug)).toContain("gallery");
+  });
+
   it("puts legal and global pages in their own groups", () => {
     const groups = buildContentTree(SAMPLE);
 
