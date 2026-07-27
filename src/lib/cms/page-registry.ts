@@ -33,6 +33,7 @@ const PAGE_BLOCKS = [
   "pledge",
   "timeline_grid",
   "image_text",
+  "image_gallery",
   "final_cta",
 ] as const satisfies readonly CmsBlockTypeId[];
 
@@ -50,6 +51,7 @@ const FORM_BOUNDARY = {
 const entry = (entry: CmsPageRegistryEntry): CmsPageRegistryEntry => entry;
 
 export const CMS_PAGE_REGISTRY = [
+  entry({ canonicalRoute: "/gallery", label: "Gallery", category: "MARKETING", coverageStatus: "FULL", currentCmsPageSlug: "gallery", targetCmsPageSlug: "gallery", routeType: "STATIC", managementMode: "PAGE_BLOCKS", publicRenderer: "src/app/(public)/gallery/page.tsx", allowedBlockTypes: ["image_gallery"], requiredBlockTypes: ["image_gallery"], optionalBlockTypes: ["image_gallery"], plannedBlockTypes: [], collectionDependencies: ["mediaAssets"], seoPolicy: "CMS_PAGE_SEO", mediaPolicy: "CMS_MEDIA", previewStrategy: "BLOCK_PREVIEW", hasCodeControlledFunctionality: false, migrationWave: "WAVE_7", priority: "P1", enabled: true }),
   entry({ canonicalRoute: "/", label: "Home", category: "MARKETING", coverageStatus: "FULL", currentCmsPageSlug: "home", targetCmsPageSlug: "home", routeType: "STATIC", managementMode: "PAGE_BLOCKS", publicRenderer: "src/app/(public)/page.tsx", allowedBlockTypes: HOME_BLOCKS, requiredBlockTypes: ["introduction"], optionalBlockTypes: HOME_BLOCKS, plannedBlockTypes: ["logo_grid"], collectionDependencies: ["statistics", "clientPartners", "successStories", "insights", "industries", "trainingFacilities", "complianceDocuments"], seoPolicy: "HYBRID_SEO", mediaPolicy: "HYBRID_MEDIA", previewStrategy: "BLOCK_PREVIEW", hasCodeControlledFunctionality: false, migrationWave: "WAVE_4", priority: "P1", enabled: true }),
   entry({ canonicalRoute: "/about", label: "About", category: "MARKETING", coverageStatus: "PARTIAL", currentCmsPageSlug: "about", targetCmsPageSlug: "about", routeType: "STATIC", managementMode: "PAGE_BLOCKS", publicRenderer: "src/app/(public)/about/page.tsx", allowedBlockTypes: PAGE_BLOCKS, requiredBlockTypes: [], optionalBlockTypes: PAGE_BLOCKS, plannedBlockTypes: ["leadership_grid", "milestones"], collectionDependencies: [], seoPolicy: "CODE_SEO", mediaPolicy: "HYBRID_MEDIA", previewStrategy: "BLOCK_PREVIEW", hasCodeControlledFunctionality: false, migrationWave: "WAVE_1", priority: "P1", enabled: true }),
   entry({ canonicalRoute: "/about/our-story", label: "Our Story", category: "MARKETING", coverageStatus: "NONE", targetCmsPageSlug: "about-our-story", routeType: "STATIC", managementMode: "HARDCODED_PENDING_MIGRATION", publicRenderer: "src/app/(public)/about/our-story/page.tsx", allowedBlockTypes: [], requiredBlockTypes: [], optionalBlockTypes: [], plannedBlockTypes: ["timeline", "milestones", "rich_text", "image_text"], collectionDependencies: ["companyMilestones"], seoPolicy: "CODE_SEO", mediaPolicy: "CODE_ASSET", previewStrategy: "NONE", hasCodeControlledFunctionality: false, migrationWave: "WAVE_1", priority: "P1", enabled: true }),

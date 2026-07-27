@@ -15,6 +15,7 @@ export type CmsBlockTypeId =
   | "insight_preview"
   | "final_cta"
   | "image_text"
+  | "image_gallery"
   | "editorial"
   | "stats_grid"
   | "core_values"

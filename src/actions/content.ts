@@ -133,3 +133,21 @@ export async function savePageAction(
     return { success: false, error: "Failed to save page changes." };
   }
 }
+
+/** Creates only an empty CMS shell; editors add all gallery media and captions. */
+export async function createGalleryPageAction() {
+  await requirePermission(SETTINGS_PERMISSIONS.UPDATE);
+  await prisma.cmsPage.upsert({
+    where: { slug: "gallery" },
+    update: {},
+    create: {
+      slug: "gallery",
+      title: "Gallery",
+      status: "DRAFT",
+      blocks: { create: { blockKey: "gallery-items", blockType: "image_gallery", content: { items: [{ imageUrl: "", caption: "" }] }, order: 0 } },
+    },
+  });
+  revalidatePath("/gallery");
+  revalidatePath("/admin/content");
+  return { success: true };
+}

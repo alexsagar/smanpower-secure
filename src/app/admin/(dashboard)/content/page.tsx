@@ -1,6 +1,7 @@
 import { getAdminPages } from "@/services/admin.service";
 import { buildContentTree } from "@/lib/cms/content-tree";
 import { ContentTree } from "@/components/admin/content/ContentTree";
+import { GalleryPageSetup } from "@/components/admin/content/GalleryPageSetup";
 
 export default async function AdminContentPage() {
   const pages = await getAdminPages();
@@ -40,6 +41,7 @@ export default async function AdminContentPage() {
           </div>
           
           <div className="flex items-center gap-3">
+            <GalleryPageSetup />
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ const BLOCK_META: Record<string, BlockMeta> = {
   core_values: { label: "Core Values", category: "Narrative" },
   pledge: { label: "Pledge", category: "Narrative" },
   image_text: { label: "Image & Text", category: "Narrative" },
+  image_gallery: { label: "Image Gallery", category: "Collection" },
   advantage: { label: "Advantage", category: "Narrative" },
 
   statistics: { label: "Statistics", category: "Data" },

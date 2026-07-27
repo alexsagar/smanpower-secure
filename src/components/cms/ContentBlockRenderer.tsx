@@ -36,6 +36,7 @@ import { TimelineGridBlock } from "./blocks/TimelineGridBlock";
 import { DynamicIndustryGridBlock } from "./blocks/DynamicIndustryGridBlock";
 import { DynamicFacilitiesGridBlock } from "./blocks/DynamicFacilitiesGridBlock";
 import { DynamicVaultGridBlock } from "./blocks/DynamicVaultGridBlock";
+import { ImageGalleryBlock } from "./blocks/ImageGalleryBlock";
 
 interface ContentBlockRendererProps {
   block: CmsContentBlock;
@@ -77,6 +78,8 @@ export function ContentBlockRenderer({ block, lang = "en" }: ContentBlockRendere
       return <FinalCTABlock block={block} lang={lang} />;
     case "image_text":
       return <ImageTextBlock block={block} lang={lang} />;
+    case "image_gallery":
+      return <ImageGalleryBlock block={block} />;
     case "editorial":
       return <EditorialBlock block={block} lang={lang} />;
     case "stats_grid":
