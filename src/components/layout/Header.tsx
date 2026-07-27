@@ -57,6 +57,13 @@ export function Header({
     };
   });
 
+  const resources = Object.values(navConfig).find((section) => section.label.toLowerCase() === "resources");
+  if (resources && !resources.items.some((item) => item.href === "/gallery")) {
+    resources.items.push({ label: "Gallery", href: "/gallery" });
+  } else if (!resources) {
+    navConfig.gallery = { label: "Gallery", items: [{ label: "Gallery", href: "/gallery" }] };
+  }
+
   return (
     <header
       className={cn(

@@ -72,6 +72,7 @@ import { ethicalRecruitmentPage } from "./pages/ethical-recruitment";
 import { industriesPage } from "./pages/industries";
 import { trainingFacilitiesPage } from "./pages/training-facilities";
 import { trustCentrePage } from "./pages/trust-centre";
+import { galleryPage } from "./pages/gallery";
 
 export const demoPages: CmsPage[] = [
   aboutPage,
@@ -80,6 +81,7 @@ export const demoPages: CmsPage[] = [
   industriesPage,
   trainingFacilitiesPage,
   trustCentrePage,
+  galleryPage,
   // Employers
   createPage(
     "employers/candidate-sourcing",
