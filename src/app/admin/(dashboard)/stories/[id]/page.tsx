@@ -1,15 +1,12 @@
 import { StoryForm } from "@/components/admin/StoryForm";
 import { Star } from "lucide-react";
 import Link from "next/link";
-import { getAdminMediaAssets, getAdminStory } from "@/services/admin.service";
+import { getAdminStory } from "@/services/admin.service";
 import { notFound } from "next/navigation";
 
 export default async function EditStoryPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const [assets, story] = await Promise.all([
-    getAdminMediaAssets(),
-    getAdminStory(resolvedParams.id)
-  ]);
+  const story = await getAdminStory(resolvedParams.id);
 
   if (!story) {
     notFound();
@@ -38,7 +35,7 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
       </div>
 
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <StoryForm assets={assets} initialData={story} />
+        <StoryForm initialData={story} />
       </div>
     </div>
   );

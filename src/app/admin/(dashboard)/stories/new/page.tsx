@@ -1,11 +1,8 @@
 import { StoryForm } from "@/components/admin/StoryForm";
 import { Star } from "lucide-react";
 import Link from "next/link";
-import { getAdminMediaAssets } from "@/services/admin.service";
 
 export default async function NewStoryPage() {
-  const assets = await getAdminMediaAssets();
-
   return (
     <div className="max-w-7xl mx-auto space-y-12">
       {/* Header */}
@@ -29,7 +26,7 @@ export default async function NewStoryPage() {
       </div>
 
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <StoryForm assets={assets} />
+        <StoryForm />
       </div>
     </div>
   );
