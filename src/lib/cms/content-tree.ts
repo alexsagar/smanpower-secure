@@ -44,7 +44,7 @@ const GROUPS: Array<{
     "home", "about", "employers", "ethical-recruitment", "industries", "training-facilities", "trust-centre",
   ] },
   { key: "resources", label: "Resources", description: "Collection landing pages and their shared copy.", slugs: [
-    "success-stories", "insights", "news", "demands", "demands/detail",
+    "gallery", "success-stories", "insights", "news", "demands", "demands/detail",
   ] },
   { key: "engage", label: "Engage", description: "Pages where visitors get in touch or apply.", slugs: [
     "careers", "careers/detail", "contact", "worker-grievance",
