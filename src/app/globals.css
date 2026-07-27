@@ -559,3 +559,9 @@ body {
     background-position: 50% 50%;
   }
 }
+
+/* Sonner has no viewport-center placement. Keep all application toasts centered. */
+[data-sonner-toaster][data-x-position="center"][data-y-position="top"] {
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
