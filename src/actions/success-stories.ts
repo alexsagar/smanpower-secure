@@ -310,6 +310,12 @@ export async function archiveStoryAction(id: string) {
   const session = await auth();
 
   const result = await prisma.$transaction(async (tx) => {
+    const existing = await tx.successStory.findUnique({ where: { id } });
+    if (!existing) throw new Error("NOT_FOUND");
+    if (existing.status !== ContentStatus.DRAFT) {
+      throw new Error("Only draft stories can be deleted.");
+    }
+
     const updated = await tx.successStory.update({
       where: { id },
       data: { 

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MediaInput } from "./MediaInput";
-import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction } from "@/actions/success-stories";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction, archiveStoryAction } from "@/actions/success-stories";
+import { Loader2, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { InsightContentEditor } from "./editor/InsightContentEditor";
+import { confirmToast } from "@/lib/confirm-toast";
 
 function toSlug(value: string) {
   return value.trim().toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "");
@@ -25,6 +26,11 @@ export function StoryForm({ initialData }: { initialData?: any }) {
 
   async function handleStatusChange(action: "publish" | "unpublish") {
     if (!initialData?.id) return;
+    const confirmed = await confirmToast(
+      action === "publish" ? "Publish this story? It will become publicly visible." : "Move this story back to draft?",
+      { confirmLabel: action === "publish" ? "Publish" : "Move to draft" },
+    );
+    if (!confirmed) return;
     setIsPending(true);
     setError(null);
     setSuccess(null);
@@ -45,6 +51,22 @@ export function StoryForm({ initialData }: { initialData?: any }) {
     } catch (err: any) {
       setError(err.message || "An error occurred");
     } finally {
+      setIsPending(false);
+    }
+  }
+
+  async function handleDeleteDraft() {
+    if (!initialData?.id) return;
+    const confirmed = await confirmToast("Delete this draft story? It will no longer appear in the story list.", { confirmLabel: "Delete" });
+    if (!confirmed) return;
+
+    setIsPending(true);
+    setError(null);
+    try {
+      await archiveStoryAction(initialData.id);
+      router.replace("/admin/stories");
+    } catch (err: any) {
+      setError(err.message || "Could not delete the draft story.");
       setIsPending(false);
     }
   }
@@ -189,7 +211,7 @@ export function StoryForm({ initialData }: { initialData?: any }) {
       </div>
 
       <div className="flex justify-between items-center gap-4">
-        <div>
+        <div className="flex items-center gap-3">
           {initialData?.id && (
             <div className="flex gap-2">
               {status === "DRAFT" ? (
@@ -203,6 +225,11 @@ export function StoryForm({ initialData }: { initialData?: any }) {
               )}
             </div>
           )}
+          {status === "DRAFT" && initialData?.id ? (
+            <button type="button" onClick={handleDeleteDraft} disabled={isPending} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-700 hover:bg-red-50 disabled:opacity-50">
+              <Trash2 className="mr-1 inline-block w-3 h-3" /> Delete Draft
+            </button>
+          ) : null}
         </div>
         <div className="flex justify-end gap-4">
           <button type="button" onClick={() => window.history.back()} className="px-6 py-3 text-sm font-semibold tracking-widest uppercase text-brand-muted hover:text-brand-black transition-colors">

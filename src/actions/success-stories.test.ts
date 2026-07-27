@@ -14,7 +14,7 @@ const prisma = { $transaction: vi.fn() };
 
 vi.mock("next/cache", () => ({ revalidatePath, revalidateTag }));
 vi.mock("@/lib/prisma", () => ({ prisma }));
-vi.mock("@/lib/permissions", () => ({ SUCCESS_STORY_PERMISSIONS: { UPDATE: "successStories.update" }, requirePermission }));
+vi.mock("@/lib/permissions", () => ({ SUCCESS_STORY_PERMISSIONS: { UPDATE: "successStories.update", DELETE_OR_ARCHIVE: "successStories.delete" }, requirePermission }));
 vi.mock("@/config/demo", () => ({ DEMO_MODE: false }));
 vi.mock("@/lib/auth", () => ({ auth }));
 vi.mock("@/lib/slug", () => ({ generateUniqueSlug: vi.fn() }));
@@ -42,5 +42,12 @@ describe("updateStoryAction", () => {
     expect(tx.successStory.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ slug: "renamed-story" }) }));
     expect(revalidatePath).toHaveBeenCalledWith("/success-stories/old-story");
     expect(revalidatePath).toHaveBeenCalledWith("/success-stories/renamed-story");
+  });
+
+  it("rejects deletion of a published story", async () => {
+    const { archiveStoryAction } = await import("./success-stories");
+
+    await expect(archiveStoryAction("story-1")).rejects.toThrow("Only draft stories can be deleted.");
+    expect(tx.successStory.update).not.toHaveBeenCalled();
   });
 });
