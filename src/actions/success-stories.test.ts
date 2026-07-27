@@ -6,7 +6,7 @@ const requirePermission = vi.fn();
 const auth = vi.fn();
 
 const tx = {
-  successStory: { findUnique: vi.fn(), update: vi.fn() },
+  successStory: { findUnique: vi.fn(), update: vi.fn(), delete: vi.fn() },
   auditLog: { create: vi.fn() },
 };
 
@@ -45,9 +45,19 @@ describe("updateStoryAction", () => {
   });
 
   it("rejects deletion of a published story", async () => {
-    const { archiveStoryAction } = await import("./success-stories");
+    const { deleteDraftStoryAction } = await import("./success-stories");
 
-    await expect(archiveStoryAction("story-1")).rejects.toThrow("Only draft stories can be deleted.");
+    await expect(deleteDraftStoryAction("story-1")).rejects.toThrow("Only draft stories can be deleted.");
+    expect(tx.successStory.update).not.toHaveBeenCalled();
+  });
+
+  it("permanently deletes a draft story without touching its media asset", async () => {
+    tx.successStory.findUnique.mockResolvedValue({ id: "story-1", slug: "draft-story", status: "DRAFT" });
+    tx.successStory.delete.mockResolvedValue({ id: "story-1", slug: "draft-story" });
+    const { deleteDraftStoryAction } = await import("./success-stories");
+
+    await expect(deleteDraftStoryAction("story-1")).resolves.toEqual({ success: true });
+    expect(tx.successStory.delete).toHaveBeenCalledWith({ where: { id: "story-1" } });
     expect(tx.successStory.update).not.toHaveBeenCalled();
   });
 });

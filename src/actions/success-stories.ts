@@ -303,7 +303,7 @@ export async function unpublishStoryAction(id: string) {
   return { success: true };
 }
 
-export async function archiveStoryAction(id: string) {
+export async function deleteDraftStoryAction(id: string) {
   await requirePermission(SUCCESS_STORY_PERMISSIONS.DELETE_OR_ARCHIVE);
   if (DEMO_MODE) throw new Error("Cannot archive stories in demo mode.");
 
@@ -316,13 +316,7 @@ export async function archiveStoryAction(id: string) {
       throw new Error("Only draft stories can be deleted.");
     }
 
-    const updated = await tx.successStory.update({
-      where: { id },
-      data: { 
-        status: ContentStatus.ARCHIVED,
-        deletedAt: new Date(),
-      }
-    });
+    const deleted = await tx.successStory.delete({ where: { id } });
 
     if (session?.user?.id) {
       await tx.auditLog.create({
@@ -331,12 +325,12 @@ export async function archiveStoryAction(id: string) {
           entity: "SuccessStory",
           action: "ARCHIVE_STORY",
           entityId: id,
-          details: "Archived story"
+        details: "Permanently deleted draft story"
         }
       });
     }
 
-    return updated;
+    return deleted;
   });
 
   revalidateStoryCaches(result.slug);

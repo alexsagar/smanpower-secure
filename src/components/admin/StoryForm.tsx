@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MediaInput } from "./MediaInput";
-import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction, archiveStoryAction } from "@/actions/success-stories";
+import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction, deleteDraftStoryAction } from "@/actions/success-stories";
 import { Loader2, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { InsightContentEditor } from "./editor/InsightContentEditor";
 import { confirmToast } from "@/lib/confirm-toast";
@@ -63,7 +63,7 @@ export function StoryForm({ initialData }: { initialData?: any }) {
     setIsPending(true);
     setError(null);
     try {
-      await archiveStoryAction(initialData.id);
+      await deleteDraftStoryAction(initialData.id);
       router.replace("/admin/stories");
     } catch (err: any) {
       setError(err.message || "Could not delete the draft story.");
