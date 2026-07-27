@@ -71,7 +71,7 @@ export function GalleryInteractiveView({
                 {eyebrow}
               </span>
             )}
-            <h2 className="text-3xl font-serif font-bold tracking-tight text-brand-charcoal md:text-5xl">
+            <h2 className="text-3xl font-heading font-bold tracking-tight text-brand-charcoal md:text-5xl">
               {title}
             </h2>
             {subtitle && (

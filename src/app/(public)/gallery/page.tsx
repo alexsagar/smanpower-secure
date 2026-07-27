@@ -38,7 +38,7 @@ export default async function GalleryPage() {
             <span>Verified Infrastructure & Operations</span>
           </div>
 
-          <h1 className="text-4xl font-serif font-bold tracking-tight text-brand-charcoal md:text-6xl lg:text-7xl max-w-4xl leading-tight">
+          <h1 className="text-4xl font-heading font-bold tracking-tight text-brand-charcoal md:text-6xl lg:text-7xl max-w-4xl leading-tight">
             {page?.title || "Operational Facilities & Media Gallery"}
           </h1>
 
@@ -72,7 +72,7 @@ export default async function GalleryPage() {
                 <Building2 className="h-4 w-4" />
                 Live Inspection Available
               </span>
-              <h2 className="text-2xl md:text-4xl font-serif font-bold text-white">
+              <h2 className="text-2xl md:text-4xl font-heading font-bold text-white">
                 Want to Inspect Our Facilities First-Hand?
               </h2>
               <p className="text-sm md:text-base text-stone-300 leading-relaxed">

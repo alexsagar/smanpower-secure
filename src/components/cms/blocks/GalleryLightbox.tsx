@@ -149,7 +149,7 @@ export function GalleryLightbox({
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div className="space-y-2">
               {currentItem.title && (
-                <h3 className="text-xl font-bold tracking-tight text-white md:text-2xl">
+                <h3 className="text-xl font-heading font-bold tracking-tight text-white md:text-2xl">
                   {currentItem.title}
                 </h3>
               )}
