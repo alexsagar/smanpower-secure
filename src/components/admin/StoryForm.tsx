@@ -1,21 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { MediaSelector, MediaAssetMinimal } from "./MediaSelector";
+import { useRouter } from "next/navigation";
+import { MediaInput } from "./MediaInput";
 import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction } from "@/actions/success-stories";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { InsightContentEditor } from "./editor/InsightContentEditor";
 
-export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[], initialData?: any }) {
+function toSlug(value: string) {
+  return value.trim().toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+export function StoryForm({ initialData }: { initialData?: any }) {
+  const router = useRouter();
   const [selectedImageId, setSelectedImageId] = useState<string>(initialData?.featuredImageId || "");
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>(initialData?.featuredImage?.fileUrl || initialData?.featuredImage?.secureUrl || "");
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [slug, setSlug] = useState(initialData?.slug || "");
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [status, setStatus] = useState(initialData?.status || "DRAFT");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function handleStatusChange(action: "publish" | "unpublish") {
     if (!initialData?.id) return;
     setIsPending(true);
     setError(null);
+    setSuccess(null);
     try {
       let res;
       if (action === "publish") {
@@ -27,7 +39,8 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
       if (!res.success) {
         setError((res as any).formError || "Action failed");
       } else {
-        window.location.reload();
+        setStatus(action === "publish" ? "PUBLISHED" : "DRAFT");
+        setSuccess(action === "publish" ? "Story published." : "Story moved to draft.");
       }
     } catch (err: any) {
       setError(err.message || "An error occurred");
@@ -40,11 +53,12 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
     e.preventDefault();
     setIsPending(true);
     setError(null);
+    setSuccess(null);
     
     const formData = new FormData(e.currentTarget);
     const data = {
-      title: formData.get("title") as string,
-      slug: formData.get("slug") as string,
+      title,
+      slug,
       personName: formData.get("personName") as string,
       // Checkboxes must always be sent: the payload schema defaults them to
       // false, so an omitted flag silently clears it on every save.
@@ -74,7 +88,12 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
       setError(result.formError || "An error occurred");
       setIsPending(false);
     } else {
-      window.location.href = "/admin/stories";
+      if (initialData?.id) {
+        setSuccess("Changes saved.");
+        setIsPending(false);
+      } else if (result.data?.id) {
+        router.replace(`/admin/stories/${result.data.id}`);
+      }
     }
   }
 
@@ -85,16 +104,21 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
           {error}
         </div>
       )}
+      {success && (
+        <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 p-4 rounded text-sm" role="status">
+          {success}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Title</label>
-            <input name="title" defaultValue={initialData?.title} required className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. Candidate Journey" />
+            <input name="title" value={title} onChange={(event) => { const nextTitle = event.target.value; setTitle(nextTitle); if (!slugEdited) setSlug(toSlug(nextTitle)); }} required className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. Candidate Journey" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Slug</label>
-            <input name="slug" defaultValue={initialData?.slug} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. candidate-journey-1" />
+            <input name="slug" value={slug} onChange={(event) => { setSlugEdited(true); setSlug(event.target.value); }} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. candidate-journey-1" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Person or Company Name</label>
@@ -116,7 +140,7 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
           </div>
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Featured Image</label>
-            <MediaSelector assets={assets} selectedUrl={selectedImageUrl} onSelect={(assetId, assetUrl) => {
+            <MediaInput label="Featured Image" value={selectedImageUrl} allowedResourceTypes={["IMAGE"]} uploadPurpose="cms_image" onChange={(assetId, assetUrl) => {
               setSelectedImageId(assetId);
               setSelectedImageUrl(assetUrl);
             }} />
@@ -168,7 +192,7 @@ export function StoryForm({ assets, initialData }: { assets: MediaAssetMinimal[]
         <div>
           {initialData?.id && (
             <div className="flex gap-2">
-              {initialData.status === "DRAFT" ? (
+              {status === "DRAFT" ? (
                 <button type="button" onClick={() => handleStatusChange("publish")} disabled={isPending} className="px-4 py-2 text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition-colors flex items-center gap-1 rounded">
                   <CheckCircle className="w-3 h-3" /> Publish
                 </button>

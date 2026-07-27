@@ -1,0 +1,46 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const revalidatePath = vi.fn();
+const revalidateTag = vi.fn();
+const requirePermission = vi.fn();
+const auth = vi.fn();
+
+const tx = {
+  successStory: { findUnique: vi.fn(), update: vi.fn() },
+  auditLog: { create: vi.fn() },
+};
+
+const prisma = { $transaction: vi.fn() };
+
+vi.mock("next/cache", () => ({ revalidatePath, revalidateTag }));
+vi.mock("@/lib/prisma", () => ({ prisma }));
+vi.mock("@/lib/permissions", () => ({ SUCCESS_STORY_PERMISSIONS: { UPDATE: "successStories.update" }, requirePermission }));
+vi.mock("@/config/demo", () => ({ DEMO_MODE: false }));
+vi.mock("@/lib/auth", () => ({ auth }));
+vi.mock("@/lib/slug", () => ({ generateUniqueSlug: vi.fn() }));
+vi.mock("@prisma/client", () => ({
+  ContentStatus: { DRAFT: "DRAFT", PUBLISHED: "PUBLISHED", ARCHIVED: "ARCHIVED" },
+  StoryType: { CANDIDATE: "CANDIDATE", EMPLOYER: "EMPLOYER" },
+}));
+
+describe("updateStoryAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    requirePermission.mockResolvedValue({ id: "admin-1" });
+    auth.mockResolvedValue(null);
+    prisma.$transaction.mockImplementation(async (callback: (client: typeof tx) => Promise<unknown>) => callback(tx));
+    tx.successStory.findUnique.mockResolvedValue({ id: "story-1", slug: "old-story", status: "PUBLISHED" });
+    tx.successStory.update.mockResolvedValue({ id: "story-1", slug: "renamed-story" });
+  });
+
+  it("updates a published story slug and revalidates both URLs", async () => {
+    const { updateStoryAction } = await import("./success-stories");
+    const payload = new FormData();
+    payload.append("data", JSON.stringify({ title: "Renamed Story", slug: "renamed-story", storyType: "CANDIDATE", content: "Story body" }));
+
+    await expect(updateStoryAction("story-1", payload)).resolves.toEqual({ success: true, data: { id: "story-1", slug: "renamed-story" } });
+    expect(tx.successStory.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ slug: "renamed-story" }) }));
+    expect(revalidatePath).toHaveBeenCalledWith("/success-stories/old-story");
+    expect(revalidatePath).toHaveBeenCalledWith("/success-stories/renamed-story");
+  });
+});

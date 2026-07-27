@@ -35,13 +35,13 @@ const SuccessStoryPayloadSchema = z.object({
   updatedAt: z.string().optional(),
 });
 
-function revalidateStoryCaches(slug?: string) {
+function revalidateStoryCaches(slug?: string, previousSlug?: string) {
   revalidatePath("/admin/success-stories");
   revalidatePath("/success-stories");
   revalidatePath("/"); // homepage story_grid shows the featured/latest stories
-  if (slug) {
-    revalidatePath(`/success-stories/${slug}`);
-    revalidateTag(`story:${slug}`, "max");
+  for (const storySlug of new Set([slug, previousSlug].filter((value): value is string => Boolean(value)))) {
+    revalidatePath(`/success-stories/${storySlug}`);
+    revalidateTag(`story:${storySlug}`, "max");
   }
   revalidateTag("stories:list", "max");
 }
@@ -166,6 +166,7 @@ export async function updateStoryAction(id: string, formData: FormData) {
 
     const data = parsed.data;
 
+    let previousSlug: string | undefined;
     const result = await prisma.$transaction(async (tx) => {
       const existing = await tx.successStory.findUnique({
         where: { id }
@@ -173,10 +174,10 @@ export async function updateStoryAction(id: string, formData: FormData) {
 
       if (!existing) throw new Error("NOT_FOUND");
 
-      let updatedSlug = existing.slug;
-      if (data.slug && existing.status !== "PUBLISHED") {
-         updatedSlug = data.slug.trim().toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "");
-      }
+      previousSlug = existing.slug;
+      const updatedSlug = data.slug
+        ? data.slug.trim().toLowerCase().replace(/[\s\W-]+/g, "-").replace(/^-+|-+$/g, "")
+        : existing.slug;
 
       const updated = await tx.successStory.update({
         where: { id },
@@ -216,7 +217,7 @@ export async function updateStoryAction(id: string, formData: FormData) {
       return updated;
     });
 
-    revalidateStoryCaches(result.slug);
+    revalidateStoryCaches(result.slug, previousSlug);
     return { success: true, data: { id: result.id, slug: result.slug } };
 
   } catch (err: any) {
