@@ -46,34 +46,6 @@ export default async function GalleryPage() {
             {page?.subtitle ||
               "Inspect our ISO-certified trade testing labs, orientation auditoriums, provincial sourcing centers, and verified candidate screening hubs across Nepal."}
           </p>
-
-          {/* Operational Stats Counter Bar */}
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-stone-300 pt-8">
-            <div className="border-l-2 border-brand-gold pl-4">
-              <span className="text-2xl font-bold font-serif text-brand-charcoal md:text-3xl">12,000+</span>
-              <span className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mt-0.5">
-                sq.ft Training Hub
-              </span>
-            </div>
-            <div className="border-l-2 border-brand-gold pl-4">
-              <span className="text-2xl font-bold font-serif text-brand-charcoal md:text-3xl">25+</span>
-              <span className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mt-0.5">
-                Trade Testing Labs
-              </span>
-            </div>
-            <div className="border-l-2 border-brand-gold pl-4">
-              <span className="text-2xl font-bold font-serif text-brand-charcoal md:text-3xl">100%</span>
-              <span className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mt-0.5">
-                Zero-Fee Compliant
-              </span>
-            </div>
-            <div className="border-l-2 border-brand-gold pl-4">
-              <span className="text-2xl font-bold font-serif text-brand-charcoal md:text-3xl">50,000+</span>
-              <span className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mt-0.5">
-                Workers Deployed
-              </span>
-            </div>
-          </div>
         </div>
       </header>
 
