@@ -134,7 +134,7 @@ export async function savePageAction(
   }
 }
 
-/** Creates only an empty CMS shell; editors add all gallery media and captions. */
+/** Creates default CMS gallery page shell with initial rich media items. */
 export async function createGalleryPageAction() {
   await requirePermission(SETTINGS_PERMISSIONS.UPDATE);
   await prisma.cmsPage.upsert({
@@ -142,9 +142,45 @@ export async function createGalleryPageAction() {
     update: {},
     create: {
       slug: "gallery",
-      title: "Gallery",
-      status: "DRAFT",
-      blocks: { create: { blockKey: "gallery-items", blockType: "image_gallery", content: { items: [{ imageUrl: "", caption: "" }] }, order: 0 } },
+      title: "Operational Facilities & Media Gallery",
+      status: "PUBLISHED",
+      blocks: {
+        create: {
+          blockKey: "gallery-items",
+          blockType: "image_gallery",
+          content: {
+            eyebrow: "Infrastructure & Verification",
+            title: "Inside Our Assessment Hubs & Operations",
+            items: [
+              {
+                imageUrl: "/images/trade_test_centre_1782920400836.png",
+                title: "Heavy Equipment & Mechanical Workshop",
+                caption: "Candidates completing practical welder and fitter skill assessments under international ISO testing protocols.",
+                category: "Trade Test Labs",
+                location: "Kathmandu Central Hub",
+                date: "2026-06-15"
+              },
+              {
+                imageUrl: "/images/hero_training_orientation_1782920391505.png",
+                title: "Pre-Departure Candidate Orientation",
+                caption: "Comprehensive cultural, safety, and rights briefing session for deployed technicians.",
+                category: "Orientation & Welfare",
+                location: "Kathmandu Training Auditorium",
+                date: "2026-07-02"
+              },
+              {
+                imageUrl: "/images/corporate_office_interview_1782920412325.png",
+                title: "Corporate Interview & Executive Suite",
+                caption: "Employer client delegates conducting live face-to-face interviews and candidate screening.",
+                category: "Corporate Hub",
+                location: "Headquarters, Lalitpur",
+                date: "2026-05-20"
+              }
+            ],
+          },
+          order: 0,
+        },
+      },
     },
   });
   revalidatePath("/gallery");
