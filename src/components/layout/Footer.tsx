@@ -114,6 +114,13 @@ export function Footer({
     }))
     .filter((section) => section.links.length > 0);
 
+  const resources = sections.find((section) => section.title.toLowerCase() === "resources");
+  if (resources && !resources.links.some((link) => link.href === "/gallery")) {
+    resources.links.push({ label: "Gallery", href: "/gallery" });
+  } else if (!resources) {
+    sections.push({ title: "Resources", links: [{ label: "Gallery", href: "/gallery" }] });
+  }
+
   const socialLinks = (footerSettings.socialLinks || [])
     .filter((link) => link.isActive && isSafeExternalUrl(link.url))
     .sort((a, b) => a.order - b.order || a.platform.localeCompare(b.platform) || a.label.localeCompare(b.label));
