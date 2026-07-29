@@ -375,6 +375,14 @@ export const ourPeopleCopy = {
       "We invest heavily in the continuous training of our own people, ensuring that every team member is fully versed in RBA guidelines, international labor laws, and modern human resources practices.",
     ],
   },
+  // ponytail: per-section switches for this page's hardcoded JSX sections.
+  // Rendered as checkboxes by the generic content editor, no admin code needed.
+  hiddenSections: {
+    intro: false,
+    departments: false,
+    band: false,
+    culture: false,
+  },
   departments: {
     eyebrow: "The Engine",
     heading: "The People Behind the Process.",

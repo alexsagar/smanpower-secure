@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Save, Code, LayoutTemplate, Settings2 } from "lucide-react";
 import { VisualPageEditor } from "@/components/admin/content/VisualPageEditor";
+import { mergePageCopy, PAGE_COPY_DEFAULTS, type PageCopySlug } from "@/lib/page-copy";
+import { PAGE_COPY_BLOCK_TYPE } from "@/services/page-copy.service";
 export default async function PageEditor({ params }: { params: Promise<{ slug: string[] }> }) {
   // Catch-all: CMS slugs contain "/" (e.g. "about/leadership"), so the route
   // receives them as path segments and rejoins them into the stored slug.
@@ -20,6 +22,18 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
   });
 
   if (!page) notFound();
+
+  // Stored page_copy predates any key added to the defaults since it was saved,
+  // and the editor only renders keys present in the stored content. Merge the
+  // defaults in so newly added copy/toggles are editable without a migration.
+  const defaults = PAGE_COPY_DEFAULTS[slug as PageCopySlug];
+  const blocks = defaults
+    ? page.blocks.map((block) =>
+        block.blockType === PAGE_COPY_BLOCK_TYPE
+          ? { ...block, content: mergePageCopy(defaults, block.content) }
+          : block
+      )
+    : page.blocks;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -64,7 +78,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
         </div>
       </div>
 
-      <VisualPageEditor initialPage={page} />
+      <VisualPageEditor initialPage={{ ...page, blocks }} />
     </div>
   );
 }
