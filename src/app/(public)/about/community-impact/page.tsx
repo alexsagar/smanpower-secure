@@ -29,7 +29,8 @@ export default async function CommunityImpactPage() {
         imageSrc={copy.hero.imageSrc}
       />
 
-      <EditorialSection 
+      {!copy.hiddenSections.intro && (
+      <EditorialSection
         title={copy.intro.title}
         subtitle={copy.intro.subtitle}
       >
@@ -43,8 +44,10 @@ export default async function CommunityImpactPage() {
           {copy.intro.paragraphs[1]}
         </p>
       </EditorialSection>
+      )}
 
       {/* Stats Banner */}
+      {!copy.hiddenSections.stats && (
       <section className="py-16 md:py-24 bg-brand-gold relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay" />
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
@@ -64,8 +67,10 @@ export default async function CommunityImpactPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Pillars Grid */}
+      {!copy.hiddenSections.pillars && (
       <section className="py-24 md:py-32 bg-brand-white relative">
         <div className="container-wide mx-auto px-6 lg:px-12">
           <div className="mb-20 text-center">
@@ -100,8 +105,10 @@ export default async function CommunityImpactPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Full Bleed Dark Break */}
+      {!copy.hiddenSections.returning && (
       <section className="relative h-[70vh] min-h-[600px] w-full flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/corporate_office_interview_1782920412325.png')] bg-cover bg-center bg-fixed bg-no-repeat grayscale opacity-30" />
         <div className="absolute inset-0 bg-brand-black/80" />
@@ -128,6 +135,7 @@ export default async function CommunityImpactPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }

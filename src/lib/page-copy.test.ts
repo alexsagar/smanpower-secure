@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodeCopyEntities, mergePageCopy } from "./page-copy";
+import { decodeCopyEntities, mergePageCopy, PAGE_COPY_DEFAULTS } from "./page-copy";
 
 describe("decodeCopyEntities", () => {
   it("decodes the entities editors actually paste", () => {
@@ -37,5 +37,15 @@ describe("mergePageCopy", () => {
   it("still falls back for blank and absent values", () => {
     expect(mergePageCopy(defaults, { readMoreLabel: "   " }).readMoreLabel).toBe("Read Full Story");
     expect(mergePageCopy(defaults, {}).readMoreLabel).toBe("Read Full Story");
+  });
+});
+
+describe("our-people section toggles", () => {
+  it("keeps a stored false and applies a stored true", () => {
+    const merged = mergePageCopy(PAGE_COPY_DEFAULTS["about/our-people"], {
+      hiddenSections: { departments: true },
+    });
+    expect(merged.hiddenSections.departments).toBe(true);
+    expect(merged.hiddenSections.culture).toBe(false);
   });
 });

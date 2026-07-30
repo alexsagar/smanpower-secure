@@ -35,6 +35,7 @@ export default async function WorkerGrievancePage() {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 py-16">
+        {!copy.hiddenSections.channels && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <div className="bg-white/60 backdrop-blur-md border border-brand-charcoal/5 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-brand-gold/30 transition-all duration-500 group">
             <div className="w-16 h-16 rounded-full bg-brand-gold/10 flex items-center justify-center mb-6 group-hover:bg-brand-gold transition-colors">
@@ -55,6 +56,9 @@ export default async function WorkerGrievancePage() {
           </div>
         </div>
 
+        )}
+
+        {!copy.hiddenSections.commitment && (
         <div className="border-t border-brand-charcoal/5 pt-16">
           <h2 className="text-3xl font-light tracking-tight text-brand-black text-center mb-4">{copy.commitmentHeading}</h2>
           <p className="text-center text-brand-charcoal/60 font-light max-w-2xl mx-auto mb-12">
@@ -95,12 +99,15 @@ export default async function WorkerGrievancePage() {
             </div>
           </div>
 
+          {!copy.hiddenSections.escalation && (
           <div className="bg-brand-gold/5 border border-brand-gold/20 rounded-3xl p-8 text-center max-w-3xl mx-auto">
             <p className="text-brand-charcoal/80 font-light leading-relaxed">
               {copy.escalation.lead}<strong className="font-medium text-brand-black">{copy.escalation.emphasis}</strong>{copy.escalation.trail}
             </p>
           </div>
+          )}
         </div>
+        )}
       </div>
     </div>
   );

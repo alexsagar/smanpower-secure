@@ -26,6 +26,7 @@ export default async function LeadershipPage() {
         imageSrc={copy.hero.imageSrc}
       />
 
+      {!copy.hiddenSections.intro && (
       <EditorialSection
         title={copy.intro.title}
         subtitle={copy.intro.subtitle}
@@ -37,8 +38,10 @@ export default async function LeadershipPage() {
           {copy.intro.body}
         </p>
       </EditorialSection>
+      )}
 
       {/* Chairman's Message - Full Bleed Quote */}
+      {!copy.hiddenSections.chairmanQuote && (
       <section className="py-24 md:py-32 bg-brand-charcoal text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-brand-black/40 z-0" />
         <div className="absolute -top-32 -right-32 text-brand-gold/10 z-0 rotate-12">
@@ -58,8 +61,10 @@ export default async function LeadershipPage() {
           </ScrollReveal>
         </div>
       </section>
+      )}
 
       {/* Board of Directors Grid */}
+      {!copy.hiddenSections.board && (
       <section className="py-24 md:py-32 bg-brand-white">
         <div className="container-wide mx-auto px-6 lg:px-12">
           {/* Centered Board Header */}
@@ -122,8 +127,10 @@ export default async function LeadershipPage() {
           )}
         </div>
       </section>
+      )}
 
       {/* Leadership Philosophy */}
+      {!copy.hiddenSections.accountability && (
       <section className="py-24 md:py-32 bg-brand-black text-white relative overflow-hidden">
         <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-brand-gold/5 blur-[120px] rounded-full -translate-y-1/2 pointer-events-none" />
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col md:flex-row gap-16 lg:gap-24 items-center">
@@ -168,6 +175,7 @@ export default async function LeadershipPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }

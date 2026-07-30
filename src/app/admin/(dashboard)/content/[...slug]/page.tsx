@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Save, Code, LayoutTemplate, Settings2 } from "lucide-react";
 import { VisualPageEditor } from "@/components/admin/content/VisualPageEditor";
+import { mergePageCopy, PAGE_COPY_DEFAULTS, type PageCopySlug } from "@/lib/page-copy";
+import { PAGE_COPY_BLOCK_TYPE } from "@/services/page-copy.service";
 export default async function PageEditor({ params }: { params: Promise<{ slug: string[] }> }) {
   // Catch-all: CMS slugs contain "/" (e.g. "about/leadership"), so the route
   // receives them as path segments and rejoins them into the stored slug.
@@ -21,8 +23,22 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
 
   if (!page) notFound();
 
+  // Stored page_copy predates any key added to the defaults since it was saved,
+  // and the editor only renders keys present in the stored content. Merge the
+  // defaults in so newly added copy/toggles are editable without a migration.
+  const defaults = PAGE_COPY_DEFAULTS[slug as PageCopySlug];
+  const blocks = defaults
+    ? page.blocks.map((block) =>
+        block.blockType === PAGE_COPY_BLOCK_TYPE
+          ? { ...block, content: mergePageCopy(defaults, block.content) }
+          : block
+      )
+    : page.blocks;
+
+  // No entrance animation on the wrapper: this is a tool opened dozens of times
+  // a day, and a 700ms fade delayed every field an editor came here to change.
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+    <div className="max-w-7xl mx-auto space-y-8 pb-8">
       
       <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -64,7 +80,7 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
         </div>
       </div>
 
-      <VisualPageEditor initialPage={page} />
+      <VisualPageEditor initialPage={{ ...page, blocks }} />
     </div>
   );
 }

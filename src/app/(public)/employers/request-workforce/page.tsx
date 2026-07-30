@@ -56,6 +56,7 @@ export default async function RequestWorkforcePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
             
             {/* Left Column: The Seven Seas Advantage (Takes up 4 columns) */}
+            {!copy.hiddenSections.intro && (
             <div className="lg:col-span-4 space-y-12">
               <ScrollReveal>
                 <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-4 block">
@@ -86,9 +87,11 @@ export default async function RequestWorkforcePage() {
                 </div>
               </ScrollReveal>
             </div>
+            )}
 
-            {/* Right Column: Massive Form (Takes up 8 columns) */}
-            <div className="lg:col-span-8">
+            {/* Right Column: Massive Form. Widens to the full grid when the
+                advantage column is hidden, so no empty gutter is left. */}
+            <div className={copy.hiddenSections.intro ? "lg:col-span-12" : "lg:col-span-8"}>
               <ScrollReveal delay={0.2} className="h-full">
                 <div className="bg-white p-8 md:p-12 border border-brand-charcoal/10 shadow-2xl h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold/5 blur-[80px] rounded-full pointer-events-none" />
