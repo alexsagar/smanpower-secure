@@ -202,6 +202,7 @@ export default async function ContactPage() {
       </section>
 
       {/* Nepal Operations Footprint (Exclusively Nepal) */}
+      {!copy.hiddenSections.operations && (
       <section className="py-24 md:py-32 bg-brand-white text-brand-black relative overflow-hidden border-t-2 border-brand-black">
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
           <div className="max-w-3xl mb-16">
@@ -254,6 +255,7 @@ export default async function ContactPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }

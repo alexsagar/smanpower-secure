@@ -1,6 +1,6 @@
 import type { CmsPage } from "@/types/content";
 
-/** Empty CMS shell; editors provide every gallery image and title. */
+/** Empty CMS shell; editors provide every album, description and image. */
 export const galleryPage: CmsPage = {
   id: "page_gallery",
   slug: "gallery",
@@ -14,6 +14,6 @@ export const galleryPage: CmsPage = {
     blockType: "image_gallery",
     order: 0,
     visible: true,
-    content: { items: [{ title: "", imageUrl: "" }] },
+    content: { albums: [{ title: "", description: "", images: [{ imageUrl: "", title: "" }] }] },
   }],
 };

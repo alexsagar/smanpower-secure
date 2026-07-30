@@ -41,6 +41,7 @@ export default async function InsightsPage() {
 
       <section className="py-20 lg:py-28 bg-brand-off-white relative">
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
+          {!copy.hiddenSections.intro && (
           <div className="max-w-4xl mb-16">
             <ScrollReveal>
               <div className="inline-flex items-center gap-3 bg-brand-black text-brand-gold text-[10px] font-bold tracking-[0.3em] uppercase px-3 py-1.5 mb-6 border border-brand-gold/30">
@@ -54,6 +55,7 @@ export default async function InsightsPage() {
               </p>
             </ScrollReveal>
           </div>
+          )}
 
           <ScrollReveal>
             <InsightMagazineGrid
@@ -67,6 +69,7 @@ export default async function InsightsPage() {
       </section>
 
       {/* Bottom CTA Banner */}
+      {!copy.hiddenSections.cta && (
       <section className="py-24 bg-brand-black text-brand-white relative overflow-hidden border-t-2 border-brand-gold/40">
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="md:w-2/3">
@@ -91,6 +94,7 @@ export default async function InsightsPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }

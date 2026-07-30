@@ -88,6 +88,7 @@ export default async function TermsOfServicePage() {
         </div>
 
         {/* Horizontal Quick-Jump Table of Contents Pills */}
+        {!copy.hiddenSections.quickNav && (
         <nav aria-label="Terms of service quick links" className="max-w-4xl mx-auto mb-12">
           <div className="bg-white border border-brand-charcoal/10 p-6 shadow-sm">
             <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-brand-gold-dark block mb-4 text-center">
@@ -107,6 +108,7 @@ export default async function TermsOfServicePage() {
             </div>
           </div>
         </nav>
+        )}
 
         {/* Centered Full-Width Section Cards */}
         <div className="max-w-4xl mx-auto space-y-6">
@@ -166,6 +168,7 @@ export default async function TermsOfServicePage() {
         </div>
 
         {/* Centered Contact CTA Card */}
+        {!copy.hiddenSections.contactCta && (
         <div className="max-w-4xl mx-auto mt-12 bg-brand-black text-brand-white p-8 sm:p-12 shadow-xl text-center flex flex-col items-center">
           <span className="text-brand-gold text-xs font-semibold uppercase tracking-widest block mb-2">
             Legal Terms &amp; Conditions Assistance
@@ -185,6 +188,7 @@ export default async function TermsOfServicePage() {
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>
+        )}
 
       </main>
     </div>

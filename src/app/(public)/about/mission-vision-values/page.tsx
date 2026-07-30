@@ -29,7 +29,8 @@ export default async function MissionVisionPage() {
         imageSrc={copy.hero.imageSrc}
       />
 
-      <EditorialSection 
+      {!copy.hiddenSections.vision && (
+      <EditorialSection
         title={copy.vision.title}
         subtitle={copy.vision.subtitle}
       >
@@ -40,7 +41,9 @@ export default async function MissionVisionPage() {
           {copy.vision.body}
         </p>
       </EditorialSection>
+      )}
 
+      {!copy.hiddenSections.mission && (
       <section className="py-24 bg-brand-gold relative overflow-hidden">
         <div className="absolute inset-0 z-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay"></div>
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col items-center text-center">
@@ -57,8 +60,10 @@ export default async function MissionVisionPage() {
           </ScrollReveal>
         </div>
       </section>
+      )}
 
       {/* Next-Level Core Values Section */}
+      {!copy.hiddenSections.values && (
       <section className="py-24 md:py-32 bg-brand-black relative overflow-hidden text-brand-white">
         {/* Subtle background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-gold/5 rounded-full blur-[120px] pointer-events-none" />
@@ -106,6 +111,7 @@ export default async function MissionVisionPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }
