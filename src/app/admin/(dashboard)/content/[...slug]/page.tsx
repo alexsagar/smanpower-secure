@@ -35,8 +35,10 @@ export default async function PageEditor({ params }: { params: Promise<{ slug: s
       )
     : page.blocks;
 
+  // No entrance animation on the wrapper: this is a tool opened dozens of times
+  // a day, and a 700ms fade delayed every field an editor came here to change.
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+    <div className="max-w-7xl mx-auto space-y-8 pb-8">
       
       <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />

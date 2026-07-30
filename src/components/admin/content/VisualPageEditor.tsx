@@ -90,21 +90,44 @@ function SortableBlockItem({
             <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wider ${blockCategoryClasses(blockTypeCategory(block.blockType))}`}>
               {blockTypeCategory(block.blockType)}
             </span>
-            {!block.visible && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Hidden</span>}
+            {/* Amber, not red: a hidden section is a deliberate, reversible
+                state, not an error on the page. */}
+            {!block.visible && <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Hidden</span>}
           </div>
           <p className="text-xs text-gray-500 mt-1 truncate max-w-sm">{blockSummary(block)}</p>
         </div>
-        <div className="flex items-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
-          <button onClick={() => onEdit(block)} className="p-2 text-gray-500 hover:text-brand-black hover:bg-gray-100 rounded">
+        {/* Edit is the primary action on the row, so it is a real button rather
+            than one more grey icon, and the cluster is not dimmed until hover —
+            the most-used control must not be the least visible one. */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onEdit(block)}
+            className="px-3 py-1.5 mr-1 text-sm font-medium text-brand-black bg-gray-50 border border-gray-200 rounded hover:bg-brand-gold hover:border-brand-gold transition-colors"
+          >
             Edit
           </button>
-          <button onClick={() => onToggleVisibility(block.id)} className="p-2 text-gray-500 hover:text-brand-black hover:bg-gray-100 rounded" title="Toggle Visibility">
+          <button
+            onClick={() => onToggleVisibility(block.id)}
+            className="p-2 text-gray-400 hover:text-brand-black hover:bg-gray-100 rounded"
+            aria-label={block.visible ? `Hide ${blockTypeLabel(block.blockType)}` : `Show ${blockTypeLabel(block.blockType)}`}
+            title={block.visible ? "Hide section" : "Show section"}
+          >
             {block.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           </button>
-          <button onClick={() => onDuplicate(block)} className="p-2 text-gray-500 hover:text-brand-black hover:bg-gray-100 rounded" title="Duplicate">
+          <button
+            onClick={() => onDuplicate(block)}
+            className="p-2 text-gray-400 hover:text-brand-black hover:bg-gray-100 rounded"
+            aria-label={`Duplicate ${blockTypeLabel(block.blockType)}`}
+            title="Duplicate"
+          >
             <Copy className="w-4 h-4" />
           </button>
-          <button onClick={() => onDelete(block.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
+          <button
+            onClick={() => onDelete(block.id)}
+            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+            aria-label={`Delete ${blockTypeLabel(block.blockType)}`}
+            title="Delete"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -151,7 +174,6 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
   const saveChanges = async () => {
     setIsSaving(true);
     const heroPayload = JSON.parse(JSON.stringify(page.hero));
-    // TEMPORARY diagnostic — trace hero state sent to server
     const { savePageAction } = await import("@/actions/content");
     const res = await savePageAction(
       page.id,
@@ -285,9 +307,11 @@ export function VisualPageEditor({ initialPage }: { initialPage: any }) {
           </div>
         )}
 
-        {/* Save Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gold/30 p-4 flex justify-between items-center">
-          <p className="text-sm text-gray-600 font-medium">Ready to deploy?</p>
+        {/* Save Bar. Sticks to the bottom of the admin `<main>` scroll container
+            so Publish stays reachable on long blocks instead of sitting
+            thousands of pixels below the fields being edited. */}
+        <div className="sticky bottom-0 z-20 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-brand-gold/30 p-4 flex justify-between items-center">
+          <p className="text-sm text-gray-600 font-medium">Changes are live once published.</p>
           <button onClick={saveChanges} disabled={isSaving} className="px-6 py-2 bg-brand-black text-white font-semibold rounded-lg hover:bg-brand-gold hover:text-brand-black transition-all shadow-md flex items-center gap-2 disabled:opacity-50">
             {isSaving ? "Publishing..." : <><Save className="w-4 h-4" /> Publish Changes</>}
           </button>

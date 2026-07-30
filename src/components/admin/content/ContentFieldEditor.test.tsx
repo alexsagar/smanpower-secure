@@ -11,6 +11,7 @@ import {
 
 vi.mock("lucide-react", () => ({
   ChevronDown: () => <svg data-icon="chevron-down" />,
+  ChevronRight: () => <svg data-icon="chevron-right" />,
   ChevronUp: () => <svg data-icon="chevron-up" />,
   Plus: () => <svg data-icon="plus" />,
   Trash2: () => <svg data-icon="trash" />,
@@ -35,10 +36,17 @@ describe("field visibility", () => {
     }
   });
 
-  it("puts scalars before objects and arrays", () => {
+  it("puts the identifier first, then scalars, then objects and arrays", () => {
     expect(
       orderContentKeys({ items: [], eyebrow: "a", nested: { x: 1 }, title: "b" })
-    ).toEqual(["eyebrow", "title", "nested", "items"]);
+    ).toEqual(["title", "eyebrow", "nested", "items"]);
+  });
+
+  it("orders every depth the same way, whatever order the stored JSON holds", () => {
+    // Regression: a repeater entry stored as { desc, title } rendered its
+    // description above its title, and used it as the row's name.
+    expect(orderContentKeys({ desc: "long copy", title: "Economic Independence" }))
+      .toEqual(["title", "desc"]);
   });
 
   it("omits excluded keys from the rendered field list", () => {
@@ -48,9 +56,16 @@ describe("field visibility", () => {
 
 describe("labels", () => {
   it("humanizes camelCase and snake_case keys", () => {
-    expect(humanizeKey("primaryCtaText")).toBe("Primary Cta Text");
     expect(humanizeKey("headingHighlight")).toBe("Heading Highlight");
     expect(humanizeKey("deployment_count")).toBe("Deployment count");
+  });
+
+  it("spells out codebase abbreviations editors should not have to decode", () => {
+    expect(humanizeKey("desc")).toBe("Description");
+    expect(humanizeKey("primaryCtaText")).toBe("Primary Call to action Text");
+    expect(humanizeKey("imageUrl")).toBe("Image URL");
+    expect(humanizeKey("faqs")).toBe("FAQs");
+    expect(humanizeKey("headingLine1")).toBe("Heading Line 1");
   });
 });
 
@@ -94,10 +109,10 @@ describe("nested structures", () => {
     expect(html).toContain('value="Partner With Us"');
     expect(html).toContain('value="/employers"');
     expect(html).toContain("Text");
-    expect(html).toContain("Href");
+    expect(html).toContain("Link"); // `href` reads as "Link" for editors
   });
 
-  it("renders an array of objects as a repeater with a field per property", () => {
+  it("collapses object entries to a named row each, closed by default", () => {
     // Real shape from the industry_grid block, including the new count.
     const html = render(
       [
@@ -106,10 +121,22 @@ describe("nested structures", () => {
       ],
       "Industries"
     );
-    expect(html).toContain('value="Construction"');
-    expect(html).toContain('value="18,400+"');
-    expect(html).toContain('value="Hospitality"');
-    expect(html).toContain("Deployment Count");
+    // Both entries are listed by name...
+    expect(html).toContain("Construction");
+    expect(html).toContain("Hospitality");
+    // ...and neither one's fields are rendered until it is expanded.
+    expect(html).not.toContain('value="18,400+"');
+    expect(html).not.toContain("Deployment Count");
+  });
+
+  it("names a collapsed row by its title, not by its longest text", () => {
+    // Regression: rows were named with "the first non-empty string", so an entry
+    // stored as { desc, title } was labelled with its own description.
+    const html = render(
+      [{ desc: "By enforcing zero-fee recruitment, workers retain 100% of their earnings.", title: "Economic Independence" }],
+      "Pillars"
+    );
+    expect(html).toContain("Economic Independence");
   });
 
   it("renders arrays of plain strings", () => {
@@ -122,6 +149,33 @@ describe("nested structures", () => {
     const html = render([{ title: "A" }], "Items");
     expect(html).not.toContain("Array editing is simplified");
     expect(html).not.toContain("&quot;title&quot;");
+  });
+
+  it("labels a generic array with its parent's name", () => {
+    // `pillars.items` reads as "Pillars", not "Items".
+    const html = renderToStaticMarkup(
+      <ContentFieldEditor
+        label="Pillars"
+        fieldKey="pillars"
+        value={{ eyebrow: "Our Impact", items: [{ title: "Economic Independence" }] }}
+        onChange={() => {}}
+      />
+    );
+    expect(html).toContain("Pillars");
+    expect(html).not.toContain(">Items<");
+  });
+
+  it("unwraps an object that only wraps one array", () => {
+    const html = renderToStaticMarkup(
+      <ContentFieldEditor
+        label="Pillars"
+        fieldKey="pillars"
+        value={{ items: [{ title: "Economic Independence" }] }}
+        onChange={() => {}}
+      />
+    );
+    expect(html).toContain("Pillars");
+    expect(html).not.toContain("<fieldset");
   });
 });
 
