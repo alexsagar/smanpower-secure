@@ -5,6 +5,8 @@ import { ChevronDown, ChevronRight, ChevronUp, Plus, Trash2 } from "lucide-react
 import { MediaInput } from "@/components/admin/MediaInput";
 import { isMediaField, mediaFieldKind, mediaFieldPurpose } from "@/lib/cms/media-fields";
 import { confirmToast } from "@/lib/confirm-toast";
+import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
+import type { TiptapContent } from "@/types/content";
 
 /**
  * Generic, recursive, type-driven editor for CMS block content.
@@ -91,6 +93,23 @@ const IDENTIFIER_KEYS = ["title", "name", "heading", "label", "question", "q", "
  */
 const GENERIC_ARRAY_KEYS = new Set(["items", "entries", "list", "rows", "values", "children"]);
 
+/**
+ * Rich text is stored as a Tiptap/ProseMirror document. Recursing into one
+ * treats its internals as content fields, so an editor is asked to manage
+ * "Type: doc" wrapping "Type: paragraph" wrapping a text node — four levels of
+ * repeater for one sentence, whose unbreakable width also forced the whole
+ * editor to scroll sideways. Detected documents get the rich text editor.
+ */
+export function isRichTextDoc(value: unknown): value is TiptapContent {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (value as Record<string, unknown>).type === "doc" &&
+    Array.isArray((value as Record<string, unknown>).content)
+  );
+}
+
 /** Long or multi-line copy gets a textarea; short labels get a single line. */
 export function shouldUseTextarea(value: string): boolean {
   return value.length > 80 || value.includes("\n");
@@ -134,7 +153,9 @@ export function orderContentKeys(content: Record<string, unknown>): string[] {
   const weight = (key: string) => {
     const value = content[key];
     if (Array.isArray(value)) return 3;
-    if (value !== null && typeof value === "object") return 2;
+    // Rich text renders as one field, not a nested box, so it sorts with the
+    // scalars — body copy belongs above nested objects, not below them.
+    if (value !== null && typeof value === "object" && !isRichTextDoc(value)) return 2;
     if (IDENTIFIER_KEYS.includes(key.toLowerCase())) return 0;
     return 1;
   };
@@ -188,6 +209,16 @@ export function ContentFieldEditor({
         uploadPurpose={mediaFieldPurpose(key, value)}
         onChange={(_id, url) => onChange(url)}
       />
+    );
+  }
+
+  // Rich text keeps its stored document shape; only the editing UI changes.
+  if (isRichTextDoc(value)) {
+    return (
+      <div className="min-w-0">
+        <FieldLabel>{label}</FieldLabel>
+        <RichTextEditor initialContent={value} onChange={(next) => onChange(next)} />
+      </div>
     );
   }
 
@@ -356,7 +387,11 @@ function ObjectField({
   if (!chrome) return fields;
 
   return (
-    <fieldset className="border border-gray-200 rounded-md p-4 bg-gray-50/60">
+    // `min-w-0` is required, not cosmetic: a fieldset's min-width is min-content
+    // and it will not shrink below it, so one long unbreakable line inside
+    // nested fieldsets widened the whole editor and scrolled the page sideways
+    // instead of letting the text truncate.
+    <fieldset className="min-w-0 border border-gray-200 rounded-md p-4 bg-gray-50/60">
       <legend className="px-2 text-sm font-semibold text-gray-700">{label}</legend>
       {fields}
     </fieldset>
@@ -469,16 +504,16 @@ function ArrayField({
   const singular = label.replace(/s$/, "");
 
   return (
-    <div className="border border-gray-200 rounded-md p-4 bg-gray-50/60">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-semibold text-gray-700">
+    <div className="min-w-0 border border-gray-200 rounded-md p-4 bg-gray-50/60">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <span className="min-w-0 truncate text-sm font-semibold text-gray-700">
           {label}{" "}
           <span className="text-xs font-normal text-gray-500">({value.length})</span>
         </span>
         <button
           type="button"
           onClick={addItem}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-brand-black hover:text-brand-gold transition-colors"
+          className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-brand-black hover:text-brand-gold transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Add {singular.toLowerCase()}
         </button>
@@ -495,7 +530,7 @@ function ArrayField({
             const excerpt = itemExcerpt(item, name);
 
             return (
-              <div key={index} className="border border-gray-200 rounded bg-white">
+              <div key={index} className="min-w-0 border border-gray-200 rounded bg-white">
                 <div className="flex items-center gap-2 p-2">
                   {collapsible ? (
                     <button
@@ -566,7 +601,7 @@ function ArrayField({
                 </div>
 
                 {open ? (
-                  <div className="border-t border-gray-100 p-3">
+                  <div className="min-w-0 border-t border-gray-100 p-3">
                     <ContentFieldEditor
                       label={humanizeKey(singular)}
                       fieldKey={fieldKey}

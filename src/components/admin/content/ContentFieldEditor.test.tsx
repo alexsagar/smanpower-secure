@@ -5,9 +5,14 @@ import {
   blankFrom,
   humanizeKey,
   isEditableContentKey,
+  isRichTextDoc,
   orderContentKeys,
   shouldUseTextarea,
 } from "./ContentFieldEditor";
+
+vi.mock("@/components/admin/editor/RichTextEditor", () => ({
+  RichTextEditor: () => <div data-rich-text-editor />,
+}));
 
 vi.mock("lucide-react", () => ({
   ChevronDown: () => <svg data-icon="chevron-down" />,
@@ -163,6 +168,42 @@ describe("nested structures", () => {
     );
     expect(html).toContain("Pillars");
     expect(html).not.toContain(">Items<");
+  });
+
+  it("edits a rich text document with the rich text editor, not as a repeater", () => {
+    // Regression: mainQuote/body are Tiptap docs. Recursing into one exposed
+    // "Type: doc" > "Type: paragraph" > text node as editable fields, and the
+    // unbreakable sentence widened the editor until the page scrolled sideways.
+    const doc = {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "Seven Seas Intercontinental is a Nepal-based recruitment company." }] }],
+    };
+
+    expect(isRichTextDoc(doc)).toBe(true);
+    expect(isRichTextDoc({ type: "paragraph" })).toBe(false);
+    expect(isRichTextDoc([{ type: "doc" }])).toBe(false);
+
+    const html = renderToStaticMarkup(
+      <ContentFieldEditor label="Main Quote" fieldKey="mainQuote" value={doc} onChange={() => {}} />
+    );
+    expect(html).toContain("data-rich-text-editor");
+    expect(html).not.toContain("Add content");
+    expect(html).not.toContain('value="paragraph"');
+  });
+
+  it("lets nested boxes shrink so long content truncates instead of widening the page", () => {
+    // A fieldset's min-width is min-content, so without min-w-0 one long line
+    // pushes every ancestor wider and the whole editor scrolls horizontally.
+    const html = renderToStaticMarkup(
+      <ContentFieldEditor
+        label="Quote"
+        fieldKey="quote"
+        value={{ attribution: "A", text: "x".repeat(400) }}
+        onChange={() => {}}
+      />
+    );
+    expect(html).toContain("<fieldset");
+    expect(html).toMatch(/<fieldset class="[^"]*min-w-0/);
   });
 
   it("unwraps an object that only wraps one array", () => {
