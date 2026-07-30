@@ -53,7 +53,13 @@ export function blankFrom(template: unknown): unknown {
   if (typeof template === "string") return "";
   if (typeof template === "number") return 0;
   if (typeof template === "boolean") return false;
-  if (Array.isArray(template)) return [];
+  // A nested array of objects keeps one blanked row: emptied, it would lose its
+  // item shape and the next "Add" inside it would have no template to copy.
+  // Scalar arrays stay empty — a blank string row is rebuildable from nothing.
+  if (Array.isArray(template)) {
+    const first = template[0];
+    return first && typeof first === "object" ? [blankFrom(first)] : [];
+  }
   if (template && typeof template === "object") {
     return Object.fromEntries(
       Object.entries(template as Record<string, unknown>).map(([k, v]) => [k, blankFrom(v)])
@@ -287,7 +293,11 @@ function ArrayField({
   };
 
   // New entries copy the shape of an existing item so arrays stay homogeneous.
-  const addItem = () => onChange([...value, blankFrom(value[0] ?? "")]);
+  // The last seen shape is remembered, so an editor who removes every row and
+  // adds again gets a properly shaped object rather than a bare string.
+  const shape = React.useRef<unknown>(undefined);
+  if (value.length) shape.current = value[0];
+  const addItem = () => onChange([...value, blankFrom(value[0] ?? shape.current ?? "")]);
 
   return (
     <div className="border border-gray-200 rounded-md p-4 bg-gray-50/60">

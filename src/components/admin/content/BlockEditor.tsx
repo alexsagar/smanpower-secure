@@ -5,6 +5,7 @@ import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
 import { MediaInput } from "@/components/admin/MediaInput";
 import { ChevronLeft } from "lucide-react";
 import { blockTypeLabel } from "@/lib/cms/block-labels";
+import { readGalleryAlbums } from "@/lib/cms/gallery-albums";
 import {
   ContentFieldEditor,
   humanizeKey,
@@ -40,14 +41,7 @@ export function BlockEditor({
   const isEmployerTestimonials = block.blockType === "testimonial" || block.blockKey === "home-community";
   const isImageGallery = block.blockType === "image_gallery";
   const content: Record<string, unknown> = isImageGallery
-    ? {
-        items: Array.isArray(rawContent.items) && rawContent.items.length
-          ? rawContent.items.map((item) => {
-              const value = item && typeof item === "object" ? item as Record<string, unknown> : {};
-              return { title: typeof value.title === "string" ? value.title : typeof value.caption === "string" ? value.caption : "", imageUrl: typeof value.imageUrl === "string" ? value.imageUrl : "" };
-            })
-          : [{ title: "", imageUrl: "" }],
-      }
+    ? { albums: readGalleryAlbums(rawContent) }
     : isEmployerTestimonials
     ? {
         eyebrow: rawContent.eyebrow === "Ethical Commitment" ? "Foreign Employer Testimonials" : rawContent.eyebrow || "Foreign Employer Testimonials",
