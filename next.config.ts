@@ -25,6 +25,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return getSecurityHeaderConfig();
   },
+  // Strip the legacy /en and /ne locale prefixes. Was proxy.ts, but Next 16 proxy is
+  // Node.js-runtime only and OpenNext/Workers cannot run it.
+  async redirects() {
+    return [
+      { source: "/:locale(en|ne)", destination: "/", permanent: false },
+      {
+        source: "/:locale(en|ne)/:path*",
+        destination: "/:path*",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

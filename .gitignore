@@ -50,3 +50,6 @@ prisma/backups/
 /playwright-report/
 /playwright/
 *.dump
+
+# OpenNext build output
+/.open-next/
