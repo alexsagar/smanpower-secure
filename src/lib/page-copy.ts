@@ -12,6 +12,12 @@
  *
  * Only editorial content lives here. Form validation, Turnstile, consent rules,
  * queries and business logic stay in code.
+ *
+ * A page whose JSX has optional sections carries a `hiddenSections` map of
+ * booleans, one per section, which the page guards its JSX with. The generic
+ * content editor renders booleans as checkboxes, so these need no admin code.
+ * ponytail: only sections a page can genuinely render without are listed —
+ * heroes, forms, listing grids and statutory notices are deliberately absent.
  */
 
 export type PageCopy = Record<string, unknown>;
@@ -82,6 +88,7 @@ export function mergePageCopy<T extends PageCopy>(defaults: T, stored: unknown):
 // ── Legal ─────────────────────────────────────────────────────
 
 export const privacyPolicyCopy = {
+  hiddenSections: { quickNav: false, contactCta: false },
   headingLead: "Privacy",
   headingHighlight: "Policy",
   lastUpdatedLabel: "Last updated:",
@@ -144,6 +151,7 @@ export const privacyPolicyCopy = {
 };
 
 export const termsOfServiceCopy = {
+  hiddenSections: { quickNav: false, contactCta: false },
   headingLead: "Terms of",
   headingHighlight: "Service",
   lastUpdatedLabel: "Last updated:",
@@ -204,6 +212,7 @@ export const termsOfServiceCopy = {
 // ── About ─────────────────────────────────────────────────────
 
 export const missionVisionValuesCopy = {
+  hiddenSections: { vision: false, mission: false, values: false },
   hero: {
     title: "Purpose-Driven Recruitment.",
     subtitle: "Mission & Vision",
@@ -250,6 +259,7 @@ export const missionVisionValuesCopy = {
 };
 
 export const ourStoryCopy = {
+  hiddenSections: { beginning: false, quote: false, timeline: false, philosophy: false },
   hero: {
     title: "From Nepal to the World.",
     subtitle: "Our Story",
@@ -286,6 +296,7 @@ export const ourStoryCopy = {
 };
 
 export const communityImpactCopy = {
+  hiddenSections: { intro: false, stats: false, pillars: false, returning: false },
   hero: {
     title: "Uplifting Communities.",
     subtitle: "Our Impact",
@@ -327,6 +338,7 @@ export const communityImpactCopy = {
 };
 
 export const leadershipCopy = {
+  hiddenSections: { intro: false, chairmanQuote: false, board: false, accountability: false },
   hero: {
     title: "Guided by Experience.",
     subtitle: "Our Leadership",
@@ -375,8 +387,6 @@ export const ourPeopleCopy = {
       "We invest heavily in the continuous training of our own people, ensuring that every team member is fully versed in RBA guidelines, international labor laws, and modern human resources practices.",
     ],
   },
-  // ponytail: per-section switches for this page's hardcoded JSX sections.
-  // Rendered as checkboxes by the generic content editor, no admin code needed.
   hiddenSections: {
     intro: false,
     departments: false,
@@ -407,6 +417,7 @@ export const ourPeopleCopy = {
 // rendering on these pages are untouched.
 
 export const insightsCopy = {
+  hiddenSections: { intro: false, cta: false },
   readMoreLabel: "Read Article",
   hero: {
     title: "Published Insights.",
@@ -420,6 +431,7 @@ export const insightsCopy = {
 };
 
 export const newsCopy = {
+  hiddenSections: { intro: false, cta: false },
   readMoreLabel: "Read Update",
   hero: {
     title: "Newsroom.",
@@ -450,6 +462,7 @@ export const careersCopy = {
 // handling remain entirely in code.
 
 export const contactCopy = {
+  hiddenSections: { operations: false },
   hero: {
     title: "Contact Our Nepal Manpower Agency",
     subtitle:
@@ -477,6 +490,7 @@ export const contactCopy = {
 };
 
 export const workerGrievanceCopy = {
+  hiddenSections: { channels: false, commitment: false, escalation: false },
   badge: "Official Support Channel",
   headingLead: "Worker",
   headingHighlight: "Grievance",
@@ -513,6 +527,7 @@ export const workerGrievanceCopy = {
 };
 
 export const requestWorkforceCopy = {
+  hiddenSections: { intro: false },
   hero: {
     title: "Partner With Us.",
     subtitle: "Workforce Solutions",
@@ -550,6 +565,7 @@ export const demandsCopy = {
 };
 
 export const successStoriesCopy = {
+  hiddenSections: { intro: false, cta: false },
   hero: {
     title: "Impact Beyond Placement.",
     subtitle: "Success Stories",

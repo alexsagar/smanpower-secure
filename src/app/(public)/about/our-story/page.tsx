@@ -21,7 +21,8 @@ export default async function OurStoryPage() {
         imageSrc={copy.hero.imageSrc}
       />
 
-      <EditorialSection 
+      {!copy.hiddenSections.beginning && (
+      <EditorialSection
         title={copy.beginning.title}
         subtitle={copy.beginning.subtitle}
       >
@@ -40,8 +41,10 @@ export default async function OurStoryPage() {
           {copy.beginning.paragraphs[1]}
         </p>
       </EditorialSection>
+      )}
 
       {/* Full Bleed Image Break */}
+      {!copy.hiddenSections.quote && (
       <section className="relative h-[60vh] min-h-[500px] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/trade_test_centre_1782920400836.png')] bg-cover bg-center bg-fixed bg-no-repeat" />
         <div className="absolute inset-0 bg-brand-black/60" />
@@ -54,8 +57,10 @@ export default async function OurStoryPage() {
           </ScrollReveal>
         </div>
       </section>
+      )}
 
       {/* The Timeline Section */}
+      {!copy.hiddenSections.timeline && (
       <section className="py-24 md:py-32 bg-brand-white relative">
         <div className="container-wide mx-auto px-6 lg:px-12">
           <div className="mb-20">
@@ -105,8 +110,10 @@ export default async function OurStoryPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Dark Philosophy Section */}
+      {!copy.hiddenSections.philosophy && (
       <section className="py-24 md:py-32 bg-brand-black text-brand-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-gold/5 blur-[100px] pointer-events-none" />
         <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col md:flex-row gap-16 items-center">
@@ -131,6 +138,7 @@ export default async function OurStoryPage() {
           </div>
         </div>
       </section>
+      )}
     </>
   );
 }
