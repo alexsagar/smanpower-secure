@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Search, Globe, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronDown, Globe, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GoogleTranslate } from "./GoogleTranslate";
@@ -46,6 +46,7 @@ export function Header({
 
   const navConfig: Record<string, { label: string; items: { label: string; href: string }[] }> = {};
   navigation.forEach(nav => {
+    if (nav.label.toLowerCase() === "resources") return;
     navConfig[nav.id] = {
       label: nav.label,
       items: nav.items
@@ -57,24 +58,17 @@ export function Header({
     };
   });
 
-  const resources = Object.values(navConfig).find((section) => section.label.toLowerCase() === "resources");
-  if (resources && !resources.items.some((item) => item.href === "/gallery")) {
-    resources.items.push({ label: "Gallery", href: "/gallery" });
-  } else if (!resources) {
-    navConfig.gallery = { label: "Gallery", items: [{ label: "Gallery", href: "/gallery" }] };
-  }
-
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+        "fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top)] transition-all duration-300 border-b",
         scrolled || activeDesktopDropdown || mobileMenuOpen
           ? "bg-brand-white border-brand-charcoal/10"
           : "bg-transparent border-transparent"
       )}
       onMouseLeave={() => setActiveDesktopDropdown(null)}
     >
-      <div className="w-full px-6 lg:px-12 h-24 lg:h-28 flex items-center justify-between relative">
+      <div className="w-full px-4 sm:px-6 lg:px-6 xl:px-8 h-24 lg:h-28 flex items-center justify-between relative">
         {/* Logo */}
         <Link href="/" className="relative z-50 group shrink-0">
           <NoTranslate className="flex items-center gap-3">
@@ -111,7 +105,7 @@ export function Header({
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex flex-1 justify-center items-center gap-4 xl:gap-6 px-4 h-full whitespace-nowrap overflow-hidden">
+        <nav className="hidden xl:flex flex-1 justify-center items-center gap-3 px-3 h-full whitespace-nowrap overflow-hidden">
           {Object.entries(navConfig).map(([key, section]) => (
             <div
               key={key}
@@ -120,9 +114,7 @@ export function Header({
             >
               <button
                 className={cn(
-                  // Science Gothic runs wider than Manrope, so the labels are set
-                  // smaller with tracking to look elegant and save horizontal space.
-                  "font-brand relative min-h-11 px-2 py-2 font-medium uppercase tracking-widest flex items-center gap-1",
+                  "public-nav-label font-brand relative min-h-11 px-1.5 py-2 text-[12px] font-medium uppercase tracking-[0.06em] flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
@@ -133,7 +125,6 @@ export function Header({
                     ? "text-brand-white/90 hover:text-brand-white"
                     : "text-brand-charcoal hover:text-brand-gold"
                 )}
-                style={{ fontSize: "7.5px" }}
               >
                 {section.label}
               </button>
@@ -142,20 +133,7 @@ export function Header({
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-3 xl:gap-5 shrink-0">
-          <Link
-            href="/search"
-            aria-label="Search Seven Seas Intercontinental"
-            className={cn(
-              "p-2 transition-colors rounded-full hover:bg-brand-white/10",
-              !scrolled && !activeDesktopDropdown && pathname === "/"
-                ? "text-brand-white/80 hover:text-brand-white"
-                : "text-brand-charcoal hover:text-brand-gold"
-            )}
-          >
-            <Search aria-hidden="true" className="w-4 h-4 xl:w-5 xl:h-5" />
-          </Link>
-
+        <div className="hidden xl:flex items-center gap-5 shrink-0">
           <div className="hidden xl:flex items-center">
             <GoogleTranslate />
           </div>
@@ -175,7 +153,7 @@ export function Header({
 
         {/* Mobile actions: the demands CTA was only inside the drawer, so it was
             invisible until the menu was opened. It now sits in the bar itself. */}
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-2 xl:hidden">
           <Link href="/demands" className="z-50">
             <Button
               variant={!scrolled && !mobileMenuOpen && pathname === "/" ? "outline" : "primary"}
@@ -215,7 +193,7 @@ export function Header({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="hidden lg:block absolute top-24 lg:top-28 left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
+            className="hidden xl:block absolute top-[calc(7rem+env(safe-area-inset-top))] left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
             onMouseLeave={() => setActiveDesktopDropdown(null)}
           >
             <div className="container-wide py-12">
@@ -257,7 +235,7 @@ export function Header({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-brand-white lg:hidden flex flex-col pt-28 overflow-y-auto"
+            className="fixed inset-0 z-40 bg-brand-white xl:hidden flex flex-col pt-28 overflow-y-auto"
           >
             <div className="px-6 flex-1">
               {Object.entries(navConfig).map(([key, section]) => (

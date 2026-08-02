@@ -30,6 +30,10 @@ export default async function PublicLayout({
   const siteSettings = await repo.getSiteSettings();
   const layoutCopy = await getPageCopy("layout");
   const orgSchema = buildOrganizationSchema(siteSettings, footerSettings);
+  const resourceLinks = headerNav
+    .find((section) => section.label.toLowerCase() === "resources")
+    ?.items.filter((item): item is typeof item & { href: string } => typeof item.href === "string")
+    .map(({ label, href }) => ({ label, href })) || [];
 
   return (
     <html
@@ -50,7 +54,7 @@ export default async function PublicLayout({
         <FirstVisitLoader />
         <Header navigation={headerNav} copy={layoutCopy.header} />
         <main className="flex-1">{children}</main>
-        <Footer footerSettings={footerSettings} siteSettings={siteSettings} copy={layoutCopy.footer} />
+        <Footer footerSettings={footerSettings} siteSettings={siteSettings} resourceLinks={resourceLinks} copy={layoutCopy.footer} />
       </body>
     </html>
   );

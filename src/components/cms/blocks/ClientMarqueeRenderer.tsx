@@ -59,7 +59,7 @@ export function ClientMarqueeRenderer({
               {clients.map((client, idx) => (
                 <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 480, height: 240, trim: true })} alt={client.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 520, height: 260, trim: true })} alt={client.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -71,7 +71,7 @@ export function ClientMarqueeRenderer({
               {clients.map((client, idx) => (
                 <div key={`dup-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 480, height: 240, trim: true })} alt={client.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
+                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 520, height: 260, trim: true })} alt={client.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
                   )}
@@ -93,7 +93,7 @@ export function ClientMarqueeRenderer({
               {groups.map((group, idx) => (
                 <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 480, height: 240, trim: true })} alt={group.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 520, height: 260, trim: true })} alt={group.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}
@@ -105,7 +105,7 @@ export function ClientMarqueeRenderer({
               {groups.map((group, idx) => (
                 <div key={`dup-group-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
                   {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 480, height: 240, trim: true })} alt={group.name} width={240} height={120} sizes="240px" className="object-contain max-h-36 w-auto" />
+                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 520, height: 260, trim: true })} alt={group.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
                   ) : (
                     <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
                   )}

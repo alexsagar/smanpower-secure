@@ -13,8 +13,8 @@ describe("GoogleTranslate Component", () => {
 
   it("identifies current language accessibly", () => {
     const html = renderToStaticMarkup(<GoogleTranslate />);
-    // Static markup should render English initially and a button
-    expect(html).toContain("English");
+    // The compact control shows the code while its accessible name stays explicit.
+    expect(html).toContain(">EN<");
     expect(html).toContain('aria-label="Select language (English)"');
   });
 
@@ -55,6 +55,8 @@ describe("GoogleTranslateScript", () => {
       },
       getElementById: vi.fn((id: string) => scripts.find(script => script.id === id) ?? null),
       createElement: vi.fn(() => ({ id: "", src: "" })),
+      documentElement: { lang: "en" },
+      readyState: "loading",
       cookie: "",
     };
 

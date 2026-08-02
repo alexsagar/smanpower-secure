@@ -89,6 +89,7 @@ export function setGoogleTranslateCookie(code: SupportedLanguageCode) {
   const parentDomain = hostname.split(".").slice(-2).join(".");
 
   window.localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+  document.documentElement.lang = code;
   document.cookie = `googtrans=${val}; path=/`;
   document.cookie = `googtrans=${val}; domain=.${hostname}; path=/`;
   if (parentDomain !== hostname && parentDomain.includes(".")) {

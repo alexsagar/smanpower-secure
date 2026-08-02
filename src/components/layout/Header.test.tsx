@@ -26,6 +26,14 @@ const navigation = [
     isVisible: true,
     items: [{ id: "n2", label: "Our Story", href: "/about/our-story", order: 1, isVisible: true, items: [] }],
   },
+  {
+    id: "resources",
+    label: "Resources",
+    href: "/resources",
+    order: 2,
+    isVisible: true,
+    items: [{ id: "gallery", label: "Gallery", href: "/gallery", order: 1, isVisible: true, items: [] }],
+  },
 ] as never;
 
 const render = () => renderToStaticMarkup(<Header navigation={navigation} />);
@@ -40,6 +48,25 @@ describe("header sizing", () => {
     expect(html).toContain("h-14 w-14 lg:h-16 lg:w-16");
     // Intrinsic size must exceed the rendered box so it stays sharp on retina.
     expect(html).toMatch(/width="80"/);
+  });
+
+  it("keeps the fixed header below browser safe areas", () => {
+    expect(render()).toContain("pt-[env(safe-area-inset-top)]");
+  });
+});
+
+describe("desktop navigation layout", () => {
+  it("removes search and enlarges the central labels", () => {
+    const html = render();
+    expect(html).not.toContain('href="/search"');
+    expect(html).toContain("public-nav-label");
+    expect(html).toContain("text-[12px]");
+  });
+
+  it("omits the resources section and its links", () => {
+    const html = render();
+    expect(html).not.toContain(">Resources<");
+    expect(html).not.toContain('href="/gallery"');
   });
 });
 
@@ -63,13 +90,13 @@ describe("demands call to action", () => {
   it("appears in the mobile bar, not only inside the drawer", () => {
     const html = render();
     // Mobile action cluster is visible below lg and holds a demands link.
-    const mobileCluster = html.match(/<div class="flex items-center gap-2 lg:hidden">[\s\S]*?<\/button>/);
+    const mobileCluster = html.match(/<div class="flex items-center gap-2 xl:hidden">[\s\S]*?<\/button>/);
     expect(mobileCluster).not.toBeNull();
     expect(mobileCluster![0]).toContain('href="/demands"');
   });
 
   it("keeps the desktop action visible only at lg and above", () => {
-    expect(render()).toContain("hidden lg:flex items-center gap-3 xl:gap-5 shrink-0");
+    expect(render()).toContain("hidden xl:flex items-center gap-5 shrink-0");
   });
 
   it("offers a demands link on both breakpoints", () => {

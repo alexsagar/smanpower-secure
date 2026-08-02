@@ -84,7 +84,7 @@ export function GoogleTranslate() {
       >
         <Globe className="w-4 h-4 text-brand-charcoal group-hover:text-brand-gold transition-colors" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-brand-charcoal group-hover:text-brand-charcoal transition-colors">
-          {currentLangObj.name}
+          {currentLangObj.code.toUpperCase()}
         </span>
         <ChevronDown className={cn("w-3 h-3 text-brand-charcoal transition-transform duration-300", isOpen && "rotate-180")} />
       </button>

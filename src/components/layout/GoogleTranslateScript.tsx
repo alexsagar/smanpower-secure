@@ -43,12 +43,21 @@ export function GoogleTranslateScript() {
     window.addEventListener("ssis-load-google-translate", load);
     const preferredLanguage = getPreferredLanguage();
     setGoogleTranslateCookie(preferredLanguage);
-    if (preferredLanguage !== "en") setTimeout(load, 0);
+    let autoLoadTimer: ReturnType<typeof setTimeout> | undefined;
+    const loadAfterHydration = () => {
+      autoLoadTimer = setTimeout(load, 1000);
+    };
+    if (preferredLanguage !== "en") {
+      if (document.readyState === "complete") loadAfterHydration();
+      else window.addEventListener("load", loadAfterHydration, { once: true });
+    }
 
     return () => {
       // We don't remove the script on unmount because this is a singleton
       // that lives at the layout level, but we ensure we don't recreate it.
       window.removeEventListener("ssis-load-google-translate", load);
+      window.removeEventListener("load", loadAfterHydration);
+      if (autoLoadTimer) clearTimeout(autoLoadTimer);
     };
   }, []);
 

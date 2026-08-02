@@ -131,6 +131,20 @@ describe("ClientMarqueeBlock", () => {
     expect(html.indexOf("Beta Client")).toBeLessThan(html.indexOf('alt="Group One"'));
   });
 
+  it("renders network logos at the enlarged size", async () => {
+    const { ClientMarqueeRenderer } = await import("./ClientMarqueeRenderer");
+    const html = renderToStaticMarkup(
+      <ClientMarqueeRenderer
+        block={block}
+        clients={[makePartner({ logoUrl: "https://cdn.example.com/logo.png" })]}
+        groups={[]}
+      />
+    );
+
+    expect(html).toContain('sizes="260px"');
+    expect(html).toContain("max-h-40");
+  });
+
   it("returns null for an empty Prisma-backed result without falling back to demo partners", async () => {
     vi.resetModules();
     vi.stubEnv("APP_ENV", "production");

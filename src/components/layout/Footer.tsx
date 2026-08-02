@@ -84,10 +84,12 @@ function toSocialLabel(link: CmsSocialLink) {
 export function Footer({
   footerSettings,
   siteSettings,
+  resourceLinks = [],
   copy = layoutCopy.footer,
 }: {
   footerSettings: CmsFooterSettings;
   siteSettings: CmsSiteSettings;
+  resourceLinks?: { label: string; href: string }[];
   /** Resolved in the server layout; defaults keep the current wording. */
   copy?: typeof layoutCopy.footer;
 }) {
@@ -114,12 +116,15 @@ export function Footer({
     }))
     .filter((section) => section.links.length > 0);
 
+  const connect = sections.find((section) => section.title.toLowerCase() === "connect");
   const resources = sections.find((section) => section.title.toLowerCase() === "resources");
-  if (resources && !resources.links.some((link) => link.href === "/gallery")) {
-    resources.links.push({ label: "Gallery", href: "/gallery" });
-  } else if (!resources) {
-    sections.push({ title: "Resources", links: [{ label: "Gallery", href: "/gallery" }] });
+  const mergedLinks = [...(resources?.links || []), ...resourceLinks, { label: "Gallery", href: "/gallery" }];
+  const target = connect || resources || { title: "Connect", links: [] };
+  for (const link of mergedLinks) {
+    if (isSafeInternalHref(link.href) && !target.links.some((existing) => existing.href === link.href)) target.links.push(link);
   }
+  if (!connect && !resources) sections.push(target);
+  if (connect && resources) sections.splice(sections.indexOf(resources), 1);
 
   const socialLinks = (footerSettings.socialLinks || [])
     .filter((link) => link.isActive && isSafeExternalUrl(link.url))

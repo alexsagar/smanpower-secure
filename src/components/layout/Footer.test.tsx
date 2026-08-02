@@ -188,6 +188,30 @@ describe("Footer", () => {
     expect(html).toContain(">Connect<");
   });
 
+  it("merges resource pages into Connect without a separate Resources column", () => {
+    const html = renderToStaticMarkup(
+      <Footer
+        footerSettings={{
+          ...footerSettings,
+          sections: [...footerSettings.sections, { title: "Resources", links: [{ label: "Gallery", href: "/gallery" }] }],
+        }}
+        siteSettings={siteSettings}
+        resourceLinks={[
+          { label: "Insights", href: "/insights" },
+          { label: "Newsroom", href: "/news" },
+          { label: "Careers", href: "/careers" },
+          { label: "Contact Us", href: "/contact" },
+        ]}
+      />
+    );
+
+    expect((html.match(/>Connect</g) || [])).toHaveLength(1);
+    expect(html).not.toContain(">Resources<");
+    for (const href of ["/insights", "/news", "/careers", "/contact", "/gallery"]) {
+      expect(html).toContain(`href="${href}"`);
+    }
+  });
+
   it("renders generic social links in order, covers the supported icons, and omits empty/invalid URLs", () => {
     const html = renderToStaticMarkup(
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
