@@ -28,6 +28,23 @@ function createPrismaClient() {
   });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+function getPrismaClient(): PrismaClient {
+  const existing = globalForPrisma.prisma;
+  if (existing) return existing;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+  // Cached on globalThis so dev HMR does not leak connections; on the Worker
+  // this just means one client per isolate, which is what we want anyway.
+  const client = createPrismaClient();
+  globalForPrisma.prisma = client;
+  return client;
+}
+
+// Constructed on first use, not at import time: on workerd `process.env` is not
+// reliably populated while modules are evaluating, so reading DATABASE_URL at
+// module scope would throw before the request ever starts.
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const value = Reflect.get(getPrismaClient(), prop, receiver);
+    return typeof value === "function" ? value.bind(getPrismaClient()) : value;
+  },
+});
