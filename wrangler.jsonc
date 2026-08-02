@@ -18,5 +18,29 @@
             "enabled": true,
             "invocation_logs": true
         }
+    },
+    // Non-secret runtime config. Secrets stay in `wrangler secret put`.
+    // Booleans are quoted strings on purpose: the code compares against
+    // the literals "true"/"false" (e.g. PRISMA_QUERY_LOGGING === "true").
+    "vars": {
+        "ADMIN_NOTIFICATION_EMAIL": "admin@smanpower.com",
+        "APP_ENV": "production",
+        "AUTH_URL": "https://www.smanpower.com",
+        "DEMO_MODE": "false",
+        "EMAIL_FROM": "Seven Seas Intercontinental <admin@notify.smanpower.com>",
+        "EMAIL_PROVIDER": "resend",
+        "LOG_LEVEL": "info",
+        "NEXT_PUBLIC_APP_URL": "https://www.smanpower.com",
+        "NEXT_PUBLIC_SITE_NAME": "Seven Seas Intercontinental",
+        "NEXT_PUBLIC_SITE_URL": "https://www.smanpower.com",
+        "NEXT_PUBLIC_TURNSTILE_ENABLED": "true",
+        "PRISMA_QUERY_LOGGING": "false",
+        "PUBLIC_APPLICATIONS_ENABLED": "true",
+        "QA_MODE": "false",
+        "RATE_LIMIT_ENABLED": "true",
+        "SITE_URL": "https://www.smanpower.com",
+        "STAGING_NOINDEX": "false",
+        "STORAGE_PROVIDER": "cloudinary",
+        "TURNSTILE_ENABLED": "true"
     }
 }
