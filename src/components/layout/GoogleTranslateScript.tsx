@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { GOOGLE_TRANSLATE_LANGUAGES, parseGoogtransCookie } from "@/lib/google-translate";
+import { GOOGLE_TRANSLATE_LANGUAGES, getPreferredLanguage, setGoogleTranslateCookie } from "@/lib/google-translate";
 
 export function GoogleTranslateScript() {
   const pathname = usePathname();
@@ -41,7 +41,9 @@ export function GoogleTranslateScript() {
     };
 
     window.addEventListener("ssis-load-google-translate", load);
-    if (parseGoogtransCookie(document.cookie) !== "en") setTimeout(load, 0);
+    const preferredLanguage = getPreferredLanguage();
+    setGoogleTranslateCookie(preferredLanguage);
+    if (preferredLanguage !== "en") setTimeout(load, 0);
 
     return () => {
       // We don't remove the script on unmount because this is a singleton
@@ -54,7 +56,7 @@ export function GoogleTranslateScript() {
   useEffect(() => {
     if (typeof window === "undefined" || !pathname) return;
 
-    const currentLang = parseGoogtransCookie(document.cookie);
+    const currentLang = getPreferredLanguage();
     if (currentLang === "en") return;
 
     let retries = 0;

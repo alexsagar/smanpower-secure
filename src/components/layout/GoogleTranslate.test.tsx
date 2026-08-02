@@ -69,6 +69,8 @@ describe("GoogleTranslateScript", () => {
     (globalThis as { window?: unknown }).window = {
       addEventListener: vi.fn((name: string, callback: () => void) => { listeners[name] = callback; }),
       removeEventListener: vi.fn(),
+      localStorage: { getItem: vi.fn(() => null), setItem: vi.fn() },
+      location: { hostname: "www.smanpower.com" },
     };
     (globalThis as { document?: unknown }).document = documentMock;
 

@@ -5,7 +5,7 @@ import { Globe, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   GOOGLE_TRANSLATE_LANGUAGES,
-  parseGoogtransCookie,
+  getPreferredLanguage,
   setGoogleTranslateCookie,
   LANGUAGE_CHANGE_EVENT,
   dispatchLanguageChange,
@@ -19,7 +19,7 @@ export function GoogleTranslate() {
 
   useEffect(() => {
     // Read initial language on mount
-    const code = parseGoogtransCookie(document.cookie);
+    const code = getPreferredLanguage();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentLangCode(code);
 
@@ -46,8 +46,8 @@ export function GoogleTranslate() {
   const handleLanguageChange = (langCode: string) => {
     window.dispatchEvent(new Event("ssis-load-google-translate"));
     // 1. Sync state across UI
-    setGoogleTranslateCookie(langCode as any);
-    dispatchLanguageChange(langCode as any);
+    setGoogleTranslateCookie(langCode as typeof GOOGLE_TRANSLATE_LANGUAGES[number]["code"]);
+    dispatchLanguageChange(langCode as typeof GOOGLE_TRANSLATE_LANGUAGES[number]["code"]);
 
     // 2. Trigger translation logic
     const select = document.querySelector(".goog-te-combo") as HTMLSelectElement;

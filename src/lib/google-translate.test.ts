@@ -25,6 +25,7 @@ describe("Google Translate Language Contract", () => {
 describe("Google Translate Cookie Parsing", () => {
   it("parses valid cookie", () => {
     expect(parseGoogtransCookie("googtrans=/en/fr")).toBe("fr");
+    expect(parseGoogtransCookie("googtrans=/en/en")).toBe("en");
   });
 
   it("falls back to missing/malformed/unsupported", () => {

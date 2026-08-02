@@ -43,6 +43,7 @@ export const GOOGLE_TRANSLATE_LANGUAGES = [
 export type SupportedLanguageCode = typeof GOOGLE_TRANSLATE_LANGUAGES[number]["code"];
 
 export const DEFAULT_LANGUAGE: SupportedLanguageCode = "en";
+const LANGUAGE_STORAGE_KEY = "ssis-language";
 
 export function isSupportedLanguage(code: string): code is SupportedLanguageCode {
   return GOOGLE_TRANSLATE_LANGUAGES.some((lang) => lang.code === code);
@@ -75,19 +76,24 @@ export function parseGoogtransCookie(cookieHeader: string | null | undefined): S
   return DEFAULT_LANGUAGE;
 }
 
+export function getPreferredLanguage(): SupportedLanguageCode {
+  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+  const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return saved && isSupportedLanguage(saved) ? saved : parseGoogtransCookie(document.cookie);
+}
+
 export function setGoogleTranslateCookie(code: SupportedLanguageCode) {
-  if (typeof document === "undefined") return;
-  const val = code === "en" ? "" : `/en/${code}`;
+  if (typeof window === "undefined") return;
+  const val = `/en/${code}`;
+  const hostname = window.location.hostname;
+  const parentDomain = hostname.split(".").slice(-2).join(".");
 
-  // If english is selected, we clear the cookies to properly restore
-  if (code === "en") {
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${window.location.hostname}; path=/`;
-    return;
-  }
-
+  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
   document.cookie = `googtrans=${val}; path=/`;
-  document.cookie = `googtrans=${val}; domain=.${window.location.hostname}; path=/`;
+  document.cookie = `googtrans=${val}; domain=.${hostname}; path=/`;
+  if (parentDomain !== hostname && parentDomain.includes(".")) {
+    document.cookie = `googtrans=${val}; domain=.${parentDomain}; path=/`;
+  }
 }
 
 // We dispatch a custom event to keep multiple instances (like desktop and mobile) synchronized.
