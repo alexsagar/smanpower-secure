@@ -2,12 +2,17 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { DemandFormWizard } from "@/components/admin/demands/DemandFormWizard";
+import { getAdminCountriesAndIndustries } from "@/services/admin.service";
 
 export const metadata = {
   title: "Create Demand | Admin",
 };
 
-export default function NewDemandPage() {
+export default async function NewDemandPage() {
+  // Loaded server-side so the country selector is populated in the first paint
+  // rather than after a client round-trip that could fail silently.
+  const { countries, industries } = await getAdminCountriesAndIndustries();
+
   return (
     <div className="space-y-6">
       <div>
@@ -21,7 +26,7 @@ export default function NewDemandPage() {
         <p className="text-sm text-brand-charcoal/70">Follow the steps below to setup a new international manpower demand.</p>
       </div>
 
-      <DemandFormWizard />
+      <DemandFormWizard countries={countries} industries={industries} />
     </div>
   );
 }

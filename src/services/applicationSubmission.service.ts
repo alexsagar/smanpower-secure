@@ -85,9 +85,16 @@ export class ApplicationSubmissionService {
       rawData.privacyConsentGiven = rawData.privacyConsentGiven === "on" || rawData.privacyConsentGiven === "true";
       rawData.safetyAcknowledgement = rawData.safetyAcknowledgement === "on" || rawData.safetyAcknowledgement === "true";
       
-      // Remap turnstile specifically
+      // Remap turnstile specifically.
+      // The Turnstile widget injects a hidden input literally named
+      // "cf-turnstile-response"; that is the authoritative field. The camelCase
+      // and "turnstileToken" spellings are only used by the JSON API route and
+      // older tests, so they stay as fallbacks.
       if (!rawData.cfTurnstileResponse) {
-         rawData.cfTurnstileResponse = formData.get('turnstileToken') || null;
+         rawData.cfTurnstileResponse =
+           formData.get('cf-turnstile-response') ||
+           formData.get('turnstileToken') ||
+           null;
       }
 
       const parsed = ApplicationSubmissionSchema.safeParse(rawData);

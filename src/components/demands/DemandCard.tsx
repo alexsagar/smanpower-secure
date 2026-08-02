@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Building2, MapPin, Users, Calendar, Briefcase } from "lucide-react";
 import { CmsDemand } from "@/types/content";
 import { DemandStatusBadgeComponent } from "./DemandStatusBadge";
+import { ReadvertisementBadge } from "./ReadvertisementBadge";
 
 interface DemandCardProps {
   demand: CmsDemand;
@@ -20,7 +21,10 @@ export function DemandCard({ demand }: DemandCardProps) {
       <div className="p-6 flex-1 flex flex-col">
         {/* Header: Status and Reference */}
         <div className="flex justify-between items-start mb-4">
-          <DemandStatusBadgeComponent status={demand.statusBadge} />
+          <div className="flex flex-wrap items-center gap-2">
+            <DemandStatusBadgeComponent status={demand.statusBadge} />
+            {demand.isReadvertisement && <ReadvertisementBadge />}
+          </div>
           {demand.demandReferenceNumber && (
             <span className="text-xs font-mono text-brand-charcoal/50">
               Ref: {demand.demandReferenceNumber}

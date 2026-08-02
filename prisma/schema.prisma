@@ -479,6 +479,13 @@ model Demand {
   publishedAt DateTime?
   closedAt    DateTime?
 
+  // Readvertisement: a closed/expired demand is never reopened in place, it is
+  // cloned into a new record that points back here. The original keeps its own
+  // applicants, status history and audit trail untouched.
+  readvertisedFromId String?
+  readvertisedFrom   Demand?  @relation("DemandReadvertisement", fields: [readvertisedFromId], references: [id], onDelete: SetNull)
+  readvertisements   Demand[] @relation("DemandReadvertisement")
+
   // Audit
   createdById String?
   createdBy   User?   @relation("DemandCreator", fields: [createdById], references: [id])
@@ -501,6 +508,7 @@ model Demand {
   @@index([industryId])
   @@index([applicationDeadline])
   @@index([isPublic, status])
+  @@index([readvertisedFromId])
 }
 
 model DemandPosition {

@@ -1,6 +1,5 @@
 import React from "react";
 import { getPageCopy } from "@/services/page-copy.service";
-import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,10 +10,12 @@ import { DemandPositionTable } from "@/components/demands/DemandPositionTable";
 import { DemandPositionCards } from "@/components/demands/DemandPositionCards";
 import { DemandDocumentViewer } from "@/components/demands/DemandDocumentViewer";
 import { DemandStatusBadgeComponent } from "@/components/demands/DemandStatusBadge";
+import { ReadvertisementBadge } from "@/components/demands/ReadvertisementBadge";
+import { DemandLetterImage } from "@/components/demands/DemandLetterImage";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema } from "@/lib/seo/schema";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 import Script from "next/script";
 
 interface Props {
@@ -87,22 +88,19 @@ export default async function DemandDetailPage({ params }: Props) {
           </div>
           {/* Featured image is optional: when absent nothing renders, no placeholder. */}
           {demand.featuredImage && (
-            <div className="relative w-full aspect-[21/9] mb-8 overflow-hidden rounded-sm bg-brand-charcoal/5 border border-brand-charcoal/10 shadow-sm">
-              <Image
-                src={resolveImageMediaUrl(demand.featuredImage, { width: 1440 })}
-                alt={demand.featuredImage.altText || demand.title}
-                fill
-                priority
-                sizes="(max-width: 1280px) 100vw, 1280px"
-                className="object-cover"
-              />
-            </div>
+            <DemandLetterImage
+              src={resolveMediaUrl(demand.featuredImage)}
+              alt={`Demand letter for ${demand.title} in ${demand.country}`}
+              width={demand.featuredImage.width}
+              height={demand.featuredImage.height}
+            />
           )}
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div className="max-w-4xl">
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex flex-wrap items-center gap-4 mb-4">
                 <DemandStatusBadgeComponent status={demand.statusBadge} />
+                {demand.isReadvertisement && <ReadvertisementBadge />}
                 {!demand.isPublic && (
                   <span className="bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wider">
                     {copy.privateBadge}

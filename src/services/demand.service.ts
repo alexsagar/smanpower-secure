@@ -73,6 +73,7 @@ export async function getAdminDemandById(id: string) {
           mediaAsset: true,
         },
       },
+      featuredImage: true,
       country: true,
       industry: true,
     },

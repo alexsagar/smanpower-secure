@@ -60,6 +60,13 @@ function PositionCard({ position: pos, demand, lang, isDemandClosed }: any) {
               <Users className="w-3.5 h-3.5" />
               {pos.totalCount} Req.
             </span>
+            {/* Only shown when a breakdown was actually recorded. Older demands
+                store a total only and must not be labelled male or female. */}
+            {pos.maleCount != null && pos.femaleCount != null && (
+              <span className="text-brand-charcoal/60">
+                Male: {pos.maleCount} · Female: {pos.femaleCount}
+              </span>
+            )}
             <span className="font-semibold text-brand-black">
               {pos.salaryCurrency} {pos.salaryAmount}
             </span>

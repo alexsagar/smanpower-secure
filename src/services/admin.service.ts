@@ -449,18 +449,24 @@ export async function getAdminCountriesAndIndustries() {
   if (DEMO_MODE) {
     return {
       countries: [
-        { id: "c-1", name: "United Arab Emirates" },
-        { id: "c-2", name: "Qatar" },
-        { id: "c-3", name: "Saudi Arabia" },
-        { id: "c-4", name: "Kuwait" },
+        { id: "c-1", name: "United Arab Emirates", code: "AE" },
+        { id: "c-2", name: "Qatar", code: "QA" },
+        { id: "c-3", name: "Saudi Arabia", code: "SA" },
+        { id: "c-4", name: "Kuwait", code: "KW" },
       ],
       industries: demoIndustries.map((i) => ({ id: i.id, name: i.name })),
     };
   }
   try {
     const [countries, industries] = await Promise.all([
-      prisma.country.findMany({ select: { id: true, name: true } }),
-      prisma.industry.findMany({ select: { id: true, name: true } }),
+      prisma.country.findMany({
+        select: { id: true, name: true, code: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.industry.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
     ]);
     return { countries, industries };
   } catch (error) {
@@ -468,8 +474,8 @@ export async function getAdminCountriesAndIndustries() {
     return {
       countries: demoFallback(
         [
-          { id: "c-1", name: "United Arab Emirates" },
-          { id: "c-2", name: "Qatar" },
+          { id: "c-1", name: "United Arab Emirates", code: "AE" },
+          { id: "c-2", name: "Qatar", code: "QA" },
         ],
         []
       ),

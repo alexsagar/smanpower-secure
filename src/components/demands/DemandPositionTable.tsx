@@ -54,6 +54,13 @@ export function DemandPositionTable({ demand, lang }: DemandPositionTableProps) 
                 </td>
                 <td className="px-4 py-4 text-center font-medium">
                   {pos.totalCount}
+                  {/* Breakdown appears only where it was recorded; legacy
+                      total-only rows stay exactly as they were. */}
+                  {pos.maleCount != null && pos.femaleCount != null && (
+                    <span className="block text-xs font-normal text-brand-charcoal/60">
+                      M: {pos.maleCount} · F: {pos.femaleCount}
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-4 text-right font-medium">
                   {pos.salaryCurrency} {pos.salaryAmount}

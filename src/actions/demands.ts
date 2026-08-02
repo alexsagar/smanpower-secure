@@ -8,19 +8,37 @@ import { z } from "zod";
 import { generateUniqueSlug } from "@/lib/slug";
 import { auth } from "@/lib/auth";
 import { uploadBufferToCloudinary } from "@/services/cloudinary.service";
+import { isReadvertisable } from "@/lib/demand-eligibility";
 
 import { OvertimeStatus, FacilityStatus, DemandStatus, DocumentVisibility, PassportStatus, ApplicationStatus } from "@prisma/client";
+
+// Optional free-text: trim, and treat blank/whitespace-only as absent so we
+// never persist "" for a requirement the employer simply did not specify.
+const optionalText = z.preprocess((v) => {
+  if (typeof v !== "string") return v ?? null;
+  const trimmed = v.trim();
+  return trimmed === "" ? null : trimmed;
+}, z.string().nullable().optional());
+
+// Vacancy counts: whole numbers only, never negative. Rejects decimals via
+// z.number().int() and NaN via the finite check.
+const vacancyCount = z
+  .number({ error: "Vacancy count must be a number" })
+  .int("Vacancy count must be a whole number")
+  .min(0, "Vacancy count cannot be negative")
+  .nullable()
+  .optional();
 
 // Strict Zod schema for Position payload
 const PositionSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "Position title is required"),
   totalCount: z.number().int().min(1).default(1),
-  maleCount: z.number().int().nullable().optional(),
-  femaleCount: z.number().int().nullable().optional(),
-  minimumQualification: z.string().nullable().optional(),
-  requiredExperience: z.string().nullable().optional(),
-  requiredSkills: z.string().nullable().optional(),
+  maleCount: vacancyCount,
+  femaleCount: vacancyCount,
+  minimumQualification: optionalText,
+  requiredExperience: optionalText,
+  requiredSkills: optionalText,
   salaryCurrency: z.string().nullable().optional(),
   salaryAmount: z.string().nullable().optional(),
   nprEquivalent: z.string().nullable().optional(),
@@ -35,7 +53,32 @@ const PositionSchema = z.object({
   accommodationNotes: z.string().nullable().optional(),
   contractPeriod: z.string().nullable().optional(),
   otherBenefits: z.string().nullable().optional(),
-});
+})
+  .superRefine((pos, ctx) => {
+    const hasGenderBreakdown =
+      pos.maleCount !== null && pos.maleCount !== undefined &&
+      pos.femaleCount !== null && pos.femaleCount !== undefined;
+
+    // Only enforce the breakdown rules when the admin actually supplied one.
+    // Legacy positions carry a bare totalCount and must stay valid.
+    if (hasGenderBreakdown && (pos.maleCount! + pos.femaleCount!) < 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["maleCount"],
+        message: "At least one male or female vacancy is required.",
+      });
+    }
+  })
+  .transform((pos) => {
+    // Total is derived server-side; a browser-calculated total is never trusted.
+    const hasGenderBreakdown =
+      pos.maleCount !== null && pos.maleCount !== undefined &&
+      pos.femaleCount !== null && pos.femaleCount !== undefined;
+
+    return hasGenderBreakdown
+      ? { ...pos, totalCount: pos.maleCount! + pos.femaleCount! }
+      : pos;
+  });
 
 // Strict Zod schema for Document payload
 const DocumentSchema = z.object({
@@ -576,16 +619,16 @@ export async function publishDemandAction(id: string) {
 
     // Positions check
     if (demand.positions.length === 0) throw new Error("At least one position is required to publish.");
-    const validPos = demand.positions.some(p => 
-      p.status === "OPEN" && 
-      p.isPublic && 
-      p.title && 
-      !!p.minimumQualification?.trim() && 
-      !!p.requiredExperience?.trim() && 
-      !!p.requiredSkills?.trim()
+    // Qualification, experience and skills are optional: many demands are
+    // genuinely entry-level. Requiring them forced admins to type filler like
+    // "Not required" into public-facing copy, so only the title is mandatory.
+    const validPos = demand.positions.some(p =>
+      p.status === "OPEN" &&
+      p.isPublic &&
+      !!p.title?.trim()
     );
     if (!validPos) {
-      throw new Error("At least one active public Position with complete details (title, qualifications, experience, skills) is required. Use 'Not required' or 'Training provided' for entry-level positions.");
+      throw new Error("At least one active public Position with a title is required to publish.");
     }
 
     const updated = await tx.demand.update({
@@ -702,6 +745,152 @@ export async function archiveDemandAction(id: string) {
 
   revalidateDemandCaches(demand.slug);
   return { success: true };
+}
+
+/**
+ * Clones a closed/expired demand into a brand new DRAFT that links back to the
+ * original. The original is never mutated: it keeps its applicants, documents,
+ * status history, publication dates and audit trail exactly as they were.
+ * Applicants are deliberately not copied - candidates apply to the new record.
+ */
+export async function readvertiseDemandAction(id: string) {
+  await requirePermission(DEMAND_PERMISSIONS.CREATE);
+  if (DEMO_MODE) throw new Error("Cannot readvertise demands in demo mode.");
+
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  try {
+    const created = await prisma.$transaction(async (tx) => {
+      const original = await tx.demand.findUnique({
+        where: { id },
+        include: { positions: true, documents: true },
+      });
+
+      if (!original) throw new Error("NOT_FOUND");
+
+      // Eligibility is enforced here, not just hidden in the UI.
+      if (!isReadvertisable(original)) throw new Error("NOT_ELIGIBLE");
+
+      const slug = await generateUniqueSlug(original.title, tx);
+
+      const clone = await tx.demand.create({
+        data: {
+          slug,
+          readvertisedFromId: original.id,
+          title: original.title,
+          companyName: original.companyName,
+          companyLogoId: original.companyLogoId,
+          featuredImageId: original.featuredImageId,
+          industryId: original.industryId,
+          countryId: original.countryId,
+          city: original.city,
+          employerAddress: original.employerAddress,
+          demandReferenceNumber: original.demandReferenceNumber,
+          contractType: original.contractType,
+          generalNotes: original.generalNotes,
+          enableApplication: original.enableApplication,
+          requiredApplicationDocuments: original.requiredApplicationDocuments,
+          candidateInstructions: original.candidateInstructions,
+          feeTransparencyNotice: original.feeTransparencyNotice,
+          candidateSafetyNotice: original.candidateSafetyNotice,
+          contactPerson: original.contactPerson,
+          contactPhone: original.contactPhone,
+          contactWhatsapp: original.contactWhatsapp,
+          applicationConfirmationMessage: original.applicationConfirmationMessage,
+          seoTitle: original.seoTitle,
+          metaDescription: original.metaDescription,
+          // Time-sensitive fields are intentionally left blank for the admin to
+          // re-enter: deadlines, interview details and approval/received dates
+          // from the previous advertisement must never be silently reused.
+          approvalDate: null,
+          receivedDate: null,
+          applicationStartDate: null,
+          applicationDeadline: null,
+          interviewDate: null,
+          interviewLocation: null,
+          // Canonical/OG URLs point at the original slug, so they are not copied.
+          ogImageUrl: null,
+          canonicalUrl: null,
+          createdById: userId,
+          status: DemandStatus.DRAFT,
+          isPublic: false,
+          publishedAt: null,
+          closedAt: null,
+          positions: {
+            create: original.positions.map((p, index) => ({
+              displayOrder: index,
+              title: p.title,
+              totalCount: p.totalCount,
+              maleCount: p.maleCount,
+              femaleCount: p.femaleCount,
+              minimumQualification: p.minimumQualification,
+              requiredExperience: p.requiredExperience,
+              requiredSkills: p.requiredSkills,
+              salaryCurrency: p.salaryCurrency,
+              salaryAmount: p.salaryAmount,
+              nprEquivalent: p.nprEquivalent,
+              overtimeStatus: p.overtimeStatus,
+              overtimeNotes: p.overtimeNotes,
+              workHoursPerDay: p.workHoursPerDay,
+              workDaysPerWeek: p.workDaysPerWeek,
+              annualLeave: p.annualLeave,
+              foodFacilityStatus: p.foodFacilityStatus,
+              foodFacilityNotes: p.foodFacilityNotes,
+              accommodationStatus: p.accommodationStatus,
+              accommodationNotes: p.accommodationNotes,
+              contractPeriod: p.contractPeriod,
+              otherBenefits: p.otherBenefits,
+              status: "OPEN" as const,
+              isPublic: true,
+            })),
+          },
+          documents: {
+            // Reuses the same MediaAssets; nothing is re-uploaded or detached
+            // from the original demand.
+            create: original.documents.map((d) => ({
+              documentType: d.documentType,
+              mediaAssetId: d.mediaAssetId,
+              title: d.title,
+              description: d.description,
+              visibility: d.visibility,
+              issueDate: d.issueDate,
+              expiryDate: d.expiryDate,
+            })),
+          },
+        },
+      });
+
+      if (userId) {
+        await tx.auditLog.create({
+          data: {
+            userId,
+            entity: "Demand",
+            action: "READVERTISE_DEMAND",
+            entityId: clone.id,
+            details: `Readvertised from demand ${original.id} (${original.slug}) into new draft ${clone.id} (${clone.slug})`,
+          },
+        });
+      }
+
+      return clone;
+    });
+
+    revalidateDemandCaches(created.slug);
+    return { success: true, data: { id: created.id, slug: created.slug } };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === "NOT_FOUND") {
+      return { success: false, formError: "Demand not found." };
+    }
+    if (err instanceof Error && err.message === "NOT_ELIGIBLE") {
+      return {
+        success: false,
+        formError: "Only closed or expired demands can be readvertised.",
+      };
+    }
+    console.error("Demand readvertise error:", err);
+    return { success: false, formError: "Could not readvertise this demand." };
+  }
 }
 
 export async function saveDemandDraftAction(id: string | null, formData: FormData) {

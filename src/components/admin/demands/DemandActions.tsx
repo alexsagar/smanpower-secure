@@ -3,9 +3,9 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Globe, X, Archive, MoreVertical } from "lucide-react";
+import { Globe, X, Archive, MoreVertical, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { publishDemandAction, closeDemandAction, archiveDemandAction } from "@/actions/demands";
+import { publishDemandAction, closeDemandAction, archiveDemandAction, readvertiseDemandAction } from "@/actions/demands";
 
 interface DemandActionsProps {
   demandId: string;
@@ -55,12 +55,22 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
         case "archive":
           res = await archiveDemandAction(demandId);
           break;
+        case "readvertise":
+          res = await readvertiseDemandAction(demandId);
+          break;
         default:
           return;
       }
 
       if (!res.success) {
         toast.error((res as any).formError || "Action failed.");
+      }
+
+      // Send the admin straight into the new draft to review the deadline,
+      // vacancy numbers and interview details before publishing.
+      if (res.success && action === "readvertise" && (res as any).data?.id) {
+        router.push(`/admin/demands/${(res as any).data.id}/edit`);
+        return;
       }
 
       router.refresh();
@@ -76,8 +86,11 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
   const canPublish = status === "DRAFT";
   const canClose = status === "PUBLISHED" || status === "DRAFT";
   const canArchive = status === "CLOSED";
+  // The server also permits a PUBLISHED demand whose deadline has passed; the
+  // menu only offers the unambiguous CLOSED case and defers to the server.
+  const canReadvertise = status === "CLOSED";
 
-  if (!canPublish && !canClose && !canArchive) return null;
+  if (!canPublish && !canClose && !canArchive && !canReadvertise) return null;
 
   return (
     <div className="relative">
@@ -107,6 +120,7 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
                   {confirmAction === "publish" && `Publish "${title}"? It will become publicly visible.`}
                   {confirmAction === "close" && `Close "${title}"? Applications will stop.`}
                   {confirmAction === "archive" && `Archive "${title}"? This soft-deletes it.`}
+                  {confirmAction === "readvertise" && `Readvertise "${title}"? This creates a new draft copy. The original demand and its applicants are left unchanged.`}
                 </p>
                 <div className="flex gap-2">
                   <button
@@ -146,6 +160,14 @@ export function DemandActions({ demandId, status, title }: DemandActionsProps) {
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-red-50 text-red-700 transition-colors"
                   >
                     <X className="w-4 h-4" /> Close
+                  </button>
+                )}
+                {canReadvertise && (
+                  <button
+                    onClick={() => setConfirmAction("readvertise")}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-green-50 text-green-700 transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Readvertise
                   </button>
                 )}
                 {canArchive && (

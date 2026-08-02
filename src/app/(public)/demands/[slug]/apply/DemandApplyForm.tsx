@@ -7,6 +7,19 @@ import { Upload, AlertCircle, CheckCircle, ChevronRight, Loader2 } from "lucide-
 import { CmsDemand } from "@/types/content";
 import { applyToDemandAction } from "@/actions/demands";
 
+// The browser's default "Choose file" button renders borderless and is easy to
+// miss. These file:* utilities give it a real outline plus hover/focus/disabled
+// states, without hiding the input (keyboard users still tab straight to it).
+const FILE_INPUT_CLASS = [
+  "mt-4 w-full text-xs text-brand-charcoal",
+  "file:mr-3 file:rounded-sm file:border file:border-brand-charcoal/40",
+  "file:bg-white file:px-4 file:py-2",
+  "file:text-xs file:font-semibold file:uppercase file:tracking-wider file:text-brand-black",
+  "file:cursor-pointer hover:file:border-brand-gold hover:file:bg-brand-gold/10",
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2",
+  "disabled:opacity-50 disabled:file:cursor-not-allowed",
+].join(" ");
+
 interface DemandApplyFormProps {
   demand: CmsDemand;
   selectedPositionId?: string;
@@ -43,6 +56,15 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
     }
   }, [state?.success]);
 
+  // A Turnstile token is single-use. After any server-side rejection the token
+  // already in the form is spent, so without this reset every retry fails with
+  // a token error even once the applicant has corrected the real problem.
+  useEffect(() => {
+    if (state && !state.success) {
+      (window as any).turnstile?.reset();
+    }
+  }, [state]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
@@ -77,11 +99,13 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
       <input type="hidden" name="demandId" value={demand.id} />
       
       {state?.formError && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-sm border border-red-200 mb-8 flex items-start gap-3">
+        <div role="alert" className="bg-red-50 text-red-700 p-4 rounded-sm border border-red-200 mb-8 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
-            <p className="font-bold">{state.formError}</p>
-            <p className="text-sm">{state.message}</p>
+            {/* Lead with the human-readable message; the raw code (e.g.
+                MISSING_TOKEN) is only a support reference, not a headline. */}
+            <p className="font-bold">{state.message || "We could not submit your application."}</p>
+            <p className="text-xs mt-1 text-red-600/80">Reference: {state.formError}</p>
           </div>
         </div>
       )}
@@ -258,31 +282,39 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border-2 border-dashed border-brand-charcoal/20 p-6 text-center rounded-sm bg-brand-charcoal/5">
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
-            <p className="font-semibold text-brand-black text-sm">Upload CV (Optional)</p>
-            <p className="text-xs text-brand-charcoal/60 mt-1">PDF only, up to 5MB</p>
+            <label htmlFor="cvFile" className="font-semibold text-brand-black text-sm block cursor-pointer">
+              Upload CV (Optional)
+            </label>
+            <p id="cvFile-hint" className="text-xs text-brand-charcoal/60 mt-1">PDF only, up to 5MB</p>
             <input
+              id="cvFile"
               type="file"
               name="cvFile"
               accept=".pdf"
               disabled={isPending}
+              aria-describedby="cvFile-hint"
               onChange={(event) => setCvFileName(event.target.files?.[0]?.name || "")}
-              className="mt-4 w-full text-xs disabled:opacity-50"
+              className={FILE_INPUT_CLASS}
             />
-            {cvFileName && <p className="mt-2 truncate text-xs text-brand-gold">{cvFileName}</p>}
+            {cvFileName && <p className="mt-2 truncate text-xs text-brand-gold">Selected: {cvFileName}</p>}
           </div>
           <div className="border-2 border-dashed border-brand-charcoal/20 p-6 text-center rounded-sm bg-brand-charcoal/5">
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
-            <p className="font-semibold text-brand-black text-sm">Trade Certificate (Optional)</p>
-            <p className="text-xs text-brand-charcoal/60 mt-1">PDF, JPG, PNG up to 5MB</p>
+            <label htmlFor="certFile" className="font-semibold text-brand-black text-sm block cursor-pointer">
+              Trade Certificate (Optional)
+            </label>
+            <p id="certFile-hint" className="text-xs text-brand-charcoal/60 mt-1">PDF, JPG, PNG up to 5MB</p>
             <input
+              id="certFile"
               type="file"
               name="certFile"
               accept=".pdf,.jpg,.jpeg,.png"
               disabled={isPending}
+              aria-describedby="certFile-hint"
               onChange={(event) => setCertFileName(event.target.files?.[0]?.name || "")}
-              className="mt-4 w-full text-xs disabled:opacity-50"
+              className={FILE_INPUT_CLASS}
             />
-            {certFileName && <p className="mt-2 truncate text-xs text-brand-gold">{certFileName}</p>}
+            {certFileName && <p className="mt-2 truncate text-xs text-brand-gold">Selected: {certFileName}</p>}
           </div>
         </div>
       </div>
@@ -358,8 +390,14 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
 
       {process.env.NEXT_PUBLIC_TURNSTILE_ENABLED === "true" && (
         <div className="mb-8 flex justify-center">
-          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
-          <div className="cf-turnstile" data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}></div>
+          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
+          {/* data-refresh-expired keeps the token valid on long forms, where the
+              applicant can easily outlast Turnstile's ~5 minute token lifetime. */}
+          <div
+            className="cf-turnstile"
+            data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+            data-refresh-expired="auto"
+          ></div>
         </div>
       )}
 

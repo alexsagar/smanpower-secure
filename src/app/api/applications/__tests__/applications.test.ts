@@ -234,4 +234,26 @@ describe("ApplicationSubmissionService", () => {
       "staging/seven-seas-candidates/candidate-cv"
     );
   });
+
+  // Regression: the Turnstile widget posts a hidden input literally named
+  // "cf-turnstile-response". The service previously only read the camelCase
+  // spelling, so every real browser submission verified a null token and was
+  // rejected with MISSING_TOKEN, while this suite passed by posting the
+  // camelCase name the browser never sends.
+  it("reads the token from the cf-turnstile-response field the widget posts", async () => {
+    const formData = buildApplicationFormData();
+    formData.delete("cfTurnstileResponse");
+    formData.append("cf-turnstile-response", "WIDGET_TOKEN");
+
+    await ApplicationSubmissionService.submitApplication(
+      formData,
+      "127.0.0.1",
+      "test-agent"
+    );
+
+    expect(verifyTurnstileTokenMock).toHaveBeenCalledWith(
+      "WIDGET_TOKEN",
+      "candidate_application"
+    );
+  });
 });

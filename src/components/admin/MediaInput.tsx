@@ -13,6 +13,8 @@ interface MediaInputProps {
   allowedResourceTypes?: Array<"IMAGE" | "VIDEO" | "DOCUMENT">;
   uploadPurpose?: MediaPurpose;
   helperText?: string;
+  previewUrl?: string;
+  previewFit?: "cover" | "contain";
 }
 
 /**
@@ -35,6 +37,8 @@ export function MediaInput({
   allowedResourceTypes,
   uploadPurpose,
   helperText,
+  previewUrl,
+  previewFit = "cover",
 }: MediaInputProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -51,10 +55,10 @@ export function MediaInput({
       >
         {value ? (
           <>
-            {isPreviewableUrl(value) ? (
-              isVideoUrl(value) ? (
+            {isPreviewableUrl(previewUrl || value) ? (
+              isVideoUrl(previewUrl || value) ? (
                 <video
-                  src={value}
+                  src={previewUrl || value}
                   className="absolute inset-0 h-full w-full object-cover"
                   muted
                   playsInline
@@ -62,11 +66,11 @@ export function MediaInput({
                 />
               ) : (
                 <Image
-                  src={value}
+                  src={previewUrl || value}
                   alt={`${label} preview`}
                   fill
                   sizes="(max-width: 768px) 100vw, 400px"
-                  className="object-cover"
+                  className={previewFit === "contain" ? "object-contain" : "object-cover"}
                 />
               )
             ) : (

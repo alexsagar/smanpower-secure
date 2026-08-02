@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { MediaInput } from "@/components/admin/MediaInput";
 
 interface Country {
   id: string;
   name: string;
-  code: string;
+  code?: string | null;
 }
 
 interface Industry {
@@ -14,22 +14,22 @@ interface Industry {
   name: string;
 }
 
-export function DemandStep1Company({ data, updateData }: { data: any; updateData: (d: any) => void }) {
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [industries, setIndustries] = useState<Industry[]>([]);
-
-  useEffect(() => {
-    // Load lookup data via lightweight API
-    fetch("/api/admin/lookups?type=countries")
-      .then(r => r.json())
-      .then(data => setCountries(data || []))
-      .catch(() => setCountries([]));
-
-    fetch("/api/admin/lookups?type=industries")
-      .then(r => r.json())
-      .then(data => setIndustries(data || []))
-      .catch(() => setIndustries([]));
-  }, []);
+// Countries and industries are loaded server-side by the page and passed in.
+// They were previously fetched client-side in an effect whose .catch swallowed
+// every failure, so a slow or failed lookup rendered a permanently empty
+// selector with no loading state, no error and no way to retry.
+export function DemandStep1Company({
+  data,
+  updateData,
+  countries,
+  industries,
+}: {
+  data: any;
+  updateData: (d: any) => void;
+  countries: Country[];
+  industries: Industry[];
+}) {
+  const countriesUnavailable = countries.length === 0;
 
   return (
     <div className="space-y-6">
@@ -85,28 +85,42 @@ export function DemandStep1Company({ data, updateData }: { data: any; updateData
 
         <div className="md:col-span-2">
           <MediaInput
-            label="Featured Image"
-            helperText="Optional. Shown at the top of the public demand page."
+            label="Demand Letter / Featured Image"
+            helperText="Optional. Shown in full at the top of the public demand page."
             allowedResourceTypes={["IMAGE"]}
             uploadPurpose="demand_image"
             value={data.featuredImageId || ""}
-            onChange={(id) => updateData({ featuredImageId: id })}
+            previewUrl={data.featuredImageUrl || data.featuredImage?.fileUrl}
+            previewFit="contain"
+            onChange={(id, url) => updateData({ featuredImageId: id, featuredImageUrl: url })}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Country <span className="text-red-500">*</span></label>
+          <label htmlFor="demand-country" className="block text-sm font-semibold mb-2">
+            Country <span className="text-red-500">*</span>
+          </label>
           <select
+            id="demand-country"
             value={data.countryId || ""}
             onChange={(e) => updateData({ countryId: e.target.value })}
-            className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2"
+            className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2 disabled:bg-brand-charcoal/5 disabled:cursor-not-allowed"
             required
+            disabled={countriesUnavailable}
+            aria-describedby={countriesUnavailable ? "demand-country-error" : undefined}
           >
             <option value="">-- Select Country --</option>
             {countries.map(c => (
-              <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+              <option key={c.id} value={c.id}>
+                {c.code ? `${c.name} (${c.code})` : c.name}
+              </option>
             ))}
           </select>
+          {countriesUnavailable && (
+            <p id="demand-country-error" role="alert" className="mt-2 text-sm text-red-700">
+              The country list could not be loaded. Reload this page to try again.
+            </p>
+          )}
         </div>
 
         <div>

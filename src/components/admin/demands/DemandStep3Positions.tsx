@@ -1,6 +1,21 @@
 import React from "react";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 
+// Blank clears the value back to null rather than coercing to 0, so a legacy
+// position that only ever had a total is not silently assigned a gender split.
+function parseVacancy(raw: string): number | null {
+  if (raw.trim() === "") return null;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
+// Mirrors the server's derivation: total is male + female once both are given,
+// otherwise the position keeps its existing stored total.
+function displayTotal(pos: any): number {
+  const hasBreakdown = pos.maleCount != null && pos.femaleCount != null;
+  return hasBreakdown ? pos.maleCount + pos.femaleCount : (pos.totalCount ?? 0);
+}
+
 export function DemandStep3Positions({ data, updateData }: { data: any; updateData: (d: any) => void }) {
   const addPosition = () => {
     const newPositions = [
@@ -81,7 +96,7 @@ export function DemandStep3Positions({ data, updateData }: { data: any; updateDa
               </div>
 
               <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div className="md:col-span-8">
+                <div className="md:col-span-6">
                   <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Position Title <span className="text-red-500">*</span></label>
                   <input
                     type="text"
@@ -92,17 +107,47 @@ export function DemandStep3Positions({ data, updateData }: { data: any; updateDa
                     required
                   />
                 </div>
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Total Count <span className="text-red-500">*</span></label>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Male Required</label>
                   <input
                     type="number"
-                    value={pos.totalCount}
-                    onChange={(e) => updatePosition(pos.id, "totalCount", parseInt(e.target.value) || 1)}
+                    value={pos.maleCount ?? ""}
+                    onChange={(e) => updatePosition(pos.id, "maleCount", parseVacancy(e.target.value))}
                     className="w-full border-brand-charcoal/20 rounded-sm text-sm"
-                    min="1"
-                    required
+                    min="0"
+                    step="1"
+                    placeholder="0"
                   />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Female Required</label>
+                  <input
+                    type="number"
+                    value={pos.femaleCount ?? ""}
+                    onChange={(e) => updatePosition(pos.id, "femaleCount", parseVacancy(e.target.value))}
+                    className="w-full border-brand-charcoal/20 rounded-sm text-sm"
+                    min="0"
+                    step="1"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Total</label>
+                  {/* Read-only: the server recomputes this from male + female, so
+                      a browser-side figure is never what gets stored. */}
+                  <input
+                    type="number"
+                    value={displayTotal(pos)}
+                    className="w-full border-brand-charcoal/20 rounded-sm text-sm bg-brand-charcoal/5"
+                    readOnly
+                    aria-describedby={`total-hint-${pos.id}`}
+                  />
+                </div>
+                <p id={`total-hint-${pos.id}`} className="md:col-span-12 -mt-3 text-xs text-brand-charcoal/60">
+                  Enter how many male and female workers are required. Zero is allowed for either,
+                  but the total must be at least one. Leave both blank to keep an existing
+                  total-only vacancy count unchanged.
+                </p>
 
                 <div className="md:col-span-3">
                   <label className="block text-xs font-semibold mb-1 uppercase tracking-wider">Currency <span className="text-red-500">*</span></label>

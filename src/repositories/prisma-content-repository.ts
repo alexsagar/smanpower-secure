@@ -1192,6 +1192,8 @@ export class PrismaContentRepository implements ContentRepository {
       generalNotes: r.generalNotes || undefined,
       status: r.status,
       statusBadge: this.mapDemandStatusBadge(r),
+      // Derived from the actual relation, never from the title text.
+      isReadvertisement: Boolean(r.readvertisedFromId),
       isPublic: r.isPublic,
       enableApplication: r.enableApplication,
       requiredApplicationDocuments: r.requiredApplicationDocuments || undefined,

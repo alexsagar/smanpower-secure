@@ -27,6 +27,7 @@ describe("featured image", () => {
   it("reuses the shared MediaInput rather than a new uploader", () => {
     expect(step1).toContain('from "@/components/admin/MediaInput"');
     expect(step1).toContain("featuredImageId: id");
+    expect(step1).toContain('previewFit="contain"');
     expect(step1).toContain('allowedResourceTypes={["IMAGE"]}');
     expect(step1).not.toMatch(/type="file"|FormData\(\)/);
   });
@@ -45,6 +46,11 @@ describe("featured image", () => {
     expect(publicPage).toContain("{demand.featuredImage && (");
     // No placeholder/fallback branch — the area collapses entirely.
     expect(publicPage).not.toMatch(/demand\.featuredImage\s*\?/);
+  });
+
+  it("renders the demand letter through the contained full-image viewer", () => {
+    expect(publicPage).toContain("<DemandLetterImage");
+    expect(publicPage).not.toContain('className="object-cover"');
   });
 });
 

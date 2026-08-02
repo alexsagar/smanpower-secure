@@ -533,6 +533,8 @@ export interface CmsDemand {
   generalNotes?: string;
   status: DemandStatusValue;
   statusBadge: DemandStatusBadge;
+  /** True when this demand was created by readvertising an earlier one. */
+  isReadvertisement?: boolean;
   isPublic: boolean;
   // Application settings
   enableApplication: boolean;

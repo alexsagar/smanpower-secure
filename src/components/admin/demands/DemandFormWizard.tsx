@@ -18,7 +18,15 @@ const STEPS = [
   { id: 5, title: "SEO & Publishing" },
 ];
 
-export function DemandFormWizard({ initialData }: { initialData?: any }) {
+export function DemandFormWizard({
+  initialData,
+  countries = [],
+  industries = [],
+}: {
+  initialData?: any;
+  countries?: { id: string; name: string; code?: string | null }[];
+  industries?: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,7 +168,14 @@ export function DemandFormWizard({ initialData }: { initialData?: any }) {
 
       {/* Wizard Body */}
       <div className="p-6 md:p-8 min-h-[500px]">
-        {currentStep === 1 && <DemandStep1Company data={formData} updateData={updateFormData} />}
+        {currentStep === 1 && (
+          <DemandStep1Company
+            data={formData}
+            updateData={updateFormData}
+            countries={countries}
+            industries={industries}
+          />
+        )}
         {currentStep === 2 && <DemandStep2Documents data={formData} updateData={updateFormData} />}
         {currentStep === 3 && <DemandStep3Positions data={formData} updateData={updateFormData} />}
         {currentStep === 4 && <DemandStep4Application data={formData} updateData={updateFormData} />}

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getAdminDemandById } from "@/services/demand.service";
 import { DemandFormWizard } from "@/components/admin/demands/DemandFormWizard";
+import { getAdminCountriesAndIndustries } from "@/services/admin.service";
 
 export const metadata = {
   title: "Edit Demand | Admin",
@@ -11,7 +12,10 @@ export const metadata = {
 
 export default async function EditDemandPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const demand = await getAdminDemandById(resolvedParams.id);
+  const [demand, { countries, industries }] = await Promise.all([
+    getAdminDemandById(resolvedParams.id),
+    getAdminCountriesAndIndustries(),
+  ]);
 
   if (!demand) {
     notFound();
@@ -47,7 +51,7 @@ export default async function EditDemandPage({ params }: { params: Promise<{ id:
         <p className="text-sm text-brand-charcoal/70">Update the details for this demand.</p>
       </div>
 
-      <DemandFormWizard initialData={initialData} />
+      <DemandFormWizard initialData={initialData} countries={countries} industries={industries} />
     </div>
   );
 }
