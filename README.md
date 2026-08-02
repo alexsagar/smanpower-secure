@@ -52,6 +52,10 @@ For Neon:
 - `DATABASE_URL`: pooled connection URL, usually the `-pooler` host, used by the running app.
 - `DIRECT_URL`: direct/non-pooled connection URL, used by Prisma migrations.
 
+`DATABASE_URL` must not contain `channel_binding=require` — the Neon serverless driver rejects it. Strip that parameter from the URL Neon gives you.
+
+On Cloudflare Workers the app runs through the Prisma driver adapter (`@prisma/adapter-neon` + `@neondatabase/serverless`, wired up in `src/lib/prisma.ts`), because workerd forbids the code generation the standard Prisma query engine needs. Keep `previewFeatures = ["driverAdapters"]` in `prisma/schema.prisma` and always go through the shared `prisma` singleton in server code — a bare `new PrismaClient()` will fail at runtime on the Worker.
+
 Generate the client and apply existing migrations:
 
 ```bash

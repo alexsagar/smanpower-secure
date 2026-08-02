@@ -26,10 +26,8 @@ const prismaMock = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@prisma/client", () => ({
-  PrismaClient: vi.fn(function MockPrismaClient() {
-    return prismaMock;
-  }),
+vi.mock("@/lib/prisma", () => ({
+  prisma: prismaMock,
 }));
 
 describe("Prisma content repository helpers", () => {

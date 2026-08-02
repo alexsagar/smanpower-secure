@@ -1,7 +1,7 @@
 import "server-only";
 
-import { PrismaClient } from "@prisma/client";
 import { logger } from "@/lib/logger";
+import { prisma } from "@/lib/prisma";
 import { cmsMediaResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
 import type {
   CmsPage,
@@ -31,8 +31,6 @@ import type {
   MediaVisibility,
 } from "@/types/content";
 import type { ContentRepository } from "./content-repository";
-
-const prisma = new PrismaClient();
 
 const COMPATIBILITY_FAX_DISPLAY = "Fax: +977-1-4479655";
 const COMPATIBILITY_FAX_HREF = "tel:+977-1-4479655";

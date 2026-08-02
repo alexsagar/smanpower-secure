@@ -19,12 +19,8 @@ const prismaMock = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@prisma/client", () => ({
-  PrismaClient: class PrismaClient {
-    constructor() {
-      return prismaMock;
-    }
-  },
+vi.mock("@/lib/prisma", () => ({
+  prisma: prismaMock,
 }));
 
 vi.mock("server-only", () => ({}));
