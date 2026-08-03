@@ -58,7 +58,7 @@ export function DemandPositionTable({ demand, lang }: DemandPositionTableProps) 
                       total-only rows stay exactly as they were. */}
                   {pos.maleCount != null && pos.femaleCount != null && (
                     <span className="block text-xs font-normal text-brand-charcoal/60">
-                      M: {pos.maleCount} · F: {pos.femaleCount}
+                      Male: {pos.maleCount} · Female: {pos.femaleCount}
                     </span>
                   )}
                 </td>

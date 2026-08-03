@@ -789,7 +789,9 @@ export async function readvertiseDemandAction(id: string) {
           demandReferenceNumber: original.demandReferenceNumber,
           contractType: original.contractType,
           generalNotes: original.generalNotes,
-          enableApplication: original.enableApplication,
+          // Closing the original disables applications. A readvertisement is a
+          // new application cycle, so do not inherit that closed-state flag.
+          enableApplication: true,
           requiredApplicationDocuments: original.requiredApplicationDocuments,
           candidateInstructions: original.candidateInstructions,
           feeTransparencyNotice: original.feeTransparencyNotice,

@@ -133,7 +133,7 @@ export default async function DemandDetailPage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
         <DemandCompanyStrip demand={demand} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-brand-charcoal/10 border border-brand-charcoal/10 mb-12" aria-label="Demand details">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-brand-charcoal/10 border border-brand-charcoal/10 mb-12" aria-label="Demand details">
           <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Application Status</p><p className="font-semibold mt-1">{demand.applicationStatusLabel}</p></div>
           {demand.interviewDate && <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Interview Date</p><p className="font-semibold mt-1 flex items-center gap-2"><Calendar className="w-4 h-4 text-brand-gold" /><time dateTime={toDateOnly(demand.interviewDate)}>{formatDemandDate(demand.interviewDate)}</time></p></div>}
           {demand.maleVacancies != null && demand.femaleVacancies != null && <>

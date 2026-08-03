@@ -326,6 +326,7 @@ describe("readvertiseDemandAction", () => {
     expect(created.readvertisedFromId).toBe("demand-1");
     expect(created.status).toBe("DRAFT");
     expect(created.isPublic).toBe(false);
+    expect(created.enableApplication).toBe(true);
     expect(created.publishedAt).toBeNull();
     expect(created.slug).toBe("generated-slug");
 
