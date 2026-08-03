@@ -68,7 +68,7 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     faqsEyebrow: "Common Questions",
     faqsHeading: "What Employers Ask.",
     faqs: [
-      { q: "Do candidates pay any recruitment fees?", a: "No. We operate strictly on the employer-pays principle. Candidates are never charged placement or processing fees." },
+      { q: "Do candidates pay any recruitment fees?", a: "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer." },
       { q: "How quickly can you mobilise a workforce?", a: "Timelines depend on role, volume, and government processing, but our streamlined documentation and DOFE relationships keep deployment on schedule." },
       { q: "Can we interview candidates before selection?", a: "Yes. You can conduct interviews and monitor trade tests remotely by live video or send your own assessors to our facilities." },
     ],
@@ -92,8 +92,8 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     faqsHeading: "Ethical Recruitment, Explained.",
     faqs: [
       { q: "What does the employer-pays principle mean?", a: "All recruitment costs — flights, visas, medicals, and agency fees — are borne by the employer, never the worker." },
-      { q: "How do you prevent forced labour?", a: "Workers keep their own passports and documents, contracts are transparent, and our sourcing network is audited against RBA standards." },
-      { q: "What happens if a worker has a complaint abroad?", a: "They can report anonymously through our 24/7 grievance channels, and dedicated welfare officers investigate every case." },
+      { q: "How do you prevent forced labour?", a: "Workers keep their own passports and documents, contracts are transparent, and our sourcing network is assessed against the Responsible Business Alliance Code of Conduct." },
+      { q: "What happens if a worker has a complaint abroad?", a: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours, then investigated by our welfare team. Reports can be made anonymously." },
     ],
     cta: {
       heading: "Recruitment done the right way.",
@@ -109,14 +109,14 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
       { title: "Sector Mapping", desc: "We translate your industry's role requirements and standards into a targeted sourcing plan for the Nepali talent pool." },
       { title: "Skill Verification", desc: "Candidates prove practical competency through trade testing in environments that mirror the actual work site." },
       { title: "Readiness Training", desc: "Pre-deployment orientation covers safety, culture, and industry-specific practices so workers are productive from day one." },
-      { title: "Deployment & Support", desc: "We handle documentation and travel, then stay engaged through our on-ground offices in destination countries." },
+      { title: "Deployment & Support", desc: "We handle documentation and travel, then stay engaged through coordination with employers and partners in destination countries." },
     ],
     faqsEyebrow: "Common Questions",
     faqsHeading: "Sourcing For Your Sector.",
     faqs: [
       { q: "Are candidates skill-tested for this industry?", a: "Yes. Every candidate is trade-tested against sector standards before being shortlisted for deployment." },
       { q: "Can you supply workers at scale?", a: "Our nationwide sourcing network lets us run industry-specific recruitment drives to meet high-volume requirements." },
-      { q: "Which destination countries do you serve?", a: "We deploy across the Gulf, Europe, and Asia, with coordination offices supporting workers after arrival." },
+      { q: "Which destination countries do you serve?", a: "We deploy across the Gulf, Europe, and Asia, with destination-country coordination supporting workers after arrival." },
     ],
     cta: {
       heading: "Need skilled talent for your sector?",
@@ -153,7 +153,7 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     processHeading: "Compliance You Can Verify.",
     process: [
       { title: "Government Licensing", desc: "We operate under full authorization from Nepal's Department of Foreign Employment, maintained through regular audits." },
-      { title: "International Standards", desc: "Our processes are certified against ISO quality management and aligned with the Responsible Business Alliance code." },
+      { title: "International Standards", desc: "Our processes are ISO 9001:2015 certified and compliant with the Responsible Business Alliance Code of Conduct." },
       { title: "Open Documentation", desc: "Licenses, certifications, and compliance records are available for employer review under our open-book policy." },
       { title: "Independent Audits", desc: "We submit to unannounced third-party checks and maintain a flawless regulatory compliance record." },
     ],
@@ -161,7 +161,7 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     faqsHeading: "Trust & Compliance.",
     faqs: [
       { q: "Is Seven Seas government licensed?", a: "Yes. We are fully licensed by the Department of Foreign Employment (DOFE), Nepal, with a clean compliance record." },
-      { q: "What certifications do you hold?", a: "We hold ISO 9001:2015 for quality management and operate on a Responsible Business Alliance–aligned framework." },
+      { q: "What certifications and standards do you hold?", a: "We are ISO 9001:2015 certified for quality management, and our recruitment practices are RBA-compliant and Sedex-compliant." },
       { q: "Can we review your compliance documents?", a: "Absolutely. Our major licenses, tax clearances, and certifications are open for partner review." },
     ],
     cta: {
@@ -262,12 +262,12 @@ export const employersContent: PageContent[] = [
     missionHeading: "Beyond the Flight.",
     missionText: [
       "Our responsibility does not end when the candidate boards the plane. We manage flight logistics, airport transfers, and maintain a 24/7 welfare hotline.",
-      "With coordination offices in the Middle East, we are always on hand to resolve grievances and support both the worker and the employer."
+      "Through coordination with employers and partners in destination countries, we are always on hand to resolve grievances and support both the worker and the employer."
     ],
     features: [
       { title: "Flight Logistics", desc: "Coordinating bulk travel arrangements." },
       { title: "24/7 Hotline", desc: "Always-on grievance mechanism for deployed workers." },
-      { title: "On-Ground Offices", desc: "Physical presence in major destination countries." }
+      { title: "Destination-Country Coordination", desc: "Ongoing coordination with employers and partners in destination countries." }
     ]
   },
   {
@@ -281,16 +281,16 @@ export const employersContent: PageContent[] = [
 export const ethicalContent: PageContent[] = [
   {
     slug: "rba-aligned-practices",
-    title: "RBA-Aligned Recruitment Practices.",
-    subtitle: "RBA Alignment",
+    title: "RBA-Compliant Recruitment Practices.",
+    subtitle: "RBA Compliance",
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
-    missionHeading: "What RBA Alignment Means — And How We Apply It.",
+    missionHeading: "What RBA Compliance Means — And How We Apply It.",
     overviewSubtitle: "The Standard Explained",
     missionText: [
       "The Responsible Business Alliance (RBA) Code of Conduct is one of the world's most widely adopted standards for labour rights in global supply chains. Its provisions are drawn from international instruments — the UN Guiding Principles on Business and Human Rights, core ILO Conventions, and the ILO General Principles and Operational Guidelines for Fair Recruitment — and increasingly define what international employers expect of the agencies that recruit for them.",
-      "Seven Seas Intercontinental is a recruitment agency licensed by the Department of Foreign Employment (DoFE), Government of Nepal. We are not a manufacturer or an RBA member company, so we do not claim RBA membership. What we do is align our own operating procedures with the labour provisions of the RBA Code of Conduct, so that a worker we place is recruited to the same standard a responsible international employer is required to uphold.",
-      "In practice, that alignment rests on a few non-negotiable commitments: employment must be freely chosen; no worker may be charged a recruitment fee; every worker must receive a written contract in a language they understand; and workers must be treated humanely, without discrimination, with safe conditions and lawful working hours. These are the same principles an RBA or SMETA social audit would assess, and we hold ourselves to them whether or not a specific client requires an audit.",
-      "Because most exploitation enters a supply chain through unregulated sub-agents and brokers, our alignment work concentrates there. We source only through vetted partners who accept these standards in writing, we verify the terms a worker is offered before departure, and we act on any breach rather than looking away. Ethical recruitment is a continuous due-diligence process, not a certificate on a wall.",
+      "Seven Seas Intercontinental is a recruitment agency licensed by the Department of Foreign Employment (DoFE), Government of Nepal. Seven Seas Intercontinental is not presented as an RBA membership organization; its recruitment practices are designed to comply with the labour and ethical-recruitment requirements of the RBA Code of Conduct, so that a worker we place is recruited to the same standard a responsible international employer is required to uphold.",
+      "In practice, that compliance rests on a few non-negotiable commitments: employment must be freely chosen; no worker may be charged a recruitment fee; every worker must receive a written contract in a language they understand; and workers must be treated humanely, without discrimination, with safe conditions and lawful working hours. These are the same principles an RBA or SMETA social audit would assess, and we hold ourselves to them whether or not a specific client requires an audit.",
+      "Because most exploitation enters a supply chain through unregulated sub-agents and brokers, our compliance work concentrates there. We source only through vetted partners who accept these standards in writing, we verify the terms a worker is offered before departure, and we act on any breach rather than looking away. Ethical recruitment is a continuous due-diligence process, not a certificate on a wall.",
     ],
     featuresEyebrow: "The RBA Labour Provisions We Uphold",
     featuresHeading: "Six Commitments Behind Every Placement.",
@@ -303,7 +303,7 @@ export const ethicalContent: PageContent[] = [
       { title: "Due Diligence & Remedy", desc: "Ongoing monitoring of our sourcing network, with corrective action, blacklisting, and worker remediation when standards are breached." },
     ],
     processEyebrow: "How We Operationalise It",
-    processHeading: "Our RBA-Aligned Due-Diligence Cycle.",
+    processHeading: "Our RBA-Compliant Due-Diligence Cycle.",
     process: [
       { title: "Policy Commitment", desc: "Our recruitment policy adopts the RBA labour provisions and the Employer-Pays Principle as binding internal rules for all staff and partners." },
       { title: "Partner Vetting & Onboarding", desc: "Every sub-agent and employer signs up to these standards in writing before any candidate is sourced through them. Unregulated brokers are excluded." },
@@ -311,12 +311,12 @@ export const ethicalContent: PageContent[] = [
       { title: "Monitoring & Corrective Action", desc: "We stay engaged after deployment through our destination-country contacts, investigate concerns, and remediate or terminate partners who breach the code." },
     ],
     faqsEyebrow: "Honest Answers",
-    faqsHeading: "RBA Alignment, Clarified.",
+    faqsHeading: "RBA Compliance, Clarified.",
     faqs: [
-      { q: "Are you an RBA member or RBA-certified?", a: "No. The RBA's membership is for brands and manufacturers. As a licensed recruitment agency we align our procedures with the labour provisions of the RBA Code of Conduct — we do not claim membership or certification we don't hold." },
+      { q: "Are you an RBA membership organization?", a: "We are not presented as an RBA membership organization and do not claim RBA certification. As a licensed recruitment agency, our recruitment practices are RBA-compliant — designed to meet the labour provisions of the RBA Code of Conduct." },
       { q: "Which standards actually inform your framework?", a: "The RBA Code of Conduct, the ILO General Principles and Operational Guidelines for Fair Recruitment, the IOM IRIS principles of ethical recruitment, the Dhaka Principles for Migration with Dignity, and Nepal's Foreign Employment Act, 2007." },
       { q: "What is the single most important RBA principle for a migrant worker?", a: "That employment is freely chosen and free of worker-paid fees. Fees charged to workers are the most common route into debt bondage and forced labour, which is why we prohibit them outright." },
-      { q: "What happens if one of your partners breaches the code?", a: "We investigate, ensure any worker-paid fee is repaid, require corrective action, and blacklist partners who will not comply. Alignment is enforced, not assumed." },
+      { q: "What happens if one of your partners breaches the code?", a: "We investigate, ensure any worker-paid fee is repaid, require corrective action, and blacklist partners who will not comply. Compliance is enforced, not assumed." },
     ],
   },
   {

@@ -1,48 +1,72 @@
 import { getContentRepository } from "@/repositories/content-resolver";
 import { getSiteUrl } from "@/lib/seo/site-config";
+import { COMPLIANCE, ZERO_FEE_STATEMENT, OFFICE } from "@/config/approved-content";
 
 export const dynamic = "force-dynamic";
 
-const publicPaths = [
-  ["About", "/about"],
-  ["Employers", "/employers"],
-  ["Open demands", "/demands"],
-  ["Industries", "/industries"],
-  ["Ethical recruitment", "/ethical-recruitment"],
-  ["Training facilities", "/training-facilities"],
-  ["Trust centre", "/trust-centre"],
-  ["Success stories", "/success-stories"],
-  ["Insights", "/insights"],
-  ["Contact", "/contact"],
-] as const;
+// Grouped public routes only. No admin/api/apply/preview/applicant URLs.
+const SECTIONS: { heading: string; links: [string, string][] }[] = [
+  {
+    heading: "For Employers",
+    links: [
+      ["Employer services", "/employers"],
+      ["Request a workforce", "/employers/request-workforce"],
+      ["Industries", "/industries"],
+      ["Training and facilities", "/training-facilities"],
+    ],
+  },
+  {
+    heading: "For Candidates",
+    links: [
+      ["Current demands", "/demands"],
+      ["Ethical recruitment", "/ethical-recruitment"],
+      ["Worker grievance", "/worker-grievance"],
+    ],
+  },
+  {
+    heading: "Trust and Information",
+    links: [
+      ["Trust centre", "/trust-centre"],
+      ["About", "/about"],
+      ["News", "/news"],
+      ["Insights", "/insights"],
+      ["Careers", "/careers"],
+      ["Privacy policy", "/privacy-policy"],
+      ["Terms of service", "/terms-of-service"],
+      ["Contact", "/contact"],
+    ],
+  },
+];
 
 export async function GET() {
   const settings = await getContentRepository().getSiteSettings();
   const baseUrl = getSiteUrl() || settings.website || "https://smanpower.com";
   const absoluteUrl = (path: string) => new URL(path, baseUrl).toString();
-  const contact = [
-    settings.address,
-    settings.city,
-    settings.country,
-    settings.phoneDisplay || settings.phone,
-    settings.emailDisplay || settings.email,
-  ].filter(Boolean).join(" | ");
+
+  const contactRoute = absoluteUrl("/contact");
 
   const body = [
     `# ${settings.companyName}`,
     "",
-    `> ${settings.tagline || "Recruitment and workforce services from Nepal."}`,
+    `> ${settings.tagline || "Responsible recruitment and workforce services from Nepal."}`,
     "",
-    "Seven Seas Intercontinental provides recruitment, candidate screening, skill assessment, training, and deployment support for international employers and Nepali workers. Use the linked public pages for current, detailed information.",
+    "Seven Seas Intercontinental is a Nepal-based international recruitment company that sources, screens, trade-tests, trains, and deploys Nepali workers for international employers, with worker-welfare support through deployment. Its recruitment practices are " +
+      `${COMPLIANCE.rba} and ${COMPLIANCE.sedex}, and it operates ${COMPLIANCE.iso} quality management. ${ZERO_FEE_STATEMENT}`,
     "",
-    "## Key public pages",
-    ...publicPaths.map(([label, path]) => `- [${label}](${absoluteUrl(path)})`),
-    "",
-    "## Contact",
-    contact,
-  ].join("\n");
+    ...SECTIONS.flatMap(({ heading, links }) => [
+      `## ${heading}`,
+      ...links.map(([label, path]) => `- [${label}](${absoluteUrl(path)})`),
+      "",
+    ]),
+    "## Reference",
+    `- Sitemap: ${absoluteUrl("/sitemap.xml")}`,
+    `- Office: ${OFFICE.city}, ${OFFICE.country}`,
+    `- Contact: ${contactRoute}`,
+  ]
+    .join("\n")
+    .trimEnd();
 
-  return new Response(body, {
+  return new Response(body + "\n", {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "public, max-age=0, s-maxage=3600",

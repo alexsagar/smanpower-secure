@@ -82,4 +82,12 @@ describe("metadata staging noindex", () => {
 
     expect(metadata.robots).toMatchObject({ index: false, follow: false });
   });
+
+  it("emits no hreflang/language alternates (Google Translate is client-side)", () => {
+    vi.stubEnv("STAGING_NOINDEX", "false");
+    const metadata = buildPageMetadata({ title: "About", path: "/about" });
+    // Only a self canonical; never alternates.languages (which would be hreflang).
+    expect((metadata.alternates as any)?.languages).toBeUndefined();
+    expect(metadata.alternates?.canonical).toBe("https://smanpower.com/about");
+  });
 });

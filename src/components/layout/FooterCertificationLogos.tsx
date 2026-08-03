@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CmsFooterCertificationLogo } from "@/types/content";
 import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { COMPLIANCE } from "@/config/approved-content";
 
 function isSafeImageSource(src: string) {
   return src.startsWith("/") || /^https:\/\//.test(src);
@@ -18,7 +19,10 @@ export function FooterCertificationLogos({ logos }: { logos?: CmsFooterCertifica
   if (visibleLogos.length === 0) return null;
 
   return (
-    <section aria-label="Certifications and compliance">
+    <section aria-label={COMPLIANCE.heading}>
+      <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-white/60 text-center lg:text-right">
+        {COMPLIANCE.heading}
+      </h2>
       <div className="flex justify-center lg:justify-end" data-testid="footer-certification-logos">
         {visibleLogos.map((logo, index) => {
           const image = (

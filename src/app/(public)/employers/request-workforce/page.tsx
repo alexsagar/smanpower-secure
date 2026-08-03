@@ -5,16 +5,17 @@ import { getPageCopy } from "@/services/page-copy.service";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ShieldCheck, Users, Zap, CheckCircle2 } from "lucide-react";
+import { RESPONSE_TIME_COMMITMENT } from "@/config/approved-content";
 
 export const metadata: Metadata = {
   title: "Request Workforce | Seven Seas Intercontinental",
-  description: "Submit your workforce requirements and Seven Seas Intercontinental will respond within 2 business days with a recruitment proposal.",
+  description: `Submit your workforce requirements and Seven Seas Intercontinental will respond ${RESPONSE_TIME_COMMITMENT} with a recruitment proposal.`,
 };
 
 const hardcodedDict = {
   employer: {
     formTitle: "Request Workforce",
-    formDescription: "Submit your requirements below. Our corporate relations team will review your needs and contact you within 24 hours.",
+    formDescription: `Submit your requirements below. Our corporate relations team will review your needs and contact you ${RESPONSE_TIME_COMMITMENT}.`,
     companyName: "Company Name",
     contactPerson: "Contact Person",
     designation: "Designation",

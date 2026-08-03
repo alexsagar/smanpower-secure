@@ -24,11 +24,11 @@ export function GrievanceActionWidget() {
                 Deployed Worker or Family Member Need Help?
               </h3>
               <p className="text-brand-muted font-light leading-relaxed text-base max-w-2xl mb-6">
-                Our welfare hotline operates in Nepali, English, Arabic, and Hindi. Reports can be submitted anonymously and are acknowledged within 24 hours.
+                Our welfare hotline operates in Nepali, English, Arabic, and Hindi. Grievance reports can be submitted 24/7 and are acknowledged within 24 hours. Reports can be made anonymously.
               </p>
               <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
                 <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> Anonymous options</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> 48-Hr escalation SLA</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> Acknowledged within 24 hours</span>
                 <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-brand-gold-dark" /> Dedicated welfare officer</span>
               </div>
             </div>

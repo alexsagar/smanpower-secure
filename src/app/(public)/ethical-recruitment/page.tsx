@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/ethical-recruitment");
   return buildPageMetadata({
     title: seo?.metaTitle || "Ethical Recruitment Practices | Fee Transparency & Worker Protection",
-    description: seo?.metaDescription || "Learn about our ethical recruitment practices in Nepal. We emphasize fee transparency, worker protection, and RBA-aligned controls where applicable for overseas employment.",
+    description: seo?.metaDescription || "Learn about our ethical recruitment practices in Nepal. We emphasize fee transparency, worker protection, and RBA-compliant controls for overseas employment.",
     path: "/ethical-recruitment",
     canonicalOverride: seo?.canonicalUrl,
     ogImage: seo?.ogImage,
@@ -28,7 +28,7 @@ export default async function EthicalRecruitmentPage() {
   }
 
   const defaultTitle = "Doing What Is Right. Always.";
-  const defaultSubtitle = "At Seven Seas Intercontinental, ethical recruitment is our foundation—not an afterthought. We enforce zero recruitment fees, total contract transparency, and RBA-aligned worker protections across every deployment.";
+  const defaultSubtitle = "At Seven Seas Intercontinental, ethical recruitment is our foundation—not an afterthought. We enforce zero recruitment fees, total contract transparency, and RBA-compliant worker protections across every deployment.";
 
   const hasBlocks = Boolean(page.blocks && page.blocks.length > 0);
 

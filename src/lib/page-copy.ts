@@ -282,8 +282,8 @@ export const ourStoryCopy = {
     heading: "Our Evolution.",
     milestones: [
       { year: "2008", title: "The Foundation", desc: "Seven Seas Intercontinental is established in Kathmandu with a vision to revolutionize the recruitment landscape by removing exploitative fees." },
-      { year: "2013", title: "Middle East Expansion", desc: "Opened our first coordination offices in Dubai and Doha to ensure on-the-ground support and grievance handling for our deployed workers." },
-      { year: "2018", title: "RBA Alignment", desc: "Expanded internal processes around Responsible Business Alliance (RBA) guidance and employer-paid recruitment practices." },
+      { year: "2013", title: "Middle East Coordination", desc: "Established coordination with employers and partners in Dubai and Doha to strengthen on-the-ground support and grievance handling for our deployed workers." },
+      { year: "2018", title: "RBA Compliance", desc: "Expanded internal processes to comply with Responsible Business Alliance (RBA) Code of Conduct guidance and employer-paid recruitment practices." },
       { year: "2023", title: "Operational Expansion", desc: "Continued investing in training capacity, documentation workflows, and worker-support processes." },
     ],
   },
@@ -332,7 +332,7 @@ export const communityImpactCopy = {
   returning: {
     headingLead: "Returning with ",
     headingHighlight: "More Than Capital.",
-    lead: "Workers who deploy through our RBA-aligned pipelines don't just return with financial capital; they return with human capital.",
+    lead: "Workers who deploy through our RBA-compliant pipelines don't just return with financial capital; they return with human capital.",
     body: "Having worked in world-class facilities abroad, they bring back international standards of safety, quality, and technical expertise. Many of our returning candidates go on to become entrepreneurs, foremen, and leaders within Nepal's own developing industries. By enabling safe migration, we are accelerating the transfer of global skills back to the local economy.",
   },
 };
@@ -348,7 +348,7 @@ export const leadershipCopy = {
     title: "Commitment from the Top Down.",
     subtitle: "Executive Team",
     lead: "Ethical recruitment is not just a policy; it requires active leadership, continuous oversight, and an unwavering commitment to doing the right thing.",
-    body: "Our executive team brings decades of combined experience in international labor laws, cross-border deployment logistics, and human rights advocacy. They lead by example, ensuring that our zero-tolerance policy against exploitation is enforced at every level of the organization, from our sourcing partners in remote villages to our corporate offices in Kathmandu.",
+    body: "Our executive team brings decades of combined experience in international labor laws, cross-border deployment logistics, and human rights advocacy. They lead by example, ensuring that our zero-tolerance policy against exploitation is enforced at every level of the organization, from our sourcing partners in remote villages to our corporate office in Kathmandu.",
   },
   chairmanQuote: {
     quote:
@@ -367,7 +367,7 @@ export const leadershipCopy = {
     heading: "Accountability at the highest level.",
     lead: "We believe that ethical compliance cannot be outsourced or delegated. It must be woven into the fabric of the organization starting from the board room.",
     body: "Our directors are deeply involved in the daily operations of our sourcing networks, training centers, and deployment pipelines. By maintaining a hands-on approach, we ensure that our promises of transparency and zero-fees are not just marketing slogans, but operational realities.",
-    badgeTitle: "RBA-Aligned",
+    badgeTitle: "RBA-Compliant",
     badgeSubtitle: "Executive leadership training context",
   },
 };
@@ -381,7 +381,7 @@ export const ourPeopleCopy = {
   intro: {
     title: "Powered by Passion.",
     subtitle: "Our Team",
-    lead: "Behind every successful deployment is a team of over 150 dedicated professionals working tirelessly across Nepal and the Middle East.",
+    lead: "Behind every successful deployment is a team of over 150 dedicated professionals supporting candidates and deployed workers.",
     paragraphs: [
       "Ethical recruitment requires more than just good intentions—it requires incredible logistical precision and deep human empathy. Our staff comprises former expatriate workers, legal experts, certified trainers, and logistics specialists who understand the migration journey firsthand.",
       "We invest heavily in the continuous training of our own people, ensuring that every team member is fully versed in RBA guidelines, international labor laws, and modern human resources practices.",
@@ -541,7 +541,7 @@ export const requestWorkforceCopy = {
   approachHeading: "The Seven Seas Approach",
   // Icons stay in code, matched to these entries by position.
   advantages: [
-    { title: "RBA-Aligned Sourcing", desc: "Processes designed around ethical recruitment frameworks and employer-paid recruitment principles where applicable." },
+    { title: "RBA-Compliant Sourcing", desc: "Processes designed around ethical recruitment frameworks and employer-paid recruitment principles." },
     { title: "Pre-Screened Talent", desc: "Every candidate is medically, psychologically, and technically vetted before interview." },
     { title: "Rapid Deployment", desc: "Streamlined government processing to mobilize your workforce on schedule." },
   ],

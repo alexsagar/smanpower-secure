@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { cmsMediaResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
 import { getDemandApplicationStatus, normalizeDemandVacancies } from "@/lib/demand-presentation";
+import { COMPLIANCE_LOGO_ALT } from "@/config/approved-content";
 import type {
   CmsPage,
   CmsHeroSection,
@@ -71,9 +72,9 @@ const DEFAULT_FOOTER_SETTINGS: CmsFooterSettings = {
   ],
   copyrightText: `Copyright ${new Date().getFullYear()} Seven Seas Intercontinental Services Pvt. Ltd. All rights reserved.`,
   certificationLogos: [
-    { imageUrl: "/images/sedex.png", accessibleName: "Sedex", enabled: true, order: 1 },
-    { imageUrl: "/images/rba.png", accessibleName: "Responsible Business Alliance", enabled: true, order: 2 },
-    { imageUrl: "/images/iso.png", accessibleName: "ISO 9001:2015 Certified", enabled: true, order: 3 },
+    { imageUrl: "/images/sedex.png", accessibleName: COMPLIANCE_LOGO_ALT.sedex, enabled: true, order: 1 },
+    { imageUrl: "/images/rba.png", accessibleName: COMPLIANCE_LOGO_ALT.rba, enabled: true, order: 2 },
+    { imageUrl: "/images/iso.png", accessibleName: COMPLIANCE_LOGO_ALT.iso, enabled: true, order: 3 },
   ],
 };
 

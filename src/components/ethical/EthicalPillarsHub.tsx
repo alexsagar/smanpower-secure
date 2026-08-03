@@ -18,9 +18,9 @@ export interface EthicalPillarItem {
 export const ETHICAL_PILLARS: EthicalPillarItem[] = [
   {
     slug: "rba-aligned-practices",
-    title: "RBA-Aligned Practices",
+    title: "RBA-Compliant Practices",
     subtitle: "Supply Chain Standard",
-    description: "Aligning recruitment procedures with the RBA Code of Conduct for freely chosen employment and zero forced labor.",
+    description: "Complying with the RBA Code of Conduct for freely chosen employment and zero forced labor.",
     iconName: "ShieldCheck",
     href: "/ethical-recruitment/rba-aligned-practices",
     tag: "Audit Compliance",

@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { getPublishedDemands, getDemandFilterOptions } from "@/repositories/content-resolver";
 import { DemandCard } from "@/components/demands/DemandCard";
 import { DemandFilters } from "@/components/demands/DemandFilters";
+import { DemandGuidance } from "@/components/demands/DemandGuidance";
 import { CmsDemandFilters } from "@/types/content";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -96,6 +97,8 @@ export default async function DemandsPage({
             )}
           </div>
         </div>
+
+        <DemandGuidance />
       </div>
     </div>
   );

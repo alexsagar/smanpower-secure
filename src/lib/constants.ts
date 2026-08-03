@@ -91,7 +91,7 @@ export const MAIN_NAVIGATION: NavItem[] = [
     labelNe: "नैतिक भर्ना",
     children: [
       {
-        label: "RBA-Aligned Practices",
+        label: "RBA-Compliant Practices",
         href: "/ethical-recruitment/rba-aligned-practices",
       },
       { label: "Worker Rights", href: "/ethical-recruitment/worker-rights" },

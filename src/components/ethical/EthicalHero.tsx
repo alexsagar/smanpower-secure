@@ -26,7 +26,7 @@ interface EthicalHeroProps {
 
 export function EthicalHero({
   title = "Doing What Is Right. Always.",
-  subtitle = "At Seven Seas Intercontinental, ethical recruitment is our foundation—not an afterthought. We enforce zero recruitment fees, total contract transparency, and RBA-aligned worker protections across every deployment.",
+  subtitle = "At Seven Seas Intercontinental, ethical recruitment is our foundation—not an afterthought. We enforce zero recruitment fees, total contract transparency, and RBA-compliant worker protections across every deployment.",
 }: EthicalHeroProps) {
   return (
     <section className="relative bg-brand-off-white text-brand-black pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden border-b border-brand-charcoal/10">

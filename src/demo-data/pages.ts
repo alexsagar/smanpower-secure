@@ -165,12 +165,12 @@ export const demoPages: CmsPage[] = [
     "Beyond the Flight.",
     [
       "Our responsibility does not end when the candidate boards the plane. We manage flight logistics, airport transfers, and maintain a 24/7 welfare hotline.",
-      "With coordination offices in the Middle East, we are always on hand to resolve grievances and support both the worker and the employer."
+      "Through coordination with employers and partners in destination countries, we are always on hand to resolve grievances and support both the worker and the employer."
     ],
     [
       { title: "Flight Logistics", desc: "Coordinating bulk travel arrangements." },
       { title: "24/7 Hotline", desc: "Always-on grievance mechanism for deployed workers." },
-      { title: "On-Ground Offices", desc: "Physical presence in major destination countries." }
+      { title: "Destination-Country Coordination", desc: "Ongoing coordination with employers and partners in destination countries." }
     ]
   ),
   createPage(

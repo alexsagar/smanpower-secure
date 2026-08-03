@@ -7,6 +7,7 @@ import {
   buildBreadcrumbSchema,
   buildNewsArticleSchema,
   buildFaqSchema,
+  buildOrganizationSchema,
 } from './schema';
 import * as siteConfig from './site-config';
 
@@ -151,5 +152,34 @@ describe('site-level structured data', () => {
     expect(buildFaqSchema([])).toBeNull();
     const s = buildFaqSchema([{ q: 'How?', a: 'Like this.' }]);
     expect(s?.mainEntity[0].acceptedAnswer.text).toBe('Like this.');
+  });
+});
+
+describe('Organization schema', () => {
+  it('uses stable ids, verified Kathmandu address, and no foreign offices', () => {
+    const org: any = buildOrganizationSchema(
+      {
+        companyName: 'Seven Seas Intercontinental',
+        companyLegalName: 'Seven Seas Intercontinental Services Pvt. Ltd.',
+        address: 'Guheswori',
+        city: 'Kathmandu',
+        province: 'Bagmati',
+        country: 'Nepal',
+        phone: '01-5107440',
+        email: 'info@smanpower.com',
+      } as any,
+      { socialLinks: [{ url: 'https://www.facebook.com/x', isActive: true }] } as any
+    );
+    expect(org['@id']).toBe('https://smanpower.com/#organization');
+    expect(org.url).toBe('https://smanpower.com');
+    expect(org.address.addressLocality).toBe('Kathmandu');
+    expect(org.address.addressCountry).toBe('Nepal');
+    const json = JSON.stringify(org);
+    expect(json).not.toMatch(/Dubai|Doha/i);
+    expect(org.location).toBeUndefined();
+    expect(org.branch).toBeUndefined();
+    for (const url of org.sameAs || []) {
+      expect(url).not.toMatch(/rba\.png|sedex\.png|iso\.png/);
+    }
   });
 });

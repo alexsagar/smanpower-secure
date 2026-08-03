@@ -3,11 +3,22 @@ import { getPageCopy } from "@/services/page-copy.service";
 import { Metadata } from "next";
 import Link from "next/link";
 import { ShieldAlert, PhoneCall, Mail, AlertOctagon, FileWarning, Home, Users } from "lucide-react";
+import { GRIEVANCE_STATEMENT } from "@/config/approved-content";
 
 export const metadata: Metadata = {
   title: "Worker Grievance | Seven Seas Intercontinental",
-  description: "Submit a grievance or report an issue related to your recruitment or overseas employment.",
+  description: "Submit a grievance or report an issue related to your recruitment or overseas employment. Grievance reports can be submitted 24/7 and are acknowledged within 24 hours.",
 };
+
+// Approved, verified process. 24/7 = submission availability; within 24 hours =
+// acknowledgement (not a resolution SLA).
+const GRIEVANCE_STEPS = [
+  "Submit the grievance through any available channel.",
+  "Receive acknowledgement within 24 hours.",
+  "The concern is reviewed by the responsible team.",
+  "Further information may be requested where needed.",
+  "You receive updates through the available contact channel.",
+];
 
 export default async function WorkerGrievancePage() {
   const copy = await getPageCopy("worker-grievance");
@@ -35,6 +46,16 @@ export default async function WorkerGrievancePage() {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 py-16">
+        {/* Approved grievance summary + step-by-step process (AEO). */}
+        <section className="mb-16 bg-white border border-brand-charcoal/10 rounded-3xl p-8 shadow-sm">
+          <p className="text-brand-charcoal text-lg font-light leading-relaxed">{GRIEVANCE_STATEMENT}</p>
+          <ol className="mt-6 space-y-3 list-decimal list-inside text-brand-charcoal/80">
+            {GRIEVANCE_STEPS.map((step, i) => (
+              <li key={i} className="leading-relaxed">{step}</li>
+            ))}
+          </ol>
+        </section>
+
         {!copy.hiddenSections.channels && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <div className="bg-white/60 backdrop-blur-md border border-brand-charcoal/5 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-brand-gold/30 transition-all duration-500 group">
