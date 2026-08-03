@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
+import { readFileSync } from "node:fs";
 import { Header } from "./Header";
 
 vi.mock("next/link", () => ({
@@ -37,10 +38,11 @@ const navigation = [
 ] as never;
 
 const render = () => renderToStaticMarkup(<Header navigation={navigation} />);
+const headerSource = readFileSync(new URL("./Header.tsx", import.meta.url), "utf8");
 
 describe("header sizing", () => {
   it("uses the taller bar so the logo has room", () => {
-    expect(render()).toContain("h-24 lg:h-28");
+    expect(render()).toContain("h-[var(--site-header-height)]");
   });
 
   it("renders the logo large enough to be recognisable", () => {
@@ -53,14 +55,19 @@ describe("header sizing", () => {
   it("keeps the fixed header below browser safe areas", () => {
     expect(render()).toContain("pt-[env(safe-area-inset-top)]");
   });
+
+  it("uses the shared height for dropdown and mobile offsets", () => {
+    expect(headerSource).toContain("top-[calc(var(--site-header-height)+env(safe-area-inset-top))]");
+    expect(headerSource).toContain("pt-[calc(var(--site-header-height)+env(safe-area-inset-top))]");
+  });
 });
 
 describe("desktop navigation layout", () => {
-  it("removes search and enlarges the central labels", () => {
+  it("uses 11px only for the central desktop labels", () => {
     const html = render();
     expect(html).not.toContain('href="/search"');
     expect(html).toContain("public-nav-label");
-    expect(html).toContain("text-[12px]");
+    expect(html).toContain("text-[11px]");
   });
 
   it("omits the resources section and its links", () => {

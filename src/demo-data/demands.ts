@@ -36,6 +36,10 @@ export const demoDemands: CmsDemand[] = [
     candidateSafetyNotice: "Do not make any payment or submit original documents unless instructed through an official Seven Seas Intercontinental communication channel.",
     totalPositions: 3,
     totalManpower: 175,
+    totalVacancies: 175,
+    applicationStatus: "OPEN",
+    applicationStatusLabel: "Applications Open",
+    canApply: true,
     positions: [
       {
         id: "pos-1-1",
@@ -154,6 +158,10 @@ export const demoDemands: CmsDemand[] = [
     candidateSafetyNotice: "Do not make any payment or submit original documents unless instructed through an official Seven Seas Intercontinental communication channel.",
     totalPositions: 4,
     totalManpower: 280,
+    totalVacancies: 280,
+    applicationStatus: "OPEN",
+    applicationStatusLabel: "Applications Open",
+    canApply: true,
     positions: [
       {
         id: "pos-2-1",
@@ -286,6 +294,10 @@ export const demoDemands: CmsDemand[] = [
     candidateSafetyNotice: "Do not make any payment or submit original documents unless instructed through an official Seven Seas Intercontinental communication channel.",
     totalPositions: 5,
     totalManpower: 85,
+    totalVacancies: 85,
+    applicationStatus: "OPEN",
+    applicationStatusLabel: "Applications Open",
+    canApply: true,
     positions: [
       {
         id: "pos-3-1",
@@ -442,6 +454,10 @@ export const demoDemands: CmsDemand[] = [
     candidateSafetyNotice: "Do not make any payment or submit original documents unless instructed through an official Seven Seas Intercontinental communication channel.",
     totalPositions: 2,
     totalManpower: 60,
+    totalVacancies: 60,
+    applicationStatus: "NOT_YET_OPEN",
+    applicationStatusLabel: "Applications Not Yet Open",
+    canApply: false,
     positions: [
       {
         id: "pos-4-1",
@@ -530,6 +546,10 @@ export const demoDemands: CmsDemand[] = [
     candidateSafetyNotice: "Do not make any payment or submit original documents unless instructed through an official Seven Seas Intercontinental communication channel.",
     totalPositions: 3,
     totalManpower: 45,
+    totalVacancies: 45,
+    applicationStatus: "CLOSED",
+    applicationStatusLabel: "Applications Closed",
+    canApply: false,
     positions: [
       {
         id: "pos-5-1",

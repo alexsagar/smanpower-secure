@@ -3,7 +3,7 @@ import { getPageCopy } from "@/services/page-copy.service";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ArrowLeft, ShieldAlert } from "lucide-react";
+import { ChevronRight, ArrowLeft, ShieldAlert, Calendar, Users } from "lucide-react";
 import { getDemandBySlug } from "@/repositories/content-resolver";
 import { DemandCompanyStrip } from "@/components/demands/DemandCompanyStrip";
 import { DemandPositionTable } from "@/components/demands/DemandPositionTable";
@@ -16,7 +16,7 @@ import { DemandLetterImage } from "@/components/demands/DemandLetterImage";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema } from "@/lib/seo/schema";
 import { resolveMediaUrl } from "@/lib/media-resolver";
-import Script from "next/script";
+import { formatDemandDate, generateDemandSeo, toDateOnly } from "@/lib/demand-presentation";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,12 +40,13 @@ export async function generateMetadata(
   // If not public or draft, noindex
   const noIndex = !demand.isPublic || demand.status !== "PUBLISHED";
 
+  const generatedSeo = generateDemandSeo(demand);
   return buildPageMetadata({
-    title: demand.seoTitle || demand.title,
-    description: demand.metaDescription || `Official demand from ${demand.companyName} for manpower recruitment in ${demand.country}.`,
+    title: demand.seoTitle || generatedSeo.title,
+    description: demand.metaDescription || generatedSeo.description,
     path: `/demands/${demand.slug}`,
     canonicalOverride: demand.canonicalUrl,
-    ogImage: demand.ogImageUrl,
+    ogImage: demand.ogImageUrl || (demand.featuredImage && resolveMediaUrl(demand.featuredImage)) || undefined,
     noIndex
   });
 }
@@ -59,7 +60,6 @@ export default async function DemandDetailPage({ params }: Props) {
     notFound();
   }
 
-  const isClosed = demand.status === "CLOSED" || demand.status === "ARCHIVED";
   const hasDocuments = demand.documents && demand.documents.filter(d => d.visibility === "PUBLIC" && d.approvalStatus === "APPROVED").length > 0;
 
   const schemas = demand.positions
@@ -69,12 +69,10 @@ export default async function DemandDetailPage({ params }: Props) {
   return (
     <div className="bg-brand-off-white min-h-screen relative font-sans">
       {schemas.length > 0 && (
-        <Script id={`job-schema-${demand.id}`} type="application/ld+json" strategy="beforeInteractive">
-          {JSON.stringify({
+        <script id={`job-schema-${demand.id}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             "@context": "https://schema.org",
             "@graph": schemas
-          })}
-        </Script>
+          }).replace(/</g, "\\u003c") }} />
       )}      {/* Page Header */}
       <div className="relative pt-32 pb-8 border-b border-brand-charcoal/5 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/10 to-transparent pointer-events-none" />
@@ -119,7 +117,7 @@ export default async function DemandDetailPage({ params }: Props) {
               >
                 <ArrowLeft className="w-4 h-4" /> {copy.backLabel}
               </Link>
-              {process.env.PUBLIC_APPLICATIONS_ENABLED === 'true' && demand.enableApplication && !isClosed && (
+              {demand.canApply && (
                 <Link
                   href={`/demands/${demand.slug}/apply`}
                   className="flex items-center justify-center bg-brand-gold text-brand-white px-8 py-3 text-sm font-bold uppercase tracking-wider hover:bg-brand-gold/90 transition-colors shadow-sm"
@@ -134,6 +132,17 @@ export default async function DemandDetailPage({ params }: Props) {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
         <DemandCompanyStrip demand={demand} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-brand-charcoal/10 border border-brand-charcoal/10 mb-12" aria-label="Demand details">
+          <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Application Status</p><p className="font-semibold mt-1">{demand.applicationStatusLabel}</p></div>
+          {demand.interviewDate && <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Interview Date</p><p className="font-semibold mt-1 flex items-center gap-2"><Calendar className="w-4 h-4 text-brand-gold" /><time dateTime={toDateOnly(demand.interviewDate)}>{formatDemandDate(demand.interviewDate)}</time></p></div>}
+          {demand.maleVacancies != null && demand.femaleVacancies != null && <>
+            <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Male Workers</p><p className="font-semibold mt-1 flex items-center gap-2"><Users className="w-4 h-4 text-brand-gold" />{demand.maleVacancies}</p></div>
+            <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Female Workers</p><p className="font-semibold mt-1 flex items-center gap-2"><Users className="w-4 h-4 text-brand-gold" />{demand.femaleVacancies}</p></div>
+          </>}
+          <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Total Vacancies</p><p className="font-semibold mt-1">{demand.totalVacancies}</p></div>
+          {demand.applicationDeadline && <div className="bg-white p-4"><p className="text-xs uppercase tracking-wider text-brand-charcoal/60">Application Deadline</p><p className="font-semibold mt-1"><time dateTime={toDateOnly(demand.applicationDeadline)}>{formatDemandDate(demand.applicationDeadline)}</time></p></div>}
+        </div>
 
         {demand.generalNotes && (
           <div className="bg-brand-charcoal/5 border border-brand-charcoal/10 p-6 rounded-sm mb-12">

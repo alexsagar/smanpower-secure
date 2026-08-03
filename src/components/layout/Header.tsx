@@ -68,7 +68,7 @@ export function Header({
       )}
       onMouseLeave={() => setActiveDesktopDropdown(null)}
     >
-      <div className="w-full px-4 sm:px-6 lg:px-6 xl:px-8 h-24 lg:h-28 flex items-center justify-between relative">
+      <div className="w-full px-4 sm:px-6 lg:px-6 xl:px-8 h-[var(--site-header-height)] flex items-center justify-between relative">
         {/* Logo */}
         <Link href="/" className="relative z-50 group shrink-0">
           <NoTranslate className="flex items-center gap-3">
@@ -114,7 +114,7 @@ export function Header({
             >
               <button
                 className={cn(
-                  "public-nav-label font-brand relative min-h-11 px-1.5 py-2 text-[12px] font-medium uppercase tracking-[0.06em] flex items-center gap-1",
+                  "public-nav-label font-brand relative min-h-11 px-1.5 py-2 text-[11px] font-medium uppercase tracking-[0.06em] flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",
@@ -193,7 +193,7 @@ export function Header({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="hidden xl:block absolute top-[calc(7rem+env(safe-area-inset-top))] left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
+            className="hidden xl:block absolute top-[calc(var(--site-header-height)+env(safe-area-inset-top))] left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
             onMouseLeave={() => setActiveDesktopDropdown(null)}
           >
             <div className="container-wide py-12">
@@ -235,7 +235,7 @@ export function Header({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-brand-white xl:hidden flex flex-col pt-28 overflow-y-auto"
+            className="fixed inset-0 z-40 bg-brand-white xl:hidden flex flex-col pt-[calc(var(--site-header-height)+env(safe-area-inset-top))] overflow-y-auto"
           >
             <div className="px-6 flex-1">
               {Object.entries(navConfig).map(([key, section]) => (

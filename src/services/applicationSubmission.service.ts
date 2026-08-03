@@ -10,6 +10,7 @@ import { CandidateMatchingService } from '@/services/candidateMatching.service';
 import { logger } from '@/lib/logger';
 import crypto from 'crypto';
 import { verifyTurnstileToken } from "@/services/turnstile.service";
+import { getDemandApplicationStatus } from "@/lib/demand-presentation";
 
 export const ApplicationSubmissionSchema = z.object({
   demandId: z.string().min(1, "Demand ID is required"),
@@ -132,7 +133,19 @@ export class ApplicationSubmissionService {
         include: { positions: { where: { id: data.positionId } }, country: true }
       });
 
-      if (!demand || demand.status !== "PUBLISHED" || !demand.enableApplication) {
+      // The API and server action enforce the global feature flag before this
+      // service; this check owns the demand-level dates and lifecycle rules.
+      if (!demand) {
+        return { success: false, formError: "CLOSED", message: "This demand is no longer accepting applications.", statusCode: 400 };
+      }
+      const applicationStatus = getDemandApplicationStatus(demand, true);
+      if (applicationStatus.applicationStatus === "DEADLINE_PASSED") {
+        return { success: false, formError: "EXPIRED", message: "The application deadline for this demand has passed.", statusCode: 400 };
+      }
+      if (applicationStatus.applicationStatus === "NOT_YET_OPEN") {
+        return { success: false, formError: "NOT_STARTED", message: "Applications for this demand have not started yet.", statusCode: 400 };
+      }
+      if (!applicationStatus.canApply) {
         return { success: false, formError: "CLOSED", message: "This demand is no longer accepting applications.", statusCode: 400 };
       }
       
@@ -141,12 +154,6 @@ export class ApplicationSubmissionService {
         return { success: false, formError: "CLOSED", message: "This position is no longer accepting applications.", statusCode: 400 };
       }
 
-      if (demand.applicationDeadline && demand.applicationDeadline < new Date()) {
-        return { success: false, formError: "EXPIRED", message: "The application deadline for this demand has passed.", statusCode: 400 };
-      }
-      if (demand.applicationStartDate && demand.applicationStartDate > new Date()) {
-        return { success: false, formError: "NOT_STARTED", message: "Applications for this demand have not started yet.", statusCode: 400 };
-      }
       if (position.deadlineOverride && position.deadlineOverride < new Date()) {
         return { success: false, formError: "EXPIRED", message: "The application deadline for this position has passed.", statusCode: 400 };
       }

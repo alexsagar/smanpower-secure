@@ -80,7 +80,7 @@ export function DemandPositionTable({ demand, lang }: DemandPositionTableProps) 
                 <td className="px-4 py-4 text-right">
                   {!positionClosed ? (
                     <span className="text-xs font-medium text-brand-charcoal/60 uppercase tracking-wider px-2">
-                      Application availability on detail page
+                      {demand.applicationStatusLabel}
                     </span>
                   ) : (
                     <span className="text-xs font-medium text-brand-charcoal/50 uppercase tracking-wider px-2">

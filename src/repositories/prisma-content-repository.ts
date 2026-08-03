@@ -3,6 +3,7 @@ import "server-only";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { cmsMediaResourceTypeFromAuthoritative } from "@/lib/media-resource-type";
+import { getDemandApplicationStatus, normalizeDemandVacancies } from "@/lib/demand-presentation";
 import type {
   CmsPage,
   CmsHeroSection,
@@ -1164,6 +1165,8 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   private mapDemandToCms(r: any): any {
+    const positions = r.positions || [];
+    const vacancies = normalizeDemandVacancies(positions);
     return {
       id: r.id,
       slug: r.slug,
@@ -1182,6 +1185,7 @@ export class PrismaContentRepository implements ContentRepository {
       city: r.city || undefined,
       employerAddress: r.employerAddress || undefined,
       demandReferenceNumber: r.demandReferenceNumber || undefined,
+      demandLotNumber: r.demandReferenceNumber || undefined,
       approvalDate: r.approvalDate?.toISOString() || undefined,
       receivedDate: r.receivedDate?.toISOString() || undefined,
       applicationStartDate: r.applicationStartDate?.toISOString() || undefined,
@@ -1209,14 +1213,16 @@ export class PrismaContentRepository implements ContentRepository {
       ogImageUrl: r.ogImageUrl || undefined,
       canonicalUrl: r.canonicalUrl || undefined,
       totalPositions: r.positions?.length || r._count?.positions || 0,
-      totalManpower: r.positions?.reduce((sum: number, p: any) => sum + (p.totalCount || 0), 0) || 0,
+      totalManpower: vacancies.totalVacancies,
+      ...vacancies,
+      ...getDemandApplicationStatus(r, process.env.PUBLIC_APPLICATIONS_ENABLED === "true"),
       positions: (r.positions || []).map((p: any) => ({
         id: p.id,
         demandId: p.demandId,
         displayOrder: p.displayOrder || 0,
         title: p.title,
-        maleCount: p.maleCount || undefined,
-        femaleCount: p.femaleCount || undefined,
+        maleCount: p.maleCount ?? undefined,
+        femaleCount: p.femaleCount ?? undefined,
         totalCount: p.totalCount,
         minimumQualification: p.minimumQualification || undefined,
         requiredExperience: p.requiredExperience || undefined,

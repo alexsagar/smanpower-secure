@@ -18,8 +18,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
     notFound();
   }
 
-  const isClosed = demand.status === "CLOSED" || demand.status === "ARCHIVED";
-  if (!demand.isPublic || demand.status !== "PUBLISHED" || !demand.enableApplication || isClosed) {
+  if (!demand.canApply) {
     notFound();
   }
 
@@ -37,7 +36,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
   };
 
   return (
-    <div className="bg-brand-off-white min-h-screen">
+    <div className="bg-brand-off-white min-h-screen pt-[calc(var(--site-header-height)+env(safe-area-inset-top))]">
       <div className="border-b border-brand-charcoal/10 bg-white">
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">
           <Link

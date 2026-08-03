@@ -6,7 +6,7 @@ export function DemandStep4Application({ data, updateData }: { data: any; update
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-bold font-serif mb-1">Application Settings</h3>
-        <p className="text-sm text-brand-charcoal/70 mb-6">Configure how candidates apply and set mandatory transparency notices.</p>
+        <p className="text-sm text-brand-charcoal/70 mb-6">Candidates can apply only when this switch is enabled, the demand is public and published, and the application dates permit it.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -14,6 +14,7 @@ export function DemandStep4Application({ data, updateData }: { data: any; update
           <div className="bg-brand-charcoal/5 p-4 rounded-sm border border-brand-charcoal/10 flex items-start gap-4">
             <div className="pt-0.5">
               <input
+                id="enable-online-applications"
                 type="checkbox"
                 checked={data.enableApplication}
                 onChange={(e) => updateData({ enableApplication: e.target.checked })}
@@ -21,13 +22,24 @@ export function DemandStep4Application({ data, updateData }: { data: any; update
               />
             </div>
             <div>
-              <label className="font-bold text-brand-black cursor-pointer block" onClick={() => updateData({ enableApplication: !data.enableApplication })}>
+              <label htmlFor="enable-online-applications" className="font-bold text-brand-black cursor-pointer block">
                 Enable Online Applications
               </label>
               <p className="text-xs text-brand-charcoal/70 mt-1">
                 If checked, candidates can apply for the open positions in this demand directly from the website.
               </p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2">Application Opening Date</label>
+            <input
+              type="date"
+              value={data.applicationStartDate ? data.applicationStartDate.split("T")[0] : ""}
+              onChange={(e) => updateData({ applicationStartDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
+              className="w-full border-brand-charcoal/20 rounded-sm"
+            />
+            <p className="text-xs text-brand-charcoal/50 mt-1">Before this date, the public page shows Applications Not Yet Open.</p>
           </div>
 
           <div>

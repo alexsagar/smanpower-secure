@@ -32,10 +32,7 @@
     --background: #F7F5F0;
     --foreground: #171717;
 
-    /* Single source of truth for the fixed header height. Mirrors the
-       Header's `h-24 lg:h-28` (6rem / 7rem at the 14px root). Every hero top
-       offset and anchor scroll-margin reads this so the intentionally taller
-       navbar never overlaps content and stays in sync in one place. */
+    /* Single source of truth for the fixed header, page offsets and anchors. */
     --site-header-height: 6rem;
   }
 
@@ -425,13 +422,13 @@
 
 /* ===== Google Translate ===== */
 
-/* Science Gothic only contains Latin glyphs. Keep translated navigation at
-   the same 14px size, with the matching Noto family selected below. */
+/* Science Gothic only contains Latin glyphs. Keep translated desktop
+   navigation at the same 11px size, with the matching Noto family below. */
 html.translated-ltr .public-nav-label,
 html.translated-rtl .public-nav-label,
 body.translated-ltr .public-nav-label,
 body.translated-rtl .public-nav-label {
-  font-size: 14px;
+  font-size: 11px;
 }
 
 html[lang="ne"] .public-nav-label,

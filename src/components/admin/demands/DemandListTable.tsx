@@ -12,6 +12,7 @@ import {
 
 type DemandRow = DemandListRow & {
   isPublic: boolean;
+  demandReferenceNumber?: string | null;
   _count?: { positions?: number; applications?: number };
 };
 
@@ -52,6 +53,7 @@ export function DemandListTable({ demands }: { demands: DemandRow[] }) {
                 <tr key={demand.id} className="hover:bg-brand-charcoal/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-bold text-brand-black mb-1">{demand.title}</div>
+                    {demand.demandReferenceNumber && <div className="text-xs font-mono">Demand Lot Number: {demand.demandReferenceNumber}</div>}
                     <div className="text-brand-charcoal/70 text-xs flex items-center gap-2">
                       <span className="font-semibold">{demand.companyName}</span>
                       <span>•</span>

@@ -2,10 +2,28 @@
 
 import React from "react";
 import { Globe, Search, AlertTriangle } from "lucide-react";
+import { generateDemandSeo } from "@/lib/demand-presentation";
 
 export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d: any) => void }) {
   const isEdit = !!data.id;
   const isPublished = data.status === "PUBLISHED";
+  const positions = data.positions || [];
+  const completeBreakdown = positions.length > 0 && positions.every((position: any) => position.maleCount != null && position.femaleCount != null);
+  const generated = generateDemandSeo({
+    title: data.title || "Demand",
+    companyName: data.companyName,
+    country: data.countryName || data.country?.name || data.country,
+    totalVacancies: positions.reduce((sum: number, position: any) => sum + Number(position.totalCount || 0), 0),
+    maleVacancies: completeBreakdown ? positions.reduce((sum: number, position: any) => sum + Number(position.maleCount), 0) : undefined,
+    femaleVacancies: completeBreakdown ? positions.reduce((sum: number, position: any) => sum + Number(position.femaleCount), 0) : undefined,
+    applicationDeadline: data.applicationDeadline,
+    interviewDate: data.interviewDate,
+  });
+  const clearOverrides = () => {
+    if ((!data.seoTitle && !data.metaDescription) || window.confirm("Replace the custom SEO title and description with automatic values?")) {
+      updateData({ seoTitle: "", metaDescription: "" });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -20,6 +38,10 @@ export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d
             <h4 className="font-bold text-brand-black mb-4 flex items-center gap-2">
               <Search className="w-4 h-4 text-brand-gold" /> Search Engine Optimization
             </h4>
+            <div className="mb-4 flex items-center justify-between gap-4 bg-blue-50 border border-blue-100 p-3 text-xs text-blue-800">
+              <span>Automatic values are used when the custom fields are blank.</span>
+              <button type="button" onClick={clearOverrides} className="shrink-0 font-bold underline">Regenerate SEO</button>
+            </div>
             
             <div className="space-y-4">
               {isEdit && data.slug && (
@@ -57,9 +79,9 @@ export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d
                   value={data.seoTitle || ""}
                   onChange={(e) => updateData({ seoTitle: e.target.value })}
                   className="w-full border border-brand-charcoal/20 rounded-sm text-sm px-3 py-2"
-                  placeholder={data.title || "SEO Title (defaults to demand title)"}
+                  placeholder={generated.title}
                 />
-                <p className="text-xs text-brand-charcoal/50 mt-1">Leave blank to use the demand title.</p>
+                <p className="text-xs text-brand-charcoal/50 mt-1">{(data.seoTitle || generated.title).length} characters. Leave blank to use the automatic title.</p>
               </div>
 
               <div>
@@ -69,10 +91,10 @@ export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d
                   onChange={(e) => updateData({ metaDescription: e.target.value })}
                   className="w-full border border-brand-charcoal/20 rounded-sm text-sm px-3 py-2"
                   rows={3}
-                  placeholder="A brief description for search engine results..."
+                  placeholder={generated.description}
                 />
                 <p className="text-xs text-brand-charcoal/50 mt-1">
-                  {(data.metaDescription || "").length}/160 characters recommended.
+                  {(data.metaDescription || generated.description).length}/160 characters recommended. Leave blank to use the automatic description.
                 </p>
               </div>
 
@@ -136,6 +158,10 @@ export function DemandStep5SEO({ data, updateData }: { data: any; updateData: (d
           </div>
           
           <div className="bg-brand-gold/10 p-4 border border-brand-gold/30 rounded-sm text-sm">
+            <p className="text-xs text-brand-charcoal/60 mb-1">Search preview</p>
+            <p className="font-semibold text-blue-800">{data.seoTitle || generated.title}</p>
+            <p className="text-xs text-green-800 my-1">smanpower.com/demands/{data.slug || "automatic-slug"}</p>
+            <p className="text-xs text-brand-charcoal/80 mb-4">{data.metaDescription || generated.description}</p>
             <p className="font-bold text-brand-black mb-1">Ready to save?</p>
             <p className="text-brand-charcoal/80 mb-3">Ensure all documents are uploaded and positions are correct. Click &quot;Save Demand&quot; below to persist your changes.</p>
           </div>

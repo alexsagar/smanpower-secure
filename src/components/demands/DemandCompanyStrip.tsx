@@ -63,7 +63,7 @@ export function DemandCompanyStrip({ demand }: DemandCompanyStripProps) {
 
           {demand.demandReferenceNumber && (
             <div>
-              <p className="text-xs font-semibold text-brand-charcoal/50 uppercase tracking-wider mb-1">Demand Ref.</p>
+              <p className="text-xs font-semibold text-brand-charcoal/50 uppercase tracking-wider mb-1">Demand Lot Number</p>
               <NoTranslate as="p" className="font-mono text-sm text-brand-charcoal flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-brand-gold" />
                 {demand.demandReferenceNumber}

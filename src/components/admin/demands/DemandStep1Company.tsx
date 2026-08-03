@@ -103,7 +103,7 @@ export function DemandStep1Company({
           <select
             id="demand-country"
             value={data.countryId || ""}
-            onChange={(e) => updateData({ countryId: e.target.value })}
+            onChange={(e) => updateData({ countryId: e.target.value, countryName: countries.find((country) => country.id === e.target.value)?.name || "" })}
             className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2 disabled:bg-brand-charcoal/5 disabled:cursor-not-allowed"
             required
             disabled={countriesUnavailable}
@@ -149,7 +149,7 @@ export function DemandStep1Company({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Demand Reference No.</label>
+          <label className="block text-sm font-semibold mb-2">Demand Lot Number</label>
           <input
             type="text"
             value={data.demandReferenceNumber || ""}
@@ -174,26 +174,6 @@ export function DemandStep1Company({
             type="date"
             value={data.receivedDate ? data.receivedDate.split("T")[0] : ""}
             onChange={(e) => updateData({ receivedDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-            className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold mb-2">Application Start Date</label>
-          <input
-            type="date"
-            value={data.applicationStartDate ? data.applicationStartDate.split("T")[0] : ""}
-            onChange={(e) => updateData({ applicationStartDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-            className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold mb-2">Application Deadline</label>
-          <input
-            type="date"
-            value={data.applicationDeadline ? data.applicationDeadline.split("T")[0] : ""}
-            onChange={(e) => updateData({ applicationDeadline: e.target.value ? new Date(e.target.value).toISOString() : null })}
             className="w-full border border-brand-charcoal/20 rounded-sm px-3 py-2"
           />
         </div>

@@ -4,6 +4,7 @@ import { Building2, MapPin, Users, Calendar, Briefcase } from "lucide-react";
 import { CmsDemand } from "@/types/content";
 import { DemandStatusBadgeComponent } from "./DemandStatusBadge";
 import { ReadvertisementBadge } from "./ReadvertisementBadge";
+import { formatDemandDate, toDateOnly } from "@/lib/demand-presentation";
 
 interface DemandCardProps {
   demand: CmsDemand;
@@ -25,9 +26,9 @@ export function DemandCard({ demand }: DemandCardProps) {
             <DemandStatusBadgeComponent status={demand.statusBadge} />
             {demand.isReadvertisement && <ReadvertisementBadge />}
           </div>
-          {demand.demandReferenceNumber && (
-            <span className="text-xs font-mono text-brand-charcoal/50">
-              Ref: {demand.demandReferenceNumber}
+          {(demand.demandLotNumber || demand.demandReferenceNumber) && (
+            <span className="max-w-[12rem] text-right text-xs font-mono text-brand-charcoal/60 break-words">
+              Demand Lot Number: {demand.demandLotNumber || demand.demandReferenceNumber}
             </span>
           )}
         </div>
@@ -77,18 +78,32 @@ export function DemandCard({ demand }: DemandCardProps) {
             </div>
           </div>
 
+          {demand.maleVacancies != null && demand.femaleVacancies != null && (
+            <div className="grid grid-cols-3 gap-2 py-3 border-t border-brand-charcoal/10 text-center text-xs" aria-label="Worker requirements">
+              <span><strong>{demand.maleVacancies}</strong> Male</span>
+              <span><strong>{demand.femaleVacancies}</strong> Female</span>
+              <span><strong>{demand.totalVacancies}</strong> Total</span>
+            </div>
+          )}
+
+          {demand.interviewDate && (
+            <div className="flex items-center py-3 border-t border-brand-charcoal/10 text-sm">
+              <Calendar className="w-4 h-4 mr-2 text-brand-gold" />
+              <span className="text-brand-charcoal/70">Interview Date:</span>
+              <time className="ml-auto font-medium text-brand-black" dateTime={toDateOnly(demand.interviewDate)}>
+                {formatDemandDate(demand.interviewDate)}
+              </time>
+            </div>
+          )}
+
           {/* Deadline Row */}
           {demand.applicationDeadline && (
             <div className="flex items-center py-3 border-t border-brand-charcoal/10 text-sm">
               <Calendar className="w-4 h-4 mr-2 text-brand-gold" />
               <span className="text-brand-charcoal/70">Deadline:</span>
-              <span className="ml-auto font-medium text-brand-black">
-                {new Date(demand.applicationDeadline).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
+              <time className="ml-auto font-medium text-brand-black" dateTime={toDateOnly(demand.applicationDeadline)}>
+                {formatDemandDate(demand.applicationDeadline)}
+              </time>
             </div>
           )}
         </div>

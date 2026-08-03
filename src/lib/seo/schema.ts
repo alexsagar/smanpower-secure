@@ -1,5 +1,6 @@
 import { getSiteUrl, siteConfig } from "./site-config";
 import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
+import { generateDemandSeo } from "@/lib/demand-presentation";
 
 /**
  * Builds the Organization JSON-LD schema based strictly on verified data.
@@ -83,7 +84,7 @@ export const isEligibleForJobPostingSchema = ({ demand, position }: { demand: an
     !demand.isPublic ||
     !demand.title ||
     !demand.companyName ||
-    !demand.country?.name
+    !(typeof demand.country === "string" ? demand.country : demand.country?.name)
   ) {
     return false;
   }
@@ -122,13 +123,16 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
   
   const siteUrl = getSiteUrl();
   if (!siteUrl) return null;
+  const country = typeof demand.country === "string" ? demand.country : demand.country.name;
+  const generatedSeo = generateDemandSeo({ ...demand, country });
 
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     "title": position.title,
-    "description": demand.generalNotes || demand.seoTitle || position.title, // Ensure safe serialization
-    "datePosted": demand.publishedAt ? new Date(demand.publishedAt).toISOString() : new Date().toISOString(),
+    "description": demand.metaDescription || demand.generalNotes || generatedSeo.description,
+    ...(demand.publishedAt ? { "datePosted": new Date(demand.publishedAt).toISOString() } : {}),
+    "url": `${siteUrl}/demands/${demand.slug}`,
     ...(validThrough ? { "validThrough": validThrough } : {}),
     "hiringOrganization": {
       "@type": "Organization",
@@ -139,7 +143,7 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressCountry": demand.country.code || demand.country.name
+        "addressCountry": country
       }
     }
   };

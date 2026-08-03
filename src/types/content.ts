@@ -523,6 +523,7 @@ export interface CmsDemand {
   city?: string;
   employerAddress?: string;
   demandReferenceNumber?: string;
+  demandLotNumber?: string;
   approvalDate?: string;
   receivedDate?: string;
   applicationStartDate?: string;
@@ -554,6 +555,12 @@ export interface CmsDemand {
   // Computed
   totalPositions: number;
   totalManpower: number;
+  totalVacancies: number;
+  maleVacancies?: number;
+  femaleVacancies?: number;
+  applicationStatus: import("@/lib/demand-presentation").DemandApplicationStatus;
+  applicationStatusLabel: string;
+  canApply: boolean;
   positions: CmsDemandPosition[];
   documents: CmsDemandDocument[];
   // Timestamps

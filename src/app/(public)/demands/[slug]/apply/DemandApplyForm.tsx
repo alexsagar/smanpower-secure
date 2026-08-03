@@ -20,6 +20,14 @@ const FILE_INPUT_CLASS = [
   "disabled:opacity-50 disabled:file:cursor-not-allowed",
 ].join(" ");
 
+const FORM_CONTROL_CLASS = [
+  "w-full min-h-11 rounded-sm border border-brand-charcoal/30 bg-white px-3 py-2 text-brand-charcoal shadow-sm transition-colors",
+  "hover:border-brand-charcoal/50",
+  "focus-visible:outline-none focus-visible:border-brand-gold focus-visible:ring-2 focus-visible:ring-brand-gold/30 focus-visible:ring-offset-1",
+  "disabled:cursor-not-allowed disabled:border-brand-charcoal/20 disabled:bg-brand-stone disabled:text-brand-muted",
+  "user-invalid:border-red-500 user-invalid:ring-1 user-invalid:ring-red-500/20",
+].join(" ");
+
 interface DemandApplyFormProps {
   demand: CmsDemand;
   selectedPositionId?: string;
@@ -31,6 +39,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
   const [state, formAction, isPending] = useActionState(applyToDemandAction, null);
   const [cvFileName, setCvFileName] = useState("");
   const [certFileName, setCertFileName] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Form State
   const [formData, setFormData] = useState({
@@ -71,7 +80,24 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
       ...prev,
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
+    setFieldErrors((previous) => {
+      if (!previous[name]) return previous;
+      const next = { ...previous };
+      delete next[name];
+      return next;
+    });
   };
+
+  const validationProps = (name: string) => ({
+    "aria-invalid": fieldErrors[name] ? true : undefined,
+    "aria-describedby": fieldErrors[name] ? `${name}-error` : undefined,
+    onInvalid: (event: React.InvalidEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setFieldErrors((previous) => ({ ...previous, [name]: event.currentTarget.validationMessage })),
+  });
+
+  const fieldError = (name: string) => fieldErrors[name] && (
+    <p id={`${name}-error`} className="mt-1.5 text-xs font-medium text-red-700" role="alert">{fieldErrors[name]}</p>
+  );
 
   if (state?.success) {
     return (
@@ -112,15 +138,17 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
 
       {/* Position Selection */}
       <div className="mb-8 pb-8 border-b border-brand-charcoal/10">
-        <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+        <label htmlFor="positionId" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
           Select Position <span className="text-red-500">*</span>
         </label>
         <select
+          id="positionId"
           name="positionId"
           value={formData.positionId}
           onChange={handleChange}
           required
-          className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+          {...validationProps("positionId")}
+          className={`${FORM_CONTROL_CLASS} pr-10`}
         >
           <option value="" disabled>-- Select a position --</option>
           {demand.positions.map((pos) => {
@@ -132,6 +160,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
             );
           })}
         </select>
+        {fieldError("positionId")}
       </div>
 
       {/* Personal Information */}
@@ -139,69 +168,84 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
         <h3 className="text-lg font-bold font-serif mb-6 text-brand-black">Personal Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="fullName" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="fullName"
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
               required
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("fullName")}
+              className={FORM_CONTROL_CLASS}
             />
+            {fieldError("fullName")}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="phone" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Mobile Number <span className="text-red-500">*</span>
             </label>
             <input
+              id="phone"
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("phone")}
+              className={FORM_CONTROL_CLASS}
             />
+            {fieldError("phone")}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="email" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Email Address (Optional)
             </label>
             <input
+              id="email"
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("email")}
+              className={FORM_CONTROL_CLASS}
             />
+            {fieldError("email")}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Date of Birth <span className="text-red-500">*</span>
             </label>
             <input
+              id="dateOfBirth"
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleChange}
               required
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("dateOfBirth")}
+              className={`${FORM_CONTROL_CLASS} pr-3`}
             />
+            {fieldError("dateOfBirth")}
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="provinceDistrict" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Current Province / District <span className="text-red-500">*</span>
             </label>
             <input
+              id="provinceDistrict"
               type="text"
               name="provinceDistrict"
               value={formData.provinceDistrict}
               onChange={handleChange}
               required
+              {...validationProps("provinceDistrict")}
               placeholder="e.g. Bagmati / Kathmandu"
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              className={FORM_CONTROL_CLASS}
             />
+            {fieldError("provinceDistrict")}
           </div>
         </div>
       </div>
@@ -211,15 +255,17 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
         <h3 className="text-lg font-bold font-serif mb-6 text-brand-black">Qualifications & Experience</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="educationLevel" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Education Level <span className="text-red-500">*</span>
             </label>
             <select
+              id="educationLevel"
               name="educationLevel"
               value={formData.educationLevel}
               onChange={handleChange}
               required
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("educationLevel")}
+              className={`${FORM_CONTROL_CLASS} pr-10`}
             >
               <option value="">-- Select Education --</option>
               <option value="Below SLC/SEE">Below SLC/SEE</option>
@@ -228,50 +274,60 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
               <option value="Bachelors Degree">Bachelor's Degree</option>
               <option value="Masters Degree">Master's Degree</option>
             </select>
+            {fieldError("educationLevel")}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="skillCategory" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Main Skills / Trade Category <span className="text-red-500">*</span>
             </label>
             <input
+              id="skillCategory"
               type="text"
               name="skillCategory"
               value={formData.skillCategory}
               onChange={handleChange}
               required
+              {...validationProps("skillCategory")}
               placeholder="e.g. Mason, Welder, Chef, Guard"
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              className={FORM_CONTROL_CLASS}
             />
+            {fieldError("skillCategory")}
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="workExperience" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Current / Previous Work Experience <span className="text-red-500">*</span>
             </label>
             <textarea
+              id="workExperience"
               name="workExperience"
               value={formData.workExperience}
               onChange={handleChange}
               required
+              {...validationProps("workExperience")}
               rows={3}
               placeholder="Briefly describe your relevant work experience..."
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              className={`${FORM_CONTROL_CLASS} min-h-28 resize-y`}
             />
+            {fieldError("workExperience")}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
+            <label htmlFor="passportStatus" className="block text-sm font-semibold text-brand-black mb-2 uppercase tracking-wider">
               Passport Status <span className="text-red-500">*</span>
             </label>
             <select
+              id="passportStatus"
               name="passportStatus"
               value={formData.passportStatus}
               onChange={handleChange}
               required
-              className="w-full border-brand-charcoal/20 focus:border-brand-gold focus:ring-brand-gold rounded-sm"
+              {...validationProps("passportStatus")}
+              className={`${FORM_CONTROL_CLASS} pr-10`}
             >
               <option value="VALID">I have a valid passport</option>
               <option value="EXPIRED_OR_EXPIRING">I have a passport but it is expired / expiring soon</option>
               <option value="NO_PASSPORT">I do not currently have a passport</option>
             </select>
+            {fieldError("passportStatus")}
           </div>
         </div>
       </div>
@@ -280,7 +336,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
       <div className="mb-8 pb-8 border-b border-brand-charcoal/10">
         <h3 className="text-lg font-bold font-serif mb-6 text-brand-black">Documents</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="border-2 border-dashed border-brand-charcoal/20 p-6 text-center rounded-sm bg-brand-charcoal/5">
+          <div className="border-2 border-dashed border-brand-charcoal/30 p-6 text-center rounded-sm bg-brand-charcoal/5 transition-colors hover:border-brand-charcoal/50 focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/30">
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
             <label htmlFor="cvFile" className="font-semibold text-brand-black text-sm block cursor-pointer">
               Upload CV (Optional)
@@ -298,7 +354,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
             />
             {cvFileName && <p className="mt-2 truncate text-xs text-brand-gold">Selected: {cvFileName}</p>}
           </div>
-          <div className="border-2 border-dashed border-brand-charcoal/20 p-6 text-center rounded-sm bg-brand-charcoal/5">
+          <div className="border-2 border-dashed border-brand-charcoal/30 p-6 text-center rounded-sm bg-brand-charcoal/5 transition-colors hover:border-brand-charcoal/50 focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/30">
             <Upload className="w-8 h-8 text-brand-charcoal/40 mx-auto mb-2" />
             <label htmlFor="certFile" className="font-semibold text-brand-black text-sm block cursor-pointer">
               Trade Certificate (Optional)
@@ -328,13 +384,15 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
               name="availableForInterview"
               checked={formData.availableForInterview}
               onChange={handleChange}
-              className="w-4 h-4 text-brand-gold border-brand-charcoal/20 focus:ring-brand-gold rounded-sm"
+              {...validationProps("availableForInterview")}
+              className="w-4 h-4 text-brand-gold border-brand-charcoal/40 focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 rounded-sm"
             />
           </div>
           <span className="text-sm text-brand-black group-hover:text-brand-gold transition-colors">
             I am available to attend an interview if shortlisted.
           </span>
         </label>
+        {fieldError("availableForInterview")}
         
         <label className="flex items-start gap-3 cursor-pointer group">
           <div className="pt-0.5">
@@ -344,13 +402,15 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
               checked={formData.demandDetailsRead}
               onChange={handleChange}
               required
-              className="w-4 h-4 text-brand-gold border-brand-charcoal/20 focus:ring-brand-gold rounded-sm"
+              {...validationProps("demandDetailsRead")}
+              className="w-4 h-4 text-brand-gold border-brand-charcoal/40 focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 rounded-sm"
             />
           </div>
           <span className="text-sm text-brand-black group-hover:text-brand-gold transition-colors">
             I confirm that I have read and understood the demand details, salary, and working conditions. <span className="text-red-500">*</span>
           </span>
         </label>
+        {fieldError("demandDetailsRead")}
 
         <label className="flex items-start gap-3 cursor-pointer group">
           <div className="pt-0.5">
@@ -360,13 +420,15 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
               checked={formData.privacyConsentGiven}
               onChange={handleChange}
               required
-              className="w-4 h-4 text-brand-gold border-brand-charcoal/20 focus:ring-brand-gold rounded-sm"
+              {...validationProps("privacyConsentGiven")}
+              className="w-4 h-4 text-brand-gold border-brand-charcoal/40 focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 rounded-sm"
             />
           </div>
           <span className="text-sm text-brand-black group-hover:text-brand-gold transition-colors">
             I consent to Seven Seas Intercontinental processing my personal data for recruitment purposes. <span className="text-red-500">*</span>
           </span>
         </label>
+        {fieldError("privacyConsentGiven")}
 
         <label className="flex items-start gap-3 cursor-pointer group">
           <div className="pt-0.5">
@@ -376,7 +438,8 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
               checked={formData.safetyAcknowledgement}
               onChange={handleChange}
               required
-              className="w-4 h-4 text-brand-gold border-brand-charcoal/20 focus:ring-brand-gold rounded-sm"
+              {...validationProps("safetyAcknowledgement")}
+              className="w-4 h-4 text-brand-gold border-brand-charcoal/40 focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 rounded-sm"
             />
           </div>
           <div className="text-sm text-brand-black">
@@ -386,6 +449,7 @@ export function DemandApplyForm({ demand, selectedPositionId }: DemandApplyFormP
             <p className="text-xs text-brand-charcoal/60 mt-1">I will not make payments to unauthorized individuals.</p>
           </div>
         </label>
+        {fieldError("safetyAcknowledgement")}
       </div>
 
       {process.env.NEXT_PUBLIC_TURNSTILE_ENABLED === "true" && (
