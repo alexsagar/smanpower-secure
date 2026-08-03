@@ -75,5 +75,16 @@ describe("sitemap", () => {
     // Dynamic records keep their genuine database timestamp.
     const demand = entries.find((e) => e.url === "https://smanpower.com/demands/sample-demand");
     expect(demand?.lastModified).toBeInstanceOf(Date);
+
+    // Expired and soft-deleted demands are filtered at the query level:
+    // only PUBLISHED, public, non-deleted, non-expired demands are requested.
+    const demandCall = findMany.mock.calls.find(
+      (call) => call[0]?.where?.status === "PUBLISHED" && call[0]?.where?.deletedAt === null
+    );
+    expect(demandCall).toBeTruthy();
+    expect(demandCall![0].where.OR).toEqual([
+      { applicationDeadline: null },
+      { applicationDeadline: { gte: expect.any(Date) } },
+    ]);
   });
 });

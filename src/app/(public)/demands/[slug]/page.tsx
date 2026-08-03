@@ -16,6 +16,7 @@ import { DemandLetterImage } from "@/components/demands/DemandLetterImage";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema, buildBreadcrumbSchema, buildWebPageSchema } from "@/lib/seo/schema";
 import { getSiteUrl } from "@/lib/seo/site-config";
+import { isDemandPubliclyViewable } from "@/lib/demand-eligibility";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { formatDemandDate, generateDemandSeo, toDateOnly } from "@/lib/demand-presentation";
 
@@ -38,8 +39,9 @@ export async function generateMetadata(
     });
   }
 
-  // If not public or draft, noindex
-  const noIndex = !demand.isPublic || demand.status !== "PUBLISHED";
+  // Open, expired and closed public demands are indexable historical pages.
+  // Everything else (draft, private, archived) is noindex — and 404s below.
+  const noIndex = !isDemandPubliclyViewable(demand);
 
   const generatedSeo = generateDemandSeo(demand);
   return buildPageMetadata({
@@ -57,7 +59,9 @@ export default async function DemandDetailPage({ params }: Props) {
   const { slug } = await params;
   const demand = await getDemandBySlug(slug);
 
-  if (!demand) {
+  // Draft, private, archived and soft-deleted demands are not publicly
+  // accessible (real 404, never a homepage redirect). Invalid slugs 404 too.
+  if (!demand || !isDemandPubliclyViewable(demand)) {
     notFound();
   }
 
@@ -123,6 +127,28 @@ export default async function DemandDetailPage({ params }: Props) {
               <h1 className="text-3xl md:text-5xl font-bold font-serif mb-4 text-brand-black tracking-tight leading-tight">
                 {demand.title}
               </h1>
+
+              {/* Real readvertisement relationship links (never fabricated). */}
+              {demand.isReadvertisement && demand.readvertisedFrom && (
+                <p className="text-sm text-brand-charcoal/80">
+                  This demand is a readvertisement
+                  {demand.readvertisedFrom.demandLotNumber
+                    ? ` of Demand Lot ${demand.readvertisedFrom.demandLotNumber}`
+                    : " of an earlier demand"}
+                  .{" "}
+                  <Link href={`/demands/${demand.readvertisedFrom.slug}`} className="text-brand-gold font-semibold hover:underline">
+                    View the original demand
+                  </Link>
+                </p>
+              )}
+              {demand.currentReadvertisement && (
+                <p className="text-sm text-brand-charcoal/80">
+                  This demand has been readvertised.{" "}
+                  <Link href={`/demands/${demand.currentReadvertisement.slug}`} className="text-brand-gold font-semibold hover:underline">
+                    View the current demand
+                  </Link>
+                </p>
+              )}
             </div>
 
             <div className="shrink-0 flex gap-4">

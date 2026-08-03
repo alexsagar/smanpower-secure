@@ -55,8 +55,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic Demands
   // Only PUBLISHED and isPublic demands (no demo/draft/fake data)
   if (process.env.DEMO_MODE !== "true") {
+    // Only open published demands belong in the sitemap. Closed demands
+    // (status !== PUBLISHED) are already excluded; expired demands (deadline
+    // passed) and soft-deleted records are excluded here too. Closed/expired
+    // pages stay indexable historical pages, just not sitemap-listed.
     const demands = await prisma.demand.findMany({
-      where: { status: "PUBLISHED", isPublic: true },
+      where: {
+        status: "PUBLISHED",
+        isPublic: true,
+        deletedAt: null,
+        OR: [
+          { applicationDeadline: null },
+          { applicationDeadline: { gte: new Date() } },
+        ],
+      },
       select: { slug: true, updatedAt: true, publishedAt: true },
     });
     demands.forEach((demand: any) => {

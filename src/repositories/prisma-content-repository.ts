@@ -1198,6 +1198,17 @@ export class PrismaContentRepository implements ContentRepository {
       statusBadge: this.mapDemandStatusBadge(r),
       // Derived from the actual relation, never from the title text.
       isReadvertisement: Boolean(r.readvertisedFromId),
+      // Real relationship links (only present on single-demand fetches). Never
+      // fabricated: undefined when the linked record is unavailable.
+      readvertisedFrom: r.readvertisedFrom
+        ? { slug: r.readvertisedFrom.slug, demandLotNumber: r.readvertisedFrom.demandReferenceNumber || undefined }
+        : undefined,
+      currentReadvertisement: (() => {
+        const child = (r.readvertisements || []).find(
+          (c: any) => c.status === "PUBLISHED" || c.status === "CLOSED"
+        );
+        return child ? { slug: child.slug, demandLotNumber: child.demandReferenceNumber || undefined } : undefined;
+      })(),
       isPublic: r.isPublic,
       enableApplication: r.enableApplication,
       requiredApplicationDocuments: r.requiredApplicationDocuments || undefined,
@@ -1308,9 +1319,20 @@ export class PrismaContentRepository implements ContentRepository {
   }
 
   async getDemandBySlug(slug: string): Promise<CmsDemand | null> {
-    const result = await prisma.demand.findUnique({
-      where: { slug },
-      include: this.demandIncludes,
+    // Soft-deleted demands are never publicly viewable. Include the
+    // readvertisement links (original + public children) so the detail page can
+    // render the visible relationship without a second query.
+    const result = await prisma.demand.findFirst({
+      where: { slug, deletedAt: null },
+      include: {
+        ...this.demandIncludes,
+        readvertisedFrom: { select: { slug: true, demandReferenceNumber: true } },
+        readvertisements: {
+          where: { deletedAt: null, isPublic: true },
+          select: { slug: true, demandReferenceNumber: true, status: true },
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     if (!result) return null;

@@ -536,6 +536,10 @@ export interface CmsDemand {
   statusBadge: DemandStatusBadge;
   /** True when this demand was created by readvertising an earlier one. */
   isReadvertisement?: boolean;
+  /** The original demand this one readvertises (present on detail fetches). */
+  readvertisedFrom?: { slug: string; demandLotNumber?: string };
+  /** The current public readvertisement of this demand, if one exists. */
+  currentReadvertisement?: { slug: string; demandLotNumber?: string };
   isPublic: boolean;
   // Application settings
   enableApplication: boolean;

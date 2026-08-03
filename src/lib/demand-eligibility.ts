@@ -8,6 +8,24 @@ import { DemandStatus } from "@prisma/client";
  * Lives outside the "use server" action module because that file may only
  * export async functions.
  */
+/**
+ * Whether a demand may be shown on its public detail page. Open and expired
+ * (PUBLISHED) demands and CLOSED demands remain accessible as historical
+ * informational pages; DRAFT, UNDER_REVIEW, ARCHIVED, private (isPublic=false)
+ * and soft-deleted demands are not publicly viewable (the page returns 404).
+ * Soft-deletion is enforced at the query level (getDemandBySlug), so a demand
+ * reaching this check is already non-deleted.
+ */
+export function isDemandPubliclyViewable(demand: {
+  status: DemandStatus | string;
+  isPublic: boolean;
+}): boolean {
+  return (
+    demand.isPublic === true &&
+    (demand.status === DemandStatus.PUBLISHED || demand.status === DemandStatus.CLOSED)
+  );
+}
+
 export function isReadvertisable(demand: {
   status: DemandStatus;
   applicationDeadline: Date | null;
