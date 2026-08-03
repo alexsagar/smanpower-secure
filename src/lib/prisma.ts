@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
@@ -28,15 +29,24 @@ function createPrismaClient() {
   });
 }
 
-function getPrismaClient(): PrismaClient {
-  const existing = globalForPrisma.prisma;
-  if (existing) return existing;
+// On workerd a client may not be shared between requests. The client's engine
+// initialises lazily on first query, so the isolate's first request owns that
+// pending promise; a concurrent request that reuses the same client awaits an
+// I/O promise from a foreign request context and never settles. The runtime
+// cancels it after ~30s ("your Worker's code had hung"), which the browser sees
+// as ERR_TIMED_OUT. React's `cache` gives each request its own client.
+const getRequestPrismaClient = cache(createPrismaClient);
 
-  // Cached on globalThis so dev HMR does not leak connections; on the Worker
-  // this just means one client per isolate, which is what we want anyway.
-  const client = createPrismaClient();
-  globalForPrisma.prisma = client;
-  return client;
+const isWorkerd =
+  typeof navigator !== "undefined" &&
+  navigator.userAgent === "Cloudflare-Workers";
+
+function getPrismaClient(): PrismaClient {
+  if (isWorkerd) return getRequestPrismaClient();
+
+  // Elsewhere (dev server, scripts) one client per process: keeps HMR from
+  // leaking connections and avoids re-creating it for every CLI query.
+  return (globalForPrisma.prisma ??= createPrismaClient());
 }
 
 // Constructed on first use, not at import time: on workerd `process.env` is not
@@ -44,7 +54,8 @@ function getPrismaClient(): PrismaClient {
 // module scope would throw before the request ever starts.
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop, receiver) {
-    const value = Reflect.get(getPrismaClient(), prop, receiver);
-    return typeof value === "function" ? value.bind(getPrismaClient()) : value;
+    const client = getPrismaClient();
+    const value = Reflect.get(client, prop, receiver);
+    return typeof value === "function" ? value.bind(client) : value;
   },
 });
