@@ -4,8 +4,13 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export const FIRST_VISIT_LOADER_KEY = "smanpower:first-visit-loader:v1";
-const MIN_DISPLAY_MS = 3500;
-const SAFETY_TIMEOUT_MS = 5000;
+// ponytail: the loader is an opaque full-screen overlay, so every millisecond it
+// is held is a millisecond of Speed Index and LCP. Holding it for 3.5s *and*
+// gating dismissal on `load` (which waits for the multi-MB hero video) kept the
+// page blank for ~4.5s. Dismiss as soon as the app is interactive instead, and
+// keep only a short brand flash. Raise MIN_DISPLAY_MS if the intro must linger.
+const MIN_DISPLAY_MS = 600;
+const SAFETY_TIMEOUT_MS = 2000;
 const FADE_OUT_MS = 220;
 
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
@@ -53,23 +58,16 @@ export function FirstVisitLoader() {
     };
 
     const showFrame = window.requestAnimationFrame(() => setPhase("visible"));
-    let finishFrame = 0;
-    const onLoad = () => {
-      finishFrame = window.requestAnimationFrame(finish);
-    };
-
-    if (document.readyState === "complete") {
-      onLoad();
-    } else {
-      window.addEventListener("load", onLoad, { once: true });
-    }
+    // This effect only runs once React has hydrated, which is the point the page
+    // is actually usable. Waiting for `load` on top of that only waits for
+    // below-the-fold media the user cannot see yet.
+    const finishFrame = window.requestAnimationFrame(finish);
 
     const timeout = window.setTimeout(finish, SAFETY_TIMEOUT_MS);
 
     return () => {
       window.cancelAnimationFrame(showFrame);
       window.cancelAnimationFrame(finishFrame);
-      window.removeEventListener("load", onLoad);
       window.clearTimeout(timeout);
       window.clearTimeout(finishTimer);
       window.clearTimeout(hideTimer);
@@ -89,7 +87,7 @@ export function FirstVisitLoader() {
     >
       <div className="flex flex-col items-center gap-7">
         <Image
-          src="/images/SSIS.png"
+          src="/images/SSIS.webp"
           alt="Seven Seas Intercontinental"
           width={180}
           height={180}

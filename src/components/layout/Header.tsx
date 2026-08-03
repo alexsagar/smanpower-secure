@@ -73,7 +73,7 @@ export function Header({
         <Link href="/" className="relative z-50 group shrink-0">
           <NoTranslate className="flex items-center gap-3">
             <Image
-              src="/images/SSIS.png"
+              src="/images/SSIS.webp"
               alt="Seven Seas Intercontinental"
               width={80}
               height={80}

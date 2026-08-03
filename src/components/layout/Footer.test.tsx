@@ -32,7 +32,7 @@ const siteSettings: CmsSiteSettings = {
   tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
   website: "https://smanpower.com",
   domain: "smanpower.com",
-  logoUrl: "/images/SSIS.png",
+  logoUrl: "/images/SSIS.webp",
   address: "Ward No. 8, Guheswori",
   addressLine2: "Kathmandu Metropolitan City",
   city: "Kathmandu",

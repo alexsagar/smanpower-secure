@@ -9,6 +9,10 @@ assertProductionEnv();
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
+    // /_next/image was answering with no cache lifetime at all, so every
+    // navigation re-downloaded optimised images. One year is safe: the URL is
+    // keyed on the source path plus the transform params.
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: "https",

@@ -11,7 +11,7 @@ export const demoSiteSettings: CmsSiteSettings = {
   tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
   website: "https://smanpower.com",
   domain: "smanpower.com",
-  logoUrl: "/images/SSIS.png",
+  logoUrl: "/images/SSIS.webp",
   address: "G.P.O. Box: 8975, EPC: 1916",
   addressLine2: "Kathmandu, Bagmati Province",
   city: "Kathmandu",

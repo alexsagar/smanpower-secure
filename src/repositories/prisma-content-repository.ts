@@ -44,7 +44,7 @@ const DEFAULT_SITE_SETTINGS: CmsSiteSettings = {
   tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
   website: "https://smanpower.com",
   domain: "smanpower.com",
-  logoUrl: "/images/SSIS.png",
+  logoUrl: "/images/SSIS.webp",
   address: "",
   addressLine2: "",
   city: "Kathmandu",

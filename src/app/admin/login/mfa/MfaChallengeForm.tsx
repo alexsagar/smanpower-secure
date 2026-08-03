@@ -18,7 +18,7 @@ export function MfaChallengeForm() {
       <div className="bg-white border border-brand-charcoal/10 p-10">
         <div className="text-center mb-8">
           <Image
-            src="/images/SSIS.png"
+            src="/images/SSIS.webp"
             alt="Seven Seas Intercontinental"
             width={64}
             height={64}

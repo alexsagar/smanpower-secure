@@ -63,7 +63,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       <div className="h-14 flex items-center px-4 border-b border-white/10">
         {!collapsed && (
           <Image
-            src="/images/SSIS.png"
+            src="/images/SSIS.webp"
             alt="Seven Seas"
             width={32}
             height={32}

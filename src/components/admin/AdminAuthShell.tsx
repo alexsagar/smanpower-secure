@@ -30,7 +30,7 @@ export function AdminAuthShell({
                 icon
               ) : (
                 <Image
-                  src="/images/SSIS.png"
+                  src="/images/SSIS.webp"
                   alt="Seven Seas Intercontinental"
                   width={48}
                   height={48}
