@@ -67,7 +67,7 @@ createdAt: new Date().toISOString(),
             {
               type: "paragraph",
               content: [
-                { type: "text", text: "Sourcing labor internationally shouldn't be a gamble. By partnering with Seven Seas Intercontinental, you are tapping into a strictly regulated, RBA-aligned workforce pipeline that guarantees candidate quality and zero debt bondage." }
+                { type: "text", text: "Sourcing labor internationally shouldn't be a gamble. By partnering with Seven Seas Intercontinental, you are tapping into a strictly regulated, RBA-compliant workforce pipeline that guarantees candidate quality and zero debt bondage." }
               ]
             }
           ]
@@ -126,7 +126,7 @@ createdAt: new Date().toISOString(),
         badgeLabel: "Ethical Compliance",
         points: [
           "Zero Recruitment Fees charged to candidates",
-          "Stringent RBA-aligned ethical practices",
+          "Stringent RBA-compliant ethical practices",
           "End-to-end processing and government liaison",
           "Customized trade testing protocols for your needs"
         ],

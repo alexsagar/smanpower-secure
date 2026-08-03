@@ -23,6 +23,7 @@ const auditedRoutes = [
   "/employers",
   "/employers/[slug]",
   "/employers/request-workforce",
+  "/gallery",
   "/ethical-recruitment",
   "/ethical-recruitment/[slug]",
   "/ethical-recruitment/privacy-policy",
@@ -111,8 +112,8 @@ describe("CMS page registry", () => {
   it("returns only currently editable CMS or collection-backed pages", () => {
     const editableRoutes = listEditableCmsPages().map((entry) => entry.canonicalRoute);
 
-    expect(editableRoutes).toHaveLength(17);
-    expect(editableRoutes).toEqual(expect.arrayContaining(["/", "/about", "/demands", "/demands/[slug]", "/careers", "/news"]));
+    expect(editableRoutes).toHaveLength(18);
+    expect(editableRoutes).toEqual(expect.arrayContaining(["/", "/about", "/demands", "/demands/[slug]", "/careers", "/news", "/gallery"]));
     expect(editableRoutes).not.toEqual(expect.arrayContaining([
       "/about/leadership",
       "/employers/[slug]",
@@ -138,6 +139,7 @@ describe("CMS page registry", () => {
       "about",
       "employers",
       "ethical-recruitment",
+      "gallery",
       "home",
       "industries",
       "training-facilities",

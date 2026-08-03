@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { UnauthenticatedError } from "@/lib/auth-errors";
 import { auth } from "@/lib/auth";
@@ -37,6 +37,9 @@ const requirePermissionMock = vi.mocked(requirePermission);
 describe("Route Error Contracts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Exercise the validation/error contracts of the applications route; the
+    // "applications disabled" (403) path is a separate concern.
+    vi.stubEnv("PUBLIC_APPLICATIONS_ENABLED", "true");
     authMock.mockResolvedValue({
       user: { id: "test-admin-user" },
     } as Awaited<ReturnType<typeof auth>>);
@@ -48,6 +51,10 @@ describe("Route Error Contracts", () => {
       permissions: [],
       sessionVersion: 1,
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("Application API malformed FormData returns a safe validation response", async () => {

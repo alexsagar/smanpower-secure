@@ -92,7 +92,7 @@ export const CMS_PAGE_REGISTRY = [
   entry({ canonicalRoute: "/robots.txt", label: "Robots", category: "SYSTEM", coverageStatus: "SYSTEM_ROUTE", routeType: "SYSTEM", managementMode: "SYSTEM", publicRenderer: "src/app/robots.ts", allowedBlockTypes: [], requiredBlockTypes: [], optionalBlockTypes: [], plannedBlockTypes: [], collectionDependencies: [], seoPolicy: "NOT_APPLICABLE", mediaPolicy: "NOT_APPLICABLE", previewStrategy: "NONE", hasCodeControlledFunctionality: true, migrationWave: "WAVE_0", priority: "P3", enabled: true }),
 ] as const satisfies readonly CmsPageRegistryEntry[];
 
-export const AUDITED_PUBLIC_ROUTE_COUNT = 38;
+export const AUDITED_PUBLIC_ROUTE_COUNT = 39;
 
 export function normalizeCmsRoute(route: string) {
   if (route === "") return "/";

@@ -5,7 +5,7 @@ export const ethicalRecruitmentPage: CmsPage = {
   slug: "ethical-recruitment",
   status: "PUBLISHED" as any,
   title: "Ethical Recruitment",
-  subtitle: "Our commitment to ethical recruitment, worker rights, and RBA-aligned practices in international workforce deployment.",
+  subtitle: "Our commitment to ethical recruitment, worker rights, and RBA-compliant practices in international workforce deployment.",
 createdAt: "2024-01-01T00:00:00Z",
   updatedAt: "2024-03-01T00:00:00Z",
   
@@ -105,7 +105,7 @@ createdAt: new Date().toISOString(),
         title: "Our Ethical Framework.",
         ctaText: "View Details",
         solutions: [
-          { title: "RBA-Aligned Practices", desc: "We align our operations with the Responsible Business Alliance (RBA) Code of Conduct, ensuring fair labour practices and zero tolerance for forced labour.", icon: "ShieldCheck", href: "/ethical-recruitment/rba-aligned-practices" },
+          { title: "RBA-Compliant Practices", desc: "Our operations comply with the Responsible Business Alliance (RBA) Code of Conduct, ensuring fair labour practices and zero tolerance for forced labour.", icon: "ShieldCheck", href: "/ethical-recruitment/rba-aligned-practices" },
           { title: "Worker Rights", desc: "Protecting the fundamental rights of every candidate throughout the recruitment and deployment cycle, including freedom of movement and safe working conditions.", icon: "Scale", href: "/ethical-recruitment/worker-rights" },
           { title: "Recruitment Fee Transparency", desc: "Clear, documented policies on recruitment fees to protect candidates from exploitation and ensure compliance with international employer paid principles.", icon: "FileCheck", href: "/ethical-recruitment/recruitment-fees" },
           { title: "Grievance Process", desc: "Accessible, confidential, and effective mechanisms for candidates and deployed workers to report concerns without fear of retaliation.", icon: "HeartHandshake", href: "/ethical-recruitment/grievance-process" },

@@ -594,7 +594,7 @@ export const demoHomepage: CmsPage = {
   seo: {
     metaTitle: "Seven Seas Intercontinental | Ethical Workforce Solutions from Nepal",
     metaDescription:
-      "Nepal's trusted ethical recruitment agency. RBA-aligned workforce deployment, trade testing, and training for global employers across 8 sectors.",
+      "Nepal's trusted ethical recruitment agency. RBA-compliant workforce deployment, trade testing, and training for global employers across 8 sectors.",
     ogTitle: "Seven Seas Intercontinental",
     ogDescription: "Responsible recruitment and prepared workforce deployment from Nepal to the world.",
   },

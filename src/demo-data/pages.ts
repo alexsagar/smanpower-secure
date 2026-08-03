@@ -186,7 +186,7 @@ export const demoPages: CmsPage[] = [
   // Ethical
   createPage(
     "ethical-recruitment/rba-aligned-practices",
-    "RBA-Aligned Recruitment Practices.",
+    "RBA-Compliant Recruitment Practices.",
     "RBA Alignment",
     "The Gold Standard in Ethics.",
     [

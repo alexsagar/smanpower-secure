@@ -31,7 +31,7 @@ export const demoSiteSettings: CmsSiteSettings = {
   defaultSeo: {
     metaTitle: "Seven Seas Intercontinental | Ethical Workforce Solutions from Nepal",
     metaDescription:
-      "Nepal's trusted ethical recruitment agency. RBA-aligned workforce deployment, trade testing, and training for global employers.",
+      "Nepal's trusted ethical recruitment agency. RBA-compliant workforce deployment, trade testing, and training for global employers.",
     ogTitle: "Seven Seas Intercontinental",
     ogDescription:
       "Responsible recruitment and workforce deployment from Nepal to the world.",

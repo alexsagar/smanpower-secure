@@ -90,6 +90,17 @@ const TEMPLATE_LABEL_DEFAULTS = {
 export function buildDynamicPageBlockContent(entry: PageContent) {
   return {
     ...TEMPLATE_LABEL_DEFAULTS,
+    // Preserve the entry's own template labels; only fall back to the defaults
+    // when a field is absent. Previously these were always overwritten with the
+    // defaults, so migrating a page with custom labels (e.g. "The Standard
+    // Explained") silently reverted them to "Overview" — a content regression
+    // the round-trip guard test catches.
+    overviewSubtitle: entry.overviewSubtitle ?? TEMPLATE_LABEL_DEFAULTS.overviewSubtitle,
+    featuresEyebrow: entry.featuresEyebrow ?? TEMPLATE_LABEL_DEFAULTS.featuresEyebrow,
+    featuresHeading: entry.featuresHeading ?? TEMPLATE_LABEL_DEFAULTS.featuresHeading,
+    documentsEyebrow: entry.documentsEyebrow ?? TEMPLATE_LABEL_DEFAULTS.documentsEyebrow,
+    documentsHeading: entry.documentsHeading ?? TEMPLATE_LABEL_DEFAULTS.documentsHeading,
+    documentsCtaLabel: entry.documentsCtaLabel ?? TEMPLATE_LABEL_DEFAULTS.documentsCtaLabel,
     title: entry.title,
     subtitle: entry.subtitle,
     heroImage: entry.heroImage,

@@ -50,7 +50,8 @@ export function ClientMarqueeRenderer({
 
       {/* Marquee Container - Our Clients */}
       {clients.length > 0 && (
-        <div className="mb-16 relative">
+        <div className="mb-16 relative" role="group" aria-label="Our clients">
+          <h3 className="sr-only">Our clients</h3>
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-brand-white to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-brand-white to-transparent z-10 pointer-events-none" />
 
@@ -84,7 +85,8 @@ export function ClientMarqueeRenderer({
 
       {/* Marquee Container - Group of Companies (Reverse Scroll) */}
       {groups.length > 0 && (
-        <div className="relative">
+        <div className="relative" role="group" aria-label="Our group company network">
+          <h3 className="sr-only">Our group company network</h3>
           <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-brand-white to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-brand-white to-transparent z-10 pointer-events-none" />
 

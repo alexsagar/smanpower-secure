@@ -20,7 +20,7 @@ export const demoComplianceDocs = [
   },
   {
     id: "doc-3",
-    title: "RBA-Aligned Zero-Fee Ethical Recruitment Policy",
+    title: "RBA-Compliant Zero-Fee Ethical Recruitment Policy",
     documentType: "compliance-documents",
     fileUrl: "/docs/zero-fee-policy.pdf",
     isPublic: true,
