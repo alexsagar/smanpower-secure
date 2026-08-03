@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildArticleSchema } from "@/lib/seo/schema";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
@@ -90,6 +91,15 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
       <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
         {/* Top Editorial Navigation Bar */}
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-6xl mb-8">
+          <PageBreadcrumbs
+            className="mb-4"
+            items={[
+              { name: "Home", path: "" },
+              { name: "Insights", path: "/insights" },
+              { name: insight.title, path: `/insights/${insight.slug}` },
+            ]}
+            description={insight.summary}
+          />
           <div className="border-t-2 border-b border-brand-black/20 py-3 flex items-center justify-between">
             <Link
               href="/insights"

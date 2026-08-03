@@ -6,7 +6,7 @@ import { publicFontVariables } from "@/lib/fonts";
 import "@/app/globals.css";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { buildOrganizationSchema } from "@/lib/seo/schema";
+import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/schema";
 import { Metadata } from "next";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -29,6 +29,7 @@ export default async function PublicLayout({
   const siteSettings = await repo.getSiteSettings();
   const layoutCopy = await getPageCopy("layout");
   const orgSchema = buildOrganizationSchema(siteSettings, footerSettings);
+  const webSiteSchema = buildWebSiteSchema(siteSettings);
   const resourceLinks = headerNav
     .find((section) => section.label.toLowerCase() === "resources")
     ?.items.filter((item): item is typeof item & { href: string } => typeof item.href === "string")
@@ -54,6 +55,15 @@ export default async function PublicLayout({
             type="application/ld+json"
             dangerouslySetInnerHTML={{
               __html: JSON.stringify(orgSchema).replace(/</g, "\\u003c"),
+            }}
+          />
+        )}
+        {webSiteSchema && (
+          <script
+            id="website-schema"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(webSiteSchema).replace(/</g, "\\u003c"),
             }}
           />
         )}

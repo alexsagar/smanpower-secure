@@ -23,5 +23,14 @@ export default async function EthicalDynamicPage({
 
   if (!content) notFound();
 
-  return <EthicalPageTemplate content={content} />;
+  return (
+    <EthicalPageTemplate
+      content={content}
+      breadcrumbs={[
+        { name: "Home", path: "" },
+        { name: "Ethical Recruitment", path: "/ethical-recruitment" },
+        { name: content.title, path: `/ethical-recruitment/${slug}` },
+      ]}
+    />
+  );
 }

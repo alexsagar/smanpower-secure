@@ -23,5 +23,14 @@ export default async function TrainingDynamicPage({
 
   if (!content) notFound();
 
-  return <DynamicPageTemplate content={content} />;
+  return (
+    <DynamicPageTemplate
+      content={content}
+      breadcrumbs={[
+        { name: "Home", path: "" },
+        { name: "Training Facilities", path: "/training-facilities" },
+        { name: content.title, path: `/training-facilities/${slug}` },
+      ]}
+    />
+  );
 }

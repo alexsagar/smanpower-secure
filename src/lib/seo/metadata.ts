@@ -10,6 +10,12 @@ interface PageMetaProps {
   canonicalOverride?: string | null;
   ogImage?: string | null;
   noIndex?: boolean;
+  /**
+   * Only meaningful with noIndex. Default false → noindex,follow (let crawlers
+   * follow links, e.g. from a search or application page back to the canonical
+   * demand). Set true only when links must not be followed either.
+   */
+  noFollow?: boolean;
 }
 
 /**
@@ -39,11 +45,15 @@ export const buildPageMetadata = ({
   canonicalOverride,
   ogImage,
   noIndex = false,
+  noFollow = false,
 }: PageMetaProps): Metadata => {
   const siteUrl = getSiteUrl();
   const canonicalUrl = buildCanonicalUrl(path, canonicalOverride);
   const shouldNoIndex = noIndex || isStagingNoIndexEnabled();
-  
+  // Staging noindexes everything (index+follow off); otherwise a noindex page
+  // still allows following links by default (noindex,follow).
+  const shouldNoFollow = isStagingNoIndexEnabled() || (shouldNoIndex && noFollow);
+
   const finalTitle = buildBrandedTitle(title);
   const finalDescription = description || siteConfig.description;
 
@@ -73,10 +83,10 @@ export const buildPageMetadata = ({
     },
     robots: {
       index: !shouldNoIndex,
-      follow: !shouldNoIndex,
+      follow: !shouldNoFollow,
       googleBot: {
         index: !shouldNoIndex,
-        follow: !shouldNoIndex,
+        follow: !shouldNoFollow,
         "max-video-preview": -1,
         "max-image-preview": "large",
         "max-snippet": -1,

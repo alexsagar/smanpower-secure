@@ -26,6 +26,127 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
 };
 
 /**
+ * WebSite entity with a stable @id. Emitted once, site-wide. The SearchAction
+ * is safe to declare because the repaired /search route accepts a `q` query
+ * parameter in exactly this format.
+ */
+export const buildWebSiteSchema = (settings?: CmsSiteSettings) => {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    "url": siteUrl,
+    "name": settings?.companyName || siteConfig.name,
+    "publisher": { "@id": `${siteUrl}/#organization` },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": `${siteUrl}/search?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  };
+};
+
+/**
+ * WebPage entity keyed to the page's real canonical URL and linked to the
+ * site-wide WebSite entity. `canonicalUrl` must be the page's own canonical.
+ */
+export const buildWebPageSchema = ({
+  canonicalUrl,
+  name,
+  description,
+}: {
+  canonicalUrl: string;
+  name: string;
+  description?: string | null;
+}) => {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl || !canonicalUrl) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${canonicalUrl}#webpage`,
+    "url": canonicalUrl,
+    "name": name,
+    ...(description ? { description } : {}),
+    "isPartOf": { "@id": `${siteUrl}/#website` },
+  };
+};
+
+/**
+ * BreadcrumbList JSON-LD built from the SAME items used to render the visible
+ * breadcrumb trail, guaranteeing parity. `items` are ordered root → current;
+ * `url` is optional on the final (current) crumb.
+ */
+export const buildBreadcrumbSchema = (items: { name: string; url?: string }[]) => {
+  if (!items.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": items.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": item.name,
+      ...(item.url ? { item: item.url } : {}),
+    })),
+  };
+};
+
+/**
+ * NewsArticle JSON-LD for a genuine news record. Emits only stored fields.
+ */
+export const buildNewsArticleSchema = (article: {
+  title: string;
+  slug: string;
+  summary?: string | null;
+  metaDescription?: string | null;
+  imageUrl?: string | null;
+  authorName?: string | null;
+  publishDate?: Date | string | null;
+  updatedAt?: Date | string | null;
+}) => {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl) return null;
+  const url = `${siteUrl}/news/${article.slug}`;
+  const toIso = (d?: Date | string | null) =>
+    d ? (typeof d === "string" ? d : d.toISOString()) : undefined;
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": { "@type": "WebPage", "@id": url },
+    "headline": article.title,
+    "url": url,
+    ...(article.metaDescription || article.summary
+      ? { "description": article.metaDescription || article.summary }
+      : {}),
+    ...(article.imageUrl ? { "image": [article.imageUrl] } : {}),
+    ...(article.publishDate ? { "datePublished": toIso(article.publishDate) } : {}),
+    "dateModified": toIso(article.updatedAt) || toIso(article.publishDate),
+    "author": { "@type": "Organization", "name": article.authorName || siteConfig.name },
+    "publisher": { "@type": "Organization", "name": siteConfig.name, "@id": `${siteUrl}/#organization` },
+  };
+};
+
+/**
+ * FAQPage JSON-LD. Emit ONLY when the same questions/answers are visibly
+ * rendered on the page. `faqs` must be the exact visible Q&A array.
+ */
+export const buildFaqSchema = (faqs: { q: string; a: string }[]) => {
+  const clean = (faqs || []).filter((f) => f?.q?.trim() && f?.a?.trim());
+  if (!clean.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": clean.map((f) => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+  };
+};
+
+/**
  * Builds BlogPosting JSON-LD for an insight/article detail page. Emits only
  * verified fields from the article record — no invented data.
  */
@@ -126,14 +247,37 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
   const country = typeof demand.country === "string" ? demand.country : demand.country.name;
   const generatedSeo = generateDemandSeo({ ...demand, country });
 
+  // Genuine structured salary only: emit baseSalary just when both a numeric
+  // amount and a currency are stored on the position. Never fabricate, never
+  // infer employment type (Demand has no stored employmentType field).
+  const salaryAmount =
+    typeof position.salaryAmount === "number" && position.salaryAmount > 0 && position.salaryCurrency
+      ? { amount: position.salaryAmount, currency: String(position.salaryCurrency) }
+      : null;
+
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     "title": position.title,
     "description": demand.metaDescription || demand.generalNotes || generatedSeo.description,
+    // Real stored demand lot number, never synthesized.
+    ...(demand.demandReferenceNumber
+      ? { "identifier": { "@type": "PropertyValue", "name": "Demand Lot Number", "value": String(demand.demandReferenceNumber) } }
+      : {}),
     ...(demand.publishedAt ? { "datePosted": new Date(demand.publishedAt).toISOString() } : {}),
     "url": `${siteUrl}/demands/${demand.slug}`,
+    // Applications are submitted directly on our own /demands/[slug]/apply form.
+    "directApply": true,
     ...(validThrough ? { "validThrough": validThrough } : {}),
+    ...(salaryAmount
+      ? {
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": salaryAmount.currency,
+            "value": { "@type": "QuantitativeValue", "value": salaryAmount.amount },
+          },
+        }
+      : {}),
     "hiringOrganization": {
       "@type": "Organization",
       "name": demand.companyName,

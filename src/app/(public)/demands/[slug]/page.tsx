@@ -14,7 +14,8 @@ import { ReadvertisementBadge } from "@/components/demands/ReadvertisementBadge"
 import { DemandLetterImage } from "@/components/demands/DemandLetterImage";
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { buildJobPostingSchema } from "@/lib/seo/schema";
+import { buildJobPostingSchema, buildBreadcrumbSchema, buildWebPageSchema } from "@/lib/seo/schema";
+import { getSiteUrl } from "@/lib/seo/site-config";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { formatDemandDate, generateDemandSeo, toDateOnly } from "@/lib/demand-presentation";
 
@@ -66,12 +67,26 @@ export default async function DemandDetailPage({ params }: Props) {
     .map((pos: any) => buildJobPostingSchema(demand, pos))
     .filter(Boolean);
 
+  // BreadcrumbList + WebPage built from the SAME crumb labels rendered below.
+  const siteUrl = getSiteUrl();
+  const demandUrl = siteUrl ? `${siteUrl}/demands/${demand.slug}` : "";
+  const structuralSchemas = siteUrl
+    ? [
+        buildBreadcrumbSchema([
+          { name: copy.breadcrumbHome, url: siteUrl },
+          { name: copy.breadcrumbDemands, url: `${siteUrl}/demands` },
+          { name: demand.title, url: demandUrl },
+        ]),
+        buildWebPageSchema({ canonicalUrl: demandUrl, name: demand.title, description: demand.metaDescription }),
+      ].filter(Boolean)
+    : [];
+
   return (
     <div className="bg-brand-off-white min-h-screen relative font-sans">
-      {schemas.length > 0 && (
+      {(schemas.length > 0 || structuralSchemas.length > 0) && (
         <script id={`job-schema-${demand.id}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": schemas
+            "@graph": [...schemas, ...structuralSchemas]
           }).replace(/</g, "\\u003c") }} />
       )}      {/* Page Header */}
       <div className="relative pt-32 pb-8 border-b border-brand-charcoal/5 overflow-hidden">

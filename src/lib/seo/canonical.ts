@@ -6,19 +6,31 @@ import { getSiteUrl } from "./site-config";
  * Returns null if the SITE_URL is malformed or missing in production to prevent bad indexing.
  */
 export const buildCanonicalUrl = (path: string, overrideUrl?: string | null): string | null => {
-  // If a CMS editor provided a manual override, use it if it's safe.
-  if (overrideUrl) {
-    try {
-      const parsed = new URL(overrideUrl);
-      if (parsed.protocol === "https:" || process.env.NODE_ENV === "development") {
-        return parsed.toString().replace(/\/$/, ""); // Strip trailing slash
+  const siteUrl = getSiteUrl();
+
+  // If a CMS editor provided a manual override, accept it ONLY when it points at
+  // the production apex origin or is a safe relative path. Any other host
+  // (www, workers.dev, vercel.app, localhost, staging, unrelated origins) is
+  // rejected and we fall back to the self-referencing canonical. We never
+  // overwrite the stored CMS value here — an invalid override is simply ignored.
+  if (overrideUrl && siteUrl) {
+    const trimmed = overrideUrl.trim();
+    // Relative path override → resolve against the apex origin below.
+    if (trimmed.startsWith("/")) {
+      path = trimmed;
+    } else {
+      try {
+        const parsed = new URL(trimmed);
+        if (process.env.NODE_ENV === "development" || parsed.origin === siteUrl) {
+          return parsed.toString().replace(/\/$/, "");
+        }
+        console.warn(`Rejected off-host canonical override (${parsed.origin}); using self canonical.`);
+      } catch {
+        console.warn(`WARNING: Invalid canonical override URL: ${overrideUrl}`);
       }
-    } catch (e) {
-      console.warn(`WARNING: Invalid canonical override URL: ${overrideUrl}`);
     }
   }
 
-  const siteUrl = getSiteUrl();
   if (!siteUrl) {
     return null;
   }

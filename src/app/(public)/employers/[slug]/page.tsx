@@ -23,5 +23,14 @@ export default async function EmployersDynamicPage({
 
   if (!content) notFound();
 
-  return <DynamicPageTemplate content={content} />;
+  return (
+    <DynamicPageTemplate
+      content={content}
+      breadcrumbs={[
+        { name: "Home", path: "" },
+        { name: "Employers", path: "/employers" },
+        { name: content.title, path: `/employers/${slug}` },
+      ]}
+    />
+  );
 }

@@ -23,5 +23,14 @@ export default async function TrustDynamicPage({
 
   if (!content) notFound();
 
-  return <DynamicPageTemplate content={content} />;
+  return (
+    <DynamicPageTemplate
+      content={content}
+      breadcrumbs={[
+        { name: "Home", path: "" },
+        { name: "Trust Centre", path: "/trust-centre" },
+        { name: content.title, path: `/trust-centre/${slug}` },
+      ]}
+    />
+  );
 }

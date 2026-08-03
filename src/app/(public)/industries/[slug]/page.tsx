@@ -31,5 +31,14 @@ export default async function IndustriesDynamicPage({
 
   if (!content) notFound();
 
-  return <DynamicPageTemplate content={content} />;
+  return (
+    <DynamicPageTemplate
+      content={content}
+      breadcrumbs={[
+        { name: "Home", path: "" },
+        { name: "Industries", path: "/industries" },
+        { name: content.title, path: `/industries/${slug}` },
+      ]}
+    />
+  );
 }

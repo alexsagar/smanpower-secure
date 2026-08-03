@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { buildNewsArticleSchema } from "@/lib/seo/schema";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
 import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
@@ -53,10 +55,36 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     ? article.featuredMedia.caption
     : (article.featuredMedia?.altText && !isFilenameLike(article.featuredMedia.altText) ? article.featuredMedia.altText : undefined);
 
+  const newsSchema = buildNewsArticleSchema({
+    title: article.title,
+    slug: article.slug,
+    summary: article.summary,
+    metaDescription: article.metaDescription,
+    imageUrl: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 }) : article.featuredImage || null),
+    authorName: article.author?.name,
+    publishDate: article.publishDate,
+    updatedAt: article.updatedAt,
+  });
+
   return (
     <article className="bg-brand-off-white pb-24 pt-[calc(var(--site-header-height)+2rem)]">
+      {newsSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema).replace(/</g, "\\u003c") }}
+        />
+      )}
       {/* Top Navigation Bar */}
       <div className="container-wide mx-auto px-6 lg:px-12 max-w-6xl mb-8">
+        <PageBreadcrumbs
+          className="mb-4"
+          items={[
+            { name: "Home", path: "" },
+            { name: "News", path: "/news" },
+            { name: article.title, path: `/news/${article.slug}` },
+          ]}
+          description={article.summary}
+        />
         <div className="border-t-2 border-b border-brand-black/20 py-3 flex items-center justify-between">
           <Link
             href="/news"

@@ -62,4 +62,24 @@ describe("metadata staging noindex", () => {
       googleBot: { index: false, follow: false },
     });
   });
+
+  it("uses noindex,follow for pages like search and application forms", () => {
+    vi.stubEnv("STAGING_NOINDEX", "false");
+
+    const metadata = buildPageMetadata({ title: "Search", path: "/search", noIndex: true });
+
+    expect(metadata.robots).toMatchObject({
+      index: false,
+      follow: true,
+      googleBot: { index: false, follow: true },
+    });
+  });
+
+  it("honours explicit noindex,nofollow when requested", () => {
+    vi.stubEnv("STAGING_NOINDEX", "false");
+
+    const metadata = buildPageMetadata({ title: "X", path: "/x", noIndex: true, noFollow: true });
+
+    expect(metadata.robots).toMatchObject({ index: false, follow: false });
+  });
 });

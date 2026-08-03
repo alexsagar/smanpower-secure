@@ -8,6 +8,8 @@ import { EthicalProcessTimeline } from "./EthicalProcessTimeline";
 import { EthicalFaqAccordion } from "./EthicalFaqAccordion";
 import { GrievanceActionWidget, FeeMatrixWidget, PolicyDownloadWidget } from "./EthicalInteractiveWidgets";
 import type { PageContent } from "@/lib/content";
+import { PageBreadcrumbs, type Crumb } from "@/components/seo/PageBreadcrumbs";
+import { buildFaqSchema } from "@/lib/seo/schema";
 
 /** International frameworks aligned across ethical recruitment */
 const STANDARDS = [
@@ -18,11 +20,18 @@ const STANDARDS = [
   { abbr: "DoFE", name: "Foreign Employment Act 2007" },
 ];
 
-export function EthicalPageTemplate({ content }: { content: PageContent }) {
+export function EthicalPageTemplate({ content, breadcrumbs }: { content: PageContent; breadcrumbs?: Crumb[] }) {
+  const faqSchema = content.faqs && content.faqs.length > 0 ? buildFaqSchema(content.faqs) : null;
   return (
     <article className="min-h-screen bg-brand-off-white text-brand-black">
       {/* Dynamic Hero */}
       <HeroInternal title={content.title} subtitle={content.subtitle} imageSrc={content.heroImage} />
+
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div className="container-wide mx-auto px-6 lg:px-12 pt-6">
+          <PageBreadcrumbs items={breadcrumbs} description={content.subtitle} />
+        </div>
+      )}
 
       {/* Standards Bar */}
       <section className="bg-white border-y border-brand-charcoal/10 relative z-20 shadow-sm">
@@ -134,6 +143,13 @@ export function EthicalPageTemplate({ content }: { content: PageContent }) {
       {/* FAQ Accordion */}
       {content.faqs && content.faqs.length > 0 && (
         <section className="py-24 lg:py-32 bg-white text-brand-black relative border-t border-brand-charcoal/10">
+          {/* FAQPage JSON-LD from the exact questions/answers rendered below. */}
+          {faqSchema && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
+            />
+          )}
           <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
             <div className="mb-16 text-center max-w-3xl mx-auto">
               <span className="text-brand-gold-dark text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
