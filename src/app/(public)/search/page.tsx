@@ -4,6 +4,17 @@ import { SearchForm } from "@/components/search/SearchForm";
 import Link from "next/link";
 import { Briefcase, Star, GraduationCap, Building2, SearchX, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import type { Metadata } from "next";
+
+// Search result pages are noindex and excluded from the sitemap: unbounded
+// query combinations must not create indexable URLs.
+export const metadata: Metadata = buildPageMetadata({
+  title: "Search",
+  description: "Search jobs, success stories, training facilities and industries across Seven Seas Intercontinental.",
+  path: "/search",
+  noIndex: true,
+});
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -51,7 +62,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
               <SearchX className="w-16 h-16 text-brand-charcoal/20 mx-auto mb-6" />
               <h2 className="text-2xl font-light text-brand-black mb-2">{copy.noResults.headingLead}{query}{copy.noResults.headingTrail}</h2>
               <p className="text-brand-muted mb-8">{copy.noResults.body}</p>
-              <Link href="/jobs" className="bg-brand-black text-brand-white px-8 py-4 uppercase tracking-widest text-sm font-semibold hover:bg-brand-gold hover:text-brand-black transition-colors inline-block">
+              <Link href="/demands" className="bg-brand-black text-brand-white px-8 py-4 uppercase tracking-widest text-sm font-semibold hover:bg-brand-gold hover:text-brand-black transition-colors inline-block">
                 {copy.viewAllJobsLabel}
               </Link>
             </div>
@@ -68,7 +79,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {jobs.map(job => (
-                      <Link href={`/jobs/${job.slug}`} key={job.id} className="group bg-white border border-brand-charcoal/5 p-6 hover:shadow-lg transition-all hover:border-brand-gold/50 flex flex-col justify-between h-full">
+                      <Link href={`/demands/${job.slug}`} key={job.id} className="group bg-white border border-brand-charcoal/5 p-6 hover:shadow-lg transition-all hover:border-brand-gold/50 flex flex-col justify-between h-full">
                         <div>
                           <div className="flex justify-between items-start mb-4">
                             <span className="text-[10px] font-semibold text-brand-muted uppercase tracking-widest bg-brand-off-white px-3 py-1 rounded-sm">

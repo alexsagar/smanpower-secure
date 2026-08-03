@@ -4,9 +4,22 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getDemandBySlug } from "@/repositories/content-resolver";
 import { DemandApplyForm } from "./DemandApplyForm";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import type { Metadata } from "next";
 
 interface ApplyPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Application forms must not be indexed and are excluded from the sitemap.
+export async function generateMetadata({ params }: ApplyPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const demand = await getDemandBySlug(slug);
+  return buildPageMetadata({
+    title: demand ? `Apply — ${demand.title}` : "Apply",
+    path: `/demands/${slug}/apply`,
+    noIndex: true,
+  });
 }
 
 export default async function ApplyPage({ params }: ApplyPageProps) {

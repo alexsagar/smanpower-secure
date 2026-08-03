@@ -11,9 +11,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   const addEntry = (path: string, changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never" = "monthly", priority: number = 0.5, lastModified?: Date) => {
+    // Only emit lastModified when a real CMS/database timestamp exists.
+    // Static routes have no genuine timestamp, so we omit it rather than
+    // stamping the crawl time (an artificial, always-changing date).
     entries.push({
       url: `${BASE_URL}${path || "/"}`,
-      lastModified: lastModified || new Date(),
+      ...(lastModified ? { lastModified } : {}),
       changeFrequency,
       priority,
     });
@@ -38,7 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/insights", changeFrequency: "weekly" as const, priority: 0.7 },
     { path: "/news", changeFrequency: "weekly" as const, priority: 0.7 },
     { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.5 },
-    { path: "/search", changeFrequency: "weekly" as const, priority: 0.4 },
     { path: "/success-stories", changeFrequency: "monthly" as const, priority: 0.7 },
     { path: "/terms-of-service", changeFrequency: "yearly" as const, priority: 0.5 },
     { path: "/training-facilities", changeFrequency: "monthly" as const, priority: 0.8 },
@@ -102,11 +104,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { status: "PUBLISHED" },
       select: { slug: true, updatedAt: true },
     });
+    // Utility/copy CMS records (page-copy keys, layout fragments, detail
+    // templates) are stored as CmsPages but are NOT standalone public routes.
+    // Emitting them produced /home, /layout and /demands/detail in the sitemap.
+    const UTILITY_SLUGS = new Set(["home", "layout", "search", "demands/detail"]);
     pages.forEach((page: any) => {
-      // Avoid duplicate root paths if CMS page matches existing static routes
-      const existing = staticPages.find(p => p.path === `/${page.slug}`);
-      if (!existing && page.slug) {
-        addEntry(`/${page.slug}`, "monthly", 0.6, page.updatedAt);
+      const slug: string = page.slug || "";
+      // Skip utility keys, multi-segment copy keys (e.g. "demands/detail"),
+      // and any slug that collides with an existing static route.
+      if (!slug || UTILITY_SLUGS.has(slug) || slug.includes("/")) return;
+      const existing = staticPages.find(p => p.path === `/${slug}`);
+      if (!existing) {
+        addEntry(`/${slug}`, "monthly", 0.6, page.updatedAt);
       }
     });
   }

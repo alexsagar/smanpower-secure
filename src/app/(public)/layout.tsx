@@ -8,7 +8,6 @@ import "@/app/globals.css";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildOrganizationSchema } from "@/lib/seo/schema";
 import { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Seven Seas Intercontinental | Ethical Recruitment from Nepal",
@@ -46,9 +45,17 @@ export default async function PublicLayout({
         suppressHydrationWarning
       >
         {orgSchema && (
-          <Script id="organization-schema" type="application/ld+json" strategy="beforeInteractive">
-            {JSON.stringify(orgSchema)}
-          </Script>
+          // Plain server-rendered script tag: next/script beforeInteractive did
+          // not emit the JSON-LD into the initial App Router HTML, so the
+          // Organization entity was absent from raw page source (crawlers see
+          // this, not the hydrated DOM).
+          <script
+            id="organization-schema"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(orgSchema).replace(/</g, "\\u003c"),
+            }}
+          />
         )}
         <GoogleTranslateScript />
         <FirstVisitLoader />

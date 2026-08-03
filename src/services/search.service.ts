@@ -39,17 +39,21 @@ export async function searchGlobalData(query: string) {
   }
 
   try {
-    const [jobs, stories, facilities, industries] = await Promise.all([
-      prisma.job.findMany({
+    const [demands, stories, facilities, industries] = await Promise.all([
+      // Search published demands, not the legacy `Job` model. Job has no public
+      // detail route (search previously linked to /jobs/[slug], which 404s);
+      // the real public job page is /demands/[slug].
+      prisma.demand.findMany({
         where: {
           status: "PUBLISHED",
+          isPublic: true,
           OR: [
             { title: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            { employerName: { contains: query, mode: "insensitive" } },
+            { generalNotes: { contains: query, mode: "insensitive" } },
+            { companyName: { contains: query, mode: "insensitive" } },
           ],
         },
-        include: { country: true, industry: true },
+        include: { country: true, industry: true, positions: { select: { totalCount: true } } },
         take: 10,
       }),
       prisma.successStory.findMany({
@@ -84,6 +88,17 @@ export async function searchGlobalData(query: string) {
         take: 5,
       }),
     ]);
+    // Shape demands to the fields the search UI already expects for "jobs".
+    const jobs = demands.map((d: any) => ({
+      id: d.id,
+      slug: d.slug,
+      title: d.title,
+      country: { name: d.country?.name || "" },
+      industry: { name: d.industry?.name || "" },
+      vacancies: (d.positions || []).reduce((sum: number, p: any) => sum + (p.totalCount || 0), 0),
+      employerName: d.companyName || null,
+      showEmployerName: Boolean(d.companyName),
+    }));
     return { jobs, stories, facilities, industries };
   } catch {
     return { jobs: [], stories: [], facilities: [], industries: [] };

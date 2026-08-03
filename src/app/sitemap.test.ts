@@ -33,7 +33,13 @@ describe("sitemap", () => {
       .mockResolvedValueOnce([{ slug: "sample-news", updatedAt: new Date("2026-07-03"), publishDate: new Date("2026-07-03") }])
       .mockResolvedValueOnce([{ slug: "sample-career", updatedAt: new Date("2026-07-04") }])
       .mockResolvedValueOnce([{ slug: "sample-story", updatedAt: new Date("2026-07-05"), publishedAt: new Date("2026-07-05") }])
-      .mockResolvedValueOnce([{ slug: "about", updatedAt: new Date("2026-07-06") }, { slug: "custom-page", updatedAt: new Date("2026-07-07") }]);
+      .mockResolvedValueOnce([
+        { slug: "about", updatedAt: new Date("2026-07-06") },
+        { slug: "custom-page", updatedAt: new Date("2026-07-07") },
+        { slug: "home", updatedAt: new Date("2026-07-08") },
+        { slug: "layout", updatedAt: new Date("2026-07-08") },
+        { slug: "demands/detail", updatedAt: new Date("2026-07-08") },
+      ]);
 
     const { default: sitemap } = await import("./sitemap");
     const entries = await sitemap();
@@ -56,5 +62,18 @@ describe("sitemap", () => {
     expect(urls.some((url) => url.includes("/en/"))).toBe(false);
     expect(urls.some((url) => url.includes("/ne/"))).toBe(false);
     expect(urls.some((url) => url.endsWith("/job-seekers"))).toBe(false);
+
+    // Search and utility CMS slugs must never appear in the sitemap.
+    expect(urls).not.toContain("https://smanpower.com/search");
+    expect(urls).not.toContain("https://smanpower.com/home");
+    expect(urls).not.toContain("https://smanpower.com/layout");
+    expect(urls).not.toContain("https://smanpower.com/demands/detail");
+
+    // Static routes carry no real timestamp, so no artificial lastModified.
+    const root = entries.find((e) => e.url === "https://smanpower.com/");
+    expect(root?.lastModified).toBeUndefined();
+    // Dynamic records keep their genuine database timestamp.
+    const demand = entries.find((e) => e.url === "https://smanpower.com/demands/sample-demand");
+    expect(demand?.lastModified).toBeInstanceOf(Date);
   });
 });

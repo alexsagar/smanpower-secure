@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
 import { trainingContent } from "@/lib/content";
-import { getDynamicPageContent } from "@/services/dynamic-page.service";
+import { getDynamicPageContent, buildDynamicPageMetadata } from "@/services/dynamic-page.service";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
+import type { Metadata } from "next";
 
 export function generateStaticParams() {
   return trainingContent.map((c) => ({ slug: c.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  return buildDynamicPageMetadata("training-facilities", slug);
 }
 
 export default async function TrainingDynamicPage({

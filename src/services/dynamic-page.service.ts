@@ -1,6 +1,34 @@
+import type { Metadata } from "next";
 import { getPageBySlug } from "@/repositories/content-resolver";
 import { getContentBySlug, type PageContent } from "@/lib/content";
 import { mapBlockContentToPageContent } from "@/lib/dynamic-page-content";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+/**
+ * Route-specific metadata for the `[slug]` marketing pages. Without this the
+ * pages inherited the homepage title/description/canonical from the root
+ * layout. Uses the resolved CMS/fallback content so each page gets a unique
+ * title, factual description and a self-referencing canonical.
+ */
+export async function buildDynamicPageMetadata(
+  category: string,
+  slug: string
+): Promise<Metadata> {
+  const content = await getDynamicPageContent(category, slug);
+  if (!content) {
+    return buildPageMetadata({ title: "Not Found", path: `/${category}/${slug}`, noIndex: true });
+  }
+  const description = [content.subtitle, content.missionText?.[0]]
+    .filter(Boolean)
+    .join(" ")
+    .trim()
+    .slice(0, 300) || undefined;
+  return buildPageMetadata({
+    title: content.title,
+    description,
+    path: `/${category}/${slug}`,
+  });
+}
 
 /**
  * Resolves the content for the `[slug]` marketing pages rendered by
