@@ -1,6 +1,5 @@
-import Image from "next/image";
 import type { CmsFooterCertificationLogo } from "@/types/content";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { COMPLIANCE } from "@/config/approved-content";
 
 function isSafeImageSource(src: string) {
@@ -32,13 +31,12 @@ export function FooterCertificationLogos({ logos }: { logos?: CmsFooterCertifica
               className="flex size-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full sm:size-20"
               style={{ zIndex: visibleLogos.length - index }}
             >
-              <Image
-                src={getCloudinaryImageUrl(logo.imageUrl, { width: 192, height: 192 })}
+              <OptimizedImage
+                src={logo.imageUrl}
+                preset="certificationLogo"
                 alt={logo.accessibleName}
-                width={80}
-                height={80}
                 sizes="(min-width: 640px) 80px, 72px"
-                className="h-full w-full object-contain"
+                className="h-full w-full"
               />
             </span>
           );

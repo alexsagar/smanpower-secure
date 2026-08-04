@@ -1,18 +1,20 @@
 import React from "react";
-import Image from "next/image";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
-import { resolveImageMediaUrl, resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveMediaUrl, resolvePresetMediaUrl } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
+import { getCloudinaryVideoUrl } from "@/lib/cloudinary-delivery";
+import { INLINE_VIDEO_PRESET } from "@/lib/media-presets";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { CheckCircle, FileText } from "lucide-react";
 import { ManagedVideo } from "../ManagedVideo";
 
 export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   const content = block.content as any;
-  const mediaUrl = resolveImageMediaUrl(block.image, { width: 1440 });
-  const videoUrl = resolveMediaUrl(block.video);
-  const posterUrl = resolveImageMediaUrl(block.videoPoster || block.image, { width: 1440 });
-  const mobileFallbackUrl = resolveImageMediaUrl(block.mobileImage || block.videoPoster || block.image, { width: 960 });
+  const rawVideoUrl = resolveMediaUrl(block.video);
+  const videoUrl = block.video ? getCloudinaryVideoUrl(rawVideoUrl, INLINE_VIDEO_PRESET) : "";
+  const posterUrl = resolvePresetMediaUrl(block.videoPoster || block.image, "contentImage");
+  const mobileFallbackUrl = resolvePresetMediaUrl(block.mobileImage || block.videoPoster || block.image, "contentImage");
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-white">
@@ -30,17 +32,17 @@ export function ImageTextBlock({ block, lang }: { block: CmsContentBlock; lang: 
                     alt={block.video?.altText || block.image?.altText || "Section video"}
                     controls
                     muted
-                    preload="metadata"
+                    preload="none"
                     containerClassName="absolute inset-0"
                     videoClassName="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
-                  <Image
-                    src={mediaUrl}
+                  <OptimizedImage
+                    src={block.image}
+                    preset="contentImage"
                     alt={block.image?.altText || "Section image"}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
                   />
                 )}
               </div>

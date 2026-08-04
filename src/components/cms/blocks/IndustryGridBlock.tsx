@@ -1,12 +1,11 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, FileText, CheckCircle, Clock, ShieldCheck, Download, HeartHandshake, Users, Shield } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 
 export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   void lang;
@@ -58,12 +57,13 @@ export function IndustryGridBlock({ block, lang }: { block: CmsContentBlock; lan
                   <div className="absolute inset-0 overflow-hidden bg-brand-charcoal translate-y-full group-hover:translate-y-0 transition-transform duration-[0.8s] ease-[cubic-bezier(0.19,1,0.22,1)]">
                     {industry.image && (
                       <>
-                        <Image
-                          src={getCloudinaryImageUrl(industry.image, { width: 960, height: 960 })}
+                        <OptimizedImage
+                          src={industry.image}
+                          preset="contentImage"
                           alt={industry.imageAlt || industry.title}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                          className="object-cover opacity-70 scale-105 group-hover:scale-100 transition-transform duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)]"
+                          className="opacity-70 scale-105 group-hover:scale-100 transition-transform duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)]"
                         />
                         {/* Scrim keeps the overlaid figures legible on any photo. */}
                         <div className="absolute inset-0 bg-gradient-to-t from-brand-charcoal via-brand-charcoal/70 to-brand-charcoal/30" />

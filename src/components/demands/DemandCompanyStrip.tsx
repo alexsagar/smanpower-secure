@@ -1,10 +1,8 @@
 import React from "react";
-import Image from "next/image";
 import { Building2, MapPin, Briefcase, Calendar, CheckCircle2 } from "lucide-react";
 import { CmsDemand } from "@/types/content";
-import { resolveMediaUrl } from "@/lib/media-resolver";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 
 interface DemandCompanyStripProps {
   demand: CmsDemand;
@@ -21,12 +19,12 @@ export function DemandCompanyStrip({ demand }: DemandCompanyStripProps) {
         <div className="w-24 h-24 shrink-0 bg-brand-charcoal/5 rounded-sm border border-brand-charcoal/10 flex items-center justify-center p-2">
           {demand.companyLogo ? (
             <div className="relative w-full h-full">
-              <Image
-                src={getCloudinaryImageUrl(resolveMediaUrl(demand.companyLogo), { width: 192, height: 192 })}
+              <OptimizedImage
+                src={demand.companyLogo}
+                preset="clientLogo"
                 alt={demand.companyName}
                 fill
                 sizes="96px"
-                className="object-contain"
               />
             </div>
           ) : (

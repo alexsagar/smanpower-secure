@@ -7,7 +7,8 @@ import { buildNewsArticleSchema } from "@/lib/seo/schema";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
-import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: article.metaTitle || article.title,
     description: article.metaDescription || article.summary || undefined,
     path: `/news/${slug}`,
-    ogImage: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 }) : article.featuredImage || undefined),
+    ogImage: article.ogImage || resolveOpenGraphImageUrl(article.featuredMedia) || article.featuredImage || undefined,
     noIndex: article.noIndex || false,
   });
 }
@@ -60,7 +61,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     slug: article.slug,
     summary: article.summary,
     metaDescription: article.metaDescription,
-    imageUrl: article.ogImage || (article.featuredMedia ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 }) : article.featuredImage || null),
+    imageUrl: article.ogImage || resolveOpenGraphImageUrl(article.featuredMedia) || article.featuredImage || null,
     authorName: article.author?.name,
     publishDate: article.publishDate,
     updatedAt: article.updatedAt,
@@ -147,16 +148,16 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
             {(article.featuredMedia || article.featuredImage) && (
               <figure className="bg-brand-white border-2 border-brand-black p-3 shadow-lg">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-charcoal">
-                  <Image
+                  <OptimizedImage
                     src={
-                      article.featuredMedia
-                        ? resolveImageMediaUrl(article.featuredMedia, { width: 1200 })
-                        : article.featuredImage || "/images/trade_test_centre_1782920400836.png"
+                      article.featuredMedia ??
+                      article.featuredImage ??
+                      "/images/trade_test_centre_1782920400836.png"
                     }
+                    preset="articleHero"
                     alt={isFilenameLike(article.featuredMedia?.altText) ? article.title : (article.featuredMedia?.altText || article.title)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 800px"
-                    className="object-cover"
                     priority
                   />
                 </div>

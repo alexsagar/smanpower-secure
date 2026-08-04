@@ -7,7 +7,8 @@ import { buildArticleSchema } from "@/lib/seo/schema";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
-import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, FileText, Bookmark } from "lucide-react";
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: insight.metaDescription || insight.summary || undefined,
     path: `/insights/${slug}`,
     canonicalOverride: insight.canonicalUrl || undefined,
-    ogImage: insight.ogImage || (insight.featuredImage ? resolveImageMediaUrl(insight.featuredImage, { width: 1200 }) : undefined),
+    ogImage: insight.ogImage || resolveOpenGraphImageUrl(insight.featuredImage),
     noIndex: insight.noIndex || false,
   });
 
@@ -70,7 +71,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
     slug: insight.slug,
     summary: insight.summary,
     metaDescription: insight.metaDescription,
-    imageUrl: insight.ogImage || (insight.featuredImage ? resolveImageMediaUrl(insight.featuredImage, { width: 1200 }) : null),
+    imageUrl: insight.ogImage || resolveOpenGraphImageUrl(insight.featuredImage) || null,
     authorName: insight.author?.name,
     publishDate: insight.publishDate,
     updatedAt: insight.updatedAt,
@@ -162,12 +163,12 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               {insight.featuredImage && (
                 <figure className="bg-brand-white border-2 border-brand-black p-3 shadow-lg">
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-charcoal">
-                    <Image
-                      src={resolveImageMediaUrl(insight.featuredImage, { width: 1200 })}
+                    <OptimizedImage
+                      src={insight.featuredImage}
+                      preset="articleHero"
                       alt={isFilenameLike(insight.featuredImage.altText) ? insight.title : (insight.featuredImage.altText || insight.title)}
                       fill
                       sizes="(max-width: 1024px) 100vw, 800px"
-                      className="object-cover"
                       priority
                     />
                   </div>

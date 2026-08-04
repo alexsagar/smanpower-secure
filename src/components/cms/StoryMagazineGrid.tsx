@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Quote, ArrowUpRight, Building2, UserCheck, MapPin, Briefcase, Sparkles, Newspaper } from "lucide-react";
 import type { CmsSuccessStory } from "@/types/content";
-import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { isFilenameLike } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { stripWrappingQuotes } from "@/lib/utils";
 
 interface StoryMagazineGridProps {
@@ -108,16 +109,13 @@ export function StoryMagazineGrid({
                 {/* Image Frame */}
                 <div className="lg:col-span-6 relative">
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-brand-charcoal border-4 border-brand-black shadow-lg">
-                    <Image
-                      src={
-                        leadStory.featuredImage
-                          ? resolveImageMediaUrl(leadStory.featuredImage, { width: 1200 })
-                          : "/images/placeholder.png"
-                      }
+                    <OptimizedImage
+                      src={leadStory.featuredImage ?? "/images/placeholder.png"}
+                      preset="successStoryCard"
                       alt={isFilenameLike(leadStory.featuredImage?.altText) ? leadStory.title : leadStory.featuredImage!.altText}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                      className="grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                       priority
                     />
                     <div className="absolute top-4 left-4 z-10 bg-brand-black/90 backdrop-blur-md text-brand-gold text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 border border-brand-gold/30">
@@ -211,16 +209,13 @@ export function StoryMagazineGrid({
                     <div>
                       {/* Story Card Image */}
                       <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-charcoal border-b border-brand-black/15">
-                        <Image
-                          src={
-                            story.featuredImage
-                              ? resolveImageMediaUrl(story.featuredImage, { width: 800 })
-                              : "/images/placeholder.png"
-                          }
+                        <OptimizedImage
+                          src={story.featuredImage ?? "/images/placeholder.png"}
+                          preset="successStoryCard"
                           alt={isFilenameLike(story.featuredImage?.altText) ? story.title : story.featuredImage!.altText}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                          className="grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                         />
                         <div className="absolute top-3 left-3 bg-brand-black/90 backdrop-blur-md text-brand-gold text-[9px] uppercase font-bold tracking-widest px-2.5 py-1">
                           {story.storyType === "EMPLOYER" ? "Employer" : "Candidate"}

@@ -1,12 +1,11 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, FileText, CheckCircle, Clock, ShieldCheck, Download, HeartHandshake, Users, Shield } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 import { RichTextRenderer } from "../RichTextRenderer";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 
 export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; lang: string }) {
   void lang;
@@ -67,12 +66,13 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
             {/* Massive Main Image (Spans 8 cols) */}
             {mainFacility && (
               <ScrollReveal delay={0.1} className="lg:col-span-8 h-[400px] lg:h-full relative group overflow-hidden bg-brand-off-white">
-                <Image
-                  src={getCloudinaryImageUrl(mainFacility.imageSrc || '/placeholder.png', { width: 1600, height: 1000 })}
+                <OptimizedImage
+                  src={mainFacility.imageSrc || '/placeholder.png'}
+                  preset="sectionBanner"
                   alt={mainFacility.imageAlt || ''}
                   fill
                   sizes="(max-width: 1024px) 100vw, 67vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
+                  className="group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
 
@@ -94,12 +94,13 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
               {/* Top Right Image */}
               {trFacility && (
                 <ScrollReveal delay={0.2} className="h-1/2 relative group overflow-hidden bg-brand-off-white">
-                  <Image
-                    src={getCloudinaryImageUrl(trFacility.imageSrc || '/placeholder.png', { width: 960, height: 800 })}
+                  <OptimizedImage
+                    src={trFacility.imageSrc || '/placeholder.png'}
+                    preset="contentImage"
                     alt={trFacility.imageAlt || ''}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
+                    className="group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
 
@@ -113,12 +114,13 @@ export function TrainingBentoBlock({ block, lang }: { block: CmsContentBlock; la
               {/* Bottom Right Image */}
               {brFacility && (
                 <ScrollReveal delay={0.3} className="h-1/2 relative group overflow-hidden bg-brand-off-white">
-                  <Image
-                    src={getCloudinaryImageUrl(brFacility.imageSrc || '/placeholder.png', { width: 960, height: 800 })}
+                  <OptimizedImage
+                    src={brFacility.imageSrc || '/placeholder.png'}
+                    preset="contentImage"
                     alt={brFacility.imageAlt || ''}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
+                    className="group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-80 group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-black/90 via-brand-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
 

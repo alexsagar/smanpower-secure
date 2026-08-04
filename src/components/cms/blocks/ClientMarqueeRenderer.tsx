@@ -1,11 +1,41 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsClientPartner, CmsContentBlock } from "@/types/content";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
+
+/**
+ * One marquee logo. The marquee renders each track twice to loop seamlessly, so
+ * the second copy is decorative: it takes an empty alt to avoid announcing every
+ * client name twice. Logos are delivered with `c_limit` and shown with
+ * `object-contain`, so they are never cropped, stretched or upscaled — and a
+ * 2000px master is never pulled into a ~170px slot.
+ */
+function MarqueeLogo({
+  partner,
+  decorative,
+  textClassName,
+}: {
+  partner: CmsClientPartner;
+  decorative: boolean;
+  textClassName: string;
+}) {
+  if (!partner.logoUrl) {
+    return <NoTranslate className={textClassName}>{partner.name}</NoTranslate>;
+  }
+
+  return (
+    <OptimizedImage
+      src={partner.logoUrl}
+      preset="clientLogo"
+      alt={decorative ? "" : partner.name}
+      sizes="260px"
+      className="max-h-40 w-auto"
+    />
+  );
+}
 
 export function ClientMarqueeRenderer({ 
   block, 
@@ -59,23 +89,15 @@ export function ClientMarqueeRenderer({
             <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {clients.map((client, idx) => (
                 <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
-                  {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 520, height: 260, trim: true })} alt={client.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
-                  ) : (
-                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
-                  )}
+                  <MarqueeLogo partner={client} decorative={false} textClassName="text-brand-charcoal font-bold tracking-wider text-sm text-center" />
                 </div>
               ))}
             </div>
-            {/* Duplicate for infinite effect */}
-            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
+            {/* Duplicate for infinite effect — decorative, so it is not announced. */}
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4" aria-hidden="true">
               {clients.map((client, idx) => (
                 <div key={`dup-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
-                  {client.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(client.logoUrl, { width: 520, height: 260, trim: true })} alt={client.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
-                  ) : (
-                    <NoTranslate className="text-brand-charcoal font-bold tracking-wider text-sm text-center">{client.name}</NoTranslate>
-                  )}
+                  <MarqueeLogo partner={client} decorative textClassName="text-brand-charcoal font-bold tracking-wider text-sm text-center" />
                 </div>
               ))}
             </div>
@@ -94,23 +116,15 @@ export function ClientMarqueeRenderer({
             <div className="flex shrink-0 justify-around items-center gap-2 px-4">
               {groups.map((group, idx) => (
                 <div key={idx} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
-                  {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 520, height: 260, trim: true })} alt={group.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
-                  ) : (
-                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
-                  )}
+                  <MarqueeLogo partner={group} decorative={false} textClassName="text-brand-charcoal font-bold tracking-wide text-sm text-center" />
                 </div>
               ))}
             </div>
-            {/* Duplicate for infinite effect */}
-            <div className="flex shrink-0 justify-around items-center gap-2 px-4">
+            {/* Duplicate for infinite effect — decorative, so it is not announced. */}
+            <div className="flex shrink-0 justify-around items-center gap-2 px-4" aria-hidden="true">
               {groups.map((group, idx) => (
                 <div key={`dup-group-${idx}`} className="flex items-center justify-center h-44 px-5 transition-transform duration-500 hover:scale-105 cursor-pointer min-w-[170px]">
-                  {group.logoUrl ? (
-                    <Image src={getCloudinaryImageUrl(group.logoUrl, { width: 520, height: 260, trim: true })} alt={group.name} width={260} height={130} sizes="260px" className="object-contain max-h-40 w-auto" />
-                  ) : (
-                    <NoTranslate className="text-brand-charcoal font-bold tracking-wide text-sm text-center">{group.name}</NoTranslate>
-                  )}
+                  <MarqueeLogo partner={group} decorative textClassName="text-brand-charcoal font-bold tracking-wide text-sm text-center" />
                 </div>
               ))}
             </div>

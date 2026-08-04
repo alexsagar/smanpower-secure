@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Clock, User, Sparkles, Newspaper } from "lucide-react";
-import { resolveImageMediaUrl, isFilenameLike, type MediaLike } from "@/lib/media-resolver";
+import { resolvePresetMediaUrl, isFilenameLike, type MediaLike } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
 import { readingMinutes } from "@/lib/utils";
 
@@ -105,8 +105,8 @@ export function EditorialMagazineGrid({
   const remaining = filtered.slice(1);
 
   const href = (slug: string) => toPublicHref(`${basePath}/${slug}`);
-  const imageFor = (item: MagazineItem, width: number) =>
-    item.image ? resolveImageMediaUrl(item.image, { width }) : imageFallback;
+  const imageFor = (item: MagazineItem, preset: "articleHero" | "articleCard") =>
+    resolvePresetMediaUrl(item.image, preset) ?? imageFallback;
   // Never fall back to an upload filename ("1.webp") — that is useless to a
   // screen reader and shows through if the image fails to load.
   const altFor = (item: MagazineItem) => {
@@ -202,7 +202,7 @@ export function EditorialMagazineGrid({
 
               <div className="relative aspect-[16/9] lg:aspect-[21/9] w-full overflow-hidden bg-brand-charcoal border-4 border-brand-black shadow-xl mb-12">
                 <Image
-                  src={imageFor(lead, 1400)}
+                  src={imageFor(lead, "articleHero")}
                   alt={altFor(lead)}
                   fill
                   sizes="100vw"
@@ -277,7 +277,7 @@ export function EditorialMagazineGrid({
                     <div>
                       <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-charcoal border-b border-brand-black/15">
                         <Image
-                          src={imageFor(item, 800)}
+                          src={imageFor(item, "articleCard")}
                           alt={altFor(item)}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

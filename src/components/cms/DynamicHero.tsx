@@ -6,17 +6,18 @@
 // ============================================================
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsHeroSection, CmsMediaAsset, CmsFooterCertificationLogo } from "@/types/content";
-import { resolveImageMediaUrl } from "@/lib/media-resolver";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
 import { ManagedVideo } from "./ManagedVideo";
 import { MediaOverlay } from "./MediaOverlay";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
+import { getCloudinaryPosterUrl, getCloudinaryVideoUrl } from "@/lib/cloudinary-delivery";
+import { HERO_VIDEO_MIN_WIDTH, HERO_VIDEO_PRESET, MEDIA_PRESETS } from "@/lib/media-presets";
 
 interface DynamicHeroProps {
   hero: CmsHeroSection;
@@ -42,54 +43,61 @@ function getVisibleCertificationLogos(logos?: CmsFooterCertificationLogo[]) {
     .sort((a, b) => a.order - b.order || a.accessibleName.localeCompare(b.accessibleName));
 }
 
+/**
+ * The rendered hero video source. Whatever the CMS currently holds is
+ * transformed at render time — nothing about the URL, public ID, version,
+ * filename or folder is known here, so changing the selected video in the CMS
+ * needs no code change.
+ *
+ * The transform caps resolution, drops the frame rate to 24 and strips the
+ * audio track a muted hero can never play. It carries no `du_`/`eo_`, so the
+ * full duration always plays, and the original Cloudinary master is untouched.
+ * A non-Cloudinary or signed URL passes through and simply plays as stored.
+ */
 function getPlayableVideo(hero: CmsHeroSection) {
   if (hero.video?.resourceType !== "video") return undefined;
 
-  // The verified Cloudinary secureUrl is authoritative and is played directly.
-  // Cloudinary on-the-fly video format derivatives (f_mp4/f_webm) can be
-  // disabled, rejected, or slow to generate, which leaves the hero permanently
-  // black — so we never route delivery through a generated derivative.
-  // ponytail: use the verified upload URL; add derivatives back only if a real
-  // encoding/optimization need is proven against the live Cloudinary account.
   const src = hero.video.secureUrl || hero.video.localPath;
-  return src ? { src } : undefined;
+  return src ? { src: getCloudinaryVideoUrl(src, HERO_VIDEO_PRESET) } : undefined;
 }
 
-// Cloudinary first-frame poster (so_0 image derivative). Image-from-video
-// transforms are reliable even where video format derivatives are restricted,
-// so this guarantees the hero shows the video's own first frame instead of a
-// black area while the video loads, is blocked by autoplay policy, or is
-// hidden for reduced-motion users.
-function deriveCloudinaryVideoPoster(video?: CmsMediaAsset) {
-  if (video?.source !== "CLOUDINARY" || video.resourceType !== "video" || !video.secureUrl) {
-    return undefined;
-  }
-
-  try {
-    const url = new URL(video.secureUrl);
-    if (!url.pathname.includes("/video/upload/")) return undefined;
-    const path = url.pathname
-      .replace("/video/upload/", "/video/upload/so_0/")
-      .replace(/\.[^/.]+$/, ".jpg");
-    return `${url.origin}${path}`;
-  } catch {
-    return undefined;
-  }
-}
-
+/**
+ * Poster fallback order:
+ *   1. explicit CMS poster / mobile image
+ *   2. a frame generated from the selected video
+ *   3. the approved static hero image
+ *   4. nothing — the section's own black background shows through
+ */
 function getFallbackImageUrl(hero: CmsHeroSection) {
   const asset = hero.videoPoster || hero.image;
-  if (asset) return resolveImageMediaUrl(asset, { width: 1920 });
+  if (asset) return resolveMediaUrl(asset);
   return deriveCloudinaryVideoPoster(hero.video);
 }
 
+/**
+ * Generate the poster from the video itself. Image-from-video transforms stay
+ * available even where video format derivatives are restricted, so this always
+ * gives the hero something to show while the video loads, when autoplay is
+ * blocked, or when the video is never mounted at all.
+ */
+function deriveCloudinaryVideoPoster(video?: CmsMediaAsset) {
+  const src = video?.resourceType === "video" ? video.secureUrl : undefined;
+  if (!src) return undefined;
+
+  const preset = MEDIA_PRESETS.heroPoster;
+  return getCloudinaryPosterUrl(src, {
+    width: preset.width,
+    crop: preset.crop,
+    quality: preset.quality,
+  });
+}
+
 function getMobileFallbackImageUrl(hero: CmsHeroSection) {
-  return hero.mobileImage ? resolveImageMediaUrl(hero.mobileImage, { width: 960 }) : undefined;
+  return hero.mobileImage ? resolveMediaUrl(hero.mobileImage) : undefined;
 }
 
 export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHeroProps) {
   void lang;
-  const imageUrl = resolveImageMediaUrl(hero.image, { width: 1920 });
   const playableVideo = getPlayableVideo(hero);
   const posterUrl = getFallbackImageUrl(hero);
   const mobileFallbackUrl = getMobileFallbackImageUrl(hero);
@@ -112,17 +120,19 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
             priority
             decorative={!hero.accessibilityDescription}
             showPlaybackToggle
+            posterOnlyBelowWidth={HERO_VIDEO_MIN_WIDTH}
             containerClassName="absolute inset-0"
             videoClassName="absolute inset-0 h-full w-full object-cover opacity-60"
             fallbackClassName="scale-110 opacity-60 transition-transform duration-[10s] ease-out"
           />
-        ) : imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={hero.accessibilityDescription || "Hero background"}
+        ) : hero.image ? (
+          <OptimizedImage
+            src={hero.image}
+            preset="heroImage"
+            alt={hero.accessibilityDescription || ""}
             fill
-            className="object-cover scale-110 opacity-40 transition-transform duration-[10s] ease-out hover:scale-125"
             priority
+            className="scale-110 opacity-40 transition-transform duration-[10s] ease-out hover:scale-125"
           />
         ) : null}
         <MediaOverlay enabled={hero.overlayEnabled} opacity={hero.overlayOpacity} />
@@ -176,13 +186,12 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
                   className="flex h-20 w-20 md:h-24 md:w-24 shrink-0 items-center justify-center overflow-hidden"
                   style={{ borderRadius: "9999px" }}
                 >
-                  <Image
-                    src={getCloudinaryImageUrl(logo.imageUrl, { width: 256, height: 256 })}
+                  <OptimizedImage
+                    src={logo.imageUrl}
+                    preset="certificationLogo"
                     alt={logo.accessibleName}
-                    width={64}
-                    height={64}
                     sizes="(min-width: 768px) 96px, 80px"
-                    className="h-full w-full object-contain opacity-90"
+                    className="h-full w-full opacity-90"
                   />
                 </span>
               ))}

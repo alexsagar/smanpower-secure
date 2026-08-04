@@ -1,10 +1,12 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import type { CmsContentBlock } from "@/types/content";
-import { resolveImageMediaUrl, resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveMediaUrl, resolvePresetMediaUrl } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
+import { getCloudinaryVideoUrl } from "@/lib/cloudinary-delivery";
+import { INLINE_VIDEO_PRESET } from "@/lib/media-presets";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { ManagedVideo } from "../ManagedVideo";
 
@@ -21,10 +23,10 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
   void lang;
   const content = block.content as any;
   const youTubeId = getYouTubeId(content.youtubeUrl);
-  const mediaUrl = resolveImageMediaUrl(block.image, { width: 1440 });
-  const videoUrl = resolveMediaUrl(block.video);
-  const posterUrl = resolveImageMediaUrl(block.videoPoster || block.image, { width: 1440 });
-  const mobileFallbackUrl = resolveImageMediaUrl(block.mobileImage || block.videoPoster || block.image, { width: 960 });
+  const rawVideoUrl = resolveMediaUrl(block.video);
+  const videoUrl = block.video ? getCloudinaryVideoUrl(rawVideoUrl, INLINE_VIDEO_PRESET) : "";
+  const posterUrl = resolvePresetMediaUrl(block.videoPoster || block.image, "contentImage");
+  const mobileFallbackUrl = resolvePresetMediaUrl(block.mobileImage || block.videoPoster || block.image, "contentImage");
 
   return (
     <section className="py-16 lg:py-24 relative bg-brand-off-white overflow-hidden">
@@ -74,18 +76,19 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
                   alt={block.video?.altText || block.image?.altText || "Introduction video"}
                   controls
                   muted
-                  preload="metadata"
+                  preload="none"
                   containerClassName="absolute inset-0"
                   videoClassName="absolute inset-0 h-full w-full object-cover"
                   fallbackClassName="grayscale opacity-90"
                 />
               ) : (
-                <Image
-                  src={mediaUrl}
+                <OptimizedImage
+                  src={block.image}
+                  preset="contentImage"
                   alt={block.image?.altText || "Introduction image"}
                   fill
                   sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
+                  className="grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s] ease-out"
                 />
               )}
               <div className="absolute inset-0 bg-brand-charcoal/10 group-hover:bg-transparent transition-colors duration-1000 pointer-events-none" />

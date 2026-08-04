@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 
 interface DemandLetterImageProps {
   src: string;
@@ -12,11 +11,16 @@ interface DemandLetterImageProps {
   height?: number;
 }
 
-export function DemandLetterImage({ src, alt, width = 1200, height = 1600 }: DemandLetterImageProps) {
+/**
+ * Demand letters are scanned, text-heavy documents in any aspect ratio (the
+ * common wide form is ~1200x399). They are delivered with `c_limit` and shown
+ * with `object-contain`, so nothing is ever cropped and a 1200px source is
+ * never upscaled. The lightbox variant is not rendered until the dialog opens,
+ * and no raw-original link or download control is offered.
+ */
+export function DemandLetterImage({ src, alt, width, height }: DemandLetterImageProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
-  const displaySrc = getCloudinaryImageUrl(src, { width: 1200 });
-  const enlargedSrc = getCloudinaryImageUrl(src, { width: 2000 });
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -39,13 +43,13 @@ export function DemandLetterImage({ src, alt, width = 1200, height = 1600 }: Dem
           aria-label="Open full demand letter image"
           className="group relative flex w-full cursor-zoom-in items-center justify-center overflow-hidden rounded-sm border border-brand-charcoal/10 bg-brand-charcoal/5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2"
         >
-          <Image
-            src={displaySrc}
+          <OptimizedImage
+            src={src}
+            preset="demandLetterDetail"
             alt={alt}
             width={width}
             height={height}
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className="h-auto max-h-[80vh] w-auto max-w-full object-contain"
+            className="h-auto max-h-[80vh] w-auto max-w-full"
           />
           <span className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-sm bg-brand-black/80 px-3 py-2 text-xs font-semibold text-white opacity-90">
             <Maximize2 className="size-4" aria-hidden /> View full image
@@ -71,14 +75,17 @@ export function DemandLetterImage({ src, alt, width = 1200, height = 1600 }: Dem
               <X aria-hidden />
             </button>
           </div>
-          <Image
-            src={enlargedSrc}
-            alt=""
-            width={width}
-            height={height}
-            sizes="100vw"
-            className="h-auto w-auto max-w-full object-contain"
-          />
+          {/* Only requested once the visitor actually opens the lightbox. */}
+          {open ? (
+            <OptimizedImage
+              src={src}
+              preset="demandLetterLightbox"
+              alt=""
+              width={width}
+              height={height}
+              className="h-auto w-auto max-w-full"
+            />
+          ) : null}
         </div>
       </dialog>
     </>

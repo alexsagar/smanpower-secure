@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Quote } from "lucide-react";
-import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 
 export type EmployerTestimonial = {
   id: string;
@@ -109,7 +108,7 @@ export function EmployerTestimonialsCarousel({ eyebrow, heading, introduction, t
                 
                 <div className="flex h-16 w-32 shrink-0 items-center justify-start sm:justify-end opacity-70 group-hover:opacity-100 transition-opacity duration-300">
                   {testimonial.companyLogo ? (
-                    <Image src={getCloudinaryImageUrl(testimonial.companyLogo, { width: 256, height: 128 })} alt={`${testimonial.companyName} logo`} width={128} height={64} sizes="128px" className="max-h-16 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500" />
+                    <OptimizedImage src={testimonial.companyLogo} preset="clientLogo" alt={`${testimonial.companyName} logo`} sizes="128px" className="max-h-16 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-500" />
                   ) : (
                     <span className="text-right text-xs font-semibold uppercase tracking-[0.14em] text-brand-off-white/30 border border-brand-off-white/10 px-4 py-2 group-hover:border-brand-gold/30 group-hover:text-brand-gold/70 transition-colors duration-300">{testimonial.companyName}</span>
                   )}

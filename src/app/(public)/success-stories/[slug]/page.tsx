@@ -6,7 +6,8 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { sanitizeHtml } from "@/lib/html-safety";
-import { resolveImageMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { stripWrappingQuotes } from "@/lib/utils";
 import { ArrowLeft, ArrowUpRight, Quote, MapPin, Briefcase, Building2, UserCheck, Newspaper } from "lucide-react";
 
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: story.metaDescription || story.summary || story.title,
     path: `/success-stories/${slug}`,
     canonicalOverride: story.canonicalUrl,
-    ogImage: story.ogImage || (story.featuredImage ? resolveImageMediaUrl(story.featuredImage, { width: 1200 }) : undefined),
+    ogImage: story.ogImage || resolveOpenGraphImageUrl(story.featuredImage),
     noIndex: story.noIndex,
   });
 }
@@ -117,12 +118,12 @@ export default async function SuccessStoryDetailPage({ params }: { params: Promi
             {story.featuredImage && (
               <figure className="bg-brand-white border-2 border-brand-black p-3 shadow-md">
                 <div className="relative aspect-[4/5] overflow-hidden bg-brand-charcoal">
-                  <Image
-                    src={resolveImageMediaUrl(story.featuredImage, { width: 800 })}
+                  <OptimizedImage
+                    src={story.featuredImage}
+                    preset="successStoryHero"
                     alt={isFilenameLike(story.featuredImage.altText) ? story.title : (story.featuredImage.altText || story.title)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 340px"
-                    className="object-cover"
                     priority
                   />
                 </div>

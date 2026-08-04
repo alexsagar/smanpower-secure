@@ -27,7 +27,11 @@ describe("ImageGalleryBlock", () => {
     expect(html).toContain("Training");
     expect(html).toContain("Ten sessions from our Kathmandu centre.");
     expect(html).toContain("Welding bay");
-    expect(html).toContain("f_auto,q_auto,c_limit,w_960,h_720");
+    // Gallery thumbnails: a small, intentionally-cropped delivery variant
+    // with a responsive ladder — never the full-size master.
+    expect(html).toContain("c_fill,w_480,h_360,g_auto,q_auto:good,f_auto");
+    expect(html).toContain("240w");
+    expect(html).toContain('loading="lazy"');
   });
 
   it("still renders galleries saved before albums existed", () => {
