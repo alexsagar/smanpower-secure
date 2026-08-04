@@ -27,6 +27,9 @@ describe("ImageGalleryBlock", () => {
     expect(html).toContain("Training");
     expect(html).toContain("Ten sessions from our Kathmandu centre.");
     expect(html).toContain("Welding bay");
+    expect(html).toContain("1 photo");
+    expect(html).toContain("View All Images");
+    expect(html).toContain("aspect-[16/9]");
     // Gallery thumbnails: a small, intentionally-cropped delivery variant
     // with a responsive ladder — never the full-size master.
     // Thumbnails render with `fill` inside an aspect-[4/3] tile, so the tile
