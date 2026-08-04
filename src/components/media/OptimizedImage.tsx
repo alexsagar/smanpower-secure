@@ -119,8 +119,15 @@ export function OptimizedImage({
   // width="2000" — with a width-auto class the browser lays it out at full
   // source size, which is how the logo strips blew up. `c_limit` never upscales,
   // so the delivered width is capped by the source.
+  //
+  // A `contain` preset (logos, documents) must never be given a synthetic box:
+  // its height bound limits bytes, it does not describe the artwork's shape.
+  // Forcing that ratio letterboxes every mark into the same slot and makes it
+  // render smaller than the layout intends. Only a real source ratio is used
+  // here; otherwise CSS (`max-h-*`, `w-auto`) sizes it as it did before.
+  const declaresShape = usePresetBox && preset.fit === "cover";
   const deliveredWidth = Math.min(preset.width, intrinsicWidth ?? preset.width);
-  const deliveredHeight = usePresetBox
+  const deliveredHeight = declaresShape
     ? Math.round((preset.height as number) * (deliveredWidth / preset.width))
     : intrinsicWidth && intrinsicHeight
       ? Math.round((intrinsicHeight / intrinsicWidth) * deliveredWidth)

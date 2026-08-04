@@ -19,7 +19,9 @@ export async function StoryGridBlockServer({ block, lang }: { block: CmsContentB
     country: s.country || "",
     title: s.title,
     desc: s.summary || "",
-    imageSrc: resolvePresetMediaUrl(s.featuredImage, "successStoryCard"),
+    // Rendered by StoryGridBlock into a fill/object-cover card, so the card
+    // does the cropping — see the `fill` note on resolvePresetMediaUrl.
+    imageSrc: resolvePresetMediaUrl(s.featuredImage, "successStoryCard", { fill: true }),
     imageAlt: isFilenameLike(s.featuredImage?.altText) ? s.title : s.featuredImage!.altText,
     slug: s.slug,
   }));

@@ -157,10 +157,12 @@ describe("OptimizedImage sizing regressions", () => {
     );
 
     expect(html).toContain("e_trim");
-    expect(html).toContain("c_limit,w_320,h_160");
+    // A square cap: bounds the runaway tall case without shrinking wide logos.
+    expect(html).toContain("c_limit,w_320,h_320");
     // c_limit fits inside the box; it never crops the mark.
     expect(html).toContain("object-contain");
-    expect(html).toContain('height="160"');
+    // The bound limits bytes only — it must not become the element's shape.
+    expect(html).not.toContain("aspect-ratio");
   });
 
   it("never upscales the reported box beyond a small source", () => {
@@ -284,5 +286,30 @@ describe("OptimizedImage CMS compatibility", () => {
     );
     expect(html).toContain(signed);
     expect(html).not.toContain("q_auto");
+  });
+});
+
+describe("OptimizedImage contain presets", () => {
+  it("does not force a box ratio onto a logo, which would letterbox and shrink it", () => {
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={CLOUDINARY} preset="clientLogo" alt="Client" className="max-h-40 w-auto" />
+    );
+    // The preset's height bounds bytes; it does not describe the artwork shape.
+    expect(html).not.toContain("aspect-ratio");
+    expect(html).not.toMatch(/height="\d+"/);
+  });
+
+  it("still reserves a box for cover presets, where the ratio is the design", () => {
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={CLOUDINARY} preset="articleCard" alt="Card" />
+    );
+    expect(html).toContain("aspect-ratio:720 / 420");
+  });
+
+  it("uses a real source ratio on a contain preset when one is known", () => {
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={asset({ width: 1200, height: 399 })} preset="demandLetterDetail" alt="D" />
+    );
+    expect(html).toContain("aspect-ratio:1200 / 399");
   });
 });

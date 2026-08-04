@@ -106,7 +106,9 @@ export function EditorialMagazineGrid({
 
   const href = (slug: string) => toPublicHref(`${basePath}/${slug}`);
   const imageFor = (item: MagazineItem, preset: "articleHero" | "articleCard") =>
-    resolvePresetMediaUrl(item.image, preset) ?? imageFallback;
+    // Every consumer renders these with fill + object-cover, so the layout
+    // crops and the delivery URL must not.
+    resolvePresetMediaUrl(item.image, preset, { fill: true }) ?? imageFallback;
   // Never fall back to an upload filename ("1.webp") — that is useless to a
   // screen reader and shows through if the image fails to load.
   const altFor = (item: MagazineItem) => {

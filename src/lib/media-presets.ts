@@ -222,13 +222,15 @@ export const MEDIA_PRESETS = {
   // `q_auto:best` + `contain` keeps small marks sharp and transparency intact;
   // `f_auto` still serves WebP/AVIF, both of which support alpha.
   //
-  // `height` here bounds a `c_limit` box — it does NOT crop. It matters because
-  // `e_trim` removes the padding baked into a logo file, and without a height
-  // bound a tall trimmed mark renders far larger than a wide one beside it. The
-  // declared box also gives the element a stable aspect ratio to reserve.
+  // `height` here bounds a `c_limit` box — it does NOT crop, and it does NOT
+  // describe the artwork's shape. It exists because `e_trim` removes the padding
+  // baked into a logo file, and with only a width bound a tall trimmed mark
+  // renders far larger than a wide one beside it. It is deliberately a square
+  // cap, roughly 2x the largest display size, so it constrains the runaway case
+  // without shrinking ordinary wide logos. Layout size stays with CSS.
   clientLogo: {
     width: 320,
-    height: 160,
+    height: 320,
     crop: "limit",
     quality: "auto:best",
     widths: [120, 160, 240, 320],
@@ -239,7 +241,7 @@ export const MEDIA_PRESETS = {
   },
   partnerLogo: {
     width: 320,
-    height: 160,
+    height: 320,
     crop: "limit",
     quality: "auto:best",
     widths: [120, 160, 240, 320],
@@ -260,7 +262,7 @@ export const MEDIA_PRESETS = {
   },
   navigationLogo: {
     width: 320,
-    height: 160,
+    height: 320,
     crop: "limit",
     quality: "auto:best",
     widths: [120, 160, 240, 320],
@@ -270,7 +272,7 @@ export const MEDIA_PRESETS = {
   },
   footerLogo: {
     width: 320,
-    height: 160,
+    height: 320,
     crop: "limit",
     quality: "auto:best",
     widths: [120, 160, 240, 320],

@@ -7,7 +7,11 @@
 
 import type { CmsMediaAsset } from "@/types/content";
 import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
-import { MEDIA_PRESETS, type MediaPresetName } from "@/lib/media-presets";
+import {
+  MEDIA_PRESETS,
+  type MediaPresetConfig,
+  type MediaPresetName,
+} from "@/lib/media-presets";
 
 export const MEDIA_PLACEHOLDER = "/images/placeholder.png";
 
@@ -43,23 +47,34 @@ export function resolveMediaUrl(asset?: ResolvableMedia | null): string {
  */
 export function resolvePresetMediaUrl(
   asset: ResolvableMedia | null | undefined,
-  presetName: MediaPresetName
+  presetName: MediaPresetName,
+  options: {
+    /**
+     * Set when the resulting URL is rendered into a `fill` / `object-cover`
+     * container. The layout is already cropping, so the preset's crop box must
+     * not be baked in as well — doing both cuts the image to one aspect ratio
+     * and then again to the container's, which visibly zooms the subject.
+     * Mirrors the `fill` prop on OptimizedImage.
+     */
+    fill?: boolean;
+  } = {}
 ): string | undefined {
   const src = resolveMediaUrl(asset);
   if (!src || src === MEDIA_PLACEHOLDER) return undefined;
 
-  const preset = MEDIA_PRESETS[presetName];
-  const metadata = typeof asset === "string" ? undefined : asset;
+  const preset: MediaPresetConfig = MEDIA_PRESETS[presetName];
+  const metadata = typeof asset === "string" ? undefined : (asset as CmsMediaAsset);
+  const usePresetBox = !options.fill && preset.height !== undefined;
 
   return getCloudinaryImageUrl(src, {
     width: preset.width,
-    height: "height" in preset ? preset.height : undefined,
-    crop: preset.crop,
-    gravity: "gravity" in preset ? preset.gravity : undefined,
+    height: usePresetBox ? preset.height : undefined,
+    crop: usePresetBox ? preset.crop : "limit",
+    gravity: usePresetBox ? preset.gravity : undefined,
     quality: preset.quality,
-    trim: "trim" in preset ? preset.trim : undefined,
-    focalPointX: (metadata as CmsMediaAsset | undefined)?.focalPointX,
-    focalPointY: (metadata as CmsMediaAsset | undefined)?.focalPointY,
+    trim: preset.trim,
+    focalPointX: metadata?.focalPointX,
+    focalPointY: metadata?.focalPointY,
   });
 }
 
