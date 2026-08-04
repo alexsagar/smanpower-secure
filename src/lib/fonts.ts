@@ -6,10 +6,6 @@ import {
   Noto_Sans_Devanagari,
   Noto_Sans_Ethiopic,
   Noto_Sans_Hebrew,
-  Noto_Sans_JP,
-  Noto_Sans_KR,
-  Noto_Sans_SC,
-  Noto_Sans_TC,
   Noto_Sans_Thai,
   Science_Gothic,
 } from "next/font/google";
@@ -57,10 +53,6 @@ const notoSansBengali = Noto_Sans_Bengali({ subsets: ["bengali"], weight: ["400"
 const notoSansEthiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"], weight: ["400", "500"], variable: "--font-noto-ethiopic", display: "swap", preload: false });
 const notoSansHebrew = Noto_Sans_Hebrew({ subsets: ["hebrew"], weight: ["400", "500"], variable: "--font-noto-hebrew", display: "swap", preload: false });
 const notoSansThai = Noto_Sans_Thai({ subsets: ["thai"], weight: ["400", "500"], variable: "--font-noto-thai", display: "swap", preload: false });
-const notoSansJp = Noto_Sans_JP({ weight: ["400", "500"], variable: "--font-noto-jp", display: "swap", preload: false });
-const notoSansKr = Noto_Sans_KR({ weight: ["400", "500"], variable: "--font-noto-kr", display: "swap", preload: false });
-const notoSansSc = Noto_Sans_SC({ weight: ["400", "500"], variable: "--font-noto-sc", display: "swap", preload: false });
-const notoSansTc = Noto_Sans_TC({ weight: ["400", "500"], variable: "--font-noto-tc", display: "swap", preload: false });
 
 /** Public surfaces get brand, body, and on-demand translated-script faces. */
 export const publicFontVariables = [
@@ -73,8 +65,4 @@ export const publicFontVariables = [
   notoSansEthiopic,
   notoSansHebrew,
   notoSansThai,
-  notoSansJp,
-  notoSansKr,
-  notoSansSc,
-  notoSansTc,
 ].map(font => font.variable).join(" ");

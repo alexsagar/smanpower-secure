@@ -105,7 +105,12 @@ export function Header({
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden xl:flex flex-1 justify-center items-center gap-3 px-3 h-full whitespace-nowrap overflow-hidden">
+        {/* The link row needs ~849px for English labels but only gets ~729px at
+            the xl breakpoint, so it used to overflow and `justify-center` clipped
+            it under the logo and the demands button. Spacing is tightened at xl
+            and relaxed once 2xl actually has the room. min-w-0 keeps the nav from
+            forcing the flex row wider than the header. */}
+        <nav className="hidden xl:flex flex-1 min-w-0 justify-center items-center gap-0.5 2xl:gap-3 px-0 2xl:px-3 h-full whitespace-nowrap overflow-hidden">
           {Object.entries(navConfig).map(([key, section]) => (
             <div
               key={key}
@@ -114,7 +119,7 @@ export function Header({
             >
               <button
                 className={cn(
-                  "public-nav-label font-brand relative min-h-11 px-1.5 py-2 text-[11px] font-medium uppercase tracking-[0.06em] flex items-center gap-1",
+                  "public-nav-label font-brand relative min-h-11 px-1 2xl:px-1.5 py-2 text-[10px] 2xl:text-[11px] font-medium uppercase tracking-[0.02em] 2xl:tracking-[0.06em] flex items-center gap-1",
                   "transition-colors duration-200",
                   "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-gold",
                   "after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out",

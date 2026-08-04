@@ -301,14 +301,19 @@ export function Footer({
         {/* BOTTOM SECTION: Typography & Copyright */}
         <div className="flex flex-col items-center border-t border-brand-white/10 pt-10 mt-8">
 
-          <div className="w-full overflow-hidden flex justify-center mb-10 mt-0 select-none px-4">
+          <div className="@container w-full overflow-hidden flex justify-center mb-10 mt-0 select-none px-4">
             {/* The refined responsive lockup with slow highlight animation on the accent */}
             {/* The gold accent keeps its serif italic treatment via its own
                 font-serif class, so the lockup's two-face contrast survives. */}
             <NoTranslate as="div"
               data-testid="footer-wordmark"
               className="font-brand font-light tracking-tight leading-[0.8] text-brand-white text-center whitespace-nowrap pointer-events-none"
-              style={{ fontSize: "min(16vw, 160px)" }}
+              // 16vw sized the lockup against the viewport while it is actually
+              // constrained by this (padded) wrapper, so between roughly 700px and
+              // 1200px the nowrap lockup grew wider than its box and overflow-hidden
+              // sliced "Seven Seas." off at both ends. cqw measures the box itself;
+              // the coefficient keeps the widest glyph run inside it at every width.
+              style={{ fontSize: "min(14.5cqw, 160px)" }}
             >
               {wordmark.lead && (
                 <span className="inline-block mr-2 md:mr-3 lg:mr-4">{wordmark.lead}</span>

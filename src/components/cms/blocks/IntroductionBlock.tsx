@@ -58,6 +58,9 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
                   title={content.imageTag || "The Foundation"}
+                  // The embed pulls ~1.1MB of player JS and ~800ms of main-thread
+                  // work. It sits below the fold, so let the browser defer it.
+                  loading="lazy"
                   className="absolute inset-0 h-full w-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"

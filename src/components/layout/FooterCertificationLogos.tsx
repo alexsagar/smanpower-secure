@@ -20,7 +20,9 @@ export function FooterCertificationLogos({ logos }: { logos?: CmsFooterCertifica
 
   return (
     <section aria-label={COMPLIANCE.heading}>
-      <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-white/60 text-center lg:text-right">
+      {/* `.brand-headings h2` sets a clamp(2rem,3vw,3rem) page-heading size and
+          out-specifies bare utilities, so this label needs `!` to stay a label. */}
+      <h2 className="mb-3 text-[10px]! font-semibold uppercase tracking-[0.2em]! leading-none! text-brand-white/60 text-center lg:text-right">
         {COMPLIANCE.heading}
       </h2>
       <div className="flex justify-center lg:justify-end" data-testid="footer-certification-logos">
