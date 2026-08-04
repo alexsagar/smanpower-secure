@@ -4,6 +4,7 @@ import {
   canStartMediaUpload,
   getSafeCloudinaryUploadErrorMessage,
   selectedUploadFiles,
+  shouldRefreshAfterMediaUpload,
   uploadProgressLabel,
   uploadSummaryMessage,
 } from "./MediaUploader";
@@ -58,6 +59,12 @@ describe("MediaUploader Cloudinary upload endpoint", () => {
 });
 
 describe("MediaUploader batch uploads", () => {
+  it("does not refresh an editor that handles uploaded assets locally", () => {
+    expect(shouldRefreshAfterMediaUpload(1, true)).toBe(false);
+    expect(shouldRefreshAfterMediaUpload(1, false)).toBe(true);
+    expect(shouldRefreshAfterMediaUpload(0, false)).toBe(false);
+  });
+
   it("reads every picked file, in order", () => {
     const a = new File(["a"], "a.png", { type: "image/png" });
     const b = new File(["b"], "b.png", { type: "image/png" });

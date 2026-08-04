@@ -47,6 +47,10 @@ export function uploadSummaryMessage(succeeded: string[], failed: string[]): str
   return `${succeeded.length} uploaded, ${failed.length} failed (${failed.join(", ")}).`;
 }
 
+export function shouldRefreshAfterMediaUpload(succeeded: number, handlesCompletion: boolean) {
+  return succeeded > 0 && !handlesCompletion;
+}
+
 type SignedUploadResponse = {
   cloudName: string;
   apiKey: string;
@@ -182,7 +186,7 @@ export function MediaUploader({
     setCurrentFileName(null);
     setIsUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (succeeded.length > 0) router.refresh();
+    if (shouldRefreshAfterMediaUpload(succeeded.length, Boolean(onUploadComplete))) router.refresh();
   };
 
   return (
