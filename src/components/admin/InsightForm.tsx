@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { MediaSelector, MediaAssetMinimal } from "./MediaSelector";
+import { MediaInput } from "./MediaInput";
 import { ArticleContentEditor } from "./editor/ArticleContentEditor";
 import { createInsightAction, updateInsightAction, publishInsightAction, unpublishInsightAction } from "@/actions/insights";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
-export function InsightForm({ assets, initialData }: { assets: MediaAssetMinimal[], initialData?: any }) {
+export function InsightForm({ initialData }: { initialData?: any }) {
   const [selectedImageId, setSelectedImageId] = useState<string>(initialData?.featuredImageId || "");
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>(initialData?.featuredImage?.fileUrl || initialData?.featuredImage?.secureUrl || "");
   const [isPending, setIsPending] = useState(false);
@@ -102,17 +102,31 @@ export function InsightForm({ assets, initialData }: { assets: MediaAssetMinimal
           </div>
           <div>
             <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Category</label>
-            <input name="category" defaultValue={initialData?.category} required className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="e.g. News, Guide, Company" />
+            <input name="category" list="insight-categories" defaultValue={initialData?.category?.name || initialData?.category || ""} required className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" placeholder="Choose or type a category" />
+            <datalist id="insight-categories">
+              <option value="Recruitment Insights" />
+              <option value="Global Workforce" />
+              <option value="Skills & Training" />
+              <option value="Worker Welfare" />
+              <option value="Industry Updates" />
+              <option value="Success Stories" />
+            </datalist>
           </div>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Featured Image</label>
-            <MediaSelector assets={assets} selectedUrl={selectedImageUrl} onSelect={(assetId, assetUrl) => {
-              setSelectedImageId(assetId);
-              setSelectedImageUrl(assetUrl);
-            }} />
+            <MediaInput
+              label="Featured Image"
+              value={selectedImageId}
+              previewUrl={selectedImageUrl}
+              allowedResourceTypes={["IMAGE"]}
+              uploadPurpose="insight_image"
+              onChange={(assetId, assetUrl) => {
+                setSelectedImageId(assetId);
+                setSelectedImageUrl(assetUrl);
+              }}
+            />
           </div>
           <div className="flex items-center gap-4 py-4">
             <input type="checkbox" defaultChecked={initialData?.featured} name="featured" id="featured" className="w-4 h-4 text-brand-gold border-brand-charcoal/20 rounded focus:ring-brand-gold" />

@@ -1026,7 +1026,7 @@ export class PrismaContentRepository implements ContentRepository {
       authorName: i.author?.name || "Seven Seas Editorial Team",
       readingTime: i.readingTime || "5 min read",
       publishDate: i.publishDate ? i.publishDate.toISOString() : undefined,
-      image: i.featuredImage ? {
+      featuredImage: i.featuredImage ? {
         ...mapPrismaMediaAsset(i.featuredImage as PrismaMediaRecord),
         altText: i.featuredImage.altText || i.title,
       } : undefined,

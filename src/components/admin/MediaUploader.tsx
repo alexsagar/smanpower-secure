@@ -201,6 +201,7 @@ export function MediaUploader({
         disabled={isUploading}
       />
       <button
+        type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
         aria-busy={isUploading}

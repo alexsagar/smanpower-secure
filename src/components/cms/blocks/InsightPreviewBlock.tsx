@@ -1,13 +1,14 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, FileText, CheckCircle, Clock, ShieldCheck, Download, HeartHandshake, Users, Shield } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsContentBlock } from "@/types/content";
 import { toPublicHref } from "@/lib/public-href";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
+import type { CmsMediaAsset } from "@/types/content";
 
-export type InsightCard = { category: string; date: string; title: string; slug?: string };
+export type InsightCard = { category: string; date: string; title: string; slug?: string; image?: CmsMediaAsset; imageAlt?: string };
 
 /**
  * Presentational only — no data fetching, so it stays safe to render from the
@@ -69,6 +70,11 @@ export function InsightPreviewBlock({
               return (
               <ScrollReveal key={news.slug ?? i} delay={i * 0.1} className="group cursor-pointer block relative">
                 <CardTag {...cardProps} className="block">
+                {news.image ? (
+                  <div className="relative mb-6 aspect-[4/3] overflow-hidden bg-brand-stone">
+                    <OptimizedImage src={news.image} preset="articleCard" alt={news.imageAlt || news.title} fill />
+                  </div>
+                ) : null}
                 <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-brand-charcoal/40 mb-4 group-hover:text-brand-gold/70 transition-colors">
                   <span>{news.category}</span>
                   <span className="w-1 h-1 rounded-full bg-brand-charcoal/20 group-hover:bg-brand-gold/50 transition-colors" />

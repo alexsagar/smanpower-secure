@@ -1,15 +1,12 @@
 import { InsightForm } from "@/components/admin/InsightForm";
 import { FileText } from "lucide-react";
 import Link from "next/link";
-import { getAdminMediaAssets, getAdminInsight } from "@/services/admin.service";
+import { getAdminInsight } from "@/services/admin.service";
 import { notFound } from "next/navigation";
 
 export default async function EditInsightPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const [assets, insight] = await Promise.all([
-    getAdminMediaAssets(),
-    getAdminInsight(resolvedParams.id)
-  ]);
+  const insight = await getAdminInsight(resolvedParams.id);
 
   if (!insight) {
     notFound();
@@ -38,7 +35,7 @@ export default async function EditInsightPage({ params }: { params: Promise<{ id
       </div>
 
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <InsightForm assets={assets} initialData={insight} />
+        <InsightForm initialData={insight} />
       </div>
     </div>
   );

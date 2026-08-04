@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Newspaper } from "lucide-react";
-import { getAdminMediaAssets, getAdminNewsArticle } from "@/services/admin.service";
+import { getAdminNewsArticle } from "@/services/admin.service";
 import { NewsForm } from "@/components/admin/NewsForm";
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [assets, article] = await Promise.all([getAdminMediaAssets(), getAdminNewsArticle(id)]);
+  const article = await getAdminNewsArticle(id);
   if (!article) notFound();
 
   return (
@@ -21,7 +21,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
         <Link href="/admin/news" className="text-sm font-semibold tracking-widest uppercase text-brand-muted hover:text-brand-black transition-colors">Back to Newsroom</Link>
       </div>
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <NewsForm assets={assets} initialData={article} />
+        <NewsForm initialData={article} />
       </div>
     </div>
   );

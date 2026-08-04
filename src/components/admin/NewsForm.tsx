@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { archiveNewsAction, createNewsAction, publishNewsAction, unpublishNewsAction, updateNewsAction } from "@/actions/news";
-import { MediaAssetMinimal, MediaSelector } from "./MediaSelector";
+import { MediaInput } from "./MediaInput";
 import { ArticleContentEditor } from "./editor/ArticleContentEditor";
 
-export function NewsForm({ assets, initialData }: { assets: MediaAssetMinimal[]; initialData?: any }) {
+export function NewsForm({ initialData }: { initialData?: any }) {
   const [selectedImageId, setSelectedImageId] = useState<string>(initialData?.featuredImageId || "");
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>(initialData?.featuredMedia?.fileUrl || initialData?.featuredMedia?.secureUrl || initialData?.featuredImage || "");
   const [isPending, setIsPending] = useState(false);
@@ -91,11 +91,17 @@ export function NewsForm({ assets, initialData }: { assets: MediaAssetMinimal[];
         </div>
         <div className="space-y-6">
           <div>
-            <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Featured Image</label>
-            <MediaSelector assets={assets} selectedUrl={selectedImageUrl} onSelect={(assetId, assetUrl) => {
-              setSelectedImageId(assetId);
-              setSelectedImageUrl(assetUrl);
-            }} />
+            <MediaInput
+              label="Featured Image"
+              value={selectedImageId}
+              previewUrl={selectedImageUrl}
+              allowedResourceTypes={["IMAGE"]}
+              uploadPurpose="news_image"
+              onChange={(assetId, assetUrl) => {
+                setSelectedImageId(assetId);
+                setSelectedImageUrl(assetUrl);
+              }}
+            />
           </div>
           <label className="flex items-center gap-3 text-sm font-semibold text-brand-black">
             <input type="checkbox" name="noIndex" defaultChecked={Boolean(initialData?.noIndex)} className="w-4 h-4" />

@@ -5,7 +5,7 @@ import { DEMO_MODE } from "@/config/demo";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
-import { generateUniqueSlug } from "@/lib/slug";
+import { generateUniqueSlug, slugify } from "@/lib/slug";
 import { auth } from "@/lib/auth";
 
 import { ContentStatus } from "@prisma/client";
@@ -15,7 +15,7 @@ const InsightPayloadSchema = z.object({
   lang: z.enum(["en", "ne"]).default("en"),
   summary: z.string().nullable().optional(),
   content: z.string().min(1, "Content is required"),
-  category: z.string().min(1, "Category is required"),
+  category: z.string().trim().min(1, "Category is required"),
   featured: z.boolean().default(false),
   imageId: z.string().nullable().optional(),
   authorId: z.string().nullable().optional(),
@@ -84,9 +84,15 @@ export async function createInsightAction(formData: FormData) {
               title: data.title,
               summary: data.summary,
               content: data.content,
+              category: {
+                connectOrCreate: {
+                  where: { slug: slugify(data.category) },
+                  create: { name: data.category, slug: slugify(data.category) },
+                },
+              },
               isFeatured: data.featured,
-              featuredImageId: data.imageId,
-              authorId: data.authorId,
+              featuredImage: data.imageId ? { connect: { id: data.imageId } } : undefined,
+              author: data.authorId ? { connect: { id: data.authorId } } : undefined,
               status: ContentStatus.DRAFT,
               metaTitle: data.metaTitle,
               metaDescription: data.metaDescription,
@@ -179,9 +185,19 @@ export async function updateInsightAction(id: string, formData: FormData) {
           title: data.title,
           summary: data.summary,
           content: data.content,
+          category: {
+            connectOrCreate: {
+              where: { slug: slugify(data.category) },
+              create: { name: data.category, slug: slugify(data.category) },
+            },
+          },
           isFeatured: data.featured,
-          featuredImageId: data.imageId,
-          authorId: data.authorId,
+          featuredImage: data.imageId
+            ? { connect: { id: data.imageId } }
+            : { disconnect: true },
+          author: data.authorId
+            ? { connect: { id: data.authorId } }
+            : { disconnect: true },
           metaTitle: data.metaTitle,
           metaDescription: data.metaDescription,
           canonicalUrl: data.canonicalUrl,

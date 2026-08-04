@@ -1,11 +1,8 @@
 import { InsightForm } from "@/components/admin/InsightForm";
 import { FileText } from "lucide-react";
 import Link from "next/link";
-import { getAdminMediaAssets } from "@/services/admin.service";
 
 export default async function NewInsightPage() {
-  const assets = await getAdminMediaAssets();
-
   return (
     <div className="max-w-7xl mx-auto space-y-12">
       {/* Header */}
@@ -29,7 +26,7 @@ export default async function NewInsightPage() {
       </div>
 
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <InsightForm assets={assets} />
+        <InsightForm />
       </div>
     </div>
   );

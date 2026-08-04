@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { Newspaper } from "lucide-react";
-import { getAdminMediaAssets } from "@/services/admin.service";
 import { NewsForm } from "@/components/admin/NewsForm";
 
 export default async function NewNewsPage() {
-  const assets = await getAdminMediaAssets();
-
   return (
     <div className="max-w-7xl mx-auto space-y-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-brand-charcoal/10">
@@ -18,7 +15,7 @@ export default async function NewNewsPage() {
         <Link href="/admin/news" className="text-sm font-semibold tracking-widest uppercase text-brand-muted hover:text-brand-black transition-colors">Back to Newsroom</Link>
       </div>
       <div className="bg-white border border-brand-charcoal/10 p-8 shadow-sm">
-        <NewsForm assets={assets} />
+        <NewsForm />
       </div>
     </div>
   );

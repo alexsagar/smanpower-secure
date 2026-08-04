@@ -31,7 +31,7 @@ export function DemandPositionTable({ demand, lang }: DemandPositionTableProps) 
           <tr>
             <th className="px-4 py-4 font-semibold tracking-wider">S.N.</th>
             <th className="px-4 py-4 font-semibold tracking-wider">Position</th>
-            <th className="px-4 py-4 font-semibold tracking-wider text-center">Req. No.</th>
+            <th className="px-4 py-4 font-semibold tracking-wider text-center">Required</th>
             <th className="px-4 py-4 font-semibold tracking-wider text-right">Salary (Local)</th>
             <th className="px-4 py-4 font-semibold tracking-wider text-right">Salary (NPR)</th>
             <th className="px-4 py-4 font-semibold tracking-wider text-center">Food</th>
