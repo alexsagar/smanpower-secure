@@ -85,7 +85,7 @@ describe("hero video delivery", () => {
     expect(src).toContain("w_1600");
     expect(src).toContain("fps_24");
     expect(src).toContain("ac_none");
-    expect(src).toContain("q_auto:eco");
+    expect(src).toContain("q_auto:good");
     // No forced container: f_auto:video downgrades VP9 to a larger H.264 file.
     expect(src).not.toContain("f_auto");
     // The original CMS asset is still what is addressed.

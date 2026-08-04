@@ -173,6 +173,7 @@ describe("getCloudinaryVideoUrl", () => {
     expect(url).toContain("w_1600");
     expect(url).toContain("fps_24");
     expect(url).toContain("ac_none");
+    // Whatever quality the caller passes is what gets emitted.
     expect(url).toContain("q_auto:eco");
     expect(url).toContain("f_auto:video");
 

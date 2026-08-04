@@ -222,7 +222,7 @@ describe("hero video preset", () => {
   it("reduces frame rate, removes audio and compresses", () => {
     expect(segment).toContain("fps_24");
     expect(segment).toContain("ac_none");
-    expect(segment).toContain("q_auto:eco");
+    expect(segment).toContain("q_auto:good");
   });
 
   it("forces no container, so an efficient source codec is never downgraded", () => {
@@ -239,7 +239,7 @@ describe("hero video preset", () => {
     for (const { format, type } of HERO_VIDEO_SOURCE_FORMATS) {
       const candidate = getCloudinaryVideoUrl(VIDEO, { ...HERO_VIDEO_PRESET, format });
       expect(candidate).toContain(`f_${format}`);
-      expect(candidate).toContain("q_auto:eco");
+      expect(candidate).toContain("q_auto:good");
       expect(candidate).toContain("ac_none");
       expect(type.startsWith("video/")).toBe(true);
     }

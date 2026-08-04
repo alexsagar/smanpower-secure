@@ -59,7 +59,7 @@ const SIGNATURE_SEGMENT = /^s--[A-Za-z0-9_-]+--$/;
 
 /**
  * A path segment is a transformation when every comma-separated component is a
- * short `key_value` param (`w_800`, `c_fill`, `q_auto:eco`) or a bare flag.
+ * short `key_value` param (`w_800`, `c_fill`, `q_auto:good`) or a bare flag.
  * The final segment is always the public id, never a transformation, which is
  * what keeps unversioned URLs like `/upload/cms_hero_1.png` parsing correctly.
  */

@@ -367,23 +367,29 @@ export function getMediaPreset(name: MediaPresetName): MediaPresetConfig {
  * Hero background video delivery.
  *
  * - `c_limit,w_1600` caps resolution without cropping or upscaling.
- * - `fps_24` is plenty for ambient footage (measured ~9% under fps_30).
+ * - `fps_24` is plenty for ambient footage. Measured: keeping 30fps costs ~10%
+ *   for no visible benefit on a slow background clip, and pushes the file above
+ *   the original.
  * - `ac_none` strips the audio track the muted hero can never play.
- * - `q_auto:eco` is chosen deliberately: the hero sits under a 40-60% opacity
- *   overlay plus a gradient, which hides the mild softening `eco` introduces.
- *   Switch to `auto:good` only if banding or blocking becomes visible.
+ * - `q_auto:good` is the measured sweet spot. On the live 2.51MB / 854x480
+ *   master: eco 1.80MB, good 2.42MB, best 3.89MB. `best` ships 55% MORE than
+ *   the untransformed original, which defeats the purpose; `good` still comes
+ *   in under it while dropping eco's compression artefacts. The hero also
+ *   preloads nothing and fades in behind an already-painted poster, so the
+ *   extra bytes cost bandwidth rather than perceived load.
  * - No `du_`/`eo_`, so the full duration always plays.
  *
  * Deliberately carries NO `f_` parameter. `f_auto:video` resolves to H.264/MP4,
- * which is far less efficient than VP9: on a 2.51MB VP9 master it produced a
+ * which is far less efficient than VP9: on the 2.51MB VP9 master it produced a
  * 2.69MB file — bigger than the original. Omitting the format keeps each asset
- * in its own container, and the same measured source then delivered at 1.80MB
- * (-28%). Format compatibility is handled by HERO_VIDEO_SOURCE_FORMATS instead.
+ * in its own container; at identical quality settings the VP9 output was
+ * consistently the smaller of the two. Format compatibility is handled by
+ * HERO_VIDEO_SOURCE_FORMATS instead.
  */
 export const HERO_VIDEO_PRESET = {
   width: 1600,
   crop: "limit",
-  quality: "auto:eco",
+  quality: "auto:good",
   extra: ["fps_24", "ac_none"],
 } as const;
 
