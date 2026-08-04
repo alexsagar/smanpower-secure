@@ -16,11 +16,14 @@ export function AiSummaryFooterSection({ settings, basePrompt }: AiSummaryFooter
   if (orderedServices.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3 mt-8">
-      <h4 className="footer-heading font-brand uppercase text-brand-white/55">
+    /* Stacked under the certification block on mobile, so centre it there to
+       match; the parent turns into a row at md, where this side goes left. The
+       parent's gap owns the spacing between the two blocks. */
+    <div className="flex flex-col gap-3 items-center md:items-start">
+      <h4 className="footer-heading font-brand uppercase text-brand-white/55 text-center md:text-left">
         {settings.heading || "Explore AI Summary"}
       </h4>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-center md:justify-start gap-4">
         {orderedServices.map((service) => {
           const serviceName = service.id.charAt(0).toUpperCase() + service.id.slice(1);
 

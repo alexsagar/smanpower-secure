@@ -22,10 +22,10 @@ export function FooterCertificationLogos({ logos }: { logos?: CmsFooterCertifica
     <section aria-label={COMPLIANCE.heading}>
       {/* `.brand-headings h2` sets a clamp(2rem,3vw,3rem) page-heading size and
           out-specifies bare utilities, so this label needs `!` to stay a label. */}
-      <h2 className="mb-3 text-[10px]! font-semibold uppercase tracking-[0.2em]! leading-none! text-brand-white/60 text-center lg:text-right">
+      <h2 className="mb-3 text-[10px]! font-semibold uppercase tracking-[0.2em]! leading-relaxed! text-brand-white/60 text-center md:text-right text-balance">
         {COMPLIANCE.heading}
       </h2>
-      <div className="flex justify-center lg:justify-end" data-testid="footer-certification-logos">
+      <div className="flex justify-center md:justify-end" data-testid="footer-certification-logos">
         {visibleLogos.map((logo, index) => {
           const image = (
             <span
