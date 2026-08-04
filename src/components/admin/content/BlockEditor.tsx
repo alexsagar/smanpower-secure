@@ -6,6 +6,7 @@ import { MediaInput } from "@/components/admin/MediaInput";
 import { ChevronLeft } from "lucide-react";
 import { blockTypeLabel } from "@/lib/cms/block-labels";
 import { readGalleryAlbums } from "@/lib/cms/gallery-albums";
+import { GalleryAlbumEditor } from "./GalleryAlbumEditor";
 import {
   ContentFieldEditor,
   humanizeKey,
@@ -124,7 +125,12 @@ export function BlockEditor({
           Every remaining content field is rendered generically by value type.
           No field-name allow-list: new CMS fields appear here automatically.
         */}
-        {contentKeys.map((key) => (
+        {isImageGallery ? (
+          <GalleryAlbumEditor
+            albums={readGalleryAlbums(content)}
+            onChange={(albums) => updateContent("albums", albums)}
+          />
+        ) : contentKeys.map((key) => (
           <ContentFieldEditor
             key={key}
             label={humanizeKey(key)}
