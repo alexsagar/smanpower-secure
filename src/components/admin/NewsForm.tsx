@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { archiveNewsAction, createNewsAction, publishNewsAction, unpublishNewsAction, updateNewsAction } from "@/actions/news";
 import { MediaAssetMinimal, MediaSelector } from "./MediaSelector";
+import { ArticleContentEditor } from "./editor/ArticleContentEditor";
 
 export function NewsForm({ assets, initialData }: { assets: MediaAssetMinimal[]; initialData?: any }) {
   const [selectedImageId, setSelectedImageId] = useState<string>(initialData?.featuredImageId || "");
@@ -109,7 +110,15 @@ export function NewsForm({ assets, initialData }: { assets: MediaAssetMinimal[];
         </div>
         <div>
           <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Content</label>
-          <textarea name="content" defaultValue={initialData?.content} required rows={12} className="w-full border border-brand-charcoal/20 p-3 text-sm focus:outline-none focus:border-brand-gold bg-brand-off-white" />
+          {/* Same rich-text editor as Insights and Stories. The public news page
+              already renders this field through sanitizeHtml + prose, so stored
+              HTML needs no server or schema change. */}
+          <ArticleContentEditor
+            name="content"
+            initialHtml={initialData?.content}
+            placeholder="Write the announcement — add headings, images, lists and quotes…"
+            uploadPurpose="news_image"
+          />
         </div>
       </div>
       <div className="pt-6 mt-6 border-t border-brand-charcoal/10 space-y-6">

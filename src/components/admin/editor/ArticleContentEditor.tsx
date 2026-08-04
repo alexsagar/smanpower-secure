@@ -45,12 +45,13 @@ function ToolbarButton({
 }
 
 /**
- * Rich-text editor for insight article bodies. Emits an HTML string into a
- * hidden input named `name`, so the existing form (which reads
- * formData.get("content")) and the public renderer (sanitizeHtml + prose)
- * work unchanged. Images are uploaded/selected via the shared MediaPicker.
+ * Rich-text editor for long-form article bodies — insights, success stories
+ * and newsroom posts. Emits an HTML string into a hidden input named `name`,
+ * so each form (which reads formData.get("content")) and the public renderers
+ * (sanitizeHtml + prose) work unchanged. Images are uploaded/selected via the
+ * shared MediaPicker, with `uploadPurpose` routing them to the right folder.
  */
-export function InsightContentEditor({
+export function ArticleContentEditor({
   name,
   initialHtml,
   placeholder = "Write your insight — add headings, images, lists and quotes…",

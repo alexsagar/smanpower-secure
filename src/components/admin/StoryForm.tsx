@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { MediaInput } from "./MediaInput";
 import { createStoryAction, updateStoryAction, publishStoryAction, unpublishStoryAction, deleteDraftStoryAction } from "@/actions/success-stories";
 import { Loader2, CheckCircle, XCircle, Trash2 } from "lucide-react";
-import { InsightContentEditor } from "./editor/InsightContentEditor";
+import { ArticleContentEditor } from "./editor/ArticleContentEditor";
 import { confirmToast } from "@/lib/confirm-toast";
 
 function toSlug(value: string) {
@@ -186,7 +186,7 @@ export function StoryForm({ initialData }: { initialData?: any }) {
         </div>
         <div>
           <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Story Body</label>
-          <InsightContentEditor
+          <ArticleContentEditor
             name="content"
             initialHtml={initialData?.content}
             placeholder="Write the story — add headings, images, lists and pull quotes…"

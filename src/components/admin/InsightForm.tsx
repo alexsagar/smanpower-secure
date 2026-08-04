@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MediaSelector, MediaAssetMinimal } from "./MediaSelector";
-import { InsightContentEditor } from "./editor/InsightContentEditor";
+import { ArticleContentEditor } from "./editor/ArticleContentEditor";
 import { createInsightAction, updateInsightAction, publishInsightAction, unpublishInsightAction } from "@/actions/insights";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
@@ -128,7 +128,7 @@ export function InsightForm({ assets, initialData }: { assets: MediaAssetMinimal
         </div>
         <div>
           <label className="block text-xs font-semibold text-brand-charcoal uppercase tracking-widest mb-2">Full Content</label>
-          <InsightContentEditor name="content" initialHtml={initialData?.content} />
+          <ArticleContentEditor name="content" initialHtml={initialData?.content} />
         </div>
       </div>
 
