@@ -110,6 +110,67 @@ describe("OptimizedImage presets", () => {
   });
 });
 
+describe("OptimizedImage sizing regressions", () => {
+  it("does not crop twice when the layout already crops via fill", () => {
+    // A cropping preset plus object-cover in a differently-shaped container cut
+    // the image to one ratio and then again to the container's, zooming the
+    // subject. With `fill`, Cloudinary must only limit resolution.
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={CLOUDINARY} preset="successStoryCard" alt="Story" fill />
+    );
+
+    expect(html).toContain("c_limit");
+    expect(html).not.toContain("c_fill");
+    expect(html).not.toContain("h_480");
+    expect(html).not.toContain("g_auto");
+  });
+
+  it("still crops to the preset box when the layout does not", () => {
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={CLOUDINARY} preset="successStoryCard" alt="Story" />
+    );
+    expect(html).toContain("c_fill,w_720,h_480");
+  });
+
+  it("reports the delivered size, never the source's, so width-auto cannot blow up", () => {
+    // A 2000x2000 logo delivered at 320px must not report width="2000": with
+    // `w-auto` the browser would lay it out at full source size.
+    const html = renderToStaticMarkup(
+      <OptimizedImage
+        src={asset({ width: 2000, height: 2000 })}
+        preset="clientLogo"
+        alt="Client"
+        className="max-h-40 w-auto"
+      />
+    );
+
+    expect(html).not.toContain('width="2000"');
+    expect(html).not.toContain('height="2000"');
+    expect(html).toContain('width="320"');
+  });
+
+  it("bounds logo height so a trimmed tall mark cannot tower over a wide one", () => {
+    // e_trim strips a logo's baked-in padding; without a height bound the
+    // artwork then fills the frame and renders far larger.
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={CLOUDINARY} preset="clientLogo" alt="Client" className="max-h-40 w-auto" />
+    );
+
+    expect(html).toContain("e_trim");
+    expect(html).toContain("c_limit,w_320,h_160");
+    // c_limit fits inside the box; it never crops the mark.
+    expect(html).toContain("object-contain");
+    expect(html).toContain('height="160"');
+  });
+
+  it("never upscales the reported box beyond a small source", () => {
+    const html = renderToStaticMarkup(
+      <OptimizedImage src={asset({ width: 100, height: 50 })} preset="clientLogo" alt="Tiny" />
+    );
+    expect(html).toContain('width="100"');
+  });
+});
+
 describe("OptimizedImage layout stability", () => {
   it("reserves the box for a cropping preset from the preset ratio", () => {
     const html = renderToStaticMarkup(

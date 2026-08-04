@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { ChevronDown, ChevronRight, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, ImagePlus, Plus, Trash2 } from "lucide-react";
 import { MediaInput } from "@/components/admin/MediaInput";
+import { MediaPicker } from "@/components/admin/MediaPicker";
 import { isMediaField, mediaFieldKind, mediaFieldPurpose } from "@/lib/cms/media-fields";
 import { confirmToast } from "@/lib/confirm-toast";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
@@ -450,6 +451,25 @@ function itemThumbnail(item: unknown): string {
   return "";
 }
 
+/**
+ * The image-valued key on a repeater's item shape, if it has exactly one.
+ * Rows like `{ imageUrl, title }` can then be created straight from a media
+ * selection instead of one blank row at a time. Returns null for shapes with
+ * no image field or several, where "which one?" has no safe answer.
+ */
+export function itemImageKey(template: unknown): string | null {
+  if (!template || typeof template !== "object" || Array.isArray(template)) return null;
+
+  const keys = Object.entries(template as Record<string, unknown>)
+    .filter(([key, value]) => {
+      if (value !== undefined && value !== null && typeof value !== "string") return false;
+      return isMediaField(key, value) && mediaFieldKind(key, value) === "IMAGE";
+    })
+    .map(([key]) => key);
+
+  return keys.length === 1 ? keys[0] : null;
+}
+
 function ArrayField({
   label,
   fieldKey,
@@ -495,10 +515,31 @@ function ArrayField({
   // adds again gets a properly shaped object rather than a bare string.
   const shape = React.useRef<unknown>(undefined);
   if (value.length) shape.current = value[0];
+  // Read inside handlers only — reading a ref during render is not allowed.
+  const currentTemplate = () => value[0] ?? shape.current ?? "";
   const addItem = () => {
-    onChange([...value, blankFrom(value[0] ?? shape.current ?? "")]);
+    onChange([...value, blankFrom(currentTemplate())]);
     // A new entry is empty, so open it: nothing useful would show collapsed.
     setOpenIndex(value.length);
+  };
+
+  // Repeaters whose rows carry a single image (gallery albums, facilities,
+  // documents) can be filled straight from the media library: one trip through
+  // the picker adds a row per asset, instead of add-row-then-pick, per image.
+  // Derived from the live value rather than the remembered shape, so this stays
+  // render-safe. An emptied repeater simply loses the shortcut until a row exists.
+  const imageKey = itemImageKey(value[0]);
+  const [bulkPickerOpen, setBulkPickerOpen] = React.useState(false);
+  const addFromMedia = (assets: Array<{ fileUrl: string }>) => {
+    if (!imageKey) return;
+    const rows = assets.map((asset) => ({
+      ...(blankFrom(currentTemplate()) as Record<string, unknown>),
+      [imageKey]: asset.fileUrl,
+    }));
+    onChange([...value, ...rows]);
+    // Left collapsed: the rows already carry their image, and expanding six at
+    // once would bury the list.
+    setOpenIndex(null);
   };
 
   const singular = label.replace(/s$/, "");
@@ -510,14 +551,37 @@ function ArrayField({
           {label}{" "}
           <span className="text-xs font-normal text-gray-500">({value.length})</span>
         </span>
-        <button
-          type="button"
-          onClick={addItem}
-          className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-brand-black hover:text-brand-gold transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" /> Add {singular.toLowerCase()}
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {imageKey ? (
+            <button
+              type="button"
+              onClick={() => setBulkPickerOpen(true)}
+              className="flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-semibold text-brand-black transition-colors hover:text-brand-gold"
+            >
+              <ImagePlus className="w-3.5 h-3.5" /> Add from library
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={addItem}
+            className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-brand-black hover:text-brand-gold transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add {singular.toLowerCase()}
+          </button>
+        </div>
       </div>
+
+      {imageKey ? (
+        <MediaPicker
+          open={bulkPickerOpen}
+          onClose={() => setBulkPickerOpen(false)}
+          multiple
+          allowedResourceTypes={["IMAGE"]}
+          uploadPurpose={mediaFieldPurpose(imageKey, "")}
+          onSelect={(media) => addFromMedia([media])}
+          onSelectMany={addFromMedia}
+        />
+      ) : null}
 
       {value.length === 0 ? (
         <p className="text-xs text-gray-500">No entries yet.</p>

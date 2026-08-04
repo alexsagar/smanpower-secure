@@ -128,7 +128,11 @@ describe("DynamicHero without a playable video", () => {
 
     expect(html).not.toContain("<video");
     expect(html).toContain("fallback.jpg");
-    expect(html).toContain("c_fill");
+    // The hero fills its section and object-cover does the cropping, so the
+    // delivered image is only resolution-limited. Baking a crop in too would
+    // crop twice and zoom the photo.
+    expect(html).toContain("c_limit");
+    expect(html).not.toContain("c_fill");
     expect(html).toContain("q_auto:good");
     // Above-the-fold hero is the LCP candidate.
     expect(html).toContain('loading="eager"');

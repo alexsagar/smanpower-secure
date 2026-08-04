@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   mediaAssetMatchesPickerFilters,
   mergeMediaAssets,
+  orderedSelection,
+  toggleSelectedId,
 } from "./MediaPicker";
 
 const video = {
@@ -48,5 +50,24 @@ describe("MediaPicker state helpers", () => {
 
   it("does not insert a fake asset when completion fails", () => {
     expect(mergeMediaAssets([image], undefined)).toEqual([image]);
+  });
+});
+
+describe("MediaPicker multi-select", () => {
+  it("toggles ids and preserves the order they were ticked", () => {
+    let selected = toggleSelectedId([], "b");
+    selected = toggleSelectedId(selected, "a");
+    selected = toggleSelectedId(selected, "c");
+    expect(selected).toEqual(["b", "a", "c"]);
+
+    expect(toggleSelectedId(selected, "a")).toEqual(["b", "c"]);
+  });
+
+  it("resolves ticked ids back to assets in tick order", () => {
+    expect(orderedSelection([image, video], ["video-1", "image-1"])).toEqual([video, image]);
+  });
+
+  it("skips ids whose asset is no longer present", () => {
+    expect(orderedSelection([image], ["missing", "image-1"])).toEqual([image]);
   });
 });

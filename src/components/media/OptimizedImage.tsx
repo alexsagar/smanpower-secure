@@ -22,7 +22,11 @@ import {
   getCloudinaryImageUrl,
   isCloudinaryImageUrl,
 } from "@/lib/cloudinary-delivery";
-import { MEDIA_PRESETS, type MediaPresetName } from "@/lib/media-presets";
+import {
+  MEDIA_PRESETS,
+  type MediaPresetConfig,
+  type MediaPresetName,
+} from "@/lib/media-presets";
 import { MEDIA_PLACEHOLDER, resolveMediaUrl, type ResolvableMedia } from "@/lib/media-resolver";
 
 export interface OptimizedImageProps {
@@ -77,7 +81,9 @@ export function OptimizedImage({
   focalPointY,
   title,
 }: OptimizedImageProps) {
-  const preset = MEDIA_PRESETS[presetName];
+  // Widened to the interface: the `as const` table types each preset as its own
+  // literal shape, on which optional keys like `height` do not exist.
+  const preset: MediaPresetConfig = MEDIA_PRESETS[presetName];
   const url = resolveMediaUrl(src);
   const metadata = readAssetMetadata(src);
 
@@ -90,26 +96,42 @@ export function OptimizedImage({
   const loading = priority ? "eager" : preset.loading;
   const objectFit = preset.fit === "contain" ? "object-contain" : "object-cover";
 
+  // `fill` means the CSS container defines the box and `object-fit` does the
+  // cropping. Applying the preset's own box as well would size the image to one
+  // aspect ratio and then crop it again to the container's — cropping twice,
+  // which visibly zooms the subject. With `fill`, ask Cloudinary only to limit
+  // resolution and let the layout do the cropping.
+  const usePresetBox = !fill && preset.height !== undefined;
+
   const transform = {
     width: preset.width,
-    height: "height" in preset ? preset.height : undefined,
-    crop: preset.crop,
-    gravity: "gravity" in preset ? preset.gravity : undefined,
+    height: usePresetBox ? preset.height : undefined,
+    crop: usePresetBox ? preset.crop : "limit",
+    gravity: usePresetBox ? preset.gravity : undefined,
     quality: preset.quality,
-    trim: "trim" in preset ? preset.trim : undefined,
+    trim: preset.trim,
     focalPointX: focalX,
     focalPointY: focalY,
-  };
+  } as const;
+
+  // Reserve layout space using the dimensions of the image we actually deliver,
+  // never the source's. A 2000x2000 master delivered at 320px must not report
+  // width="2000" — with a width-auto class the browser lays it out at full
+  // source size, which is how the logo strips blew up. `c_limit` never upscales,
+  // so the delivered width is capped by the source.
+  const deliveredWidth = Math.min(preset.width, intrinsicWidth ?? preset.width);
+  const deliveredHeight = usePresetBox
+    ? Math.round((preset.height as number) * (deliveredWidth / preset.width))
+    : intrinsicWidth && intrinsicHeight
+      ? Math.round((intrinsicHeight / intrinsicWidth) * deliveredWidth)
+      : undefined;
 
   // ── Local and non-Cloudinary sources: keep next/image ──
   if (!isCloudinaryImageUrl(url)) {
     // The placeholder and local /public assets are genuinely static files that
     // benefit from the built-in optimiser; a remote non-Cloudinary URL is not
-    // ours to transform.
-    const localWidth = intrinsicWidth ?? preset.width;
-    const localHeight =
-      intrinsicHeight ?? ("height" in preset ? preset.height : undefined) ?? preset.width;
-
+    // ours to transform. next/image requires both dimensions, so fall back to a
+    // square only when the source shape is genuinely unknown.
     return (
       <Image
         src={url || MEDIA_PLACEHOLDER}
@@ -121,7 +143,7 @@ export function OptimizedImage({
         className={`${objectFit} ${className ?? ""}`.trim()}
         {...(fill
           ? { fill: true as const }
-          : { width: localWidth, height: localHeight })}
+          : { width: deliveredWidth, height: deliveredHeight ?? deliveredWidth })}
       />
     );
   }
@@ -129,15 +151,9 @@ export function OptimizedImage({
   const finalSrc = getCloudinaryImageUrl(url, transform);
   const srcSet = buildCloudinarySrcSet(url, preset.widths, transform, intrinsicWidth);
 
-  // Reserve layout space. A cropping preset knows its box exactly; otherwise use
-  // the stored source ratio. Never invent a ratio for a document — when nothing
-  // is known we omit it and let the natural image size settle the box.
-  const boxHeight = "height" in preset ? preset.height : undefined;
-  const aspectRatio = boxHeight
-    ? `${preset.width} / ${boxHeight}`
-    : intrinsicWidth && intrinsicHeight
-      ? `${intrinsicWidth} / ${intrinsicHeight}`
-      : undefined;
+  // Never invent a ratio for a document of unknown shape — omit it and let the
+  // image's natural size settle the box.
+  const aspectRatio = deliveredHeight ? `${deliveredWidth} / ${deliveredHeight}` : undefined;
 
   if (process.env.NODE_ENV === "development" && !url) {
     console.warn(`[media] preset "${presetName}" received no usable source`);
@@ -156,8 +172,8 @@ export function OptimizedImage({
       loading={loading}
       decoding={priority ? "sync" : "async"}
       fetchPriority={priority ? "high" : undefined}
-      width={fill ? undefined : (intrinsicWidth ?? preset.width)}
-      height={fill ? undefined : (intrinsicHeight ?? boxHeight)}
+      width={fill ? undefined : deliveredWidth}
+      height={fill ? undefined : deliveredHeight}
       style={fill ? undefined : aspectRatio ? { aspectRatio } : undefined}
       className={`${fill ? "absolute inset-0 h-full w-full" : ""} ${objectFit} ${className ?? ""}`.trim()}
       data-media-preset={process.env.NODE_ENV === "development" ? presetName : undefined}

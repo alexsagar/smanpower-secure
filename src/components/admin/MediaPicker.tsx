@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { X, Search, Image as ImageIcon, Video, FileText } from "lucide-react";
+import { X, Search, Image as ImageIcon, Video, FileText, Check } from "lucide-react";
 import { MediaUploader } from "./MediaUploader";
 import type { MediaPurpose } from "@/lib/media-purposes";
 
@@ -23,6 +23,16 @@ interface MediaPickerProps {
   onSelect: (media: MediaAssetRecord) => void;
   allowedResourceTypes?: Array<"IMAGE" | "VIDEO" | "DOCUMENT">;
   uploadPurpose?: MediaPurpose;
+  /**
+   * Let the editor tick several assets and add them in one go. Without it the
+   * picker keeps its original behaviour exactly: one click selects and closes.
+   */
+  multiple?: boolean;
+  /**
+   * Called instead of `onSelect` when `multiple` is set, with the ticked assets
+   * in the order they were ticked.
+   */
+  onSelectMany?: (media: MediaAssetRecord[]) => void;
 }
 
 const RESOURCE_TYPE_FILTERS = ["ALL", "IMAGE", "VIDEO", "DOCUMENT"] as const;
@@ -64,13 +74,31 @@ export function mediaAssetMatchesPickerFilters(
   );
 }
 
+/** Toggle an asset id in a selection list, preserving the order ticked. */
+export function toggleSelectedId(selected: string[], id: string): string[] {
+  return selected.includes(id) ? selected.filter((value) => value !== id) : [...selected, id];
+}
+
+/** Resolve ticked ids back to assets, in tick order, skipping any that vanished. */
+export function orderedSelection(
+  assets: MediaAssetRecord[],
+  selectedIds: string[]
+): MediaAssetRecord[] {
+  return selectedIds
+    .map((id) => assets.find((asset) => asset.id === id))
+    .filter((asset): asset is MediaAssetRecord => Boolean(asset));
+}
+
 export function MediaPicker({
   open,
   onClose,
   onSelect,
   allowedResourceTypes,
   uploadPurpose,
+  multiple = false,
+  onSelectMany,
 }: MediaPickerProps) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [assets, setAssets] = useState<MediaAssetRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -80,6 +108,7 @@ export function MediaPicker({
 
   useEffect(() => {
     if (!open) return;
+    setSelectedIds([]);
     let cancelled = false;
 
     async function loadAssets() {
@@ -123,14 +152,25 @@ export function MediaPicker({
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
             <h2 className="text-xl font-semibold">Select Media</h2>
-            <p className="text-sm text-gray-500 mt-1">Choose an existing asset or upload a placement-safe file.</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {multiple
+                ? "Tick several assets, or upload a batch, then add them all at once."
+                : "Choose an existing asset or upload a placement-safe file."}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             {uploadPurpose ? (
               <MediaUploader
                 purpose={uploadPurpose}
+                multiple={multiple}
                 onUploadComplete={(media) => {
-                  setAssets((current) => mergeMediaAssets(current, media as MediaAssetRecord));
+                  const asset = media as MediaAssetRecord;
+                  setAssets((current) => mergeMediaAssets(current, asset));
+                  // Freshly uploaded files are almost always what the editor
+                  // wants, so tick them rather than making them hunt the grid.
+                  if (multiple && asset?.id) {
+                    setSelectedIds((current) => (current.includes(asset.id) ? current : [...current, asset.id]));
+                  }
                 }}
               />
             ) : null}
@@ -188,12 +228,42 @@ export function MediaPicker({
               {filteredAssets.map((asset) => (
                 <div
                   key={asset.id}
+                  role={multiple ? "checkbox" : "button"}
+                  aria-checked={multiple ? selectedIds.includes(asset.id) : undefined}
+                  tabIndex={0}
+                  aria-label={asset.altText || asset.fileName}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      event.currentTarget.click();
+                    }
+                  }}
                   onClick={() => {
+                    if (multiple) {
+                      setSelectedIds((current) => toggleSelectedId(current, asset.id));
+                      return;
+                    }
                     onSelect(asset);
                     onClose();
                   }}
-                  className="group relative aspect-square bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-brand-gold hover:ring-2 hover:ring-brand-gold/20 transition-all"
+                  className={`group relative aspect-square bg-white border rounded-lg overflow-hidden cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
+                    multiple && selectedIds.includes(asset.id)
+                      ? "border-brand-gold ring-2 ring-brand-gold"
+                      : "border-gray-200 hover:border-brand-gold hover:ring-2 hover:ring-brand-gold/20"
+                  }`}
                 >
+                  {multiple ? (
+                    <span
+                      aria-hidden
+                      className={`absolute top-2 left-2 z-10 flex h-5 w-5 items-center justify-center rounded border ${
+                        selectedIds.includes(asset.id)
+                          ? "border-brand-gold bg-brand-gold text-brand-black"
+                          : "border-white/70 bg-black/40"
+                      }`}
+                    >
+                      {selectedIds.includes(asset.id) ? <Check className="h-3.5 w-3.5" /> : null}
+                    </span>
+                  ) : null}
                   {asset.resourceType === "VIDEO" ? (
                     <div className="relative w-full h-full flex items-center justify-center bg-gray-100">
                       <Video className="w-8 h-8 text-gray-400" />
@@ -237,6 +307,39 @@ export function MediaPicker({
             </div>
           )}
         </div>
+
+        {/* Multi-select needs an explicit confirm: in single mode a click is the
+            confirm, but here the editor is still building a selection. */}
+        {multiple ? (
+          <div className="flex items-center justify-between gap-4 border-t border-gray-100 bg-white p-4">
+            <p className="text-sm text-gray-600" aria-live="polite">
+              {selectedIds.length === 0
+                ? "No assets selected"
+                : `${selectedIds.length} selected`}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                disabled={selectedIds.length === 0}
+                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-brand-black disabled:opacity-40"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                disabled={selectedIds.length === 0}
+                onClick={() => {
+                  onSelectMany?.(orderedSelection(assets, selectedIds));
+                  onClose();
+                }}
+                className="rounded-lg bg-brand-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold hover:text-brand-black disabled:opacity-40 disabled:hover:bg-brand-black disabled:hover:text-white"
+              >
+                {selectedIds.length > 1 ? `Add ${selectedIds.length} assets` : "Add asset"}
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

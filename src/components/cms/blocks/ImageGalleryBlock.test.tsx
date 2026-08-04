@@ -29,7 +29,11 @@ describe("ImageGalleryBlock", () => {
     expect(html).toContain("Welding bay");
     // Gallery thumbnails: a small, intentionally-cropped delivery variant
     // with a responsive ladder — never the full-size master.
-    expect(html).toContain("c_fill,w_480,h_360,g_auto,q_auto:good,f_auto");
+    // Thumbnails render with `fill` inside an aspect-[4/3] tile, so the tile
+    // crops. Cloudinary only limits resolution — cropping in both places would
+    // zoom each thumbnail.
+    expect(html).toContain("c_limit,w_480,q_auto:good,f_auto");
+    expect(html).not.toContain("c_fill");
     expect(html).toContain("240w");
     expect(html).toContain('loading="lazy"');
   });
