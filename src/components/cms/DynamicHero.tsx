@@ -17,7 +17,12 @@ import { ManagedVideo } from "./ManagedVideo";
 import { MediaOverlay } from "./MediaOverlay";
 import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { getCloudinaryPosterUrl, getCloudinaryVideoUrl } from "@/lib/cloudinary-delivery";
-import { HERO_VIDEO_MIN_WIDTH, HERO_VIDEO_PRESET, MEDIA_PRESETS } from "@/lib/media-presets";
+import {
+  HERO_VIDEO_MIN_WIDTH,
+  HERO_VIDEO_PRESET,
+  HERO_VIDEO_SOURCE_FORMATS,
+  MEDIA_PRESETS,
+} from "@/lib/media-presets";
 
 interface DynamicHeroProps {
   hero: CmsHeroSection;
@@ -58,7 +63,19 @@ function getPlayableVideo(hero: CmsHeroSection) {
   if (hero.video?.resourceType !== "video") return undefined;
 
   const src = hero.video.secureUrl || hero.video.localPath;
-  return src ? { src: getCloudinaryVideoUrl(src, HERO_VIDEO_PRESET) } : undefined;
+  if (!src) return undefined;
+
+  // Default source keeps the asset's own container. Non-Cloudinary URLs come
+  // back untouched and simply play as stored.
+  const defaultSrc = getCloudinaryVideoUrl(src, HERO_VIDEO_PRESET);
+  if (defaultSrc === src) return { src, sources: undefined };
+
+  const sources = HERO_VIDEO_SOURCE_FORMATS.map(({ format, type }) => ({
+    src: getCloudinaryVideoUrl(src, { ...HERO_VIDEO_PRESET, format }),
+    type,
+  }));
+
+  return { src: defaultSrc, sources };
 }
 
 /**
@@ -110,6 +127,7 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
         {playableVideo ? (
           <ManagedVideo
             src={playableVideo.src}
+            sources={playableVideo.sources}
             posterSrc={posterUrl}
             mobileFallbackSrc={mobileFallbackUrl}
             alt={hero.accessibilityDescription || "Hero background video"}

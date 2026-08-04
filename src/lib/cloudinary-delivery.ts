@@ -201,7 +201,8 @@ function buildTransformSegment(
         `g_xy_center,x_${Math.round(focalPointX)}p,y_${Math.round(focalPointY)}p`
       : cropsToBox && gravity && !hasParam(existing, "g") && `g_${gravity}`,
     !hasParam(existing, "q") && `q_${quality}`,
-    !hasParam(existing, "f") && `f_${format}`,
+    // An empty default format means "keep the asset's own container".
+    format && !hasParam(existing, "f") && `f_${format}`,
     ...extra.filter((param) => {
       const name = param.split("_")[0];
       return name ? !hasParam(existing, name) : false;
@@ -247,9 +248,14 @@ export function getCloudinaryImageUrl(
 }
 
 /**
- * Video delivery. Defaults to `f_auto:video` so browsers get a format they can
- * actually decode, and never trims: no `du_`/`eo_` is ever emitted here, so the
- * full duration is always preserved.
+ * Video delivery. Never trims: no `du_`/`eo_` is ever emitted here, so the full
+ * duration is always preserved.
+ *
+ * No format is applied unless the caller asks for one, so the asset keeps its
+ * own container. `f_auto:video` resolves to H.264/MP4, which is markedly less
+ * efficient than VP9 — forcing it on a VP9/WebM master measurably *inflated*
+ * the file. Callers that need a specific container (to offer `<source>`
+ * candidates) pass `format` explicitly.
  */
 export function getCloudinaryVideoUrl(
   src: string,
@@ -260,7 +266,7 @@ export function getCloudinaryVideoUrl(
 
   const existing = parsed.transforms.join(",");
   const segment = buildTransformSegment(existing, options, {
-    format: "auto:video",
+    format: "",
     quality: "auto",
   });
   if (!segment) return src;
@@ -291,13 +297,11 @@ export function getCloudinaryPosterUrl(
     { format: "auto", quality: "auto:good" }
   );
 
-  // Deliver as an image: swap the resource type and the source extension.
+  // A video frame is delivered from the *video* resource type with an image
+  // extension. Rewriting the path to /image/upload/ instead returns 404: the
+  // public id does not exist as an image asset.
   return buildUrl(
-    {
-      ...parsed,
-      resourceType: "image",
-      publicIdPath: parsed.publicIdPath.replace(/\.[^/.]+$/, ".jpg"),
-    },
+    { ...parsed, publicIdPath: parsed.publicIdPath.replace(/\.[^/.]+$/, ".jpg") },
     segment
   );
 }

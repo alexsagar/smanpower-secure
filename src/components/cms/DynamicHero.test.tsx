@@ -57,7 +57,7 @@ describe("DynamicHero server markup", () => {
   it("paints a poster generated from the selected video when none is configured", () => {
     const html = renderToStaticMarkup(<DynamicHero hero={hero({ video })} />);
 
-    expect(html).toContain("/image/upload/");
+    expect(html).toContain("/video/upload/");
     expect(html).toContain("so_auto");
     expect(html).toContain("q_auto:good");
     expect(html).toContain("seven-seas-cms/hero.jpg");

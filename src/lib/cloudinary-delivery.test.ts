@@ -196,7 +196,8 @@ describe("getCloudinaryVideoUrl", () => {
 describe("getCloudinaryPosterUrl", () => {
   it("derives an optimised image frame from the video", () => {
     const poster = getCloudinaryPosterUrl(VIDEO, { width: 1600, quality: "auto:good" });
-    expect(poster).toContain("/image/upload/");
+    // Served from the video resource type; /image/upload/ would 404.
+    expect(poster).toContain("/video/upload/");
     expect(poster).toContain("so_auto");
     expect(poster).toContain("q_auto:good");
     expect(poster).toContain("f_auto");
@@ -207,6 +208,16 @@ describe("getCloudinaryPosterUrl", () => {
 
   it("supports an explicit early offset instead of so_auto", () => {
     expect(getCloudinaryPosterUrl(VIDEO, { startOffset: "1" })).toContain("so_1");
+  });
+
+  it("never rewrites the path to the image resource type", () => {
+    // Verified against a live account: /image/upload/<video-public-id>.jpg
+    // returns 404, because the public id exists only as a video asset. The
+    // frame must be requested from /video/upload/ with a .jpg extension.
+    const poster = getCloudinaryPosterUrl(VIDEO)!;
+    expect(poster).not.toContain("/image/upload/");
+    expect(poster).toContain("/video/upload/");
+    expect(poster.endsWith(".jpg")).toBe(true);
   });
 
   it("returns undefined for images, non-Cloudinary and signed sources", () => {

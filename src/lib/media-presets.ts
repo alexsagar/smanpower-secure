@@ -367,20 +367,36 @@ export function getMediaPreset(name: MediaPresetName): MediaPresetConfig {
  * Hero background video delivery.
  *
  * - `c_limit,w_1600` caps resolution without cropping or upscaling.
- * - `fps_24` is plenty for ambient footage.
+ * - `fps_24` is plenty for ambient footage (measured ~9% under fps_30).
  * - `ac_none` strips the audio track the muted hero can never play.
  * - `q_auto:eco` is chosen deliberately: the hero sits under a 40-60% opacity
  *   overlay plus a gradient, which hides the mild softening `eco` introduces.
  *   Switch to `auto:good` only if banding or blocking becomes visible.
  * - No `du_`/`eo_`, so the full duration always plays.
+ *
+ * Deliberately carries NO `f_` parameter. `f_auto:video` resolves to H.264/MP4,
+ * which is far less efficient than VP9: on a 2.51MB VP9 master it produced a
+ * 2.69MB file — bigger than the original. Omitting the format keeps each asset
+ * in its own container, and the same measured source then delivered at 1.80MB
+ * (-28%). Format compatibility is handled by HERO_VIDEO_SOURCE_FORMATS instead.
  */
 export const HERO_VIDEO_PRESET = {
   width: 1600,
   crop: "limit",
   quality: "auto:eco",
-  format: "auto:video",
   extra: ["fps_24", "ac_none"],
 } as const;
+
+/**
+ * Container candidates offered as `<source>` elements, best-first. A browser
+ * loads only the first one it can play, so the MP4 is transcoded on demand and
+ * costs nothing for the VP9-capable majority. Anything that can play neither
+ * keeps the poster, which is the designed fallback.
+ */
+export const HERO_VIDEO_SOURCE_FORMATS = [
+  { format: "webm", type: "video/webm" },
+  { format: "mp4", type: "video/mp4" },
+] as const;
 
 /** Breakpoint at or above which the hero video is allowed to mount at all. */
 export const HERO_VIDEO_MIN_WIDTH = 768;

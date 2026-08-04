@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   HERO_VIDEO_PRESET,
+  HERO_VIDEO_SOURCE_FORMATS,
   INLINE_VIDEO_PRESET,
   MEDIA_PRESETS,
   type MediaPresetName,
@@ -218,11 +219,30 @@ describe("hero video preset", () => {
     expect(segment).not.toContain("c_fill");
   });
 
-  it("reduces frame rate, removes audio and negotiates format automatically", () => {
+  it("reduces frame rate, removes audio and compresses", () => {
     expect(segment).toContain("fps_24");
     expect(segment).toContain("ac_none");
     expect(segment).toContain("q_auto:eco");
-    expect(segment).toContain("f_auto:video");
+  });
+
+  it("forces no container, so an efficient source codec is never downgraded", () => {
+    // Measured: f_auto:video turned a 2.51MB VP9 master into a 2.69MB H.264
+    // file. Omitting the format kept it VP9 and delivered 1.80MB.
+    expect(segment).not.toContain("f_auto");
+    expect(segment).not.toMatch(/(^|,)f_/);
+  });
+
+  it("offers webm first then mp4 as explicit source candidates", () => {
+    expect(HERO_VIDEO_SOURCE_FORMATS.map((s) => s.format)).toEqual(["webm", "mp4"]);
+    expect(HERO_VIDEO_SOURCE_FORMATS.map((s) => s.type)).toEqual(["video/webm", "video/mp4"]);
+
+    for (const { format, type } of HERO_VIDEO_SOURCE_FORMATS) {
+      const candidate = getCloudinaryVideoUrl(VIDEO, { ...HERO_VIDEO_PRESET, format });
+      expect(candidate).toContain(`f_${format}`);
+      expect(candidate).toContain("q_auto:eco");
+      expect(candidate).toContain("ac_none");
+      expect(type.startsWith("video/")).toBe(true);
+    }
   });
 
   it("preserves the full duration", () => {

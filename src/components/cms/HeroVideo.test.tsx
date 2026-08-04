@@ -77,7 +77,8 @@ describe("hero video delivery", () => {
 
     const video = document.querySelector("video");
     expect(video).not.toBeNull();
-    const src = video!.getAttribute("src")!;
+    // Candidates live on <source>; the <video> deliberately carries no src.
+    const src = document.querySelector("video source")!.getAttribute("src")!;
 
     expect(src).not.toBe(VIDEO_URL);
     expect(src).toContain("c_limit");
@@ -85,9 +86,20 @@ describe("hero video delivery", () => {
     expect(src).toContain("fps_24");
     expect(src).toContain("ac_none");
     expect(src).toContain("q_auto:eco");
-    expect(src).toContain("f_auto:video");
+    // No forced container: f_auto:video downgrades VP9 to a larger H.264 file.
+    expect(src).not.toContain("f_auto");
     // The original CMS asset is still what is addressed.
     expect(src).toContain("/v1720000000/seven-seas-cms/cms_video_1.mp4");
+  });
+
+  it("offers webm before mp4 so VP9-capable browsers get the smaller file", () => {
+    setEnvironment();
+    render(<DynamicHero hero={hero} />);
+
+    const sources = [...document.querySelectorAll("video source")];
+    expect(sources.map((s) => s.getAttribute("type"))).toEqual(["video/webm", "video/mp4"]);
+    expect(sources[0].getAttribute("src")).toContain("f_webm");
+    expect(sources[1].getAttribute("src")).toContain("f_mp4");
   });
 
   it("preserves the full duration and keeps playback attributes", () => {
@@ -95,7 +107,8 @@ describe("hero video delivery", () => {
     render(<DynamicHero hero={hero} />);
 
     const video = document.querySelector("video")!;
-    const transform = video.getAttribute("src")!.split("/upload/")[1].split("/")[0];
+    const firstSource = document.querySelector("video source")!.getAttribute("src")!;
+    const transform = firstSource.split("/upload/")[1].split("/")[0];
     expect(transform).not.toMatch(/(^|,)du_/);
     expect(transform).not.toMatch(/(^|,)eo_/);
 
@@ -119,7 +132,7 @@ describe("hero video delivery", () => {
     render(<DynamicHero hero={hero} />);
 
     const poster = document.querySelector("video")!.getAttribute("poster")!;
-    expect(poster).toContain("/image/upload/");
+    expect(poster).toContain("/video/upload/");
     expect(poster).toContain("so_auto");
     expect(poster).toContain("q_auto:good");
     expect(poster).toContain("cms_video_1.jpg");
@@ -198,7 +211,7 @@ describe("hero video is CMS-driven", () => {
     };
 
     render(<DynamicHero hero={swapped} />);
-    const src = document.querySelector("video")!.getAttribute("src")!;
+    const src = document.querySelector("video source")!.getAttribute("src")!;
 
     expect(src).toContain("/v9/another-folder/brand_new_clip.webm");
     expect(src).toContain("fps_24");
