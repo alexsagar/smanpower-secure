@@ -1,4 +1,5 @@
 import { getSiteUrl, siteConfig } from "./site-config";
+import { BRAND } from "@/lib/constants";
 import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
 import { generateDemandSeo } from "@/lib/demand-presentation";
 
@@ -19,6 +20,11 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
     ...(settings?.companyLegalName ? { "legalName": settings.companyLegalName } : {}),
     ...(settings?.logoUrl ? { "logo": settings.logoUrl } : {}),
     ...(settings?.address || settings?.country ? { "address": { "@type": "PostalAddress", ...(settings.address ? { streetAddress: settings.address } : {}), ...(settings.city ? { addressLocality: settings.city } : {}), ...(settings.province ? { addressRegion: settings.province } : {}), ...(settings.postalCode ? { postalCode: settings.postalCode } : {}), ...(settings.country ? { addressCountry: settings.country } : {}) } } : {}),
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "DoFE Licence Number",
+      "value": BRAND.dofeLicenceNumber,
+    },
     ...(settings?.phone ? { "telephone": settings.phone } : {}),
     ...(settings?.email ? { "email": settings.email } : {}),
     ...(footer?.socialLinks?.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url).length ? { "sameAs": footer.socialLinks.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url) } : {}),

@@ -9,6 +9,7 @@ import { FooterCertificationLogos } from "./FooterCertificationLogos";
 import type { CmsFooterSettings, CmsSiteSettings, CmsSocialLink } from "@/types/content";
 import { toPublicHref } from "@/lib/public-href";
 import { NoTranslate } from "@/components/i18n/NoTranslate";
+import { BRAND } from "@/lib/constants";
 
 function splitBrandName(settings: CmsSiteSettings) {
   const words = (settings.companyShortName || settings.companyName)
@@ -325,9 +326,15 @@ export function Footer({
           </div>
 
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8">
-            <p className="text-xs text-brand-white/55 uppercase tracking-[0.2em] text-center md:text-left">
-              {footerSettings.copyrightText}
-            </p>
+            <div className="flex flex-col gap-2 items-center md:items-start">
+              <p className="text-xs text-brand-white/55 uppercase tracking-[0.2em] text-center md:text-left">
+                {footerSettings.copyrightText}
+              </p>
+              <p className="text-xs text-brand-white/55 uppercase tracking-[0.2em] text-center md:text-left">
+                Govt. of Nepal, DoFE Licence No.{" "}
+                <NoTranslate as="span">{BRAND.dofeLicenceNumber}</NoTranslate>
+              </p>
+            </div>
             <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-8 gap-y-4">
               {footerSettings.legalLinks.filter((link) => isSafeInternalHref(link.href)).map((link) => (
                 <Link key={link.label} href={toPublicHref(link.href)} className="text-xs text-brand-white/55 hover:text-brand-gold uppercase tracking-[0.2em] transition-colors">

@@ -9,6 +9,10 @@ export const BRAND = {
   tagline: "Responsible Recruitment. Prepared Workforce. Global Partnerships.",
   website: "https://smanpower.com",
   domain: "smanpower.com",
+  // Department of Foreign Employment licence. The strongest trust/entity signal
+  // in this sector, so it is rendered as crawlable text site-wide.
+  // ponytail: a constant, not a SiteSettings column — it changes on renewal, not by edit.
+  dofeLicenceNumber: "888/067/068",
 } as const;
 
 export const BRAND_COLORS = {

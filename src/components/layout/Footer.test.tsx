@@ -158,6 +158,9 @@ describe("Footer", () => {
     expect(html).toContain('href="tel:+97715107440"');
     expect(html).toContain('href="tel:+977-1-4479655"');
     expect(html).toContain("Fax: +977-1-4479655");
+    // The DoFE licence must stay crawlable text — it is the sector's key trust signal.
+    expect(html).toContain("DoFE Licence No.");
+    expect(html).toContain("888/067/068");
     expect(html).toContain('href="https://wa.me/9779800000000"');
     expect(html).not.toContain('href="tel:+9779800000000"');
     expect(html).toContain("Sun-Fri: 10:00 AM - 5:00 PM");

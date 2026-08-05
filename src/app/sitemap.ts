@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { isStagingNoIndexEnabled } from "@/lib/env";
 import { getSiteUrl } from "@/lib/seo/site-config";
 import { prisma } from "@/lib/prisma";
+import { trustContent } from "@/lib/content";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isStagingNoIndexEnabled()) return [];
@@ -50,6 +51,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   staticPages.forEach(({ path, changeFrequency, priority }) => {
     addEntry(path, changeFrequency, priority);
+  });
+
+  // Trust Centre sub-pages (/trust-centre/[slug]) are prerendered from the same
+  // source as generateStaticParams, so the sitemap cannot drift from the routes.
+  trustContent.forEach(({ slug }) => {
+    addEntry(`/trust-centre/${slug}`, "monthly", 0.7);
   });
 
   // Dynamic Demands
