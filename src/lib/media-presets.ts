@@ -399,10 +399,15 @@ export function getMediaPreset(name: MediaPresetName): MediaPresetConfig {
  * HERO_VIDEO_SOURCE_FORMATS instead.
  */
 export const HERO_VIDEO_PRESET = {
-  width: 1600,
+  width: 1280,
   crop: "limit",
   quality: "auto:good",
-  extra: ["fps_24", "ac_none"],
+  // ponytail: br_1500k caps a full-length loop at ~11MB. `quality` alone is
+  // per-frame and has no duration budget, so a 1-minute source can run away
+  // on busy footage; the ceiling is what makes length predictable. Raise it if
+  // the footage visibly bands — the hero renders at opacity-60 under an
+  // overlay, so headroom here buys very little.
+  extra: ["fps_24", "ac_none", "br_1500k"],
 } as const;
 
 /**

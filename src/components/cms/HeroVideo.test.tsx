@@ -82,9 +82,10 @@ describe("hero video delivery", () => {
 
     expect(src).not.toBe(VIDEO_URL);
     expect(src).toContain("c_limit");
-    expect(src).toContain("w_1600");
+    expect(src).toContain("w_1280");
     expect(src).toContain("fps_24");
     expect(src).toContain("ac_none");
+    expect(src).toContain("br_1500k");
     expect(src).toContain("q_auto:good");
     // No forced container: f_auto:video downgrades VP9 to a larger H.264 file.
     expect(src).not.toContain("f_auto");

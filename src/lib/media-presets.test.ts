@@ -215,7 +215,7 @@ describe("hero video preset", () => {
 
   it("limits width without cropping or upscaling", () => {
     expect(segment).toContain("c_limit");
-    expect(segment).toContain("w_1600");
+    expect(segment).toContain("w_1280");
     expect(segment).not.toContain("c_fill");
   });
 
@@ -223,6 +223,11 @@ describe("hero video preset", () => {
     expect(segment).toContain("fps_24");
     expect(segment).toContain("ac_none");
     expect(segment).toContain("q_auto:good");
+  });
+
+  // A full-length hero loop needs a duration budget, not just per-frame quality.
+  it("caps the bitrate so a long loop cannot run away", () => {
+    expect(segment).toContain("br_1500k");
   });
 
   it("forces no container, so an efficient source codec is never downgraded", () => {
