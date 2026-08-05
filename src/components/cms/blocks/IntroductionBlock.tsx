@@ -9,6 +9,7 @@ import { getCloudinaryVideoUrl } from "@/lib/cloudinary-delivery";
 import { INLINE_VIDEO_PRESET } from "@/lib/media-presets";
 import { RichTextRenderer } from "../RichTextRenderer";
 import { ManagedVideo } from "../ManagedVideo";
+import { YouTubeFacade } from "../YouTubeFacade";
 
 /** Extracts a YouTube video id from watch, youtu.be, embed or shorts URLs. */
 function getYouTubeId(url?: string): string | null {
@@ -57,16 +58,11 @@ export function IntroductionBlock({ block, lang }: { block: CmsContentBlock; lan
           <div className="lg:col-span-7 relative">
             <ScrollReveal delay={0.2} className="relative aspect-[4/3] lg:aspect-[16/10] w-full max-w-3xl overflow-hidden group">
               {youTubeId ? (
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
+                <YouTubeFacade
+                  videoId={youTubeId}
                   title={content.imageTag || "The Foundation"}
-                  // The embed pulls ~1.1MB of player JS and ~800ms of main-thread
-                  // work. It sits below the fold, so let the browser defer it.
-                  loading="lazy"
+                  posterSrc={posterUrl}
                   className="absolute inset-0 h-full w-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
                 />
               ) : videoUrl ? (
                 <ManagedVideo

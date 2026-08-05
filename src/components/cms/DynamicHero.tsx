@@ -141,7 +141,7 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
             posterOnlyBelowWidth={HERO_VIDEO_MIN_WIDTH}
             containerClassName="absolute inset-0"
             videoClassName="absolute inset-0 h-full w-full object-cover opacity-60"
-            fallbackClassName="scale-110 opacity-60 transition-transform duration-[10s] ease-out"
+            fallbackClassName="scale-110 opacity-60 transition-transform duration-[3s] ease-out"
           />
         ) : hero.image ? (
           <OptimizedImage
@@ -150,7 +150,7 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
             alt={hero.accessibilityDescription || ""}
             fill
             priority
-            className="scale-110 opacity-40 transition-transform duration-[10s] ease-out hover:scale-125"
+            className="scale-110 opacity-40 transition-transform duration-[3s] ease-out hover:scale-125"
           />
         ) : null}
         <MediaOverlay enabled={hero.overlayEnabled} opacity={hero.overlayOpacity} />
