@@ -1,7 +1,7 @@
 "use server";
 
 import { CareerOpeningStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { DEMO_MODE } from "@/config/demo";
 import { auth } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { CAREER_PERMISSIONS, requirePermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { generateUniqueSlug, slugify } from "@/lib/slug";
 import { getSafeExternalHttpUrl } from "@/lib/html-safety";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const CareerPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -35,7 +36,10 @@ function revalidateCareers(slug?: string) {
   if (slug) {
     revalidatePath(`/careers/${slug}`);
   }
+  revalidateTag(CACHE_TAGS.careers, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
 }
+
 
 export async function createCareerAction(formData: FormData) {
   await requirePermission(CAREER_PERMISSIONS.MANAGE);

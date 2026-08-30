@@ -5,15 +5,18 @@ import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getSafeExternalHttpUrl, sanitizeHtml } from "@/lib/html-safety";
-import { prisma } from "@/lib/prisma";
+import { cache } from "react";
 import { CareerApplyForm } from "./CareerApplyForm";
 
-async function getCareer(slug: string) {
+export const revalidate = 300; // 5 minutes
+
+const getCareer = cache(async (slug: string) => {
   return prisma.careerOpening.findFirst({
     where: { slug, lang: "en", status: "OPEN", deletedAt: null },
     include: { featuredImage: true },
   });
-}
+});
+
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

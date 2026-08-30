@@ -24,6 +24,9 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 300; // 5 minutes ISR for demand details
+
+
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata

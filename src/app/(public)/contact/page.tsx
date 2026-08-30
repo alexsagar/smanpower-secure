@@ -19,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+export const revalidate = 1800; // 30 minutes
+
+
 // Nepal Operations Footprint Facilities (Exclusively Nepal)
 const nepalOperations = [
   {

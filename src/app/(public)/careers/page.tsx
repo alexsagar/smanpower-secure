@@ -7,13 +7,14 @@ import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getPageCopy } from "@/services/page-copy.service";
 import { prisma } from "@/lib/prisma";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata({
-    title: "Careers | Seven Seas Intercontinental",
-    description: "Current internal career openings at Seven Seas Intercontinental.",
-    path: "/careers",
-  });
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: "Careers | Seven Seas Intercontinental",
+  description: "Current internal career openings at Seven Seas Intercontinental.",
+  path: "/careers",
+});
+
+export const revalidate = 300; // 5 minutes
+
 
 export default async function CareersPage() {
   const copy = await getPageCopy("careers");

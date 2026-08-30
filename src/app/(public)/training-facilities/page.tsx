@@ -20,7 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+export const revalidate = 1800; // 30 minutes
+
 export default async function TrainingFacilitiesPage() {
+
+
   const page = await getPageBySlug("training-facilities");
   
   if (!page) {

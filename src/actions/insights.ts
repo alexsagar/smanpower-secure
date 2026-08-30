@@ -9,6 +9,7 @@ import { generateUniqueSlug, slugify } from "@/lib/slug";
 import { auth } from "@/lib/auth";
 
 import { ContentStatus } from "@prisma/client";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const InsightPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -41,7 +42,10 @@ function revalidateInsightCaches(slug?: string) {
     revalidateTag(`insight:${slug}`, "max");
   }
   revalidateTag("insights:list", "max");
+  revalidateTag(CACHE_TAGS.insights, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
 }
+
 
 export async function createInsightAction(formData: FormData) {
   await requirePermission(INSIGHT_PERMISSIONS.CREATE);

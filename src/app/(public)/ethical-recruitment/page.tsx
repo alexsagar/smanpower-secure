@@ -20,7 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+export const revalidate = 1800; // 30 minutes
+
 export default async function EthicalRecruitmentPage() {
+
+
   const page = await getPageBySlug("ethical-recruitment");
   
   if (!page) {

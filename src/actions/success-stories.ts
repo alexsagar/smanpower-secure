@@ -9,6 +9,7 @@ import { generateUniqueSlug } from "@/lib/slug";
 import { auth } from "@/lib/auth";
 
 import { ContentStatus, StoryType } from "@prisma/client";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const SuccessStoryPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -44,7 +45,10 @@ function revalidateStoryCaches(slug?: string, previousSlug?: string) {
     revalidateTag(`story:${storySlug}`, "max");
   }
   revalidateTag("stories:list", "max");
+  revalidateTag(CACHE_TAGS.stories, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
 }
+
 
 export async function createStoryAction(formData: FormData) {
   await requirePermission(SUCCESS_STORY_PERMISSIONS.CREATE);

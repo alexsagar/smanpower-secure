@@ -9,8 +9,10 @@ import { generateUniqueSlug } from "@/lib/slug";
 import { auth } from "@/lib/auth";
 import { uploadBufferToCloudinary } from "@/services/cloudinary.service";
 import { isReadvertisable } from "@/lib/demand-eligibility";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 import { OvertimeStatus, FacilityStatus, DemandStatus, DocumentVisibility, PassportStatus, ApplicationStatus } from "@prisma/client";
+
 
 // Optional free-text: trim, and treat blank/whitespace-only as absent so we
 // never persist "" for a requirement the employer simply did not specify.
@@ -139,11 +141,14 @@ function revalidateDemandCaches(slug?: string) {
   }
   
   revalidateTag("demands:list", "max");
+  revalidateTag(CACHE_TAGS.demands, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
   
   if (slug) {
     revalidateTag(`demand:${slug}`, "max");
   }
 }
+
 
 export async function createDemandAction(formData: FormData) {
   await requirePermission(DEMAND_PERMISSIONS.CREATE);

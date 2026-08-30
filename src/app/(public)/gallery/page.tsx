@@ -15,7 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+export const revalidate = 1800; // 30 minutes
+
 export default async function GalleryPage() {
+
+
   const page = await getPageBySlug("gallery");
 
   return (

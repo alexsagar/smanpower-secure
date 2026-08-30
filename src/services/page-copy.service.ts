@@ -1,5 +1,8 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { getPageBySlug } from "@/repositories/content-resolver";
 import { mergePageCopy, PAGE_COPY_DEFAULTS, type PageCopySlug } from "@/lib/page-copy";
+import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
 
 /**
  * Resolves editable copy for public pages that render their own JSX.
@@ -12,7 +15,7 @@ import { mergePageCopy, PAGE_COPY_DEFAULTS, type PageCopySlug } from "@/lib/page
 
 export const PAGE_COPY_BLOCK_TYPE = "page_copy";
 
-export async function getPageCopy<S extends PageCopySlug>(
+async function fetchPageCopyRaw<S extends PageCopySlug>(
   slug: S
 ): Promise<(typeof PAGE_COPY_DEFAULTS)[S]> {
   const defaults = PAGE_COPY_DEFAULTS[slug];
@@ -30,11 +33,21 @@ export async function getPageCopy<S extends PageCopySlug>(
   }
 }
 
+const getCachedPageCopy = unstable_cache(
+  fetchPageCopyRaw,
+  ["cms-page-copy"],
+  { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.pageCopy, CACHE_TAGS.pages] }
+);
+
+export const getPageCopy = cache(async <S extends PageCopySlug>(slug: S): Promise<(typeof PAGE_COPY_DEFAULTS)[S]> => {
+  return getCachedPageCopy(slug);
+});
+
 /**
  * Resolves the managed section image on a page's page_copy block, if an editor
  * has uploaded one. Pages fall back to their hardcoded asset when this is null.
  */
-export async function getPageCopyImage(
+async function fetchPageCopyImageRaw(
   slug: PageCopySlug
 ): Promise<{ secureUrl: string; altText: string } | null> {
   try {
@@ -50,3 +63,13 @@ export async function getPageCopyImage(
     return null;
   }
 }
+
+const getCachedPageCopyImage = unstable_cache(
+  fetchPageCopyImageRaw,
+  ["cms-page-copy-image"],
+  { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.pageCopy, CACHE_TAGS.pages] }
+);
+
+export const getPageCopyImage = cache(async (slug: PageCopySlug): Promise<{ secureUrl: string; altText: string } | null> => {
+  return getCachedPageCopyImage(slug);
+});

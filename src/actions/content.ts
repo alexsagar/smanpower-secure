@@ -1,10 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+
 import { DEFAULT_OVERLAY_OPACITY } from "@/lib/overlay";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { requirePermission, SETTINGS_PERMISSIONS } from "@/lib/permissions";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+
 import {
   collectReferencedMediaIds,
   normalizeMediaId,
@@ -117,8 +120,19 @@ export async function savePageAction(
     });
 
     const publicPath = slug === "home" ? "/" : `/${slug}`;
+    revalidateTag("content", "max");
+    revalidateTag(CACHE_TAGS.pages, "max");
+    revalidateTag(CACHE_TAGS.pageCopy, "max");
+    revalidateTag(CACHE_TAGS.sitemap, "max");
     revalidatePath(publicPath);
     revalidatePath("/admin/content");
+    if (slug === "layout") {
+      revalidateTag(CACHE_TAGS.navigation, "max");
+      revalidateTag(CACHE_TAGS.settings, "max");
+      revalidatePath("/", "layout");
+    }
+
+
 
     return { success: true };
   } catch (error: unknown) {

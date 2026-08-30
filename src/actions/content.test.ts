@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const revalidatePath = vi.fn();
+const revalidateTag = vi.fn();
 const requirePermission = vi.fn();
 
 const tx = {
@@ -24,7 +25,9 @@ const prisma = {
 
 vi.mock("next/cache", () => ({
   revalidatePath,
+  revalidateTag,
 }));
+
 
 vi.mock("@/lib/prisma", () => ({
   prisma,

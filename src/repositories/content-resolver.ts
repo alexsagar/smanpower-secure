@@ -15,6 +15,10 @@ import type { CmsDemandFilters } from "@/types/content";
 import { DemoContentRepository } from "./demo-content-repository";
 import { PrismaContentRepository } from "./prisma-content-repository";
 
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
+
 let _cachedRepo: ContentRepository | null = null;
 
 export function getContentRepository(): ContentRepository {
@@ -29,37 +33,57 @@ export function getContentRepository(): ContentRepository {
   return _cachedRepo!;
 }
 
-// ── Convenience functions ─────────────────────────────────────
-// These are the primary API for frontend components.
+// ── Cross-request cached global data ──────────────────────────
+// Layout & Global Settings are cached with Next.js unstable_cache
+// and invalidated on CMS mutations or after CACHE_REVALIDATE.layout.
 
-export const getHomepage = () => getContentRepository().getHomepage();
-export const getPageBySlug = (slug: string) => getContentRepository().getPageBySlug(slug);
-export const getHeroByPageSlug = (slug: string) => getContentRepository().getHeroByPageSlug(slug);
-export const getContentBlocksByPageSlug = (slug: string) => getContentRepository().getContentBlocksByPageSlug(slug);
-export const getPageSeo = (pagePath: string, lang?: string) => getContentRepository().getPageSeo(pagePath, lang);
-export const getNavigation = (location: NavLocation) => getContentRepository().getNavigation(location);
-export const getSiteSettings = () => getContentRepository().getSiteSettings();
-export const getFooterSettings = () => getContentRepository().getFooterSettings();
-export const getPublishedJobs = (filters?: { country?: string; industry?: string }) => getContentRepository().getPublishedJobs(filters);
-export const getJobBySlug = (slug: string) => getContentRepository().getJobBySlug(slug);
-export const getPublishedDemands = (filters?: CmsDemandFilters) => getContentRepository().getPublishedDemands(filters);
-export const getDemandBySlug = (slug: string) => getContentRepository().getDemandBySlug(slug);
-export const getDemandFilterOptions = () => getContentRepository().getDemandFilterOptions();
-export const getFeaturedStories = () => getContentRepository().getFeaturedStories();
-export const getPublishedStories = (limit?: number) => getContentRepository().getPublishedStories(limit);
-export const getStoryBySlug = (slug: string) => getContentRepository().getStoryBySlug(slug);
-export const getPublishedTestimonials = () => getContentRepository().getPublishedTestimonials();
-export const getIndustries = () => getContentRepository().getIndustries();
-export const getIndustryBySlug = (slug: string) => getContentRepository().getIndustryBySlug(slug);
-export const getPublicTrustDocuments = () => getContentRepository().getPublicTrustDocuments();
-export const getTrustDocumentsByType = (type: string) => getContentRepository().getTrustDocumentsByType(type);
-export const getTrainingFacilities = () => getContentRepository().getTrainingFacilities();
-export const getTrainingFacilityBySlug = (slug: string) => getContentRepository().getTrainingFacilityBySlug(slug);
-export const getFeaturedInsights = () => getContentRepository().getFeaturedInsights();
-export const getPublishedInsights = () => getContentRepository().getPublishedInsights();
-export const getInsightBySlug = (slug: string) => getContentRepository().getInsightBySlug(slug);
-export const getStatistics = () => getContentRepository().getStatistics();
-export const getClientPartners = () => getContentRepository().getClientPartners();
-export const getTeamMembers = () => getContentRepository().getTeamMembers();
-export const getMediaAssets = () => getContentRepository().getMediaAssets();
-export const getMediaAssetById = (id: string) => getContentRepository().getMediaAssetById(id);
+export const getNavigation = unstable_cache(
+  async (location: NavLocation) => getContentRepository().getNavigation(location),
+  ["cms-navigation"],
+  { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.navigation] }
+);
+
+export const getSiteSettings = unstable_cache(
+  async () => getContentRepository().getSiteSettings(),
+  ["cms-site-settings"],
+  { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.settings] }
+);
+
+export const getFooterSettings = unstable_cache(
+  async () => getContentRepository().getFooterSettings(),
+  ["cms-footer-settings"],
+  { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.settings, CACHE_TAGS.navigation] }
+);
+
+// ── Request-scoped memoized convenience functions ─────────────
+// React cache() guarantees that during a single render (e.g. generateMetadata + Page),
+// identical entity queries share the same execution promise.
+
+export const getHomepage = cache(() => getContentRepository().getHomepage());
+export const getPageBySlug = cache((slug: string) => getContentRepository().getPageBySlug(slug));
+export const getHeroByPageSlug = cache((slug: string) => getContentRepository().getHeroByPageSlug(slug));
+export const getContentBlocksByPageSlug = cache((slug: string) => getContentRepository().getContentBlocksByPageSlug(slug));
+export const getPageSeo = cache((pagePath: string, lang?: string) => getContentRepository().getPageSeo(pagePath, lang));
+export const getPublishedJobs = cache((filters?: { country?: string; industry?: string }) => getContentRepository().getPublishedJobs(filters));
+export const getJobBySlug = cache((slug: string) => getContentRepository().getJobBySlug(slug));
+export const getPublishedDemands = cache((filters?: CmsDemandFilters) => getContentRepository().getPublishedDemands(filters));
+export const getDemandBySlug = cache((slug: string) => getContentRepository().getDemandBySlug(slug));
+export const getDemandFilterOptions = cache(() => getContentRepository().getDemandFilterOptions());
+export const getFeaturedStories = cache(() => getContentRepository().getFeaturedStories());
+export const getPublishedStories = cache((limit?: number) => getContentRepository().getPublishedStories(limit));
+export const getStoryBySlug = cache((slug: string) => getContentRepository().getStoryBySlug(slug));
+export const getPublishedTestimonials = cache(() => getContentRepository().getPublishedTestimonials());
+export const getIndustries = cache(() => getContentRepository().getIndustries());
+export const getIndustryBySlug = cache((slug: string) => getContentRepository().getIndustryBySlug(slug));
+export const getPublicTrustDocuments = cache(() => getContentRepository().getPublicTrustDocuments());
+export const getTrustDocumentsByType = cache((type: string) => getContentRepository().getTrustDocumentsByType(type));
+export const getTrainingFacilities = cache(() => getContentRepository().getTrainingFacilities());
+export const getTrainingFacilityBySlug = cache((slug: string) => getContentRepository().getTrainingFacilityBySlug(slug));
+export const getFeaturedInsights = cache(() => getContentRepository().getFeaturedInsights());
+export const getPublishedInsights = cache(() => getContentRepository().getPublishedInsights());
+export const getInsightBySlug = cache((slug: string) => getContentRepository().getInsightBySlug(slug));
+export const getStatistics = cache(() => getContentRepository().getStatistics());
+export const getClientPartners = cache(() => getContentRepository().getClientPartners());
+export const getTeamMembers = cache(() => getContentRepository().getTeamMembers());
+export const getMediaAssets = cache(() => getContentRepository().getMediaAssets());
+export const getMediaAssetById = cache((id: string) => getContentRepository().getMediaAssetById(id));

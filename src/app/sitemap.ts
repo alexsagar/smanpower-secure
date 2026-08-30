@@ -1,8 +1,66 @@
 import type { MetadataRoute } from "next";
+import { unstable_cache } from "next/cache";
 import { isStagingNoIndexEnabled } from "@/lib/env";
 import { getSiteUrl } from "@/lib/seo/site-config";
 import { prisma } from "@/lib/prisma";
 import { trustContent } from "@/lib/content";
+import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
+
+type DynamicSitemapData = {
+  demands: { slug: string; updatedAt: Date; publishedAt: Date | null }[];
+  articles: { slug: string; updatedAt: Date; publishDate: Date | null }[];
+  news: { slug: string; updatedAt: Date; publishDate: Date | null }[];
+  careers: { slug: string; updatedAt: Date }[];
+  stories: { slug: string; updatedAt: Date; publishedAt: Date | null }[];
+  pages: { slug: string; updatedAt: Date }[];
+};
+
+const getCachedDynamicSitemapData = unstable_cache(
+  async (): Promise<DynamicSitemapData> => {
+    if (process.env.DEMO_MODE === "true") {
+      return { demands: [], articles: [], news: [], careers: [], stories: [], pages: [] };
+    }
+
+    const [demands, articles, news, careers, stories, pages] = await Promise.all([
+      prisma.demand.findMany({
+        where: {
+          status: "PUBLISHED",
+          isPublic: true,
+          deletedAt: null,
+          OR: [
+            { applicationDeadline: null },
+            { applicationDeadline: { gte: new Date() } },
+          ],
+        },
+        select: { slug: true, updatedAt: true, publishedAt: true },
+      }),
+      prisma.insightArticle.findMany({
+        where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
+        select: { slug: true, updatedAt: true, publishDate: true },
+      }),
+      prisma.newsArticle.findMany({
+        where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
+        select: { slug: true, updatedAt: true, publishDate: true },
+      }),
+      prisma.careerOpening.findMany({
+        where: { status: "OPEN", deletedAt: null, noIndex: false },
+        select: { slug: true, updatedAt: true },
+      }),
+      prisma.successStory.findMany({
+        where: { status: "PUBLISHED" },
+        select: { slug: true, updatedAt: true, publishedAt: true },
+      }),
+      prisma.cmsPage.findMany({
+        where: { status: "PUBLISHED" },
+        select: { slug: true, updatedAt: true },
+      }),
+    ]);
+
+    return { demands, articles, news, careers, stories, pages };
+  },
+  ["cms-sitemap-dynamic-data"],
+  { revalidate: CACHE_REVALIDATE.sitemap, tags: [CACHE_TAGS.sitemap, CACHE_TAGS.demands, CACHE_TAGS.insights, CACHE_TAGS.news, CACHE_TAGS.stories, CACHE_TAGS.careers, CACHE_TAGS.pages] }
+);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isStagingNoIndexEnabled()) return [];
@@ -59,85 +117,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     addEntry(`/trust-centre/${slug}`, "monthly", 0.7);
   });
 
-  // Dynamic Demands
-  // Only PUBLISHED and isPublic demands (no demo/draft/fake data)
-  if (process.env.DEMO_MODE !== "true") {
-    // Only open published demands belong in the sitemap. Closed demands
-    // (status !== PUBLISHED) are already excluded; expired demands (deadline
-    // passed) and soft-deleted records are excluded here too. Closed/expired
-    // pages stay indexable historical pages, just not sitemap-listed.
-    const demands = await prisma.demand.findMany({
-      where: {
-        status: "PUBLISHED",
-        isPublic: true,
-        deletedAt: null,
-        OR: [
-          { applicationDeadline: null },
-          { applicationDeadline: { gte: new Date() } },
-        ],
-      },
-      select: { slug: true, updatedAt: true, publishedAt: true },
-    });
-    demands.forEach((demand: any) => {
-      addEntry(`/demands/${demand.slug}`, "daily", 0.9, demand.publishedAt || demand.updatedAt);
-    });
+  // Dynamic Content (cached cross-request)
+  const { demands, articles, news, careers, stories, pages } = await getCachedDynamicSitemapData();
 
-    // Dynamic Articles
-    const articles = await prisma.insightArticle.findMany({
-      where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
-      select: { slug: true, updatedAt: true, publishDate: true },
-    });
-    articles.forEach((article: any) => {
-      addEntry(`/insights/${article.slug}`, "weekly", 0.7, article.publishDate || article.updatedAt);
-    });
+  demands.forEach((demand: any) => {
+    addEntry(`/demands/${demand.slug}`, "daily", 0.9, demand.publishedAt || demand.updatedAt);
+  });
 
-    // Dynamic News
-    const news = await prisma.newsArticle.findMany({
-      where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
-      select: { slug: true, updatedAt: true, publishDate: true },
-    });
-    news.forEach((item: any) => {
-      addEntry(`/news/${item.slug}`, "weekly", 0.7, item.publishDate || item.updatedAt);
-    });
+  articles.forEach((article: any) => {
+    addEntry(`/insights/${article.slug}`, "weekly", 0.7, article.publishDate || article.updatedAt);
+  });
 
-    // Dynamic Careers
-    const careers = await prisma.careerOpening.findMany({
-      where: { status: "OPEN", deletedAt: null, noIndex: false },
-      select: { slug: true, updatedAt: true },
-    });
-    careers.forEach((item: any) => {
-      addEntry(`/careers/${item.slug}`, "weekly", 0.6, item.updatedAt);
-    });
+  news.forEach((item: any) => {
+    addEntry(`/news/${item.slug}`, "weekly", 0.7, item.publishDate || item.updatedAt);
+  });
 
-    // Dynamic Stories
-    const stories = await prisma.successStory.findMany({
-      where: { status: "PUBLISHED" },
-      select: { slug: true, updatedAt: true, publishedAt: true },
-    });
-    stories.forEach((story: any) => {
-      addEntry(`/success-stories/${story.slug}`, "monthly", 0.6, story.publishedAt || story.updatedAt);
-    });
-    
-    // Dynamic CMS Pages
-    const pages = await prisma.cmsPage.findMany({
-      where: { status: "PUBLISHED" },
-      select: { slug: true, updatedAt: true },
-    });
-    // Utility/copy CMS records (page-copy keys, layout fragments, detail
-    // templates) are stored as CmsPages but are NOT standalone public routes.
-    // Emitting them produced /home, /layout and /demands/detail in the sitemap.
-    const UTILITY_SLUGS = new Set(["home", "layout", "search", "demands/detail"]);
-    pages.forEach((page: any) => {
-      const slug: string = page.slug || "";
-      // Skip utility keys, multi-segment copy keys (e.g. "demands/detail"),
-      // and any slug that collides with an existing static route.
-      if (!slug || UTILITY_SLUGS.has(slug) || slug.includes("/")) return;
-      const existing = staticPages.find(p => p.path === `/${slug}`);
-      if (!existing) {
-        addEntry(`/${slug}`, "monthly", 0.6, page.updatedAt);
-      }
-    });
-  }
+  careers.forEach((item: any) => {
+    addEntry(`/careers/${item.slug}`, "weekly", 0.6, item.updatedAt);
+  });
+
+  stories.forEach((story: any) => {
+    addEntry(`/success-stories/${story.slug}`, "monthly", 0.6, story.publishedAt || story.updatedAt);
+  });
+
+  const UTILITY_SLUGS = new Set(["home", "layout", "search", "demands/detail"]);
+  pages.forEach((page: any) => {
+    const slug: string = page.slug || "";
+    if (!slug || UTILITY_SLUGS.has(slug) || slug.includes("/")) return;
+    const existing = staticPages.find(p => p.path === `/${slug}`);
+    if (!existing) {
+      addEntry(`/${slug}`, "monthly", 0.6, page.updatedAt);
+    }
+  });
 
   return entries;
 }

@@ -1,13 +1,14 @@
 "use server";
 
 import { ContentStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { DEMO_MODE } from "@/config/demo";
 import { auth } from "@/lib/auth";
 import { NEWS_PERMISSIONS, requirePermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { generateUniqueSlug, slugify } from "@/lib/slug";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 const NewsPayloadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -28,7 +29,10 @@ function revalidateNews(slug?: string) {
   if (slug) {
     revalidatePath(`/news/${slug}`);
   }
+  revalidateTag(CACHE_TAGS.news, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
 }
+
 
 export async function createNewsAction(formData: FormData) {
   await requirePermission(NEWS_PERMISSIONS.MANAGE);

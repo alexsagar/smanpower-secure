@@ -7,6 +7,8 @@ import { requirePermission, SETTINGS_PERMISSIONS } from "@/lib/permissions";
 import { z } from "zod";
 import type { CmsSocialLink } from "@/types/content";
 import { FOOTER_SOCIAL_PLATFORMS } from "@/lib/footer-social";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+
 
 const aiSummarySchema = z.object({
   heading: z.string().min(1).max(200),
@@ -111,7 +113,9 @@ export async function saveAiSummaryConfigAction(input: AiSummaryConfigInput) {
     });
 
     revalidateTag("content", "max");
+    revalidateTag(CACHE_TAGS.settings, "max");
     revalidatePath("/", "layout");
+
 
     return { success: true };
   } catch (error) {
@@ -136,7 +140,9 @@ export async function saveFooterCertificationLogosAction(input: CertificationLog
     });
 
     revalidateTag("content", "max");
+    revalidateTag(CACHE_TAGS.settings, "max");
     revalidatePath("/", "layout");
+
     return { success: true };
   } catch (error) {
     logger.error("Failed to save footer certification logos", error as Error, {});
@@ -163,7 +169,9 @@ export async function saveFooterContactAction(input: FooterContactInput) {
     logger.info("Updated footer contact info", { action: "UPDATE_FOOTER_CONTACT" });
 
     revalidateTag("content", "max");
+    revalidateTag(CACHE_TAGS.settings, "max");
     revalidatePath("/", "layout");
+
     return { success: true };
   } catch (error) {
     logger.error("Failed to save footer contact info", error as Error, {});
@@ -188,7 +196,9 @@ export async function saveFooterSocialLinksAction(input: CmsSocialLink[]) {
     logger.info("Updated footer social links", { action: "UPDATE_FOOTER_SOCIAL_LINKS" });
 
     revalidateTag("content", "max");
+    revalidateTag(CACHE_TAGS.settings, "max");
     revalidatePath("/", "layout");
+
     return { success: true };
   } catch (error) {
     logger.error("Failed to save footer social links", error as Error, {});
