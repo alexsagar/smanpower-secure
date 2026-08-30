@@ -6,7 +6,9 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getSafeExternalHttpUrl, sanitizeHtml } from "@/lib/html-safety";
 import { cache } from "react";
+import { prisma } from "@/lib/prisma";
 import { CareerApplyForm } from "./CareerApplyForm";
+
 
 export const revalidate = 300; // 5 minutes
 
