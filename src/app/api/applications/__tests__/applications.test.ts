@@ -10,7 +10,7 @@ import { ApplicationSubmissionService } from "@/services/applicationSubmission.s
 
 const {
   uploadBufferToCloudinaryMock,
-  deletePrivateAssetMock,
+  deletePrivateR2ObjectMock,
   checkRateLimitMock,
   hashIpMock,
   hashUserAgentMock,
@@ -22,7 +22,7 @@ const {
   demandApplicationCreateMock,
 } = vi.hoisted(() => ({
   uploadBufferToCloudinaryMock: vi.fn(),
-  deletePrivateAssetMock: vi.fn(),
+  deletePrivateR2ObjectMock: vi.fn(),
   checkRateLimitMock: vi.fn(),
   hashIpMock: vi.fn(),
   hashUserAgentMock: vi.fn(),
@@ -35,9 +35,16 @@ const {
 }));
 
 vi.mock("@/services/cloudinary.service", () => ({
-  uploadBufferToCloudinary: uploadBufferToCloudinaryMock,
-  deletePrivateAsset: deletePrivateAssetMock,
-}));
+    uploadBufferToCloudinary: uploadBufferToCloudinaryMock,
+  }));
+  
+  
+  vi.mock("@/lib/r2-private", () => ({
+    r2Private: { send: vi.fn().mockResolvedValue({}) },
+    R2_PRIVATE_BUCKET_NAME: "test-bucket",
+    deletePrivateR2Object: deletePrivateR2ObjectMock,
+  }));
+
 
 vi.mock("@/lib/rate-limit", () => ({
   checkRateLimit: checkRateLimitMock,
@@ -142,12 +149,14 @@ describe("ApplicationSubmissionService", () => {
       candidate: { id: "candidate-1" },
       isPossibleDuplicate: false,
     });
-    uploadBufferToCloudinaryMock.mockResolvedValue({
-      secureUrl: "https://cloudinary.example.com/staging/seven-seas-candidates/cv.pdf",
-      publicId: "staging/seven-seas-candidates/candidate-cv",
-      bytes: 1024,
-      format: "pdf",
-    });
+    
+      uploadBufferToCloudinaryMock.mockResolvedValue({
+        secureUrl: "https://cloudinary.example.com/staging/seven-seas-candidates/cv.pdf",
+        publicId: "staging/seven-seas-candidates/candidate-cv",
+        bytes: 1024,
+        format: "pdf",
+      });
+
     demandFindUniqueMock.mockResolvedValue({
       id: "d-1",
       title: "Demand Title",
@@ -159,7 +168,7 @@ describe("ApplicationSubmissionService", () => {
     });
     candidateDocumentCreateMock.mockResolvedValue({ id: "doc-1" });
     demandApplicationCreateMock.mockResolvedValue({ id: "app-1" });
-    deletePrivateAssetMock.mockResolvedValue(true);
+    deletePrivateR2ObjectMock.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -230,9 +239,7 @@ describe("ApplicationSubmissionService", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(deletePrivateAssetMock).toHaveBeenCalledWith(
-      "staging/seven-seas-candidates/candidate-cv"
-    );
+    expect(deletePrivateR2ObjectMock).toHaveBeenCalledWith("staging/seven-seas-candidates/candidate-cv");
   });
 
   // Regression: the Turnstile widget posts a hidden input literally named
