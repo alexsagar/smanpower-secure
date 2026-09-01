@@ -1,7 +1,7 @@
 import "server-only";
 import type { CmsContentBlock } from "@/types/content";
 import { getFeaturedStories, getPublishedStories } from "@/repositories/content-resolver";
-import { resolvePresetMediaUrl, isFilenameLike } from "@/lib/media-resolver";
+import { resolveMediaUrl, isFilenameLike } from "@/lib/media-resolver";
 import { StoryGridBlock, type StoryCard } from "./StoryGridBlock";
 
 /**
@@ -19,9 +19,11 @@ export async function StoryGridBlockServer({ block, lang }: { block: CmsContentB
     country: s.country || "",
     title: s.title,
     desc: s.summary || "",
-    // Rendered by StoryGridBlock into a fill/object-cover card, so the card
-    // does the cropping — see the `fill` note on resolvePresetMediaUrl.
-    imageSrc: resolvePresetMediaUrl(s.featuredImage, "successStoryCard", { fill: true }),
+    // StoryGridBlock renders this through next/image, which must receive a
+    // bare source (its optimiser does the sizing). An R2 asset's cdn-cgi URL
+    // cannot be fetched as an OpenNext Worker subrequest and 404s, so resolve
+    // to the plain provider URL here, not a preset transform.
+    imageSrc: s.featuredImage ? resolveMediaUrl(s.featuredImage) : undefined,
     imageAlt: isFilenameLike(s.featuredImage?.altText) ? s.title : s.featuredImage!.altText,
     slug: s.slug,
   }));
