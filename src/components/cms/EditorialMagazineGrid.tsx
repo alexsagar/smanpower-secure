@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { ArrowUpRight, Clock, User, Sparkles, Newspaper } from "lucide-react";
-import { resolvePresetMediaUrl, isFilenameLike, type MediaLike } from "@/lib/media-resolver";
+import { isFilenameLike, type MediaLike, type ResolvableMedia } from "@/lib/media-resolver";
 import { toPublicHref } from "@/lib/public-href";
 import { readingMinutes } from "@/lib/utils";
 
@@ -105,10 +105,11 @@ export function EditorialMagazineGrid({
   const remaining = filtered.slice(1);
 
   const href = (slug: string) => toPublicHref(`${basePath}/${slug}`);
-  const imageFor = (item: MagazineItem, preset: "articleHero" | "articleCard") =>
-    // Every consumer renders these with fill + object-cover, so the layout
-    // crops and the delivery URL must not.
-    resolvePresetMediaUrl(item.image, preset, { fill: true }) ?? imageFallback;
+  // Render through OptimizedImage so provider selection (R2 vs Cloudinary vs
+  // local) is centralised: R2 assets deliver the bare object via next/image,
+  // never a cdn-cgi URL wrapped in next/image (which the OpenNext Worker cannot
+  // fetch as a subrequest and 404s).
+  const imageFor = (item: MagazineItem): ResolvableMedia => item.image ?? imageFallback;
   // Never fall back to an upload filename ("1.webp") — that is useless to a
   // screen reader and shows through if the image fails to load.
   const altFor = (item: MagazineItem) => {
@@ -203,12 +204,13 @@ export function EditorialMagazineGrid({
               </div>
 
               <div className="relative aspect-[16/9] lg:aspect-[21/9] w-full overflow-hidden bg-brand-charcoal border-4 border-brand-black shadow-xl mb-12">
-                <Image
-                  src={imageFor(lead, "articleHero")}
+                <OptimizedImage
+                  src={imageFor(lead)}
+                  preset="articleHero"
                   alt={altFor(lead)}
                   fill
                   sizes="100vw"
-                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                  className="grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   priority
                 />
               </div>
@@ -278,12 +280,13 @@ export function EditorialMagazineGrid({
                   >
                     <div>
                       <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-charcoal border-b border-brand-black/15">
-                        <Image
-                          src={imageFor(item, "articleCard")}
+                        <OptimizedImage
+                          src={imageFor(item)}
+                          preset="articleCard"
                           alt={altFor(item)}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                          className="grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                         />
                         <div className="absolute top-3 left-3 bg-brand-black/90 backdrop-blur-md text-brand-gold text-[9px] uppercase font-bold tracking-widest px-2.5 py-1">
                           {item.facet || labels.cardFacetFallback}
