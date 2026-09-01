@@ -60,6 +60,11 @@ export type MediaResourceType = "image" | "video" | "document";
 export interface CmsMediaAsset {
   id: string;
   source: MediaSource;
+  // Authoritative delivery fields. resolveMediaUrl() uses these to pick R2 vs
+  // Cloudinary vs LOCAL. cloudinaryPublicId/secureUrl below stay for audit and
+  // rollback even when provider is R2.
+  provider?: "CLOUDINARY" | "R2" | "LOCAL" | null;
+  storageKey?: string | null;
   localPath?: string;
   cloudinaryPublicId?: string;
   cloudinaryAssetId?: string;

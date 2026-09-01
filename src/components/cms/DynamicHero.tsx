@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import type { CmsHeroSection, CmsMediaAsset, CmsFooterCertificationLogo } from "@/types/content";
-import { resolveMediaUrl } from "@/lib/media-resolver";
+import { resolveMediaUrl, MEDIA_PLACEHOLDER } from "@/lib/media-resolver";
 import { RichTextRenderer } from "./RichTextRenderer";
 import { ManagedVideo } from "./ManagedVideo";
 import { MediaOverlay } from "./MediaOverlay";
@@ -62,8 +62,11 @@ function getVisibleCertificationLogos(logos?: CmsFooterCertificationLogo[]) {
 function getPlayableVideo(hero: CmsHeroSection) {
   if (hero.video?.resourceType !== "video") return undefined;
 
-  const src = hero.video.secureUrl || hero.video.localPath;
-  if (!src) return undefined;
+  // Provider-aware: R2 videos resolve to media.smanpower.com, Cloudinary to its
+  // secureUrl, LOCAL to its path — all decided inside the shared resolver, not
+  // here. getCloudinaryVideoUrl below returns non-Cloudinary URLs untouched.
+  const src = resolveMediaUrl(hero.video);
+  if (!src || src === MEDIA_PLACEHOLDER) return undefined;
 
   // Default source keeps the asset's own container. Non-Cloudinary URLs come
   // back untouched and simply play as stored.
