@@ -56,13 +56,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Asset not found in database" }, { status: 404 });
     }
 
-    // Confirm it is inside an approved project folder
-    if (!asset.folder || !isCloudinaryFolderOwnedByCurrentEnvironment(asset.folder)) {
-      return NextResponse.json({ error: "Cannot delete assets outside of approved project folders." }, { status: 400 });
-    }
+    if (asset.provider !== "R2") {
+      if (!asset.folder || !isCloudinaryFolderOwnedByCurrentEnvironment(asset.folder)) {
+        return NextResponse.json({ error: "Cannot delete assets outside of approved project folders." }, { status: 400 });
+      }
 
-    if (asset.publicId && !isCloudinaryPublicIdOwnedByCurrentEnvironment(asset.publicId)) {
-      return NextResponse.json({ error: "Cannot delete assets outside of the approved environment namespace." }, { status: 400 });
+      if (asset.publicId && !isCloudinaryPublicIdOwnedByCurrentEnvironment(asset.publicId)) {
+        return NextResponse.json({ error: "Cannot delete assets outside of the approved environment namespace." }, { status: 400 });
+      }
     }
 
     // Confirm it is not a private candidate document

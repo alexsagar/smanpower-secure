@@ -14,6 +14,7 @@ const {
   txUpdateMock,
   txAuditCreateMock,
   deleteManagedAssetMock,
+  deleteR2ObjectMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
   requirePermissionMock: vi.fn(),
@@ -21,6 +22,7 @@ const {
   txUpdateMock: vi.fn(),
   txAuditCreateMock: vi.fn(),
   deleteManagedAssetMock: vi.fn(),
+  deleteR2ObjectMock: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -73,6 +75,10 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
+vi.mock("@/lib/r2", () => ({
+  deleteR2Object: deleteR2ObjectMock,
+}));
+
 import { POST } from "./route";
 
 function buildAsset(folder: string, publicId: string) {
@@ -117,6 +123,7 @@ describe("media delete route staging isolation", () => {
     });
     txAuditCreateMock.mockResolvedValue({});
     deleteManagedAssetMock.mockResolvedValue(true);
+    deleteR2ObjectMock.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -261,5 +268,34 @@ describe("media delete route staging isolation", () => {
         resourceType: "image",
       }
     );
+  });
+
+  it("deletes native R2 assets without applying Cloudinary namespace checks", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    findUniqueMock.mockResolvedValue({
+      ...buildAsset("cms", "cms/images/native.png"),
+      provider: "R2",
+      storageKey: "cms/images/native.png",
+    });
+    txUpdateMock.mockResolvedValue({
+      id: "asset-1",
+      provider: "R2",
+      publicId: "cms/images/native.png",
+      resourceType: "IMAGE",
+      storageKey: "cms/images/native.png",
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/admin/media/delete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: "asset-1" }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ success: true });
+    expect(deleteR2ObjectMock).toHaveBeenCalledWith("cms/images/native.png");
+    expect(deleteManagedAssetMock).not.toHaveBeenCalled();
   });
 });
