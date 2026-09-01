@@ -219,6 +219,8 @@ type PrismaMediaRecord = {
   id: string;
   publicId?: string | null;
   assetId?: string | null;
+  provider?: "CLOUDINARY" | "R2" | "LOCAL" | null;
+  storageKey?: string | null;
   fileUrl: string;
   fileName: string;
   altText?: string | null;
@@ -242,7 +244,12 @@ export function mapPrismaMediaAsset(
 ): CmsMediaAsset {
   return {
     id: asset.id,
-    source: "CLOUDINARY",
+    // Legacy audit label; delivery is driven by `provider`/`storageKey` below,
+    // not by `source`. LOCAL keeps its own source; everything else stays
+    // Cloudinary-labelled for historical audit even when provider is R2.
+    source: asset.provider === "LOCAL" ? "LOCAL_DEMO" : "CLOUDINARY",
+    provider: asset.provider ?? undefined,
+    storageKey: asset.storageKey ?? undefined,
     cloudinaryPublicId: asset.publicId || undefined,
     cloudinaryAssetId: asset.assetId || undefined,
     secureUrl: asset.fileUrl,

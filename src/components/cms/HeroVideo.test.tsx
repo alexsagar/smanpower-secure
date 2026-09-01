@@ -224,6 +224,29 @@ describe("hero video is CMS-driven", () => {
     expect(document.querySelector("video")).toBeNull();
   });
 
+  it("serves an R2 hero video from media.smanpower.com, never its legacy Cloudinary secureUrl", () => {
+    setEnvironment();
+    const r2Hero: CmsHeroSection = {
+      ...hero,
+      video: {
+        ...hero.video!,
+        provider: "R2",
+        storageKey: "legacy/cloudinary/video/seven-seas-cms/cms_video_1.mp4",
+        // The legacy Cloudinary URL is still stored for audit but must not be delivered.
+        secureUrl: VIDEO_URL,
+      },
+    };
+
+    render(<DynamicHero hero={r2Hero} />);
+
+    const video = document.querySelector("video")!;
+    // Non-Cloudinary src passes through untouched: one direct src, no <source> derivatives.
+    expect(document.querySelector("video source")).toBeNull();
+    const src = video.getAttribute("src")!;
+    expect(src).toBe("https://media.smanpower.com/legacy/cloudinary/video/seven-seas-cms/cms_video_1.mp4");
+    expect(src).not.toContain("res.cloudinary.com");
+  });
+
   it("shows a playback toggle with an accessible name once playing", async () => {
     setEnvironment();
     render(<DynamicHero hero={hero} />);
