@@ -1,7 +1,17 @@
 import React from "react";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { RichTextRenderer } from "@/components/cms/RichTextRenderer";
-import type { CmsHeroSection } from "@/types/content";
+import type { CmsHeroSection, CmsMediaAsset } from "@/types/content";
+import { resolveMediaUrl, MEDIA_PLACEHOLDER } from "@/lib/media-resolver";
+
+// Provider-aware URL: R2 assets deliver from media.smanpower.com, Cloudinary
+// from secureUrl, LOCAL from its path. Returns undefined when there is no asset
+// so callers keep their fallback image.
+function assetUrl(asset?: CmsMediaAsset): string | undefined {
+  if (!asset) return undefined;
+  const url = resolveMediaUrl(asset);
+  return url === MEDIA_PLACEHOLDER ? undefined : url;
+}
 
 interface HeroRendererProps {
   hero?: CmsHeroSection | null;
@@ -24,15 +34,14 @@ export function HeroRenderer({ hero, fallbackTitle, fallbackSubtitle, fallbackIm
     if (hero.eyebrow) {
       subtitle = hero.eyebrow;
     }
-    if (hero.image?.secureUrl || hero.image?.localPath) {
-      imageSrc = (hero.image.secureUrl || hero.image.localPath) as string;
-    }
-    if (hero.video?.secureUrl || hero.video?.localPath) {
-      videoSrc = (hero.video.secureUrl || hero.video.localPath) as string;
-      posterSrc =
-        (hero.videoPoster?.secureUrl || hero.videoPoster?.localPath || hero.image?.secureUrl || hero.image?.localPath) as string | undefined;
-      mobileFallbackSrc =
-        (hero.mobileImage?.secureUrl || hero.mobileImage?.localPath || hero.videoPoster?.secureUrl || hero.videoPoster?.localPath || hero.image?.secureUrl || hero.image?.localPath) as string | undefined;
+    const imageUrl = assetUrl(hero.image);
+    if (imageUrl) imageSrc = imageUrl;
+
+    const videoUrl = assetUrl(hero.video);
+    if (videoUrl) {
+      videoSrc = videoUrl;
+      posterSrc = assetUrl(hero.videoPoster) ?? imageUrl;
+      mobileFallbackSrc = assetUrl(hero.mobileImage) ?? assetUrl(hero.videoPoster) ?? imageUrl;
     }
   }
 

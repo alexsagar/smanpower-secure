@@ -17,7 +17,9 @@ describe("Provider Switch Authority", () => {
 
   it("provider=R2, storageKey=populated -> R2", () => {
     const res = resolveMediaUrl({ provider: "R2", secureUrl: CLOUD_URL, storageKey: KEY });
-    expect(res).toContain("media.smanpower.com/cdn-cgi/image/format=auto,fit=contain,quality=auto/legacy/cloudinary/image/test.jpg");
+    // resolveMediaUrl (no preset) returns the bare R2 URL; cdn-cgi transforms
+    // are applied by resolvePresetMediaUrl / OptimizedImage at render time.
+    expect(res).toBe(`https://media.smanpower.com/${KEY}`);
   });
 
   it("provider=R2, storageKey=null -> fallback to Cloudinary", () => {

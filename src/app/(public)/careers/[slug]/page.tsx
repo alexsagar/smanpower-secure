@@ -7,6 +7,7 @@ import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getSafeExternalHttpUrl, sanitizeHtml } from "@/lib/html-safety";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
+import { resolveMediaUrl, MEDIA_PLACEHOLDER } from "@/lib/media-resolver";
 import { CareerApplyForm } from "./CareerApplyForm";
 
 
@@ -38,10 +39,13 @@ export default async function CareerDetailPage({ params }: { params: Promise<{ s
   const opening = await getCareer(slug);
   if (!opening) notFound();
   const safeApplicationUrl = getSafeExternalHttpUrl(opening.applicationUrl);
+  // Provider-aware: an R2 featuredImage delivers from media.smanpower.com, not
+  // its legacy Cloudinary fileUrl.
+  const featuredSrc = opening.featuredImage ? resolveMediaUrl(opening.featuredImage) : undefined;
 
   return (
     <>
-      <HeroInternal title={opening.title} subtitle={opening.department || "Career Opening"} imageSrc={opening.featuredImage?.fileUrl || "/images/corporate_office_interview_1782920412325.png"} />
+      <HeroInternal title={opening.title} subtitle={opening.department || "Career Opening"} imageSrc={featuredSrc && featuredSrc !== MEDIA_PLACEHOLDER ? featuredSrc : "/images/corporate_office_interview_1782920412325.png"} />
       <section className="py-24 bg-brand-off-white">
         <div className="container-wide mx-auto px-6 lg:px-12 max-w-4xl space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
