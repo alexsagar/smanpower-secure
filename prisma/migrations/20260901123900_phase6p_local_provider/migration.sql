@@ -1,2 +1,2 @@
-﻿-- AlterEnum
+-- AlterEnum
 ALTER TYPE "MediaProvider" ADD VALUE 'LOCAL';
