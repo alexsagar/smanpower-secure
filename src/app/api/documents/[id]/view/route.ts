@@ -1,3 +1,4 @@
+import { createPrivatePresignedDownloadUrl } from "@/lib/r2-private";
 import { NextRequest, NextResponse } from "next/server";
 import {
   requirePermission,
@@ -69,6 +70,26 @@ export async function GET(
     }
 
     // New records store the Cloudinary public ID directly. Legacy rows may still contain a URL.
+    
+    if (doc.storageProvider === "R2_PRIVATE" && doc.storageKey) {
+      const signedUrl = await createPrivatePresignedDownloadUrl(doc.storageKey, doc.fileName);
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          entity: "CandidateDocument",
+          action: "PRIVATE_DOCUMENT_VIEWED",
+          entityId: doc.id,
+          details: `Viewed private document ID ${doc.id} for candidate ID ${doc.candidate.id}`
+        }
+      });
+      const response = NextResponse.redirect(signedUrl, { status: 307 });
+      response.headers.set("Cache-Control", "no-store, private");
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("X-Robots-Tag", "noindex, nofollow");
+      response.headers.set("Referrer-Policy", "no-referrer");
+      return response;
+    }
+
     let publicId = doc.fileUrl;
     let format = doc.mimeType?.split('/')[1] || doc.fileName.split('.').pop() || "pdf";
     let allowUnowned = false;

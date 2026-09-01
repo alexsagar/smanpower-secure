@@ -4,7 +4,7 @@ import { requirePermission } from "@/lib/permissions";
 import { MEDIA_PURPOSE_MAP, MediaPurpose } from "@/lib/media-purposes";
 import { logger } from "@/lib/logger";
 import { createPresignedUploadUrl } from "@/lib/r2";
-import { createId } from "@paralleldrive/cuid2";
+import { randomUUID } from "crypto";
 import { getFileExtension } from "@/lib/media-purposes"; // Assuming it exists or I'll inline it
 
 function getExtension(filename: string) {
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const namespace = config.folder.includes("partners") ? "partners/logos" : 
                       config.folder.includes("cms") ? (config.resourceType === "video" ? "cms/videos" : "cms/images") :
                       config.folder.includes("demands") ? "demands/images" : "documents/public";
-    const key = `${namespace}/${createId()}.${ext}`;
+    const key = `${namespace}/${randomUUID()}.${ext}`;
 
     const signedUrl = await createPresignedUploadUrl(key, contentType, size);
 
