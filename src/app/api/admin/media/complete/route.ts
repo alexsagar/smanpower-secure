@@ -1,3 +1,4 @@
+import { deleteR2Object } from '@/lib/r2';
 import { verifyR2Object } from '@/lib/r2';
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
@@ -224,6 +225,60 @@ export async function POST(request: Request) {
 
     const config = MEDIA_PURPOSE_MAP[purpose];
     await requirePermission(config.permission);
+
+    if (data.provider === "R2") {
+      const { key, original_filename, size, contentType } = data;
+      const verify = await verifyR2Object(key);
+      
+      // Post-PUT verification
+      
+      if (size > config.maxBytes) {
+        await deleteR2Object(key);
+        return NextResponse.json({ error: "File exceeds maximum size limits" }, { status: 400 });
+      }
+      if (!verify.success || verify.contentLength !== size) {
+
+        return NextResponse.json({ error: "R2 verification failed: size mismatch or object missing" }, { status: 400 });
+      }
+
+      // Check mime type (Security/MIME verification)
+      const isImage = contentType.startsWith("image/");
+      const isVideo = contentType.startsWith("video/");
+      const isPdf = contentType === "application/pdf";
+      if (!isImage && !isVideo && !isPdf) {
+         // Attempt safe orphan cleanup
+         await deleteR2Object(key);
+         return NextResponse.json({ error: "Invalid mime type" }, { status: 400 });
+      }
+
+      const sanitizedName = (original_filename || "upload").replace(/[\\/]/g, "").substring(0, 100);
+      const resourceType = isVideo ? "VIDEO" : "IMAGE";
+
+      try {
+        const mediaAsset = await prisma.mediaAsset.create({
+          data: {
+            provider: "R2",
+            storageKey: key,
+            publicId: key, 
+            fileName: sanitizedName,
+            fileUrl: `https://media.smanpower.com/${key}`, 
+            fileSize: size,
+            mimeType: contentType,
+            resourceType,
+            folder: key.split('/')[0],
+            isPublic: config.isPublic,
+            status: "REAL_APPROVED",
+          }
+        });
+        return NextResponse.json({ success: true, media: mediaAsset });
+      } catch (dbErr) {
+        // DB transaction fails -> Safe orphan cleanup!
+        logger.error("DB creation failed for R2 native upload", dbErr);
+        await deleteR2Object(key);
+        return NextResponse.json({ error: "Database transaction failed, native R2 object cleaned up safely." }, { status: 500 });
+      }
+    }
+
 
     const expectedFolder = resolveCloudinaryFolder(
       config.folder
