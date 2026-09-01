@@ -30,7 +30,7 @@ const COMMON_VIDEO_FORMATS = ["mp4", "webm"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
 const MAX_IMAGE_WIDTH = 4000;
 const MAX_IMAGE_HEIGHT = 4000;
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB
+const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MiB
 
 const FORMAT_MIME_TYPES: Record<string, string[]> = {
   jpg: ["image/jpeg"],

@@ -6,6 +6,8 @@ import { hashIp, hashUserAgent } from '@/lib/privacy';
 import { validateCandidateFile } from '@/lib/file-validation';
 import { resolveDocumentRequirements } from '@/lib/document-requirements';
 import { uploadBufferToCloudinary, deletePrivateAsset } from '@/services/cloudinary.service';
+import { deletePrivateR2Object } from '@/lib/r2-private';
+
 import { CandidateMatchingService } from '@/services/candidateMatching.service';
 import { logger } from '@/lib/logger';
 import crypto from 'crypto';
@@ -46,7 +48,7 @@ export class ApplicationSubmissionService {
   ) {
     for (const doc of uploadedDocsData) {
       try {
-        const deleted = await deletePrivateAsset(doc.publicId);
+        const deleted = await deletePrivateR2Object(doc.publicId);
         if (!deleted) {
           logger.error(`${logContext}: private asset cleanup was not confirmed`, {
             publicId: doc.publicId,

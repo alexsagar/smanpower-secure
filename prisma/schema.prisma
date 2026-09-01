@@ -749,17 +749,19 @@ model ApplicationDocumentRequirement {
 }
 
 model CandidateDocument {
-  id           String           @id @default(cuid())
-  candidate    CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  candidateId  String
-  documentType String // e.g. "cv", "passport", "certificate"
-  fileName     String
-  fileUrl      String // Private storage URL
-  fileSize     Int?
-  mimeType     String?
-  isPrivate    Boolean          @default(true)
-  status       DocumentStatus   @default(PENDING_SCAN)
-  uploadedAt   DateTime         @default(now())
+  id               String                 @id @default(cuid())
+  candidate        CandidateProfile       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateId      String
+  documentType     String // e.g. "cv", "passport", "certificate"
+  fileName         String
+  fileUrl          String // Private storage URL or local fallback
+  storageProvider  PrivateStorageProvider @default(LOCAL)
+  storageKey       String?
+  fileSize         Int?
+  mimeType         String?
+  isPrivate        Boolean                @default(true)
+  status           DocumentStatus         @default(PENDING_SCAN)
+  uploadedAt       DateTime               @default(now())
 
   @@index([candidateId])
   @@index([documentType])
@@ -1309,8 +1311,15 @@ enum MediaResourceType {
   DOCUMENT
 }
 
+enum MediaProvider {
+  CLOUDINARY
+  R2
+}
+
 model MediaAsset {
   id       String      @id @default(cuid())
+  provider MediaProvider @default(CLOUDINARY)
+  storageKey String?
   publicId String?
   assetId  String?
   fileName String
@@ -1358,6 +1367,7 @@ model MediaAsset {
   @@index([status])
   @@index([resourceType])
   @@index([deletionState])
+  @@index([provider])
 }
 
 // ============================================================
@@ -1579,4 +1589,9 @@ model CmsContentRevision {
   author        User     @relation("RevisionsAuthor", fields: [authorId], references: [id])
   createdAt     DateTime @default(now())
   commitMessage String?
+}
+
+enum PrivateStorageProvider {
+  LOCAL
+  R2_PRIVATE
 }
