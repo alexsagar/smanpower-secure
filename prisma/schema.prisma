@@ -1314,6 +1314,7 @@ enum MediaResourceType {
 enum MediaProvider {
   CLOUDINARY
   R2
+  LOCAL
 }
 
 model MediaAsset {
