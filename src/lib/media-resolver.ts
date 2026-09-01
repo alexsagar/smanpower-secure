@@ -17,7 +17,7 @@ import {
 export const MEDIA_PLACEHOLDER = "/images/placeholder.png";
 
 export interface MediaLike {
-  provider?: "CLOUDINARY" | "R2" | null;
+  provider?: "CLOUDINARY" | "R2" | "LOCAL" | null;
   storageKey?: string | null;
   secureUrl?: string | null;
   fileUrl?: string | null;
@@ -34,6 +34,11 @@ export function resolveMediaUrl(asset?: ResolvableMedia | null): string {
   
   if (typeof asset === "string") {
     return asset;
+  }
+
+  // Handle LOCAL assets
+  if (asset.provider === "LOCAL") {
+    return asset.secureUrl || asset.fileUrl || asset.url || asset.localPath || MEDIA_PLACEHOLDER;
   }
 
   // Handle explicitly R2 assets
@@ -56,6 +61,12 @@ export function resolvePresetMediaUrl(
   if (!asset) return undefined;
 
   const preset: MediaPresetConfig = MEDIA_PRESETS[presetName];
+
+  // If LOCAL, never construct R2 or Cloudinary transformations
+  if (typeof asset !== "string" && asset.provider === "LOCAL") {
+    const localSrc = resolveMediaUrl(asset);
+    return !localSrc || localSrc === MEDIA_PLACEHOLDER ? undefined : localSrc;
+  }
 
   // If R2
   if (typeof asset !== "string" && asset.provider === "R2" && asset.storageKey) {

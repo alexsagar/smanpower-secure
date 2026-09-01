@@ -32,4 +32,16 @@ describe("resolvePresetMediaUrl", () => {
       "https://example.com/a.jpg"
     );
   });
+
+  it("handles R2 media correctly", () => {
+    const r2Asset = { provider: "R2" as const, storageKey: "legacy/cloudinary/image/seven-seas-cms/asset.jpg" };
+    expect(resolvePresetMediaUrl(r2Asset, "articleCard")).toBe(
+      "https://media.smanpower.com/cdn-cgi/image/width=640,quality=75,fit=contain,format=auto/legacy/cloudinary/image/seven-seas-cms/asset.jpg"
+    );
+  });
+
+  it("handles LOCAL media correctly", () => {
+    const localAsset = { provider: "LOCAL" as const, fileUrl: "/images/SSIS.png" };
+    expect(resolvePresetMediaUrl(localAsset, "articleCard")).toBe("/images/SSIS.png");
+  });
 });
