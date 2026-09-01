@@ -7,6 +7,7 @@
 
 import type { CmsMediaAsset } from "@/types/content";
 import { getCloudinaryImageUrl } from "@/lib/cloudinary-delivery";
+import { getCloudflareImageUrl, getCloudflareVideoUrl } from "@/lib/cloudflare-delivery";
 import {
   MEDIA_PRESETS,
   type MediaPresetConfig,
@@ -15,13 +16,9 @@ import {
 
 export const MEDIA_PLACEHOLDER = "/images/placeholder.png";
 
-/**
- * Anything the app hands us for an image: a bare URL, a mapped CmsMediaAsset
- * (secureUrl, lowercase resourceType), or a raw Prisma media row (fileUrl,
- * uppercase resourceType). Spelling the shapes out keeps call sites type-checked
- * — a bare `any` here silently disables checking everywhere this is used.
- */
 export interface MediaLike {
+  provider?: "CLOUDINARY" | "R2" | null;
+  storageKey?: string | null;
   secureUrl?: string | null;
   fileUrl?: string | null;
   url?: string | null;
@@ -34,35 +31,40 @@ export type ResolvableMedia = string | MediaLike;
 
 export function resolveMediaUrl(asset?: ResolvableMedia | null): string {
   if (!asset) return MEDIA_PLACEHOLDER;
-  if (typeof asset === "string") return asset;
+  
+  if (typeof asset === "string") {
+    return asset;
+  }
 
+  // Handle explicitly R2 assets
+  if (asset.provider === "R2" && asset.storageKey) {
+    if (asset.resourceType?.toUpperCase() === "VIDEO") {
+      return getCloudflareVideoUrl(asset.storageKey);
+    }
+    return getCloudflareImageUrl(asset.storageKey);
+  }
+
+  // Fallback to Cloudinary / legacy behavior
   return asset.secureUrl || asset.fileUrl || asset.url || asset.localPath || MEDIA_PLACEHOLDER;
 }
 
-/**
- * Preset-aware delivery URL, for the places that need a plain string rather
- * than an element — `metadata` exports, JSON-LD, and anything handed to a
- * third party. Component call sites should use `<OptimizedImage preset=… />`,
- * which also handles srcSet, sizes, fit and loading.
- */
 export function resolvePresetMediaUrl(
   asset: ResolvableMedia | null | undefined,
   presetName: MediaPresetName,
-  options: {
-    /**
-     * Set when the resulting URL is rendered into a `fill` / `object-cover`
-     * container. The layout is already cropping, so the preset's crop box must
-     * not be baked in as well — doing both cuts the image to one aspect ratio
-     * and then again to the container's, which visibly zooms the subject.
-     * Mirrors the `fill` prop on OptimizedImage.
-     */
-    fill?: boolean;
-  } = {}
+  options: { fill?: boolean } = {}
 ): string | undefined {
+  if (!asset) return undefined;
+
+  const preset: MediaPresetConfig = MEDIA_PRESETS[presetName];
+
+  // If R2
+  if (typeof asset !== "string" && asset.provider === "R2" && asset.storageKey) {
+    return getCloudflareImageUrl(asset.storageKey, preset, options.fill);
+  }
+
   const src = resolveMediaUrl(asset);
   if (!src || src === MEDIA_PLACEHOLDER) return undefined;
 
-  const preset: MediaPresetConfig = MEDIA_PRESETS[presetName];
   const metadata = typeof asset === "string" ? undefined : (asset as CmsMediaAsset);
   const usePresetBox = !options.fill && preset.height !== undefined;
 
@@ -78,12 +80,6 @@ export function resolvePresetMediaUrl(
   });
 }
 
-/**
- * Social-card image: a real 1200x630 crop, not the full-size master. Social
- * scrapers do not read `srcset`, so this is the one place a single fixed
- * delivery URL is the right answer. Callers keep their approved default PNG as
- * the fallback when a page has no image of its own.
- */
 export function resolveOpenGraphImageUrl(
   asset?: ResolvableMedia | null
 ): string | undefined {
