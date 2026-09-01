@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
         pathname: cloudName ? `/${cloudName}/**` : "/**",
       },
+      {
+        protocol: "https",
+        hostname: "media.smanpower.com",
+        pathname: "/**",
+      },
     ],
   },
   experimental: {
