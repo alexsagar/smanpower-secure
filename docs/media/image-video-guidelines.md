@@ -10,7 +10,7 @@ Unsupported uploads are rejected for public CMS placement. Do not use SVG, HTML,
 ## Upload limits
 
 - CMS images, poster images, and mobile fallback images: `5 MB` maximum
-- CMS videos: `50 MB` maximum
+- CMS videos: `150 MiB` maximum
 
 Keep source files under these limits before upload. The server validates MIME type, extension, purpose, Cloudinary resource type, and size at completion time.
 
