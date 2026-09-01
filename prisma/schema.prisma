@@ -1309,8 +1309,15 @@ enum MediaResourceType {
   DOCUMENT
 }
 
+enum MediaProvider {
+  CLOUDINARY
+  R2
+}
+
 model MediaAsset {
   id       String      @id @default(cuid())
+  provider MediaProvider @default(CLOUDINARY)
+  storageKey String?
   publicId String?
   assetId  String?
   fileName String
@@ -1358,6 +1365,7 @@ model MediaAsset {
   @@index([status])
   @@index([resourceType])
   @@index([deletionState])
+  @@index([provider])
 }
 
 // ============================================================

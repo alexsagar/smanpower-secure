@@ -70,13 +70,7 @@ export default async function PublicLayout({
         <GoogleTranslateScript />
         <FirstVisitLoader />
         <Header navigation={headerNav} copy={layoutCopy.header} />
-        {/* min-h-screen is load-bearing, not cosmetic: page bodies stream in via
-            Suspense, so the shell flushes with `main` nearly empty and the footer
-            lands mid-viewport. When the real sections arrive `main` jumps to
-            ~13,000px and the visible footer is shoved down — a single 0.42 layout
-            shift, which was the entire CLS score. Reserving a viewport of height
-            keeps the footer below the fold until the content settles. */}
-        <main className="flex-1 min-h-screen">{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer footerSettings={footerSettings} siteSettings={siteSettings} resourceLinks={resourceLinks} copy={layoutCopy.footer} />
       </body>
     </html>
