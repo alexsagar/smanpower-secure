@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export const revalidate = 1800; // 30 minutes
+export const revalidate = 86400;
 
 export default async function TrainingFacilitiesPage() {
 

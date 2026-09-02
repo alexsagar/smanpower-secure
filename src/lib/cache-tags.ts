@@ -18,14 +18,14 @@
 
 export const CACHE_REVALIDATE = {
   // Global layout data (navigation, footer, site settings, page copy)
-  layout: 1800, // 30 minutes
+  layout: 86400, // 24 hours
   // Regular corporate static pages
-  pages: 1800, // 30 minutes
+  pages: 86400, // 24 hours
   // Editorial and vacancy updates
-  demands: 300, // 5 minutes
-  insights: 300, // 5 minutes
-  news: 300, // 5 minutes
-  stories: 300, // 5 minutes
-  careers: 300, // 5 minutes
-  sitemap: 3600, // 1 hour
+  demands: 3600, // 1 hour
+  insights: 86400, // 24 hours
+  news: 86400, // 24 hours
+  stories: 86400, // 24 hours
+  careers: 3600, // 1 hour
+  sitemap: 86400, // 24 hours
 } as const;

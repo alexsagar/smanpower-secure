@@ -9,13 +9,14 @@ const prismaMock = vi.hoisted(() => ({
 
 const permissionMock = vi.hoisted(() => vi.fn());
 const revalidatePathMock = vi.hoisted(() => vi.fn());
+const revalidateTagMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 vi.mock("@/lib/permissions", () => ({
   SETTINGS_PERMISSIONS: { UPDATE: "settings.update" },
   requirePermission: permissionMock,
 }));
-vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock }));
+vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock, revalidateTag: revalidateTagMock }));
 vi.mock("@/lib/logger", () => ({ logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() } }));
 
 import {

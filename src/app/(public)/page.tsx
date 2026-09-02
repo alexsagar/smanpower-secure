@@ -1,4 +1,4 @@
-import { getContentRepository } from "@/repositories/content-resolver";
+import { getContentBlocksByPageSlug, getFooterSettings, getHeroByPageSlug } from "@/repositories/content-resolver";
 import { DynamicHero } from "@/components/cms/DynamicHero";
 import { ContentBlockRenderer } from "@/components/cms/ContentBlockRenderer";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -8,7 +8,7 @@ import { getPageSeo } from "@/repositories/content-resolver";
 
 // insight_preview now renders live published insights; ISR keeps the homepage
 // fresh (revalidateInsightCaches also purges "/" on publish).
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/");
@@ -23,11 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const repo = getContentRepository();
-  
-  const hero = await repo.getHeroByPageSlug("home");
-  const blocks = await repo.getContentBlocksByPageSlug("home");
-  const footerSettings = await repo.getFooterSettings();
+  const [hero, blocks, footerSettings] = await Promise.all([
+    getHeroByPageSlug("home"),
+    getContentBlocksByPageSlug("home"),
+    getFooterSettings(),
+  ]);
 
   return (
     <>

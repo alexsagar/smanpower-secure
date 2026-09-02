@@ -5,14 +5,25 @@ import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
+import { getPageSeo } from "@/repositories/content-resolver";
 import { InsightMagazineGrid } from "@/components/cms/InsightMagazineGrid";
 
-export const revalidate = 60;
+export const revalidate = 86400;
+
+const getPublishedInsightArticles = unstable_cache(
+  () => prisma.insightArticle.findMany({
+    where: { status: "PUBLISHED", deletedAt: null, lang: "en" },
+    include: { featuredImage: true, category: true, author: true },
+    orderBy: [{ isFeatured: "desc" }, { publishDate: "desc" }],
+  }),
+  ["published-insight-articles"],
+  { revalidate: CACHE_REVALIDATE.insights, tags: [CACHE_TAGS.insights] }
+);
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await prisma.sEOPageMeta.findUnique({
-    where: { pagePath_lang: { pagePath: "/insights", lang: "en" } },
-  });
+  const seo = await getPageSeo("/insights");
   return buildPageMetadata({
     title: seo?.metaTitle || "Recruitment Insights & Compliance Chronicles | Seven Seas Intercontinental",
     description: seo?.metaDescription || "Published articles, regulatory updates, market reports, and recruitment guides by Seven Seas Intercontinental.",
@@ -25,11 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function InsightsPage() {
   const copy = await getPageCopy("insights");
-  const articles = await prisma.insightArticle.findMany({
-    where: { status: "PUBLISHED", deletedAt: null, lang: "en" },
-    include: { featuredImage: true, category: true, author: true },
-    orderBy: [{ isFeatured: "desc" }, { publishDate: "desc" }],
-  });
+  const articles = await getPublishedInsightArticles();
 
   return (
     <>
