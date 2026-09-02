@@ -1,8 +1,8 @@
-import { getContentRepository } from "@/repositories/content-resolver";
+import { getSiteSettings } from "@/repositories/content-resolver";
 import { getSiteUrl } from "@/lib/seo/site-config";
 import { COMPLIANCE, ZERO_FEE_STATEMENT, OFFICE } from "@/config/approved-content";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 // Grouped public routes only. No admin/api/apply/preview/applicant URLs.
 const SECTIONS: { heading: string; links: [string, string][] }[] = [
@@ -39,7 +39,7 @@ const SECTIONS: { heading: string; links: [string, string][] }[] = [
 ];
 
 export async function GET() {
-  const settings = await getContentRepository().getSiteSettings();
+  const settings = await getSiteSettings();
   const baseUrl = getSiteUrl() || settings.website || "https://smanpower.com";
   const absoluteUrl = (path: string) => new URL(path, baseUrl).toString();
 

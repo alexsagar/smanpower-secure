@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
 import { PARTNER_PERMISSIONS } from "@/lib/permissions.constants";
 import { PartnerForm } from "@/components/admin/partners/PartnerForm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export const metadata = {
   title: "Admin - Global Partners",
@@ -47,6 +48,7 @@ export default async function AdminPartnersPage() {
 
     revalidatePath("/admin/partners");
     revalidatePath("/", "page");
+    revalidateTag(CACHE_TAGS.partners, "max");
   }
 
   async function deletePartner(id: string) {
@@ -55,6 +57,7 @@ export default async function AdminPartnersPage() {
     await prisma.clientPartner.delete({ where: { id } });
     revalidatePath("/admin/partners");
     revalidatePath("/", "page");
+    revalidateTag(CACHE_TAGS.partners, "max");
   }
 
   return (

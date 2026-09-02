@@ -5,20 +5,22 @@ import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getSafeExternalHttpUrl, sanitizeHtml } from "@/lib/html-safety";
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 import { resolveMediaUrl, MEDIA_PLACEHOLDER } from "@/lib/media-resolver";
 import { CareerApplyForm } from "./CareerApplyForm";
 
 
-export const revalidate = 300; // 5 minutes
+export const revalidate = 3600;
 
-const getCareer = cache(async (slug: string) => {
-  return prisma.careerOpening.findFirst({
+const getCareer = unstable_cache(
+  (slug: string) => prisma.careerOpening.findFirst({
     where: { slug, lang: "en", status: "OPEN", deletedAt: null },
     include: { featuredImage: true },
-  });
-});
+  }), ["published-career"],
+  { revalidate: CACHE_REVALIDATE.careers, tags: [CACHE_TAGS.careers] }
+);
 
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

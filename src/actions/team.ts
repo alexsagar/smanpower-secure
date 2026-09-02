@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
@@ -106,6 +107,7 @@ async function writeMembers(members: AdminTeamMember[]) {
   revalidatePath("/admin/team");
   revalidatePath("/about/leadership");
   revalidatePath("/about/our-people");
+  revalidateTag(CACHE_TAGS.team, "max");
 }
 
 function formToInput(formData: FormData) {

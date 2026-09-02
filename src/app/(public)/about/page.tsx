@@ -12,7 +12,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/about",
 });
 
-export const revalidate = 1800; // 30 minutes
+export const revalidate = 86400;
 
 
 export default async function AboutPage() {

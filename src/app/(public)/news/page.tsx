@@ -5,14 +5,25 @@ import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
+import { getPageSeo } from "@/repositories/content-resolver";
 import { NewsMagazineGrid } from "@/components/cms/NewsMagazineGrid";
 
-export const revalidate = 60;
+export const revalidate = 86400;
+
+const getPublishedNews = unstable_cache(
+  () => prisma.newsArticle.findMany({
+    where: { status: "PUBLISHED", isPublished: true, deletedAt: null, lang: "en" },
+    include: { featuredMedia: true, author: true },
+    orderBy: [{ publishDate: "desc" }, { updatedAt: "desc" }],
+  }),
+  ["published-news"],
+  { revalidate: CACHE_REVALIDATE.news, tags: [CACHE_TAGS.news] }
+);
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await prisma.sEOPageMeta.findUnique({
-    where: { pagePath_lang: { pagePath: "/news", lang: "en" } },
-  });
+  const seo = await getPageSeo("/news");
   return buildPageMetadata({
     title: seo?.metaTitle || "Newsroom & Press Dispatches | Seven Seas Intercontinental",
     description: seo?.metaDescription || "Official company announcements, recruitment notices, and press releases from Seven Seas Intercontinental.",
@@ -25,11 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function NewsroomPage() {
   const copy = await getPageCopy("news");
-  const news = await prisma.newsArticle.findMany({
-    where: { status: "PUBLISHED", isPublished: true, deletedAt: null, lang: "en" },
-    include: { featuredMedia: true, author: true },
-    orderBy: [{ publishDate: "desc" }, { updatedAt: "desc" }],
-  });
+  const news = await getPublishedNews();
 
   return (
     <>

@@ -6,6 +6,8 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { getPageCopy } from "@/services/page-copy.service";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Careers | Seven Seas Intercontinental",
@@ -13,16 +15,22 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/careers",
 });
 
-export const revalidate = 300; // 5 minutes
+export const revalidate = 3600;
+
+const getPublishedCareers = unstable_cache(
+  () => prisma.careerOpening.findMany({
+    where: { status: "OPEN", deletedAt: null, lang: "en" },
+    include: { featuredImage: true },
+    orderBy: [{ deadline: "asc" }, { updatedAt: "desc" }],
+  }),
+  ["published-careers"],
+  { revalidate: CACHE_REVALIDATE.careers, tags: [CACHE_TAGS.careers] }
+);
 
 
 export default async function CareersPage() {
   const copy = await getPageCopy("careers");
-  const openings = await prisma.careerOpening.findMany({
-    where: { status: "OPEN", deletedAt: null, lang: "en" },
-    include: { featuredImage: true },
-    orderBy: [{ deadline: "asc" }, { updatedAt: "desc" }],
-  });
+  const openings = await getPublishedCareers();
 
   return (
     <>

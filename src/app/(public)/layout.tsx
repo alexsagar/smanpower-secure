@@ -15,7 +15,7 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/",
 });
 
-import { getContentRepository } from "@/repositories/content-resolver";
+import { getFooterSettings, getNavigation, getSiteSettings } from "@/repositories/content-resolver";
 import { getPageCopy } from "@/services/page-copy.service";
 
 export default async function PublicLayout({
@@ -23,10 +23,11 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const repo = getContentRepository();
-  const headerNav = await repo.getNavigation("header");
-  const footerSettings = await repo.getFooterSettings();
-  const siteSettings = await repo.getSiteSettings();
+  const [headerNav, footerSettings, siteSettings] = await Promise.all([
+    getNavigation("header"),
+    getFooterSettings(),
+    getSiteSettings(),
+  ]);
   const layoutCopy = await getPageCopy("layout");
   const orgSchema = buildOrganizationSchema(siteSettings, footerSettings);
   const webSiteSchema = buildWebSiteSchema(siteSettings);

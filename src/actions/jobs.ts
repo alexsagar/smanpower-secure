@@ -2,7 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireCurrentAdminUser } from "@/lib/permissions";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { redirect } from "next/navigation";
 
 export async function createJob(formData: FormData) {
@@ -46,6 +47,7 @@ export async function createJob(formData: FormData) {
 
   revalidatePath("/admin/jobs");
   revalidatePath("/jobs");
+  revalidateTag(CACHE_TAGS.careers, "max");
   redirect("/admin/jobs");
 }
 
@@ -59,5 +61,6 @@ export async function deleteJobAction(id: string) {
   await prisma.job.delete({ where: { id } });
   revalidatePath("/admin/jobs");
   revalidatePath("/jobs");
+  revalidateTag(CACHE_TAGS.careers, "max");
   return { success: true };
 }
