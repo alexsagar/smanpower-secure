@@ -2,7 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireCurrentAdminUser } from "@/lib/permissions";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { redirect } from "next/navigation";
 
 export async function createDocument(formData: FormData) {
@@ -47,5 +48,6 @@ export async function createDocument(formData: FormData) {
   revalidatePath("/admin/compliance");
   revalidatePath("/trust-centre");
   revalidatePath("/");
+  revalidateTag(CACHE_TAGS.compliance, "max");
   redirect("/admin/compliance");
 }

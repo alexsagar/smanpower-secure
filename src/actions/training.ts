@@ -2,7 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireCurrentAdminUser } from "@/lib/permissions";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { redirect } from "next/navigation";
 
 export async function createFacility(formData: FormData) {
@@ -43,5 +44,7 @@ export async function createFacility(formData: FormData) {
 
   revalidatePath("/admin/training");
   revalidatePath("/training-facilities");
+  revalidateTag(CACHE_TAGS.facilities, "max");
+  revalidateTag(CACHE_TAGS.sitemap, "max");
   redirect("/admin/training");
 }

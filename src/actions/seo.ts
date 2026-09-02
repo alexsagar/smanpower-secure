@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { requirePermission, SEO_PERMISSIONS } from "@/lib/permissions";
 import { auth } from "@/lib/auth";
 import { ALLOWED_SEO_PATHS } from "@/lib/seo-paths";
@@ -84,6 +85,7 @@ export async function saveSeoPageMeta(data: {
 
   // Revalidate
   revalidatePath(data.pagePath || "/");
+  revalidateTag(CACHE_TAGS.pages, "max");
 
   return { success: true, record };
 }

@@ -7,20 +7,33 @@ import { buildNewsArticleSchema } from "@/lib/seo/schema";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
 import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
-async function getNews(slug: string) {
-  return prisma.newsArticle.findFirst({
+const getNews = unstable_cache(
+  (slug: string) => prisma.newsArticle.findFirst({
     where: { slug, lang: "en", status: "PUBLISHED", isPublished: true, deletedAt: null },
     include: { featuredMedia: true, author: true },
-  });
-}
+  }), ["published-news-article"],
+  { revalidate: CACHE_REVALIDATE.news, tags: [CACHE_TAGS.news] }
+);
+
+const getRelatedNews = unstable_cache(
+  (slug: string) => prisma.newsArticle.findMany({
+    where: { status: "PUBLISHED", isPublished: true, deletedAt: null, lang: "en", NOT: { slug } },
+    include: { featuredMedia: true, author: true },
+    orderBy: { publishDate: "desc" },
+    take: 3,
+  }), ["related-news"],
+  { revalidate: CACHE_REVALIDATE.news, tags: [CACHE_TAGS.news] }
+);
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -41,12 +54,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
   const article = await getNews(slug);
   if (!article) notFound();
 
-  const relatedNews = await prisma.newsArticle.findMany({
-    where: { status: "PUBLISHED", isPublished: true, deletedAt: null, lang: "en", NOT: { slug } },
-    include: { featuredMedia: true, author: true },
-    orderBy: { publishDate: "desc" },
-    take: 3,
-  });
+  const relatedNews = await getRelatedNews(slug);
 
   const publishedLabel = article.publishDate
     ? new Date(article.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })

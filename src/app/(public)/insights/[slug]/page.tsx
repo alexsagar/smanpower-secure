@@ -7,20 +7,33 @@ import { buildArticleSchema } from "@/lib/seo/schema";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
 import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, FileText, Bookmark } from "lucide-react";
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
-async function getInsight(slug: string) {
-  return prisma.insightArticle.findFirst({
+const getInsight = unstable_cache(
+  (slug: string) => prisma.insightArticle.findFirst({
     where: { slug, lang: "en", status: "PUBLISHED", deletedAt: null },
     include: { featuredImage: true, category: true, author: true },
-  });
-}
+  }), ["published-insight-article"],
+  { revalidate: CACHE_REVALIDATE.insights, tags: [CACHE_TAGS.insights] }
+);
+
+const getRelatedInsights = unstable_cache(
+  (slug: string) => prisma.insightArticle.findMany({
+    where: { status: "PUBLISHED", deletedAt: null, lang: "en", NOT: { slug } },
+    include: { featuredImage: true, category: true, author: true },
+    orderBy: { publishDate: "desc" },
+    take: 3,
+  }), ["related-insights"],
+  { revalidate: CACHE_REVALIDATE.insights, tags: [CACHE_TAGS.insights] }
+);
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -54,12 +67,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   const insight = await getInsight(slug);
   if (!insight) notFound();
 
-  const relatedInsights = await prisma.insightArticle.findMany({
-    where: { status: "PUBLISHED", deletedAt: null, lang: "en", NOT: { slug } },
-    include: { featuredImage: true, category: true, author: true },
-    orderBy: { publishDate: "desc" },
-    take: 3,
-  });
+  const relatedInsights = await getRelatedInsights(slug);
 
   const publishedLabel = insight.publishDate
     ? new Date(insight.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
