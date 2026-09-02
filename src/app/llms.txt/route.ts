@@ -69,7 +69,7 @@ export async function GET() {
   return new Response(body + "\n", {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=3600",
+      "Cache-Control": "public, max-age=0, s-maxage=86400",
     },
   });
 }
