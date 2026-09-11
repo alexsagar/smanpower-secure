@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requirePermission, MEDIA_PERMISSIONS } from "@/lib/permissions";
 import { logger } from "@/lib/logger";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 
 export async function GET(request: Request) {
   try {
@@ -20,8 +21,17 @@ export async function GET(request: Request) {
       orderBy: { createdAt: "desc" },
     });
 
+    // Migrated R2 assets keep their historical Cloudinary `fileUrl`. Every admin
+    // consumer (picker, library preview, rich-text insert) reads `fileUrl` and
+    // writes it straight into CMS content, so serve the canonical delivery URL
+    // here or editing a page silently reverts its media back to Cloudinary.
+    const resolved = assets.map((asset) => ({
+      ...asset,
+      fileUrl: resolveMediaUrl(asset),
+    }));
+
     return NextResponse.json(
-      { assets },
+      { assets: resolved },
       {
         headers: {
           "Cache-Control": "private, no-store",

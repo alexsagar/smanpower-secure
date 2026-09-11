@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X, ExternalLink, Mail, Phone } from "lucide-react";
 import type { CmsTeamMember } from "@/types/content";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 
 interface LeadershipSectionProps {
   leaders: CmsTeamMember[];
@@ -122,7 +123,9 @@ export function LeadershipSection({
             {leaders.map((leader, i) => {
               const summary = getLeaderSummary(leader);
               const formattedNumber = String(i + 1).padStart(2, "0");
-              const photoUrl = leader.photo?.secureUrl || leader.photo?.localPath;
+              // Migrated R2 assets keep a legacy Cloudinary secureUrl; the resolver is the
+              // only thing that knows provider/storageKey.
+              const photoUrl = leader.photo ? resolveMediaUrl(leader.photo) : undefined;
               const photoAlt = leader.photoAltText || leader.photo?.altText || leader.name;
 
               return (
@@ -252,9 +255,9 @@ export function LeadershipSection({
                 {/* Profile Portrait in Drawer */}
                 <div className="mt-8 flex flex-col sm:flex-row gap-6 items-start">
                   <div className="relative w-36 sm:w-44 aspect-[4/5] shrink-0 bg-brand-stone/30 border border-[#E6E2DA] overflow-hidden">
-                    {selectedLeader.photo?.secureUrl || selectedLeader.photo?.localPath ? (
+                    {selectedLeader.photo ? (
                       <Image
-                        src={selectedLeader.photo.secureUrl || selectedLeader.photo.localPath || ""}
+                        src={resolveMediaUrl(selectedLeader.photo)}
                         alt={selectedLeader.photoAltText || selectedLeader.name}
                         fill
                         sizes="180px"

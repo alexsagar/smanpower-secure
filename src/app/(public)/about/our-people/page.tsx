@@ -6,6 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import Image from "next/image";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listPeopleMembers } from "@/lib/team-members";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 
 export const metadata: Metadata = {
   title: "Our People | Seven Seas Intercontinental",
@@ -63,9 +64,9 @@ export default async function OurPeoplePage() {
                 <ScrollReveal key={member.id} delay={i * 0.1}>
                   <div className="group bg-brand-white border border-brand-charcoal/10 p-8 h-full hover:border-brand-gold/50 transition-colors duration-500 flex gap-6 items-start">
                     <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-brand-charcoal/5">
-                      {member.photo?.secureUrl ? (
+                      {member.photo ? (
                         <Image
-                          src={member.photo.secureUrl}
+                          src={resolveMediaUrl(member.photo)}
                           alt={member.photoAltText || member.photo.altText || member.name}
                           fill
                           className="object-cover grayscale transition duration-500 group-hover:grayscale-0"
