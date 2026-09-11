@@ -7,6 +7,7 @@ import Image from "next/image";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listLeadershipMembers } from "@/lib/team-members";
 import { getPageCopy, getPageCopyImage } from "@/services/page-copy.service";
+import { LeadershipSection } from "@/components/leadership/LeadershipSection";
 
 export const metadata: Metadata = {
   title: "Leadership | Seven Seas Intercontinental",
@@ -63,70 +64,15 @@ export default async function LeadershipPage() {
       </section>
       )}
 
-      {/* Board of Directors Grid */}
+      {/* Board of Directors / Leadership Section */}
       {!copy.hiddenSections.board && (
-      <section className="py-24 md:py-32 bg-brand-white">
-        <div className="container-wide mx-auto px-6 lg:px-12">
-          {/* Centered Board Header */}
-          <div className="max-w-3xl mx-auto text-center mb-16 lg:mb-24">
-            <ScrollReveal>
-              <div className="inline-flex items-center justify-center gap-2 bg-brand-black text-brand-gold text-[10px] font-bold tracking-[0.25em] uppercase px-4 py-1.5 mb-6 border border-brand-gold/30">
-                <span>{copy.board.eyebrow}</span>
-              </div>
-              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-[1.08] text-brand-black">
-                {copy.board.heading}
-              </h2>
-            </ScrollReveal>
-          </div>
-
-          {leaders.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
-              {leaders.map((leader, i) => (
-                <ScrollReveal key={leader.id} delay={i * 0.15} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm group">
-                  <div className="bg-brand-off-white border border-brand-black/15 p-6 hover:shadow-2xl hover:border-brand-gold transition-all duration-500 flex flex-col justify-between h-full">
-                    <div>
-                      <div className="relative aspect-[3/4] overflow-hidden bg-brand-charcoal border-2 border-brand-black mb-6 shadow-md">
-                        {leader.photo?.secureUrl ? (
-                          <Image
-                            src={leader.photo.secureUrl}
-                            alt={leader.photoAltText || leader.photo.altText || leader.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 400px"
-                            className="object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-brand-charcoal flex items-center justify-center text-brand-muted text-xs uppercase font-mono">
-                            No Photo
-                          </div>
-                        )}
-                        <div className="absolute inset-0 border border-brand-gold/0 group-hover:border-brand-gold/40 transition-colors duration-500 pointer-events-none" />
-                      </div>
-
-                      <div className="text-center">
-                        <h3 className="font-serif text-2xl font-normal text-brand-black group-hover:text-brand-gold transition-colors duration-300 mb-1">
-                          {leader.name}
-                        </h3>
-                        <p className="text-xs font-mono font-bold tracking-widest uppercase text-brand-gold mb-4">
-                          {leader.designation}
-                        </p>
-                        {leader.bio ? (
-                          <p className="text-xs leading-relaxed text-brand-charcoal/80 font-sans border-t border-brand-black/10 pt-4">
-                            {leader.bio}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="h-0.5 w-0 bg-brand-gold mt-6 group-hover:w-full transition-all duration-500 ease-out mx-auto" />
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-brand-muted font-sans">{copy.board.emptyState}</p>
-          )}
-        </div>
-      </section>
+        <LeadershipSection
+          leaders={leaders}
+          eyebrow={copy.board.eyebrow}
+          heading={copy.board.heading}
+          description={copy.board.description}
+          emptyState={copy.board.emptyState}
+        />
       )}
 
       {/* Leadership Philosophy */}
