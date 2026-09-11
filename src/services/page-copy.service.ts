@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
+import { resolveMediaUrl } from "@/lib/media-resolver";
 import { getPageBySlug } from "@/repositories/content-resolver";
 import { mergePageCopy, PAGE_COPY_DEFAULTS, type PageCopySlug } from "@/lib/page-copy";
 import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
@@ -56,8 +57,11 @@ async function fetchPageCopyImageRaw(
       (candidate) => candidate.visible && candidate.blockType === PAGE_COPY_BLOCK_TYPE
     );
     const image = block?.image;
-    return image?.secureUrl
-      ? { secureUrl: image.secureUrl, altText: image.altText || "" }
+    // `secureUrl` is the legacy Cloudinary URL even on migrated R2 assets, and
+    // callers only get this flattened shape — so resolve delivery here, while
+    // provider/storageKey are still in hand.
+    return image
+      ? { secureUrl: resolveMediaUrl(image), altText: image.altText || "" }
       : null;
   } catch {
     return null;
