@@ -357,8 +357,10 @@ export const leadershipCopy = {
     organisation: "Seven Seas Intercontinental",
   },
   board: {
-    eyebrow: "The Board",
-    heading: "Meet the Directors.",
+    eyebrow: "OUR LEADERSHIP",
+    heading: "Experienced leadership.\nResponsible recruitment.",
+    description:
+      "Our leadership team brings decades of experience in international recruitment, workforce mobilisation and responsible employment practices.",
     // Shown when the team-members collection returns no leadership profiles.
     emptyState: "Leadership profiles are being updated.",
   },
