@@ -38,6 +38,17 @@ const nextConfig: NextConfig = {
   // Node.js-runtime only and OpenNext/Workers cannot run it.
   async redirects() {
     return [
+      // Verified legacy permanent redirects
+      { source: "/page/about-us", destination: "/about", permanent: true },
+      { source: "/page/we-supply", destination: "/industries", permanent: true },
+      { source: "/page/recruitment-process", destination: "/employers", permanent: true },
+      { source: "/page/demand-list", destination: "/demands", permanent: true },
+      { source: "/page/re-advertisement", destination: "/demands", permanent: true },
+      { source: "/contact-us", destination: "/contact", permanent: true },
+      { source: "/document", destination: "/trust-centre", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+
+      // Strip the legacy /en and /ne locale prefixes
       { source: "/:locale(en|ne)", destination: "/", permanent: false },
       {
         source: "/:locale(en|ne)/:path*",

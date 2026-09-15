@@ -145,7 +145,7 @@ describe('site-level structured data', () => {
     const s = buildNewsArticleSchema({ title: 'Notice', slug: 'notice', publishDate: '2026-07-01T00:00:00Z' });
     expect(s?.["@type"]).toBe('NewsArticle');
     expect(s?.url).toBe('https://smanpower.com/news/notice');
-    expect(s?.datePublished).toBe('2026-07-01T00:00:00Z');
+    expect(s?.datePublished).toBe('2026-07-01T00:00:00.000Z');
   });
 
   it('FAQPage returns null when there are no visible Q&A', () => {

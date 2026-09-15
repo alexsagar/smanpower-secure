@@ -12,6 +12,7 @@ import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
 import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
+import { toSafeIsoString } from "@/lib/date";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, Bookmark } from "lucide-react";
 
@@ -40,13 +41,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const article = await getNews(slug);
   if (!article) return buildPageMetadata({ title: "Not Found", path: "" });
 
-  return buildPageMetadata({
+  const base = buildPageMetadata({
     title: article.metaTitle || article.title,
     description: article.metaDescription || article.summary || undefined,
     path: `/news/${slug}`,
     ogImage: article.ogImage || resolveOpenGraphImageUrl(article.featuredMedia) || article.featuredImage || undefined,
     noIndex: article.noIndex || false,
   });
+
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      publishedTime: toSafeIsoString(article.publishDate),
+      modifiedTime: toSafeIsoString(article.updatedAt),
+      authors: [article.author?.name || "Seven Seas Intercontinental"],
+    },
+  };
 }
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -56,8 +68,9 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
 
   const relatedNews = await getRelatedNews(slug);
 
-  const publishedLabel = article.publishDate
-    ? new Date(article.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+  const isoPublishDate = toSafeIsoString(article.publishDate);
+  const publishedLabel = isoPublishDate
+    ? new Date(isoPublishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
     : "";
   const minutes = readingMinutes(article.content);
   const caption = article.featuredMedia?.caption && !isFilenameLike(article.featuredMedia.caption)
@@ -138,7 +151,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
             {publishedLabel && (
               <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">
                 <Calendar className="w-3.5 h-3.5 text-brand-gold" />
-                <time dateTime={article.publishDate?.toISOString()}>{publishedLabel}</time>
+                <time dateTime={isoPublishDate}>{publishedLabel}</time>
               </span>
             )}
             <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">

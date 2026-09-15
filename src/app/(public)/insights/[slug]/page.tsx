@@ -12,6 +12,7 @@ import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
 import { resolveOpenGraphImageUrl, isFilenameLike } from "@/lib/media-resolver";
 import { OptimizedImage } from "@/components/media/OptimizedImage";
 import { readingMinutes } from "@/lib/utils";
+import { toSafeIsoString } from "@/lib/date";
 import { toPublicHref } from "@/lib/public-href";
 import { ArrowLeft, ArrowUpRight, Clock, User, Newspaper, Calendar, Tag, FileText, Bookmark } from "lucide-react";
 
@@ -54,8 +55,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       ...base.openGraph,
       type: "article",
-      publishedTime: insight.publishDate?.toISOString(),
-      modifiedTime: insight.updatedAt?.toISOString(),
+      publishedTime: toSafeIsoString(insight.publishDate),
+      modifiedTime: toSafeIsoString(insight.updatedAt),
       authors: [insight.author?.name || "Seven Seas Intercontinental"],
       section: insight.category?.name || undefined,
     },
@@ -69,8 +70,9 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
   const relatedInsights = await getRelatedInsights(slug);
 
-  const publishedLabel = insight.publishDate
-    ? new Date(insight.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+  const isoPublishDate = toSafeIsoString(insight.publishDate);
+  const publishedLabel = isoPublishDate
+    ? new Date(isoPublishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
     : "";
   const minutes = readingMinutes(insight.content);
 
@@ -153,7 +155,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               {publishedLabel && (
                 <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">
                   <Calendar className="w-3.5 h-3.5 text-brand-gold" />
-                  <time dateTime={insight.publishDate?.toISOString()}>{publishedLabel}</time>
+                  <time dateTime={isoPublishDate}>{publishedLabel}</time>
                 </span>
               )}
               <span className="flex items-center gap-1.5 border-l border-brand-black/15 pl-4">
