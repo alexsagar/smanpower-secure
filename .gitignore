@@ -47,6 +47,7 @@ prisma/backups/
 
 # Extra ignores
 /docs/
+!/docs/deployment/production-deployment-protocol.md
 /test-results/
 /playwright-report/
 /playwright/
