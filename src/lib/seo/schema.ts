@@ -2,6 +2,7 @@ import { getSiteUrl, siteConfig } from "./site-config";
 import { BRAND } from "@/lib/constants";
 import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
 import { generateDemandSeo } from "@/lib/demand-presentation";
+import { toSafeIsoString } from "@/lib/date";
 
 /**
  * Builds the Organization JSON-LD schema based strictly on verified data.
@@ -115,8 +116,6 @@ export const buildNewsArticleSchema = (article: {
   const siteUrl = getSiteUrl();
   if (!siteUrl) return null;
   const url = `${siteUrl}/news/${article.slug}`;
-  const toIso = (d?: Date | string | null) =>
-    d ? (typeof d === "string" ? d : d.toISOString()) : undefined;
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -127,8 +126,8 @@ export const buildNewsArticleSchema = (article: {
       ? { "description": article.metaDescription || article.summary }
       : {}),
     ...(article.imageUrl ? { "image": [article.imageUrl] } : {}),
-    ...(article.publishDate ? { "datePublished": toIso(article.publishDate) } : {}),
-    "dateModified": toIso(article.updatedAt) || toIso(article.publishDate),
+    ...(article.publishDate ? { "datePublished": toSafeIsoString(article.publishDate) } : {}),
+    "dateModified": toSafeIsoString(article.updatedAt) || toSafeIsoString(article.publishDate),
     "author": { "@type": "Organization", "name": article.authorName || siteConfig.name },
     "publisher": { "@type": "Organization", "name": siteConfig.name, "@id": `${siteUrl}/#organization` },
   };
@@ -170,8 +169,6 @@ export const buildArticleSchema = (article: {
   if (!siteUrl) return null;
 
   const url = `${siteUrl}/insights/${article.slug}`;
-  const toIso = (d?: Date | string | null) =>
-    d ? (typeof d === "string" ? d : d.toISOString()) : undefined;
 
   return {
     "@context": "https://schema.org",
@@ -183,8 +180,8 @@ export const buildArticleSchema = (article: {
       ? { "description": article.metaDescription || article.summary }
       : {}),
     ...(article.imageUrl ? { "image": [article.imageUrl] } : {}),
-    ...(article.publishDate ? { "datePublished": toIso(article.publishDate) } : {}),
-    "dateModified": toIso(article.updatedAt) || toIso(article.publishDate),
+    ...(article.publishDate ? { "datePublished": toSafeIsoString(article.publishDate) } : {}),
+    "dateModified": toSafeIsoString(article.updatedAt) || toSafeIsoString(article.publishDate),
     "author": { "@type": "Organization", "name": article.authorName || siteConfig.name },
     "publisher": {
       "@type": "Organization",
