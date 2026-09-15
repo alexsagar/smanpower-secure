@@ -65,13 +65,9 @@ export async function buildProductionSafe(options = {}) {
   }
 
   try {
-    // Step 3: Run Content Sanity Gate
+    // Step 3: Run Content Sanity Gate in an isolated child process (ensures native DLL handles are released)
     console.log("\n--- STEP 3: DATABASE CONTENT SANITY GATE ---");
-    const sanity = await runContentSanityCheck({ cwd, databaseUrl: prodEnv.DATABASE_URL });
-    if (!sanity.success) {
-      console.error("❌ Build aborted: Target database failed content sanity checks.");
-      process.exit(1);
-    }
+    execSync("node scripts/production-content-sanity.mjs", { cwd, stdio: "inherit", env: process.env });
 
     // Step 4: Prisma Generate
     console.log("--- STEP 4: PRISMA GENERATE ---");
