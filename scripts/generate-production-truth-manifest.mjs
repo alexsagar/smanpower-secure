@@ -33,40 +33,57 @@ export async function generateProductionTruthManifest(options = {}) {
   }
 
   const buildStartTime = options.buildStartTime || (process.env.BUILD_START_TIME ? Number(process.env.BUILD_START_TIME) : Date.now());
-  const prisma = new PrismaClient(dbUrl ? { datasources: { db: { url: dbUrl } } } : undefined);
 
-  try {
-    const [newsArticles, demands, homeHero, homeIntroBlock, insight, teamSetting] = await Promise.all([
-      prisma.newsArticle.findMany({
-        where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
-        select: { slug: true, title: true },
-        orderBy: { publishDate: "desc" },
-      }),
-      prisma.demand.findMany({
-        where: { status: "PUBLISHED", isPublic: true, deletedAt: null },
-        select: { slug: true, title: true },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.cmsHeroSection.findFirst({
-        where: { page: { slug: "home" } },
-        select: { eyebrow: true },
-      }),
-      prisma.cmsContentBlock.findFirst({
-        where: { page: { slug: "home" }, blockKey: "home-introduction", visible: true },
-        select: { content: true },
-      }),
-      prisma.insightArticle.findFirst({
-        where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
-        select: { slug: true, title: true },
-        orderBy: { publishDate: "desc" },
-      }),
-      prisma.siteSetting.findUnique({
-        where: { key: "team_members" },
-        select: { value: true },
-      }),
-    ]);
+  let newsArticles, demands, homeHero, homeIntroBlock, insight, teamSetting;
+  let attempts = 0;
+  const maxAttempts = 4;
 
-    if (newsArticles.length === 0) {
+  while (attempts < maxAttempts) {
+    attempts++;
+    const prisma = new PrismaClient(dbUrl ? { datasources: { db: { url: dbUrl } } } : undefined);
+    try {
+      [newsArticles, demands, homeHero, homeIntroBlock, insight, teamSetting] = await Promise.all([
+        prisma.newsArticle.findMany({
+          where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
+          select: { slug: true, title: true },
+          orderBy: { publishDate: "desc" },
+        }),
+        prisma.demand.findMany({
+          where: { status: "PUBLISHED", isPublic: true, deletedAt: null },
+          select: { slug: true, title: true },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.cmsHeroSection.findFirst({
+          where: { page: { slug: "home" } },
+          select: { eyebrow: true },
+        }),
+        prisma.cmsContentBlock.findFirst({
+          where: { page: { slug: "home" }, blockKey: "home-introduction", visible: true },
+          select: { content: true },
+        }),
+        prisma.insightArticle.findFirst({
+          where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
+          select: { slug: true, title: true },
+          orderBy: { publishDate: "desc" },
+        }),
+        prisma.siteSetting.findUnique({
+          where: { key: "team_members" },
+          select: { value: true },
+        }),
+      ]);
+      await prisma.$disconnect();
+      break;
+    } catch (err) {
+      await prisma.$disconnect();
+      if (attempts >= maxAttempts) {
+        throw err;
+      }
+      console.warn(`   ⚠️  Database connection attempt ${attempts} failed (${err.message}). Retrying in 2s...`);
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+
+  if (newsArticles.length === 0) {
       throw new Error("Production truth check failed: 0 published news articles found in database.");
     }
     if (demands.length === 0) {
@@ -123,9 +140,6 @@ export async function generateProductionTruthManifest(options = {}) {
       truthHash,
       truth: truthPayload,
     };
-  } finally {
-    await prisma.$disconnect();
-  }
 }
 
 // If invoked from CLI
