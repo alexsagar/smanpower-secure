@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * scripts/production-smoke-test.mjs
  *
@@ -9,6 +7,8 @@
  */
 
 import https from "node:https";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 export async function fetchUrl(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -122,8 +122,23 @@ export async function runProductionSmokeTest(options = {}) {
       console.error(`   ❌ FAILED: /demands status ${demandsRes.status}`);
     } else {
       console.log("   ✅ PASS: /demands returned HTTP 200.");
-      // Assert active demands content
-      const requiredDemandSlugs = ["job-vacancy-in-kuwait-lt-322061-2", "general-worker-lt-345209"];
+      // Dynamically load expected demand slugs from manifest, options, or fallback
+      let requiredDemandSlugs = options.expectedDemandSlugs || [];
+      if (requiredDemandSlugs.length === 0) {
+        const truthPath = resolve(process.cwd(), ".production-build-truth.json");
+        if (existsSync(truthPath)) {
+          try {
+            const truthObj = JSON.parse(readFileSync(truthPath, "utf8"));
+            if (Array.isArray(truthObj?.truth?.demands)) {
+              requiredDemandSlugs = truthObj.truth.demands.map((d) => d.slug);
+            }
+          } catch (e) {}
+        }
+      }
+      if (requiredDemandSlugs.length === 0) {
+        requiredDemandSlugs = ["job-vacancy-in-kuwait-lt-322061-2", "general-worker-lt-345209"];
+      }
+
       let demandsFound = 0;
       for (const slug of requiredDemandSlugs) {
         if (demandsRes.body.includes(slug)) {
@@ -158,13 +173,28 @@ export async function runProductionSmokeTest(options = {}) {
         console.log("   ✅ PASS: /news contains published articles (no empty-state fallback).");
       }
 
-      // Assert all 4 published news articles
-      const requiredNewsSlugs = [
-        "ilo-protection-nepali-workers-gulf-countries",
-        "safer-nepal-gulf-europe-migration-pathways",
-        "nepal-iom-strengthen-ethical-recruitment",
-        "nepal-recruitment-cost-survey-ethical-recruitment",
-      ];
+      // Dynamically load expected news slugs from manifest, options, or fallback
+      let requiredNewsSlugs = options.expectedNewsSlugs || [];
+      if (requiredNewsSlugs.length === 0) {
+        const truthPath = resolve(process.cwd(), ".production-build-truth.json");
+        if (existsSync(truthPath)) {
+          try {
+            const truthObj = JSON.parse(readFileSync(truthPath, "utf8"));
+            if (Array.isArray(truthObj?.truth?.news)) {
+              requiredNewsSlugs = truthObj.truth.news.map((n) => n.slug);
+            }
+          } catch (e) {}
+        }
+      }
+      if (requiredNewsSlugs.length === 0) {
+        requiredNewsSlugs = [
+          "ilo-protection-nepali-workers-gulf-countries",
+          "safer-nepal-gulf-europe-migration-pathways",
+          "nepal-iom-strengthen-ethical-recruitment",
+          "nepal-recruitment-cost-survey-ethical-recruitment",
+        ];
+      }
+
       let newsFound = 0;
       for (const slug of requiredNewsSlugs) {
         if (newsRes.body.includes(slug)) {
