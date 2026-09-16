@@ -43,6 +43,14 @@ export async function deployProductionSafe(options = {}) {
   console.log("🚀  SAFE PRODUCTION DEPLOYMENT WRAPPER (Phase 1B.2A-S2)");
   console.log("================================================================\n");
 
+  // Safety Guard: Deployment strictly requires 'main' branch
+  delete process.env.ALLOW_NON_MAIN;
+  const preBranch = execSync("git rev-parse --abbrev-ref HEAD", { cwd, encoding: "utf8" }).trim();
+  if (preBranch !== "main") {
+    console.error(`❌ CRITICAL SAFETY VIOLATION: Cannot deploy from branch '${preBranch}'. Production deployments are strictly restricted to 'main'.`);
+    process.exit(1);
+  }
+
   // Step 1: Execute Safe Production Build Pipeline
   console.log("--- PHASE 1: EXECUTE SAFE PRODUCTION BUILD ---");
   await buildProductionSafe(options);
@@ -85,6 +93,8 @@ export async function deployProductionSafe(options = {}) {
     currentBuildId,
     currentTruthHash,
     now: Date.now(),
+    verifyHashes: true,
+    cwd,
   });
 
   if (!manifestValidation.valid) {

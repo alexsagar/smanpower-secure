@@ -424,6 +424,39 @@ export function validateArtifactManifest(options = {}) {
     };
   }
 
+  // Cryptographic Artifact Content Integrity Check
+  if (options.verifyHashes && options.cwd && manifest.hashes) {
+    const cwd = options.cwd;
+    const workerPath = resolve(cwd, ".open-next/worker.js");
+    const buildIdPath = resolve(cwd, ".open-next/assets/BUILD_ID");
+
+    if (manifest.hashes.workerJs) {
+      if (!existsSync(workerPath)) {
+        return { valid: false, error: "Compiled .open-next/worker.js missing during integrity check." };
+      }
+      const actualWorkerHash = createHash("sha256").update(readFileSync(workerPath)).digest("hex");
+      if (actualWorkerHash !== manifest.hashes.workerJs) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: .open-next/worker.js has been modified or rebuilt since certification. Deployment aborted.",
+        };
+      }
+    }
+
+    if (manifest.hashes.buildId) {
+      if (!existsSync(buildIdPath)) {
+        return { valid: false, error: "BUILD_ID file missing during integrity check." };
+      }
+      const actualBuildIdHash = createHash("sha256").update(readFileSync(buildIdPath)).digest("hex");
+      if (actualBuildIdHash !== manifest.hashes.buildId) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: BUILD_ID has been modified since certification. Deployment aborted.",
+        };
+      }
+    }
+  }
+
   return {
     valid: true,
     manifest,

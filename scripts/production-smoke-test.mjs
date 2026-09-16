@@ -85,7 +85,7 @@ export async function runProductionSmokeTest(options = {}) {
       console.log("   ✅ PASS: /about returned HTTP 200.");
     }
 
-    // 3. /demands Smoke Test
+    // 3. /demands Smoke Test with Content Verification
     console.log("3. Probing Demands (/demands) ...");
     const demandsRes = await fetchUrl(`${baseUrl}/demands`);
     if (demandsRes.status !== 200) {
@@ -93,9 +93,28 @@ export async function runProductionSmokeTest(options = {}) {
       console.error(`   ❌ FAILED: /demands status ${demandsRes.status}`);
     } else {
       console.log("   ✅ PASS: /demands returned HTTP 200.");
+      // Assert active demands content
+      const requiredDemandSlugs = ["job-vacancy-in-kuwait-lt-322061-2", "general-worker-lt-345209"];
+      let demandsFound = 0;
+      for (const slug of requiredDemandSlugs) {
+        if (demandsRes.body.includes(slug)) {
+          demandsFound++;
+        } else {
+          errors.push(`/demands is missing active demand: ${slug}`);
+          console.error(`   ❌ FAILED: Active demand '${slug}' not rendered on /demands.`);
+        }
+      }
+      if (demandsFound === requiredDemandSlugs.length) {
+        console.log(`   ✅ PASS: All ${demandsFound} active demands verified live on /demands.`);
+      }
+
+      if (demandsRes.body.includes("No job vacancies") || demandsRes.body.includes("No demands found")) {
+        errors.push("/demands rendered empty-state fallback!");
+        console.error("   ❌ FAILED: Empty demands fallback rendered.");
+      }
     }
 
-    // 4. /news Smoke Test
+    // 4. /news Smoke Test with Content Verification
     console.log("4. Probing News (/news) ...");
     const newsRes = await fetchUrl(`${baseUrl}/news`);
     if (newsRes.status !== 200) {
@@ -103,6 +122,12 @@ export async function runProductionSmokeTest(options = {}) {
       console.error(`   ❌ FAILED: /news status ${newsRes.status}`);
     } else {
       console.log("   ✅ PASS: /news returned HTTP 200.");
+      if (newsRes.body.includes(">No news has been published yet.<") || newsRes.body.includes(">No news found<")) {
+        errors.push("/news rendered empty-state fallback! Stale database or empty cache used.");
+        console.error("   ❌ FAILED: Empty news fallback rendered.");
+      } else {
+        console.log("   ✅ PASS: /news contains published articles (no empty-state fallback).");
+      }
     }
 
     // 5. Insight Article Smoke Test

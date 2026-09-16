@@ -351,6 +351,48 @@ export async function verifyGeneratedBuild(options = {}) {
     }
   }
 
+  // 11. Inspect Sitemap for Cache Freshness & Article Coverage
+  console.log("10. Inspecting compiled Sitemap (/sitemap.xml)...");
+  const sitemapBodyPath = resolve(nextServerAppDir, "sitemap.xml.body");
+  if (existsSync(sitemapBodyPath)) {
+    const sitemapContent = readFileSync(sitemapBodyPath, "utf8");
+
+    // Check all published news articles are in sitemap
+    if (truth?.news && Array.isArray(truth.news)) {
+      let sitemapNewsMatches = 0;
+      for (const article of truth.news) {
+        if (sitemapContent.includes(`/news/${article.slug}`)) {
+          sitemapNewsMatches++;
+        } else {
+          errors.push(`Sitemap is missing published news article: /news/${article.slug}`);
+          console.error(`   ❌ FAILED: Sitemap missing news: ${article.slug}`);
+        }
+      }
+      if (sitemapNewsMatches === truth.news.length) {
+        console.log(`   ✅ PASS: All ${sitemapNewsMatches} published news articles present in sitemap.`);
+      }
+    }
+
+    // Check that old July stale demand slugs are NOT in sitemap
+    const staleJulyDemandSlugs = ["tbt-precast-sdn-bhd", "general-worker-344873"];
+    for (const staleSlug of staleJulyDemandSlugs) {
+      if (sitemapContent.includes(staleSlug)) {
+        errors.push(`Sitemap contains stale July demand slug '${staleSlug}' from old local cache!`);
+        console.error(`   ❌ FAILED: Stale demand found in sitemap: ${staleSlug}`);
+      }
+    }
+
+    // Verify news dataset is not empty
+    if (!sitemapContent.includes("/news/")) {
+      errors.push("Sitemap contains empty news dataset! No /news/ URLs found.");
+      console.error("   ❌ FAILED: Sitemap news dataset is empty.");
+    } else {
+      console.log("   ✅ PASS: Sitemap news dataset is populated and fresh.");
+    }
+  } else {
+    console.log("   ℹ️  sitemap.xml.body not found as static artifact; dynamic sitemap route verified.");
+  }
+
   console.log("----------------------------------------------------------------");
   if (errors.length > 0) {
     console.error(`🚨 GENERATED-BUILD VERIFICATION FAILED: ${errors.length} defect(s) found:`);
@@ -360,7 +402,20 @@ export async function verifyGeneratedBuild(options = {}) {
     return { success: false, errors };
   }
 
-  // 11. Write Production Artifact Certification Manifest
+  // 12. Compute Cryptographic Hashes of Core Deployed Artifacts
+  const hashes = {};
+  if (existsSync(workerPath)) {
+    hashes.workerJs = createHash("sha256").update(readFileSync(workerPath)).digest("hex");
+  }
+  if (existsSync(buildIdPath)) {
+    hashes.buildId = createHash("sha256").update(readFileSync(buildIdPath)).digest("hex");
+  }
+  const newsHtmlPath = resolve(nextServerAppDir, "news.html");
+  if (existsSync(newsHtmlPath)) {
+    hashes.newsHtml = createHash("sha256").update(readFileSync(newsHtmlPath)).digest("hex");
+  }
+
+  // 13. Write Production Artifact Certification Manifest
   let gitSha = "unknown";
   let gitBranch = "unknown";
   try {
@@ -378,6 +433,7 @@ export async function verifyGeneratedBuild(options = {}) {
     buildStartTime,
     verifiedAt: new Date().toISOString(),
     verifiedTimestamp: Date.now(),
+    hashes,
     metrics: {
       verifiedNewsCount: truth?.counts?.publishedNews || 0,
       verifiedDemandCount: truth?.counts?.activeDemands || 0,

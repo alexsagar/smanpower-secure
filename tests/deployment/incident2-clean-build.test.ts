@@ -255,6 +255,23 @@ describe("Production Incident 2 Regression & Clean Build Isolation Tests", () =>
       expect(result.errors.some((e) => e.includes("cms-news: []"))).toBe(true);
     });
 
+    it("fails verification when sitemap contains stale July demand slug", async () => {
+      setupMockBuild(tempDir);
+      writeFileSync(
+        join(tempDir, ".next/server/app/sitemap.xml.body"),
+        `<urlset><url><loc>https://smanpower.com/demands/tbt-precast-sdn-bhd</loc></url><url><loc>https://smanpower.com/news/ilo-protection-migrant-workers</loc></url><url><loc>https://smanpower.com/news/safer-nepal-recruitment</loc></url></urlset>`
+      );
+
+      const result = await verifyGeneratedBuild({
+        cwd: tempDir,
+        buildStartTime: Date.now() - 5000,
+        mockTruthManifest,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.errors.some((e) => e.includes("Sitemap contains stale July demand slug"))).toBe(true);
+    });
+
     it("passes verification and writes artifact certification manifest when content matches truth", async () => {
       const buildStartTime = Date.now() - 5000;
       setupMockBuild(tempDir);
@@ -356,6 +373,35 @@ describe("Production Incident 2 Regression & Clean Build Isolation Tests", () =>
       });
       expect(result.valid).toBe(false);
       expect(result.error).toContain("expected 'CERTIFIED_FOR_DEPLOYMENT'");
+    });
+
+    it("fails when worker.js has been modified after certification (hash mismatch)", () => {
+      const workerFile = join(tempDir, ".open-next/worker.js");
+      const buildIdFile = join(tempDir, ".open-next/assets/BUILD_ID");
+      mkdirSync(join(tempDir, ".open-next/assets"), { recursive: true });
+      writeFileSync(workerFile, "export default { modified: true };");
+      writeFileSync(buildIdFile, "build-xyz-789");
+
+      const manifestWithHashes = {
+        ...validManifest,
+        hashes: {
+          workerJs: "different_hash_from_original_certified_build",
+          buildId: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        },
+      };
+
+      const result = validateArtifactManifest({
+        manifest: manifestWithHashes,
+        currentGitSha: "abc1234567890abcdef",
+        currentBuildId: "build-xyz-789",
+        currentTruthHash: "fedcba9876543210fedcba9876543210",
+        verifyHashes: true,
+        cwd: tempDir,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("Artifact integrity check failed");
+      expect(result.error).toContain("worker.js has been modified");
     });
   });
 });
