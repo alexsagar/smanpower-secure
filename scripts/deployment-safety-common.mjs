@@ -148,13 +148,14 @@ export function validateGitState(options = {}) {
       };
     }
 
+    const targetBranch = allowNonMain ? branch : "main";
     if (!skipFetch) {
       try {
-        execSync("git fetch origin main", { cwd, stdio: "pipe" });
+        execSync(`git fetch origin ${targetBranch}`, { cwd, stdio: "pipe" });
       } catch (e) {
         return {
           valid: false,
-          error: `Failed to fetch origin/main: ${e.message}`,
+          error: `Failed to fetch origin/${targetBranch}: ${e.message}`,
         };
       }
     }
@@ -163,7 +164,7 @@ export function validateGitState(options = {}) {
       cwd,
       encoding: "utf8",
     }).trim();
-    const remoteHead = execSync("git rev-parse origin/main", {
+    const remoteHead = execSync(`git rev-parse origin/${targetBranch}`, {
       cwd,
       encoding: "utf8",
     }).trim();
@@ -171,18 +172,18 @@ export function validateGitState(options = {}) {
     if (localHead !== remoteHead) {
       return {
         valid: false,
-        error: `Local main (${localHead.slice(0, 7)}) differs from origin/main (${remoteHead.slice(0, 7)}). Run 'git pull origin main'.`,
+        error: `Local ${targetBranch} (${localHead.slice(0, 7)}) differs from origin/${targetBranch} (${remoteHead.slice(0, 7)}). Run 'git pull origin ${targetBranch}'.`,
       };
     }
 
-    const unpushed = execSync("git log origin/main..HEAD --oneline", {
+    const unpushed = execSync(`git log origin/${targetBranch}..HEAD --oneline`, {
       cwd,
       encoding: "utf8",
     }).trim();
     if (unpushed.length > 0) {
       return {
         valid: false,
-        error: `Local main has unpushed commits:\n${unpushed}`,
+        error: `Local ${targetBranch} has unpushed commits:\n${unpushed}`,
       };
     }
 
@@ -353,3 +354,126 @@ export function validateArtifactHtml(html, type = "homepage") {
     errors,
   };
 }
+
+/**
+ * Validates production artifact manifest before deployment.
+ * Ensures the deployed bundle strictly binds to the exact verified Git SHA,
+ * BUILD_ID, fresh timestamp, and truth manifest hash.
+ */
+export function validateArtifactManifest(options = {}) {
+  const {
+    manifest,
+    currentGitSha,
+    currentBuildId,
+    currentTruthHash,
+    now = Date.now(),
+    maxAgeMs = 3600000, // 1 hour
+  } = options;
+
+  if (!manifest || typeof manifest !== "object") {
+    return { valid: false, error: "Artifact certification manifest is missing or invalid." };
+  }
+
+  if (manifest.status !== "CERTIFIED_FOR_DEPLOYMENT") {
+    return {
+      valid: false,
+      error: `Artifact status is '${manifest.status}', expected 'CERTIFIED_FOR_DEPLOYMENT'.`,
+    };
+  }
+
+  if (currentGitSha && manifest.gitSha !== currentGitSha) {
+    return {
+      valid: false,
+      error: `Manifest Git SHA (${manifest.gitSha}) does not match current Git HEAD (${currentGitSha}). Build artifacts were compiled from a different commit.`,
+    };
+  }
+
+  if (currentBuildId && manifest.buildId !== currentBuildId) {
+    return {
+      valid: false,
+      error: `Manifest BUILD_ID (${manifest.buildId}) does not match current OpenNext BUILD_ID (${currentBuildId}).`,
+    };
+  }
+
+  if (currentTruthHash && manifest.truthHash !== currentTruthHash) {
+    return {
+      valid: false,
+      error: `Manifest truth hash (${manifest.truthHash}) does not match current truth manifest (${currentTruthHash}). Content truth has changed since build.`,
+    };
+  }
+
+  if (!manifest.truthHash || manifest.truthHash === "none") {
+    return {
+      valid: false,
+      error: "Manifest truth hash is missing. Artifact was not validated against content truth.",
+    };
+  }
+
+  if (!manifest.verifiedTimestamp || typeof manifest.verifiedTimestamp !== "number") {
+    return {
+      valid: false,
+      error: "Manifest verification timestamp is missing or invalid.",
+    };
+  }
+
+  const ageMs = now - manifest.verifiedTimestamp;
+  if (ageMs > maxAgeMs) {
+    return {
+      valid: false,
+      error: `Artifact certification has expired (${Math.round(ageMs / 60000)} minutes old, max allowed: ${Math.round(maxAgeMs / 60000)} minutes). Re-run safe build.`,
+    };
+  }
+
+  // Cryptographic Artifact Content Integrity Check
+  if (options.verifyHashes && options.cwd && manifest.hashes) {
+    const cwd = options.cwd;
+    const workerPath = resolve(cwd, ".open-next/worker.js");
+    const buildIdPath = resolve(cwd, ".open-next/assets/BUILD_ID");
+    const newsHtmlPath = resolve(cwd, ".next/server/app/news.html");
+
+    if (manifest.hashes.workerJs) {
+      if (!existsSync(workerPath)) {
+        return { valid: false, error: "Compiled .open-next/worker.js missing during integrity check." };
+      }
+      const actualWorkerHash = createHash("sha256").update(readFileSync(workerPath)).digest("hex");
+      if (actualWorkerHash !== manifest.hashes.workerJs) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: .open-next/worker.js has been modified or rebuilt since certification. Deployment aborted.",
+        };
+      }
+    }
+
+    if (manifest.hashes.buildId) {
+      if (!existsSync(buildIdPath)) {
+        return { valid: false, error: "BUILD_ID file missing during integrity check." };
+      }
+      const actualBuildIdHash = createHash("sha256").update(readFileSync(buildIdPath)).digest("hex");
+      if (actualBuildIdHash !== manifest.hashes.buildId) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: BUILD_ID has been modified since certification. Deployment aborted.",
+        };
+      }
+    }
+
+    if (manifest.hashes.newsHtml) {
+      if (!existsSync(newsHtmlPath)) {
+        return { valid: false, error: "Compiled .next/server/app/news.html missing during integrity check." };
+      }
+      const actualNewsHtmlHash = createHash("sha256").update(readFileSync(newsHtmlPath)).digest("hex");
+      if (actualNewsHtmlHash !== manifest.hashes.newsHtml) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: .next/server/app/news.html has been modified since certification. Deployment aborted.",
+        };
+      }
+    }
+  }
+
+  return {
+    valid: true,
+    manifest,
+  };
+}
+
