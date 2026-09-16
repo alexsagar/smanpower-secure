@@ -79,11 +79,16 @@ export async function buildProductionSafe(options = {}) {
       process.exit(1);
     }
 
-    // Step 5: Generate Production Content Truth Manifest
+    // Step 5: Generate Production Content Truth Manifest (run in child process to release DLL handle on Windows)
     console.log("\n--- STEP 5: PRODUCTION CONTENT TRUTH MANIFEST ---");
     const buildStartTime = Date.now();
-    const truthResult = await generateProductionTruthManifest({ cwd, buildStartTime });
-    if (!truthResult.success) {
+    execSync("node scripts/generate-production-truth-manifest.mjs", {
+      cwd,
+      stdio: "inherit",
+      env: { ...process.env, BUILD_START_TIME: String(buildStartTime) },
+    });
+    const truthManifestPath = resolve(cwd, ".production-build-truth.json");
+    if (!existsSync(truthManifestPath)) {
       console.error("❌ Failed to generate production truth manifest. Aborting build.");
       process.exit(1);
     }
@@ -105,7 +110,7 @@ export async function buildProductionSafe(options = {}) {
     const verification = await verifyGeneratedBuild({
       cwd,
       buildStartTime,
-      truthManifestPath: truthResult.manifestPath,
+      truthManifestPath,
     });
     if (!verification.success) {
       console.error("❌ Production Build Artifact Truth Verification Failed!");

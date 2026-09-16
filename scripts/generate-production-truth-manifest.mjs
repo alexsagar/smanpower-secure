@@ -32,7 +32,7 @@ export async function generateProductionTruthManifest(options = {}) {
     }
   }
 
-  const buildStartTime = options.buildStartTime || Date.now();
+  const buildStartTime = options.buildStartTime || (process.env.BUILD_START_TIME ? Number(process.env.BUILD_START_TIME) : Date.now());
   const prisma = new PrismaClient(dbUrl ? { datasources: { db: { url: dbUrl } } } : undefined);
 
   try {
