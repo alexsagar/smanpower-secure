@@ -44,7 +44,7 @@ export async function fetchUrl(url, options = {}) {
 
 export async function runProductionSmokeTest(options = {}) {
   const baseUrl = options.baseUrl || "https://smanpower.com";
-  const previousVersionId = options.previousVersionId;
+  const previousVersionId = options.previousVersionId || "04ffd2d0-40dd-4c75-9348-49752c28bff5";
 
   console.log("================================================================");
   console.log(`🌐  PRODUCTION POST-DEPLOYMENT SMOKE TEST: ${baseUrl}`);
@@ -73,16 +73,45 @@ export async function runProductionSmokeTest(options = {}) {
       } else {
         console.log("   ✅ PASS: Organization schema present.");
       }
+
+      // Assert homepage CMS content
+      if (!homeRes.body.includes("Est. 2010 · Kathmandu, Nepal")) {
+        errors.push("Homepage missing expected CMS hero eyebrow ('Est. 2010 · Kathmandu, Nepal').");
+        console.error("   ❌ FAILED: Missing homepage CMS hero eyebrow.");
+      } else {
+        console.log("   ✅ PASS: Homepage CMS hero eyebrow verified.");
+      }
+
+      if (!homeRes.body.includes("Seven Seas Intercontinental")) {
+        errors.push("Homepage missing expected brand name ('Seven Seas Intercontinental').");
+        console.error("   ❌ FAILED: Missing brand name.");
+      } else {
+        console.log("   ✅ PASS: Homepage brand content verified.");
+      }
     }
 
-    // 2. /about Smoke Test
-    console.log("2. Probing About Page (/about) ...");
+    // 2. /about & /about/leadership Smoke Test
+    console.log("2. Probing About Page (/about) & Leadership (/about/leadership) ...");
     const aboutRes = await fetchUrl(`${baseUrl}/about`);
     if (aboutRes.status !== 200) {
       errors.push(`/about returned HTTP ${aboutRes.status}`);
       console.error(`   ❌ FAILED: /about status ${aboutRes.status}`);
     } else {
       console.log("   ✅ PASS: /about returned HTTP 200.");
+    }
+
+    const leadershipRes = await fetchUrl(`${baseUrl}/about/leadership`);
+    if (leadershipRes.status !== 200) {
+      errors.push(`/about/leadership returned HTTP ${leadershipRes.status}`);
+      console.error(`   ❌ FAILED: /about/leadership status ${leadershipRes.status}`);
+    } else {
+      console.log("   ✅ PASS: /about/leadership returned HTTP 200.");
+      if (!leadershipRes.body.includes("Devendra Bajgai")) {
+        errors.push("Leadership page missing key leader 'Devendra Bajgai'.");
+        console.error("   ❌ FAILED: Leadership page missing 'Devendra Bajgai'.");
+      } else {
+        console.log("   ✅ PASS: Leadership content verified ('Devendra Bajgai').");
+      }
     }
 
     // 3. /demands Smoke Test with Content Verification
@@ -128,9 +157,29 @@ export async function runProductionSmokeTest(options = {}) {
       } else {
         console.log("   ✅ PASS: /news contains published articles (no empty-state fallback).");
       }
+
+      // Assert all 4 published news articles
+      const requiredNewsSlugs = [
+        "ilo-protection-nepali-workers-gulf-countries",
+        "safer-nepal-gulf-europe-migration-pathways",
+        "nepal-iom-strengthen-ethical-recruitment",
+        "nepal-recruitment-cost-survey-ethical-recruitment",
+      ];
+      let newsFound = 0;
+      for (const slug of requiredNewsSlugs) {
+        if (newsRes.body.includes(slug)) {
+          newsFound++;
+        } else {
+          errors.push(`/news is missing published news article: ${slug}`);
+          console.error(`   ❌ FAILED: Published news article '${slug}' not rendered on /news.`);
+        }
+      }
+      if (newsFound === requiredNewsSlugs.length) {
+        console.log(`   ✅ PASS: All ${newsFound} published news articles verified live on /news.`);
+      }
     }
 
-    // 5. Insight Article Smoke Test
+    // 5. Insight Article Smoke Test (Phase 1B.2A)
     const insightSlug = "choose-manpower-agency-in-nepal";
     console.log(`5. Probing Insight Article (/insights/${insightSlug}) ...`);
     const insightRes = await fetchUrl(`${baseUrl}/insights/${insightSlug}`);
@@ -159,6 +208,45 @@ export async function runProductionSmokeTest(options = {}) {
         console.error("   ❌ FAILED: BlogPosting schema missing.");
       } else {
         console.log("   ✅ PASS: BlogPosting schema present.");
+      }
+
+      if (!insightRes.body.includes('rel="canonical"')) {
+        errors.push("Insight article missing canonical link.");
+        console.error("   ❌ FAILED: Canonical link missing.");
+      } else {
+        console.log("   ✅ PASS: Canonical link present.");
+      }
+    }
+
+    // 6. /sitemap.xml Smoke Test
+    console.log("6. Probing Sitemap (/sitemap.xml) ...");
+    const sitemapRes = await fetchUrl(`${baseUrl}/sitemap.xml`);
+    if (sitemapRes.status !== 200) {
+      errors.push(`/sitemap.xml returned HTTP ${sitemapRes.status}`);
+      console.error(`   ❌ FAILED: /sitemap.xml status ${sitemapRes.status}`);
+    } else {
+      console.log("   ✅ PASS: /sitemap.xml returned HTTP 200.");
+      if (sitemapRes.body.includes("tbt-precast-sdn-bhd")) {
+        errors.push("Sitemap contains stale July demand slug 'tbt-precast-sdn-bhd'!");
+        console.error("   ❌ FAILED: Stale July demand slug detected in sitemap.");
+      } else {
+        console.log("   ✅ PASS: Zero stale July demands in sitemap.");
+      }
+    }
+
+    // 7. /robots.txt Smoke Test
+    console.log("7. Probing Robots (/robots.txt) ...");
+    const robotsRes = await fetchUrl(`${baseUrl}/robots.txt`);
+    if (robotsRes.status !== 200) {
+      errors.push(`/robots.txt returned HTTP ${robotsRes.status}`);
+      console.error(`   ❌ FAILED: /robots.txt status ${robotsRes.status}`);
+    } else {
+      console.log("   ✅ PASS: /robots.txt returned HTTP 200.");
+      if (robotsRes.body.includes("Disallow: /") && !robotsRes.body.includes("Disallow: /admin")) {
+        errors.push("robots.txt contains accidental global Disallow: /!");
+        console.error("   ❌ FAILED: Accidental global Disallow: / detected.");
+      } else {
+        console.log("   ✅ PASS: robots.txt public crawling allowed.");
       }
     }
 
