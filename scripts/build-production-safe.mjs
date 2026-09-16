@@ -5,28 +5,31 @@
  *
  * Safe Production Build Command (npm run build:production:safe)
  *
- * Orchestrates:
- * 1. Production Preflight Guard
- * 2. Strict Production Environment Isolation (.env.production only, defends against .env.local)
- * 3. Production Content Sanity Gate (reads production database)
- * 4. Prisma Generation & workerd export hoisting
- * 5. OpenNext Cloudflare production build
- * 6. Generated-Build Content Verification
- * 7. Stops before deployment.
+ * Orchestrates the Phase 1B.2A-S2 Hardened Production Build Pipeline:
+ * 1. Production Preflight Guard (Git state, production environment variables, database fingerprint)
+ * 2. Strict Production Environment Isolation (.env.production loaded, .env.local quarantined)
+ * 3. Production Content Sanity Gate (direct DB read asserting content thresholds)
+ * 4. Clean Build Isolation (pre-build wipe of .next, .open-next, .wrangler, manifests & clean-state guard)
+ * 5. Production Content Truth Manifest (.production-build-truth.json generated immediately prior to build)
+ * 6. Prisma Generation & workerd export hoisting
+ * 7. OpenNext Cloudflare production build
+ * 8. Generated-Build Content-Truth Verification (checks HTML, cache freshness, truth match, and signs artifact manifest)
+ * 9. Stops before deployment.
  */
 
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
 import { runProductionPreflight } from "./production-preflight.mjs";
-import { runContentSanityCheck } from "./production-content-sanity.mjs";
+import { cleanBuildDirectories, verifyCleanBuildState } from "./clean-build-isolation.mjs";
+import { generateProductionTruthManifest } from "./generate-production-truth-manifest.mjs";
 import { verifyGeneratedBuild } from "./verify-generated-build.mjs";
 import { parseEnvContent } from "./deployment-safety-common.mjs";
 
 export async function buildProductionSafe(options = {}) {
   const cwd = options.cwd || process.cwd();
   console.log("================================================================");
-  console.log("🏗️   SAFE PRODUCTION BUILD PIPELINE");
+  console.log("🏗️   SAFE PRODUCTION BUILD PIPELINE (Phase 1B.2A-S2)");
   console.log("================================================================\n");
 
   // Step 1: Run Preflight Guard
@@ -45,7 +48,6 @@ export async function buildProductionSafe(options = {}) {
     process.exit(1);
   }
   const prodEnv = parseEnvContent(readFileSync(envProdPath, "utf8"));
-  // Inject prodEnv into process.env
   for (const [k, v] of Object.entries(prodEnv)) {
     process.env[k] = v;
   }
@@ -53,8 +55,7 @@ export async function buildProductionSafe(options = {}) {
   process.env.APP_ENV = "production";
   console.log("   ✅ Loaded production environment variables into build context.");
 
-  // If .env.local exists, temporarily quarantine it during the build to guarantee
-  // that Next.js cannot read it even if a developer created it locally.
+  // If .env.local exists, temporarily quarantine it during the build
   const envLocalPath = resolve(cwd, ".env.local");
   const envLocalBackupPath = resolve(cwd, ".env.local.quarantined");
   let quarantined = false;
@@ -65,33 +66,55 @@ export async function buildProductionSafe(options = {}) {
   }
 
   try {
-    // Step 3: Run Content Sanity Gate in an isolated child process (ensures native DLL handles are released)
+    // Step 3: Run Content Sanity Gate in an isolated child process
     console.log("\n--- STEP 3: DATABASE CONTENT SANITY GATE ---");
     execSync("node scripts/production-content-sanity.mjs", { cwd, stdio: "inherit", env: process.env });
 
-    // Step 4: Prisma Generate
-    console.log("--- STEP 4: PRISMA GENERATE ---");
+    // Step 4: Clean Build Isolation & Pre-Build Clean Guard
+    console.log("\n--- STEP 4: CLEAN BUILD ISOLATION ---");
+    cleanBuildDirectories({ cwd });
+    const cleanGuard = verifyCleanBuildState({ cwd });
+    if (!cleanGuard.success) {
+      console.error("❌ Pre-build clean state verification failed. Aborting build.");
+      process.exit(1);
+    }
+
+    // Step 5: Generate Production Content Truth Manifest
+    console.log("\n--- STEP 5: PRODUCTION CONTENT TRUTH MANIFEST ---");
+    const buildStartTime = Date.now();
+    const truthResult = await generateProductionTruthManifest({ cwd, buildStartTime });
+    if (!truthResult.success) {
+      console.error("❌ Failed to generate production truth manifest. Aborting build.");
+      process.exit(1);
+    }
+
+    // Step 6: Prisma Generate
+    console.log("--- STEP 6: PRISMA GENERATE ---");
     execSync("npx prisma generate", { cwd, stdio: "inherit", env: process.env });
 
-    // Step 5: Prisma workerd exports hoisting
-    console.log("\n--- STEP 5: PRISMA WORKERD EXPORTS HOISTING ---");
+    // Step 7: Prisma workerd exports hoisting
+    console.log("\n--- STEP 7: PRISMA WORKERD EXPORTS HOISTING ---");
     execSync("node scripts/prisma-workerd-exports.mjs", { cwd, stdio: "inherit", env: process.env });
 
-    // Step 6: OpenNext Cloudflare Build
-    console.log("\n--- STEP 6: OPENNEXT CLOUDFLARE PRODUCTION BUILD ---");
+    // Step 8: OpenNext Cloudflare Build
+    console.log("\n--- STEP 8: OPENNEXT CLOUDFLARE PRODUCTION BUILD ---");
     execSync("npx opennextjs-cloudflare build", { cwd, stdio: "inherit", env: process.env });
 
-    // Step 7: Generated Build Content Verification
-    console.log("\n--- STEP 7: GENERATED ARTIFACT VERIFICATION ---");
-    const verification = await verifyGeneratedBuild({ cwd });
+    // Step 9: Generated-Build Content-Truth Verification
+    console.log("\n--- STEP 9: GENERATED ARTIFACT TRUTH VERIFICATION ---");
+    const verification = await verifyGeneratedBuild({
+      cwd,
+      buildStartTime,
+      truthManifestPath: truthResult.manifestPath,
+    });
     if (!verification.success) {
-      console.error("❌ Production Build Artifact Verification Failed!");
+      console.error("❌ Production Build Artifact Truth Verification Failed!");
       process.exit(1);
     }
 
     console.log("================================================================");
-    console.log("🎉 SAFE PRODUCTION BUILD COMPLETED & FULLY VERIFIED.");
-    console.log("Artifacts are certified safe and ready for deployment.");
+    console.log("🎉 SAFE PRODUCTION BUILD COMPLETED & FULLY CERTIFIED.");
+    console.log("Artifacts match live Neon content truth and are certified for deployment.");
     console.log("================================================================\n");
 
   } finally {

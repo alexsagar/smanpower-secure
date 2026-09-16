@@ -46,7 +46,9 @@ next-env.d.ts
 prisma/backups/
 
 # Extra ignores
-/docs/
+/docs/*
+!/docs/deployment/
+/docs/deployment/*
 !/docs/deployment/production-deployment-protocol.md
 /test-results/
 /playwright-report/
@@ -55,3 +57,8 @@ prisma/backups/
 
 # OpenNext build output
 /.open-next/
+/.wrangler/
+
+# Production safety artifacts (generated, uncommitted)
+.production-build-truth.json
+.production-artifact-manifest.json
