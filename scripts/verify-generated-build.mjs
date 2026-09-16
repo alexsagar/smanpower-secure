@@ -159,17 +159,9 @@ export async function verifyGeneratedBuild(options = {}) {
     errors.push("Could not locate compiled News HTML in .next or .open-next cache.");
     console.error("   ❌ FAILED: News HTML missing.");
   } else {
-    // Check for empty/stale markers
-    if (newsHtml.includes("No news") || newsHtml.includes("no news") || newsHtml.includes("No articles")) {
-      errors.push("News page contains 'No news' / empty articles fallback! Stale empty database or cache was used.");
-      console.error("   ❌ FAILED: News page contains empty state text!");
-    } else {
-      console.log("   ✅ PASS: News page contains no empty-state markers.");
-    }
-
     // Check all expected news articles from truth manifest
+    let matchedNews = 0;
     if (truth?.news && Array.isArray(truth.news)) {
-      let matchedNews = 0;
       for (const article of truth.news) {
         const slugFound = newsHtml.includes(article.slug);
         const titleSnippet = article.title ? article.title.slice(0, 30) : "";
@@ -181,20 +173,35 @@ export async function verifyGeneratedBuild(options = {}) {
           console.error(`   ❌ FAILED: Missing news article: ${article.slug}`);
         }
       }
-      if (matchedNews === truth.news.length) {
-        console.log(`   ✅ PASS: All ${matchedNews} published news articles confirmed in /news build.`);
-      }
+    }
+
+    // Check for empty/stale markers:
+    // When Incident 2 happened, 0 articles were rendered and the empty state heading was visible in the DOM
+    const hasVisibleEmptyState =
+      newsHtml.includes(">No news has been published yet.<") ||
+      newsHtml.includes(">No news found<") ||
+      newsHtml.includes(">No articles yet<") ||
+      newsHtml.includes("<p>No news articles found at this time.</p>");
+
+    if (hasVisibleEmptyState || matchedNews === 0) {
+      errors.push("News page contains visible 'No news' / empty articles fallback! Stale empty database or cache was used.");
+      console.error("   ❌ FAILED: News page contains empty state text!");
+    } else {
+      console.log(`   ✅ PASS: All ${matchedNews} published news articles confirmed in /news build (no empty fallback).`);
     }
   }
 
   // 6. Verify Demands Page (/demands) against Truth Manifest
   console.log("5. Inspecting compiled Demands (/demands) against Content Truth...");
   const demandsHtml = getRouteHtml("demands", nextServerAppDir, openNextCacheDir, buildId);
-  if (!demandsHtml) {
-    errors.push("Could not locate compiled Demands HTML in .next or .open-next cache.");
-    console.error("   ❌ FAILED: Demands HTML missing.");
-  } else {
-    if (demandsHtml.includes("No job vacancies") || demandsHtml.includes("No demands found")) {
+  if (demandsHtml) {
+    // If statically prerendered or cached
+    const hasEmptyDemands =
+      demandsHtml.includes(">No job vacancies<") ||
+      demandsHtml.includes(">No demands found<") ||
+      demandsHtml.includes(">No demands currently available<");
+
+    if (hasEmptyDemands) {
       errors.push("Demands page contains 'No demands' fallback! Stale or empty database was used.");
       console.error("   ❌ FAILED: Demands page contains empty state text!");
     } else {
@@ -218,21 +225,35 @@ export async function verifyGeneratedBuild(options = {}) {
         console.log(`   ✅ PASS: All ${matchedDemands} active demands confirmed in /demands build.`);
       }
     }
+  } else {
+    // /demands is dynamically rendered at runtime (searchParams access)
+    // Check if the server component bundle compiled successfully
+    const demandsServerEntry =
+      existsSync(resolve(nextServerAppDir, "(public)/demands/page.js")) ||
+      existsSync(resolve(nextServerAppDir, "demands/page.js"));
+
+    if (!demandsServerEntry) {
+      errors.push("Demands route failed to compile: missing demands/page.js server module.");
+      console.error("   ❌ FAILED: Demands server entry missing.");
+    } else {
+      console.log("   ✅ PASS: Dynamic /demands route successfully compiled into server function.");
+    }
   }
 
-  // 7. Verify Leadership Marker (/about)
-  console.log("6. Inspecting Leadership content in /about...");
-  const aboutHtml = getRouteHtml("about", nextServerAppDir, openNextCacheDir, buildId);
+  // 7. Verify Leadership Marker (/about/leadership or /about)
+  console.log("6. Inspecting Leadership content in /about/leadership...");
+  const leadershipHtml = getRouteHtml("about/leadership", nextServerAppDir, openNextCacheDir, buildId) ||
+                         getRouteHtml("about", nextServerAppDir, openNextCacheDir, buildId);
   const leadershipName = truth?.leadershipMarker?.name || "Devendra Bajgai";
-  if (aboutHtml) {
-    if (!aboutHtml.includes(leadershipName)) {
-      errors.push(`About page missing expected leadership member: "${leadershipName}".`);
-      console.error(`   ❌ FAILED: Leadership member "${leadershipName}" not found on /about.`);
+  if (leadershipHtml) {
+    if (!leadershipHtml.includes(leadershipName)) {
+      errors.push(`Leadership page missing expected leadership member: "${leadershipName}".`);
+      console.error(`   ❌ FAILED: Leadership member "${leadershipName}" not found.`);
     } else {
-      console.log(`   ✅ PASS: Leadership member "${leadershipName}" confirmed in /about build.`);
+      console.log(`   ✅ PASS: Leadership member "${leadershipName}" confirmed in build.`);
     }
   } else {
-    console.log("   ℹ️  /about not statically prerendered as HTML; checking in server chunks...");
+    console.log("   ℹ️  Leadership page not statically prerendered as HTML; checking in server chunks...");
   }
 
   // 8. Inspect Insight Article (/insights/choose-manpower-agency-in-nepal)
