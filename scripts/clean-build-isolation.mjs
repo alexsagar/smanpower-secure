@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * scripts/clean-build-isolation.mjs
  *
