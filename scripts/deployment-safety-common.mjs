@@ -429,6 +429,7 @@ export function validateArtifactManifest(options = {}) {
     const cwd = options.cwd;
     const workerPath = resolve(cwd, ".open-next/worker.js");
     const buildIdPath = resolve(cwd, ".open-next/assets/BUILD_ID");
+    const newsHtmlPath = resolve(cwd, ".next/server/app/news.html");
 
     if (manifest.hashes.workerJs) {
       if (!existsSync(workerPath)) {
@@ -452,6 +453,19 @@ export function validateArtifactManifest(options = {}) {
         return {
           valid: false,
           error: "Artifact integrity check failed: BUILD_ID has been modified since certification. Deployment aborted.",
+        };
+      }
+    }
+
+    if (manifest.hashes.newsHtml) {
+      if (!existsSync(newsHtmlPath)) {
+        return { valid: false, error: "Compiled .next/server/app/news.html missing during integrity check." };
+      }
+      const actualNewsHtmlHash = createHash("sha256").update(readFileSync(newsHtmlPath)).digest("hex");
+      if (actualNewsHtmlHash !== manifest.hashes.newsHtml) {
+        return {
+          valid: false,
+          error: "Artifact integrity check failed: .next/server/app/news.html has been modified since certification. Deployment aborted.",
         };
       }
     }

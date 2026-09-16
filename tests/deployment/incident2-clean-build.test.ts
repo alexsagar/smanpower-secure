@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, utimesSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { createHash } from "node:crypto";
 import { cleanBuildDirectories, verifyCleanBuildState } from "../../scripts/clean-build-isolation.mjs";
 import { verifyGeneratedBuild } from "../../scripts/verify-generated-build.mjs";
 import { validateArtifactManifest } from "../../scripts/deployment-safety-common.mjs";
@@ -402,6 +403,42 @@ describe("Production Incident 2 Regression & Clean Build Isolation Tests", () =>
       expect(result.valid).toBe(false);
       expect(result.error).toContain("Artifact integrity check failed");
       expect(result.error).toContain("worker.js has been modified");
+    });
+
+    it("fails when news.html has been modified after certification (hash mismatch)", () => {
+      const workerFile = join(tempDir, ".open-next/worker.js");
+      const buildIdFile = join(tempDir, ".open-next/assets/BUILD_ID");
+      const newsHtmlFile = join(tempDir, ".next/server/app/news.html");
+      mkdirSync(join(tempDir, ".open-next/assets"), { recursive: true });
+      mkdirSync(join(tempDir, ".next/server/app"), { recursive: true });
+      writeFileSync(workerFile, "export default {};");
+      writeFileSync(buildIdFile, "build-xyz-789");
+      writeFileSync(newsHtmlFile, "<html><body>Original news</body></html>");
+
+      const correctWorkerHash = createHash("sha256").update("export default {};").digest("hex");
+      const correctBuildIdHash = createHash("sha256").update("build-xyz-789").digest("hex");
+
+      const manifestWithHashes = {
+        ...validManifest,
+        hashes: {
+          workerJs: correctWorkerHash,
+          buildId: correctBuildIdHash,
+          newsHtml: "tampered_news_hash",
+        },
+      };
+
+      const result = validateArtifactManifest({
+        manifest: manifestWithHashes,
+        currentGitSha: "abc1234567890abcdef",
+        currentBuildId: "build-xyz-789",
+        currentTruthHash: "fedcba9876543210fedcba9876543210",
+        verifyHashes: true,
+        cwd: tempDir,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("Artifact integrity check failed");
+      expect(result.error).toContain("news.html has been modified");
     });
   });
 });
