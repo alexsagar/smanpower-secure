@@ -248,6 +248,20 @@ describe("Phase 1B.2A-S5: Automatic Production Deployment Safety Tests", () => {
       expect(result.valid).toBe(false);
       expect(result.error).toContain("Production release MUST be on 'main'");
     });
+
+    it("passes when branch is main", () => {
+      const result = validateGitState({
+        mockGitState: {
+          branch: "main",
+          isDirty: false,
+          localHead: "sha1",
+          remoteHead: "sha1",
+          unpushedCount: 0,
+        },
+      });
+      expect(result.valid).toBe(true);
+      expect(result.branch).toBe("main");
+    });
   });
 
   describe("Scenario 9: Wrong Commit SHA Guard", () => {
