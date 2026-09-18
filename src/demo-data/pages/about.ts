@@ -74,9 +74,10 @@ createdAt: new Date().toISOString(),
         },
         gridColumns: 2,
         gridItems: [
-          { title: "Our Story", href: "/about/our-story", icon: "Users" },
+          { title: "Our Story", href: "/about/our-story", icon: "BookOpen" },
           { title: "Mission & Vision", href: "/about/mission-vision-values", icon: "Target" },
           { title: "Leadership", href: "/about/leadership", icon: "Shield" },
+          { title: "Our People", href: "/about/our-people", icon: "Users" },
           { title: "Community Impact", href: "/about/community-impact", icon: "Globe" }
         ]
       }

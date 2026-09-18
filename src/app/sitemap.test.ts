@@ -58,6 +58,11 @@ describe("sitemap", () => {
     expect(urls).toContain("https://smanpower.com/careers/sample-career");
     expect(urls).toContain("https://smanpower.com/success-stories/sample-story");
     expect(urls).toContain("https://smanpower.com/custom-page");
+    expect(urls).toContain("https://smanpower.com/industries/security-services");
+    expect(urls).toContain("https://smanpower.com/training-facilities/training-centres");
+    expect(urls).toContain("https://smanpower.com/employers/candidate-sourcing");
+    expect(urls).toContain("https://smanpower.com/ethical-recruitment/rba-aligned-practices");
+    expect(urls).toContain("https://smanpower.com/trust-centre/licences");
     expect(urls).not.toContain("https://smanpower.com/about/about");
     expect(urls.some((url) => url.includes("/en/"))).toBe(false);
     expect(urls.some((url) => url.includes("/ne/"))).toBe(false);

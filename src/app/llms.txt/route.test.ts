@@ -1,17 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/seo/site-config", () => ({ getSiteUrl: () => "https://smanpower.com" }));
-vi.mock("@/repositories/content-resolver", () => ({
-  getContentRepository: () => ({
-    getSiteSettings: async () => ({
-      companyName: "Seven Seas Intercontinental",
-      tagline: "Responsible Recruitment.",
-      website: "https://smanpower.com",
-      city: "Kathmandu",
-      country: "Nepal",
+vi.mock("@/repositories/content-resolver", () => {
+  const settings = {
+    companyName: "Seven Seas Intercontinental",
+    tagline: "Responsible Recruitment.",
+    website: "https://smanpower.com",
+    city: "Kathmandu",
+    country: "Nepal",
+  };
+  return {
+    getSiteSettings: async () => settings,
+    getContentRepository: () => ({
+      getSiteSettings: async () => settings,
     }),
-  }),
-}));
+  };
+});
 
 describe("llms.txt", () => {
   it("uses apex URLs, a sitemap link, approved compliance wording, and no private/member claims", async () => {

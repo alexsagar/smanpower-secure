@@ -6,7 +6,7 @@ import { isStagingNoIndexEnabled } from "@/lib/env";
 interface PageMetaProps {
   title?: string;
   description?: string;
-  path: string; // Used for canonical
+  path?: string | null; // Used for canonical
   canonicalOverride?: string | null;
   ogImage?: string | null;
   noIndex?: boolean;
@@ -16,6 +16,7 @@ interface PageMetaProps {
    * demand). Set true only when links must not be followed either.
    */
   noFollow?: boolean;
+  noCanonical?: boolean;
 }
 
 /**
@@ -46,9 +47,10 @@ export const buildPageMetadata = ({
   ogImage,
   noIndex = false,
   noFollow = false,
+  noCanonical = false,
 }: PageMetaProps): Metadata => {
   const siteUrl = getSiteUrl();
-  const canonicalUrl = buildCanonicalUrl(path, canonicalOverride);
+  const canonicalUrl = (!noCanonical && path) ? buildCanonicalUrl(path, canonicalOverride) : null;
   const shouldNoIndex = noIndex || isStagingNoIndexEnabled();
   // Staging noindexes everything (index+follow off); otherwise a noindex page
   // still allows following links by default (noindex,follow).

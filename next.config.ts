@@ -47,6 +47,7 @@ const nextConfig: NextConfig = {
       { source: "/contact-us", destination: "/contact", permanent: true },
       { source: "/document", destination: "/trust-centre", permanent: true },
       { source: "/home", destination: "/", permanent: true },
+      { source: "/jobs", destination: "/demands", permanent: true },
 
       // Strip the legacy /en and /ne locale prefixes
       { source: "/:locale(en|ne)", destination: "/", permanent: false },

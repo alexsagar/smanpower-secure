@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listPeopleMembers } from "@/lib/team-members";
 import { resolveMediaUrl } from "@/lib/media-resolver";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Our People | Seven Seas Intercontinental",
   description: "Meet the dedicated team that drives ethical recruitment at Seven Seas Intercontinental.",
-};
+  path: "/about/our-people",
+});
 
 export default async function OurPeoplePage() {
   const copy = await getPageCopy("about/our-people");
@@ -24,6 +29,18 @@ export default async function OurPeoplePage() {
         subtitle={copy.hero.subtitle}
         imageSrc={copy.hero.imageSrc}
       />
+
+      <div className="bg-brand-sand/40 border-b border-brand-charcoal/10 py-3">
+        <div className="container-wide mx-auto px-6 lg:px-12">
+          <PageBreadcrumbs
+            items={[
+              { name: "Home", path: "/" },
+              { name: "About Us", path: "/about" },
+              { name: "Our People", path: "/about/our-people" },
+            ]}
+          />
+        </div>
+      </div>
 
       {!copy.hiddenSections.intro && (
       <EditorialSection
@@ -160,6 +177,38 @@ export default async function OurPeoplePage() {
         </div>
       </section>
       )}
+
+      {/* Related Navigation Links */}
+      <section className="py-16 bg-brand-sand border-t border-brand-charcoal/10">
+        <div className="container-wide mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-2 block">
+              Governance & Leadership
+            </span>
+            <h3 className="text-2xl md:text-3xl font-semibold text-brand-black tracking-tight">
+              Executive Leadership & Strategic Direction
+            </h3>
+            <p className="text-brand-muted mt-2 max-w-xl">
+              Learn more about the experienced leadership guiding Seven Seas Intercontinental's ethical recruitment operations.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-4 shrink-0">
+            <Link
+              href="/about/leadership"
+              className="inline-flex items-center gap-3 px-6 py-3.5 bg-brand-charcoal text-white hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-xs font-semibold uppercase tracking-widest"
+            >
+              <span>View Leadership</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-3 px-6 py-3.5 border border-brand-charcoal/20 text-brand-charcoal hover:bg-brand-charcoal hover:text-white transition-colors duration-300 text-xs font-semibold uppercase tracking-widest"
+            >
+              <span>About Seven Seas</span>
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

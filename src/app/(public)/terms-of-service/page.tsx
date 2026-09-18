@@ -1,14 +1,16 @@
 import React from "react";
 import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { Scale, Mail, ArrowRight, CheckCircle2, ChevronRight } from "lucide-react";
 import { getPageCopy } from "@/services/page-copy.service";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Terms of Service | Seven Seas Intercontinental",
   description:
     "The terms and conditions governing use of the Seven Seas Intercontinental website and recruitment services.",
-};
+  path: "/terms-of-service",
+});
 
 function sectionId(heading: string) {
   return heading

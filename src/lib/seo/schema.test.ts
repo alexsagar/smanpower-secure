@@ -172,6 +172,7 @@ describe('Organization schema', () => {
     );
     expect(org['@id']).toBe('https://smanpower.com/#organization');
     expect(org.url).toBe('https://smanpower.com');
+    expect(org.logo).toBe('https://smanpower.com/images/SSIS.webp');
     expect(org.address.addressLocality).toBe('Kathmandu');
     expect(org.address.addressCountry).toBe('Nepal');
     const json = JSON.stringify(org);
@@ -181,5 +182,10 @@ describe('Organization schema', () => {
     for (const url of org.sameAs || []) {
       expect(url).not.toMatch(/rba\.png|sedex\.png|iso\.png/);
     }
+  });
+
+  it('converts relative logoUrl to an absolute URL', () => {
+    const org: any = buildOrganizationSchema({ logoUrl: '/custom-logo.webp' } as any);
+    expect(org.logo).toBe('https://smanpower.com/custom-logo.webp');
   });
 });

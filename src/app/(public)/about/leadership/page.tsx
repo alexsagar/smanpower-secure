@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { Quote } from "lucide-react";
+import { Quote, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { getTeamMembers } from "@/repositories/content-resolver";
 import { listLeadershipMembers } from "@/lib/team-members";
 import { getPageCopy, getPageCopyImage } from "@/services/page-copy.service";
 import { LeadershipSection } from "@/components/leadership/LeadershipSection";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Leadership | Seven Seas Intercontinental",
   description: "Meet the executive leadership team behind Seven Seas Intercontinental.",
-};
+  path: "/about/leadership",
+});
 
 export default async function LeadershipPage() {
   const leaders = listLeadershipMembers(await getTeamMembers());
@@ -122,6 +125,30 @@ export default async function LeadershipPage() {
         </div>
       </section>
       )}
+
+      {/* Team & People Callout */}
+      <section className="py-16 bg-brand-sand border-t border-brand-charcoal/10">
+        <div className="container-wide mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <span className="text-brand-gold text-[10px] font-semibold tracking-[0.2em] uppercase mb-2 block">
+              The Dedicated Team
+            </span>
+            <h3 className="text-2xl md:text-3xl font-semibold text-brand-black tracking-tight">
+              Meet the specialists delivering on our commitments.
+            </h3>
+            <p className="text-brand-muted mt-2 max-w-xl">
+              From recruitment officers and trade test evaluators to welfare coordinators, our wider team brings our leadership vision to life.
+            </p>
+          </div>
+          <Link
+            href="/about/our-people"
+            className="inline-flex items-center gap-3 px-6 py-3.5 bg-brand-charcoal text-white hover:bg-brand-gold hover:text-brand-black transition-colors duration-300 text-xs font-semibold uppercase tracking-widest shrink-0"
+          >
+            <span>Meet Our People</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
     </>
   );
 }

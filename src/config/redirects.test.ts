@@ -15,6 +15,7 @@ describe("Legacy and Locale Redirects Configuration", () => {
       "/contact-us": "/contact",
       "/document": "/trust-centre",
       "/home": "/",
+      "/jobs": "/demands",
     };
 
     for (const [source, destination] of Object.entries(verifiedLegacyMappings)) {

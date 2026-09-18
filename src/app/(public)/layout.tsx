@@ -12,7 +12,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = buildPageMetadata({
   title: "Seven Seas Intercontinental | Ethical Recruitment from Nepal",
   description: "Seven Seas Intercontinental connects international employers with trained Nepali talent through transparent recruitment, candidate screening, practical skill assessment, training, and deployment support.",
-  path: "/",
+  noCanonical: true,
 });
 
 import { getFooterSettings, getNavigation, getSiteSettings } from "@/repositories/content-resolver";
