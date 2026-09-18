@@ -148,6 +148,22 @@ export async function verifyGeneratedBuild(options = {}) {
     } else {
       console.log("   ✅ PASS: Homepage brand content verified.");
     }
+
+    // Localhost Leakage Guard
+    if (homeHtml.includes("http://localhost") || homeHtml.includes("http://127.0.0.1") || homeHtml.includes("https://localhost")) {
+      errors.push("Homepage HTML contains leaked localhost or 127.0.0.1 URL reference.");
+      console.error("   ❌ FAILED: Homepage contains leaked localhost URL reference.");
+    } else {
+      console.log("   ✅ PASS: Homepage HTML free of localhost URL leaks.");
+    }
+
+    // Production Canonical & Schema Origin
+    if (homeHtml.includes('rel="canonical"') && !homeHtml.includes('href="https://smanpower.com"') && !homeHtml.includes('href="https://smanpower.com/"')) {
+      errors.push("Homepage canonical link does not point to production origin https://smanpower.com.");
+      console.error("   ❌ FAILED: Homepage canonical does not point to https://smanpower.com.");
+    } else {
+      console.log("   ✅ PASS: Homepage canonical points to production origin https://smanpower.com.");
+    }
   }
 
   // 5. Verify News Page (/news) against Truth Manifest
@@ -386,6 +402,22 @@ export async function verifyGeneratedBuild(options = {}) {
       console.error("   ❌ FAILED: Sitemap news dataset is empty.");
     } else {
       console.log("   ✅ PASS: Sitemap news dataset is populated and fresh.");
+    }
+
+    // Localhost Leakage Guard for Sitemap
+    if (sitemapContent.includes("localhost") || sitemapContent.includes("127.0.0.1")) {
+      errors.push("Sitemap contains leaked localhost or 127.0.0.1 URL reference!");
+      console.error("   ❌ FAILED: Sitemap contains leaked localhost URL reference.");
+    } else {
+      console.log("   ✅ PASS: Sitemap free of localhost URL leaks.");
+    }
+
+    // Confirm production origin
+    if (sitemapContent.includes("<loc>") && !sitemapContent.includes("<loc>https://smanpower.com")) {
+      errors.push("Sitemap URLs do not use production origin https://smanpower.com!");
+      console.error("   ❌ FAILED: Sitemap missing production origin https://smanpower.com.");
+    } else {
+      console.log("   ✅ PASS: Sitemap URLs verified against production origin https://smanpower.com.");
     }
   } else {
     console.log("   ℹ️  sitemap.xml.body not found as static artifact; dynamic sitemap route verified.");

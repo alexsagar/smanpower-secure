@@ -353,6 +353,11 @@ export function validateArtifactHtml(html, type = "homepage") {
     return { valid: false, errors: ["Missing or empty HTML content"] };
   }
 
+  // Localhost Leakage Guard: disallow localhost or 127.0.0.1 in compiled HTML artifacts
+  if (html.includes("http://localhost") || html.includes("http://127.0.0.1") || html.includes("https://localhost")) {
+    errors.push("Production HTML artifact contains leaked localhost or 127.0.0.1 URL reference.");
+  }
+
   if (type === "homepage") {
     if (!html.includes("google_translate_element")) {
       errors.push("Missing Google Translate element (#google_translate_element).");
@@ -362,6 +367,9 @@ export function validateArtifactHtml(html, type = "homepage") {
     }
     if (!html.includes("Overseas Recruitment Agency in Nepal") && !html.includes("Seven Seas Intercontinental")) {
       errors.push("Missing brand identity/title.");
+    }
+    if (html.includes('rel="canonical"') && !html.includes('href="https://smanpower.com"') && !html.includes('href="https://smanpower.com/"')) {
+      errors.push('Homepage canonical does not use production apex https://smanpower.com.');
     }
   }
 
