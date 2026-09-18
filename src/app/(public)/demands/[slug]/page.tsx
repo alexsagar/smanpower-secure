@@ -34,12 +34,8 @@ export async function generateMetadata(
   const { slug } = await params;
   const demand = await getDemandBySlug(slug);
 
-  if (!demand) {
-    return buildPageMetadata({
-      title: "Demand Not Found",
-      path: `/demands/${slug}`,
-      noIndex: true
-    });
+  if (!demand || !isDemandPubliclyViewable(demand)) {
+    notFound();
   }
 
   // Open, expired and closed public demands are indexable historical pages.
