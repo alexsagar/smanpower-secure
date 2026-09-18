@@ -26,7 +26,7 @@ const getCareer = unstable_cache(
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const opening = await getCareer(slug);
-  if (!opening) return buildPageMetadata({ title: "Not Found", path: "" });
+  if (!opening) notFound();
   return buildPageMetadata({
     title: opening.metaTitle || opening.title,
     description: opening.metaDescription || opening.description.slice(0, 160),

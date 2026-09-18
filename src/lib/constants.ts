@@ -13,6 +13,7 @@ export const BRAND = {
   // in this sector, so it is rendered as crawlable text site-wide.
   // ponytail: a constant, not a SiteSettings column — it changes on renewal, not by edit.
   dofeLicenceNumber: "888/067/068",
+  establishedYear: "2010",
 } as const;
 
 export const BRAND_COLORS = {
@@ -26,8 +27,8 @@ export const BRAND_COLORS = {
 } as const;
 
 export const CONTACT = {
-  address: "Kathmandu, Nepal",
-  phone: "+977-1-XXXXXXX",
+  address: "DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal",
+  phone: "+977 1 5107440",
   email: "info@smanpower.com",
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+9779800000000",
 } as const;
@@ -189,6 +190,7 @@ export const MAIN_NAVIGATION: NavItem[] = [
     label: "Trust Centre",
     labelNe: "विश्वास केन्द्र",
     children: [
+      { label: "Company Facts", href: "/trust-centre/company-facts" },
       { label: "Certifications", href: "/trust-centre/certifications" },
       { label: "Licences", href: "/trust-centre/licences" },
       {

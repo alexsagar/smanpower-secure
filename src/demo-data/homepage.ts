@@ -51,7 +51,7 @@ export const demoHomepageHero: CmsHeroSection = {
   id: "hero-home",
   pageSlug: "home",
   heroType: "image",
-  eyebrow: "Est. 2005 · Kathmandu, Nepal",
+  eyebrow: "Est. 2010 · Kathmandu, Nepal",
   richHeading: {
     type: "doc",
     content: [
@@ -110,10 +110,10 @@ export const demoHomepageHero: CmsHeroSection = {
 export const demoStatistics: CmsStatistic[] = [
   {
     id: "stat-1",
-    label: "Global Expertise",
-    value: "19",
-    suffix: "+",
-    description: "Years Experience",
+    label: "Global Operations",
+    value: "2010",
+    suffix: "",
+    description: "Since 2010",
     source: "Company Records",
     order: 1,
   },
@@ -129,9 +129,9 @@ export const demoStatistics: CmsStatistic[] = [
   {
     id: "stat-3",
     label: "Talent Placed",
-    value: "12k",
+    value: "150k",
     suffix: "+",
-    description: "Candidates Deployed",
+    description: "Workers Deployed",
     source: "Deployment Records",
     order: 3,
   },
@@ -153,10 +153,10 @@ export const demoStatistics: CmsStatistic[] = [
   },
   {
     id: "stat-6",
-    label: "Compliance",
-    value: "100",
-    suffix: "%",
-    description: "RBA Committed",
+    label: "Ethical Standard",
+    value: "RBA",
+    suffix: "",
+    description: "Aligned Framework",
     source: "Compliance Records",
     order: 6,
   },

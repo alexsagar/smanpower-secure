@@ -39,7 +39,7 @@ const getRelatedInsights = unstable_cache(
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const insight = await getInsight(slug);
-  if (!insight) return buildPageMetadata({ title: "Not Found", path: "" });
+  if (!insight) notFound();
 
   const base = buildPageMetadata({
     title: insight.metaTitle || insight.title,
