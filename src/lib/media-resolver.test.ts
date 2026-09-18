@@ -36,7 +36,7 @@ describe("resolvePresetMediaUrl", () => {
   it("handles R2 media correctly", () => {
     const r2Asset = { provider: "R2" as const, storageKey: "legacy/cloudinary/image/seven-seas-cms/asset.jpg" };
     expect(resolvePresetMediaUrl(r2Asset, "articleCard")).toBe(
-      "https://media.smanpower.com/cdn-cgi/image/width=640,quality=75,fit=contain,format=auto/legacy/cloudinary/image/seven-seas-cms/asset.jpg"
+      "https://media.smanpower.com/cdn-cgi/image/format=auto,width=720,height=420,fit=cover,gravity=auto,quality=85/legacy/cloudinary/image/seven-seas-cms/asset.jpg"
     );
   });
 

@@ -1,14 +1,16 @@
 import React from "react";
 import { getPageCopy } from "@/services/page-copy.service";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { ShieldAlert, PhoneCall, Mail, AlertOctagon, FileWarning, Home, Users } from "lucide-react";
 import { GRIEVANCE_STATEMENT } from "@/config/approved-content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Worker Grievance | Seven Seas Intercontinental",
   description: "Submit a grievance or report an issue related to your recruitment or overseas employment. Grievance reports can be submitted 24/7 and are acknowledged within 24 hours.",
-};
+  path: "/worker-grievance",
+});
 
 // Approved, verified process. 24/7 = submission availability; within 24 hours =
 // acknowledgement (not a resolution SLA).
