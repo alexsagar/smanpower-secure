@@ -1,15 +1,17 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Target, Globe, Shield, HeartHandshake } from "lucide-react";
 import { getPageCopy } from "@/services/page-copy.service";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Mission, Vision & Values | Seven Seas Intercontinental",
   description: "Discover our driving mission and the core values that shape our ethical recruitment practices at Seven Seas Intercontinental.",
-};
+  path: "/about/mission-vision-values",
+});
 
 const VALUE_ICONS = [
   <Shield className="w-10 h-10" key="shield" />,

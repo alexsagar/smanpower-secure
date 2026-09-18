@@ -36,29 +36,57 @@ export function getContentRepository(): ContentRepository {
 // Layout & Global Settings are cached with Next.js unstable_cache
 // and invalidated on CMS mutations or after CACHE_REVALIDATE.layout.
 
-export const getNavigation = unstable_cache(
+const _cachedNavigation = unstable_cache(
   async (location: NavLocation) => getContentRepository().getNavigation(location),
   ["cms-navigation"],
   { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.navigation] }
 );
+export const getNavigation = async (location: NavLocation) => {
+  try {
+    return await _cachedNavigation(location);
+  } catch {
+    return await getContentRepository().getNavigation(location);
+  }
+};
 
-export const getSiteSettings = unstable_cache(
+const _cachedSiteSettings = unstable_cache(
   async () => getContentRepository().getSiteSettings(),
   ["cms-site-settings"],
   { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.settings] }
 );
+export const getSiteSettings = async () => {
+  try {
+    return await _cachedSiteSettings();
+  } catch {
+    return await getContentRepository().getSiteSettings();
+  }
+};
 
-export const getFooterSettings = unstable_cache(
+const _cachedFooterSettings = unstable_cache(
   async () => getContentRepository().getFooterSettings(),
   ["cms-footer-settings"],
   { revalidate: CACHE_REVALIDATE.layout, tags: [CACHE_TAGS.settings, CACHE_TAGS.navigation] }
 );
+export const getFooterSettings = async () => {
+  try {
+    return await _cachedFooterSettings();
+  } catch {
+    return await getContentRepository().getFooterSettings();
+  }
+};
 
 // ── Request-scoped memoized convenience functions ─────────────
 // Public data is shared across requests and invalidated by the matching CMS tag.
 
 function publicCache<T extends unknown[], R>(key: string, revalidate: number, tags: string[], read: (...args: T) => Promise<R>) {
-  return unstable_cache(read, [key], { revalidate, tags });
+  const cached = unstable_cache(read, [key], { revalidate, tags });
+  return async (...args: T): Promise<R> => {
+    try {
+      return await cached(...args);
+    } catch {
+      return await read(...args);
+    }
+  };
 }
 
 export const getHomepage = publicCache("cms-homepage", CACHE_REVALIDATE.pages, [CACHE_TAGS.pages], () => getContentRepository().getHomepage());

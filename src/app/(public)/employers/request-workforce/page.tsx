@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
 import { RequestWorkforceForm } from "@/components/forms/RequestWorkforceForm";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getPageCopy } from "@/services/page-copy.service";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ShieldCheck, Users, Zap, CheckCircle2 } from "lucide-react";
 import { RESPONSE_TIME_COMMITMENT } from "@/config/approved-content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Request Workforce | Seven Seas Intercontinental",
   description: `Submit your workforce requirements and Seven Seas Intercontinental will respond ${RESPONSE_TIME_COMMITMENT} with a recruitment proposal.`,
-};
+  path: "/employers/request-workforce",
+});
 
 const hardcodedDict = {
   employer: {

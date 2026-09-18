@@ -1,14 +1,16 @@
 import React from "react";
 import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { ShieldCheck, Mail, ArrowRight, CheckCircle2, ChevronRight } from "lucide-react";
 import { getPageCopy } from "@/services/page-copy.service";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Privacy Policy | Seven Seas Intercontinental",
   description:
     "How Seven Seas Intercontinental collects, uses, shares, and protects the personal information of candidates, clients, and partners.",
-};
+  path: "/privacy-policy",
+});
 
 function sectionId(heading: string) {
   return heading

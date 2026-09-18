@@ -3,7 +3,13 @@ import { unstable_cache } from "next/cache";
 import { isStagingNoIndexEnabled } from "@/lib/env";
 import { getSiteUrl } from "@/lib/seo/site-config";
 import { prisma } from "@/lib/prisma";
-import { trustContent } from "@/lib/content";
+import {
+  trustContent,
+  industriesContent,
+  trainingContent,
+  employersContent,
+  ethicalContent,
+} from "@/lib/content";
 import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
 
 type DynamicSitemapData = {
@@ -15,52 +21,62 @@ type DynamicSitemapData = {
   pages: { slug: string; updatedAt: Date }[];
 };
 
+async function fetchDynamicSitemapData(): Promise<DynamicSitemapData> {
+  if (process.env.DEMO_MODE === "true") {
+    return { demands: [], articles: [], news: [], careers: [], stories: [], pages: [] };
+  }
+
+  const [demands, articles, news, careers, stories, pages] = await Promise.all([
+    prisma.demand.findMany({
+      where: {
+        status: "PUBLISHED",
+        isPublic: true,
+        deletedAt: null,
+        OR: [
+          { applicationDeadline: null },
+          { applicationDeadline: { gte: new Date() } },
+        ],
+      },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+    }),
+    prisma.insightArticle.findMany({
+      where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
+      select: { slug: true, updatedAt: true, publishDate: true },
+    }),
+    prisma.newsArticle.findMany({
+      where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
+      select: { slug: true, updatedAt: true, publishDate: true },
+    }),
+    prisma.careerOpening.findMany({
+      where: { status: "OPEN", deletedAt: null, noIndex: false },
+      select: { slug: true, updatedAt: true },
+    }),
+    prisma.successStory.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+    }),
+    prisma.cmsPage.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, updatedAt: true },
+    }),
+  ]);
+
+  return { demands, articles, news, careers, stories, pages };
+}
+
 const getCachedDynamicSitemapData = unstable_cache(
-  async (): Promise<DynamicSitemapData> => {
-    if (process.env.DEMO_MODE === "true") {
-      return { demands: [], articles: [], news: [], careers: [], stories: [], pages: [] };
-    }
-
-    const [demands, articles, news, careers, stories, pages] = await Promise.all([
-      prisma.demand.findMany({
-        where: {
-          status: "PUBLISHED",
-          isPublic: true,
-          deletedAt: null,
-          OR: [
-            { applicationDeadline: null },
-            { applicationDeadline: { gte: new Date() } },
-          ],
-        },
-        select: { slug: true, updatedAt: true, publishedAt: true },
-      }),
-      prisma.insightArticle.findMany({
-        where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
-        select: { slug: true, updatedAt: true, publishDate: true },
-      }),
-      prisma.newsArticle.findMany({
-        where: { status: "PUBLISHED", isPublished: true, deletedAt: null, noIndex: false },
-        select: { slug: true, updatedAt: true, publishDate: true },
-      }),
-      prisma.careerOpening.findMany({
-        where: { status: "OPEN", deletedAt: null, noIndex: false },
-        select: { slug: true, updatedAt: true },
-      }),
-      prisma.successStory.findMany({
-        where: { status: "PUBLISHED" },
-        select: { slug: true, updatedAt: true, publishedAt: true },
-      }),
-      prisma.cmsPage.findMany({
-        where: { status: "PUBLISHED" },
-        select: { slug: true, updatedAt: true },
-      }),
-    ]);
-
-    return { demands, articles, news, careers, stories, pages };
-  },
+  fetchDynamicSitemapData,
   ["cms-sitemap-dynamic-data"],
   { revalidate: CACHE_REVALIDATE.sitemap, tags: [CACHE_TAGS.sitemap, CACHE_TAGS.demands, CACHE_TAGS.insights, CACHE_TAGS.news, CACHE_TAGS.stories, CACHE_TAGS.careers, CACHE_TAGS.pages] }
 );
+
+async function getDynamicSitemapData(): Promise<DynamicSitemapData> {
+  try {
+    return await getCachedDynamicSitemapData();
+  } catch {
+    return await fetchDynamicSitemapData();
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isStagingNoIndexEnabled()) return [];
@@ -111,14 +127,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     addEntry(path, changeFrequency, priority);
   });
 
-  // Trust Centre sub-pages (/trust-centre/[slug]) are prerendered from the same
-  // source as generateStaticParams, so the sitemap cannot drift from the routes.
+  // Sub-pages prerendered via generateStaticParams matching route content arrays
   trustContent.forEach(({ slug }) => {
     addEntry(`/trust-centre/${slug}`, "monthly", 0.7);
   });
+  industriesContent.forEach(({ slug }) => {
+    addEntry(`/industries/${slug}`, "monthly", 0.7);
+  });
+  trainingContent.forEach(({ slug }) => {
+    addEntry(`/training-facilities/${slug}`, "monthly", 0.7);
+  });
+  employersContent.forEach(({ slug }) => {
+    addEntry(`/employers/${slug}`, "monthly", 0.7);
+  });
+  ethicalContent.forEach(({ slug }) => {
+    if (slug === "privacy-policy") return;
+    addEntry(`/ethical-recruitment/${slug}`, "monthly", 0.7);
+  });
 
   // Dynamic Content (cached cross-request)
-  const { demands, articles, news, careers, stories, pages } = await getCachedDynamicSitemapData();
+  const { demands, articles, news, careers, stories, pages } = await getDynamicSitemapData();
 
   demands.forEach((demand: any) => {
     addEntry(`/demands/${demand.slug}`, "daily", 0.9, demand.publishedAt || demand.updatedAt);

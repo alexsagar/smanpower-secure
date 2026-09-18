@@ -12,6 +12,11 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
   const siteUrl = getSiteUrl();
   if (!siteUrl) return null;
 
+  const rawLogo = settings?.logoUrl || "/images/SSIS.webp";
+  const logo = rawLogo.startsWith("http://") || rawLogo.startsWith("https://")
+    ? rawLogo
+    : `${siteUrl}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`;
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -19,7 +24,7 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
     "name": settings?.companyName || siteConfig.name,
     "url": siteUrl,
     ...(settings?.companyLegalName ? { "legalName": settings.companyLegalName } : {}),
-    ...(settings?.logoUrl ? { "logo": settings.logoUrl } : {}),
+    "logo": logo,
     ...(settings?.address || settings?.country ? { "address": { "@type": "PostalAddress", ...(settings.address ? { streetAddress: settings.address } : {}), ...(settings.city ? { addressLocality: settings.city } : {}), ...(settings.province ? { addressRegion: settings.province } : {}), ...(settings.postalCode ? { postalCode: settings.postalCode } : {}), ...(settings.country ? { addressCountry: settings.country } : {}) } } : {}),
     "identifier": {
       "@type": "PropertyValue",

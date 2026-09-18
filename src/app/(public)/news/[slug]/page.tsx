@@ -39,7 +39,7 @@ const getRelatedNews = unstable_cache(
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const article = await getNews(slug);
-  if (!article) return buildPageMetadata({ title: "Not Found", path: "" });
+  if (!article) notFound();
 
   const base = buildPageMetadata({
     title: article.metaTitle || article.title,

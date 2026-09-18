@@ -336,6 +336,28 @@ LOCAL_PORT=3000
       expect(result.errors.some((e) => e.includes("SSR crash fallback skeleton"))).toBe(true);
     });
 
+    it("fails when homepage HTML contains leaked localhost reference", () => {
+      const html = `<html><head><title>Overseas Recruitment Agency in Nepal | Seven Seas Intercontinental</title><link rel="canonical" href="http://localhost:3000" /></head><body><div id="google_translate_element"></div><script type="application/ld+json">{"@type":"Organization"}</script></body></html>`;
+      const result = validateArtifactHtml(html, "homepage");
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("leaked localhost or 127.0.0.1"))).toBe(true);
+      expect(result.errors.some((e) => e.includes("Homepage canonical does not use production apex"))).toBe(true);
+    });
+
+    it("fails when insight HTML contains leaked localhost canonical", () => {
+      const html = `<html><head><title>Insight Title | Seven Seas</title><link rel="canonical" href="http://localhost:3000/insights/slug" /></head><body><article><h1>Full Article Body</h1></article><script type="application/ld+json">{"@type":"BlogPosting"}</script></body></html>`;
+      const result = validateArtifactHtml(html, "insight");
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("leaked localhost or 127.0.0.1"))).toBe(true);
+    });
+
+    it("passes when homepage HTML contains valid production canonical, Google Translate, and schema", () => {
+      const html = `<html><head><title>Overseas Recruitment Agency in Nepal | Seven Seas Intercontinental</title><link rel="canonical" href="https://smanpower.com" /></head><body><div id="google_translate_element"></div><script type="application/ld+json">{"@type":"Organization"}</script></body></html>`;
+      const result = validateArtifactHtml(html, "homepage");
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it("passes when insight HTML contains full article, canonical, and schema without leaks", () => {
       const html = `<html><head><title>Insight Title | Seven Seas</title><link rel="canonical" href="https://smanpower.com/insights/slug" /></head><body><article><h1>Full Article Body</h1></article><script type="application/ld+json">{"@type":"BlogPosting"}</script></body></html>`;
       const result = validateArtifactHtml(html, "insight");

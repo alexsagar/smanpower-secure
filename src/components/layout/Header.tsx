@@ -15,6 +15,23 @@ import { NoTranslate } from "@/components/i18n/NoTranslate";
 
 import type { CmsNavigation } from "@/types/content";
 
+function getSectionDefaultHref(nav: CmsNavigation): string {
+  if (nav.id === "nav-about") return "/about";
+  if (nav.id === "nav-workforce") return "/employers";
+  if (nav.id === "nav-ethical") return "/ethical-recruitment";
+  if (nav.id === "nav-industries") return "/industries";
+  if (nav.id === "nav-training") return "/training-facilities";
+  if (nav.id === "nav-trust") return "/trust-centre";
+  const l = nav.label.toLowerCase();
+  if (l.includes("about")) return "/about";
+  if (l.includes("workforce") || l.includes("employer")) return "/employers";
+  if (l.includes("ethical")) return "/ethical-recruitment";
+  if (l.includes("industr")) return "/industries";
+  if (l.includes("training")) return "/training-facilities";
+  if (l.includes("trust")) return "/trust-centre";
+  return nav.items?.[0]?.href || "/";
+}
+
 export function Header({
   navigation,
   copy = layoutCopy.header,
@@ -44,11 +61,13 @@ export function Header({
     setActiveDesktopDropdown(null);
   }, [pathname]);
 
-  const navConfig: Record<string, { label: string; items: { label: string; href: string }[] }> = {};
+  const navConfig: Record<string, { label: string; href: string; items: { label: string; href: string }[] }> = {};
   navigation.forEach(nav => {
     if (nav.label.toLowerCase() === "resources") return;
+    const resolvedHref = (nav as { href?: string }).href || getSectionDefaultHref(nav);
     navConfig[nav.id] = {
       label: nav.label,
+      href: toPublicHref(resolvedHref),
       items: nav.items
         .filter((item): item is typeof item & { href: string } => typeof item.href === "string")
         .map(item => ({
@@ -110,14 +129,15 @@ export function Header({
             it under the logo and the demands button. Spacing is tightened at xl
             and relaxed once 2xl actually has the room. min-w-0 keeps the nav from
             forcing the flex row wider than the header. */}
-        <nav className="hidden xl:flex flex-1 min-w-0 justify-center items-center gap-0.5 2xl:gap-3 px-0 2xl:px-3 h-full whitespace-nowrap overflow-hidden">
+        <nav aria-label="Main Navigation" className="hidden xl:flex flex-1 min-w-0 justify-center items-center gap-0.5 2xl:gap-3 px-0 2xl:px-3 h-full whitespace-nowrap overflow-hidden">
           {Object.entries(navConfig).map(([key, section]) => (
             <div
               key={key}
               className="h-full flex items-center"
               onMouseEnter={() => setActiveDesktopDropdown(key)}
             >
-              <button
+              <Link
+                href={section.href}
                 className={cn(
                   "public-nav-label font-brand relative min-h-11 px-1 2xl:px-1.5 py-2 text-[10px] 2xl:text-[11px] font-medium uppercase tracking-[0.02em] 2xl:tracking-[0.06em] flex items-center gap-1",
                   "transition-colors duration-200",
@@ -132,7 +152,7 @@ export function Header({
                 )}
               >
                 {section.label}
-              </button>
+              </Link>
             </div>
           ))}
         </nav>
@@ -190,47 +210,56 @@ export function Header({
         </div>
       </div>
 
-      {/* Desktop Mega Menu Dropdown */}
-      <AnimatePresence>
-        {activeDesktopDropdown && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="hidden xl:block absolute top-[calc(var(--site-header-height)+env(safe-area-inset-top))] left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl"
-            onMouseLeave={() => setActiveDesktopDropdown(null)}
-          >
-            <div className="container-wide py-12">
-              <div className="grid grid-cols-[minmax(200px,260px)_minmax(0,1fr)] gap-x-12">
-                <div className="min-w-0 border-r border-brand-charcoal/10 pr-12">
-                  {/* card-title keeps this compact: the global .brand-headings h2
-                      scale is a page-level size that would overflow this narrow
-                      intro column and cross the divider. */}
-                  <h2 className="card-title text-brand-black mb-4 break-words">
-                    {navConfig[activeDesktopDropdown as keyof typeof navConfig].label}
-                  </h2>
-                  <p className="text-sm text-brand-muted leading-relaxed">
-                    {copy.megaMenuDescription}
-                  </p>
-                </div>
-                <div className="min-w-0 grid grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-12">
-                  {navConfig[activeDesktopDropdown as keyof typeof navConfig].items.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={toPublicHref(item.href)}
-                      className="text-sm text-brand-charcoal hover:text-brand-gold transition-colors flex items-center group py-2"
-                    >
-                      <ChevronRight className="w-4 h-4 opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 transition-all text-brand-gold" />
-                      {item.label}
-                    </Link>
-                  ))}
+      {/* Desktop Mega Menu Dropdowns (Server-rendered for crawler discoverability) */}
+      <div className="hidden xl:block">
+        {Object.entries(navConfig).map(([key, section]) => {
+          const isActive = activeDesktopDropdown === key;
+          return (
+            <div
+              key={key}
+              aria-hidden={!isActive}
+              className={cn(
+                "absolute top-[calc(var(--site-header-height)+env(safe-area-inset-top))] left-0 w-full bg-brand-white border-t border-brand-charcoal/10 shadow-xl transition-all duration-200 ease-in-out",
+                isActive
+                  ? "opacity-100 translate-y-0 pointer-events-auto visible z-40"
+                  : "opacity-0 -translate-y-2 pointer-events-none invisible -z-10"
+              )}
+              onMouseEnter={() => setActiveDesktopDropdown(key)}
+              onMouseLeave={() => setActiveDesktopDropdown(null)}
+            >
+              <div className="container-wide py-12">
+                <div className="grid grid-cols-[minmax(200px,260px)_minmax(0,1fr)] gap-x-12">
+                  <div className="min-w-0 border-r border-brand-charcoal/10 pr-12">
+                    <h2 className="card-title text-brand-black mb-4 break-words">
+                      <Link
+                        href={section.href}
+                        className="hover:text-brand-gold transition-colors"
+                      >
+                        {section.label}
+                      </Link>
+                    </h2>
+                    <p className="text-sm text-brand-muted leading-relaxed">
+                      {copy.megaMenuDescription}
+                    </p>
+                  </div>
+                  <div className="min-w-0 grid grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-12">
+                    {section.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={toPublicHref(item.href)}
+                        className="text-sm text-brand-charcoal hover:text-brand-gold transition-colors flex items-center group py-2"
+                      >
+                        <ChevronRight className="w-4 h-4 opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 transition-all text-brand-gold" />
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          );
+        })}
+      </div>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
@@ -245,20 +274,31 @@ export function Header({
             <div className="px-6 flex-1">
               {Object.entries(navConfig).map(([key, section]) => (
                 <div key={key} className="border-b border-brand-charcoal/10">
-                  <button
-                    onClick={() =>
-                      setActiveMobileDropdown(activeMobileDropdown === key ? null : key)
-                    }
-                    className="font-brand w-full flex items-center justify-between py-4 text-left font-semibold uppercase tracking-wider text-sm text-brand-black"
-                  >
-                    {section.label}
-                    <ChevronDown
-                      className={cn(
-                        "w-4 h-4 transition-transform",
-                        activeMobileDropdown === key ? "rotate-180" : ""
-                      )}
-                    />
-                  </button>
+                  <div className="w-full flex items-center justify-between py-4">
+                    <Link
+                      href={section.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="font-brand text-left font-semibold uppercase tracking-wider text-sm text-brand-black hover:text-brand-gold transition-colors"
+                    >
+                      {section.label}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveMobileDropdown(activeMobileDropdown === key ? null : key)
+                      }
+                      aria-label={`Toggle ${section.label} submenu`}
+                      aria-expanded={activeMobileDropdown === key}
+                      className="p-1 -mr-1 text-brand-charcoal hover:text-brand-gold transition-colors"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          "w-4 h-4 transition-transform duration-200",
+                          activeMobileDropdown === key ? "rotate-180" : ""
+                        )}
+                      />
+                    </button>
+                  </div>
                   <AnimatePresence>
                     {activeMobileDropdown === key && (
                       <motion.div

@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Our Story | Seven Seas Intercontinental",
   description: "The history and journey of Seven Seas Intercontinental.",
-};
+  path: "/about/our-story",
+});
 
 export default async function OurStoryPage() {
   const copy = await getPageCopy("about/our-story");

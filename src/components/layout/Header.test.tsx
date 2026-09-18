@@ -75,6 +75,12 @@ describe("desktop navigation layout", () => {
     expect(html).not.toContain(">Resources<");
     expect(html).not.toContain('href="/gallery"');
   });
+
+  it("renders crawlable anchor links for top-level navigation and submenus", () => {
+    const html = render();
+    expect(html).toContain('href="/about"');
+    expect(html).toContain('href="/about/our-story"');
+  });
 });
 
 describe("navigation hover", () => {

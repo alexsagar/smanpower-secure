@@ -1,15 +1,17 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { HeroInternal } from "@/components/ui/HeroInternal";
 import { EditorialSection } from "@/components/ui/EditorialSection";
 import { getPageCopy } from "@/services/page-copy.service";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Heart, BookOpen, Home, TrendingUp } from "lucide-react";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Community Impact | Seven Seas Intercontinental",
   description: "Learn how Seven Seas Intercontinental positively impacts local communities across Nepal.",
-};
+  path: "/about/community-impact",
+});
 
 const PILLAR_ICONS = [
   <TrendingUp className="w-10 h-10" key="trending" />,
