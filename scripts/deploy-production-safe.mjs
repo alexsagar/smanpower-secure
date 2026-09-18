@@ -1,157 +1,29 @@
-#!/usr/bin/env node
-
 /**
  * scripts/deploy-production-safe.mjs
  *
  * Safe Production Deploy Wrapper (npm run deploy:production:safe)
  *
- * Requirements:
- * 1. Runs the full Phase 1B.2A-S2 safe production build pipeline (preflight, DB sanity, clean build isolation, truth manifest, verification).
- * 2. Strict Artifact Manifest Gate: validates .production-artifact-manifest.json binding current Git SHA, BUILD_ID, fresh timestamp, and truth manifest hash.
- * 3. Captures deployment audit metadata (Git SHA, previous active Worker version ID, timestamp).
- * 4. Deploys using `npx opennextjs-cloudflare deploy`.
- * 5. Runs automated post-deployment health smoke tests.
- * 6. Automatically displays instant rollback instructions if any smoke test fails.
+ * For supervised local or emergency production releases.
+ * Orchestrates the full Phase 1B.2A-S5 production release pipeline:
+ * 1. buildProductionCi: preflight, DB sanity, clean build isolation, truth manifest, OpenNext build, artifact truth verification, artifact certification.
+ * 2. deployProductionCi: artifact certification validation, zero-rebuild integrity verification, deployment, post-deployment smoke tests, rollback audit.
  */
 
-import { execSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { buildProductionSafe } from "./build-production-safe.mjs";
-import { runProductionSmokeTest } from "./production-smoke-test.mjs";
-import { validateArtifactManifest } from "./deployment-safety-common.mjs";
-
-function getActiveWorkerVersionId(cwd) {
-  try {
-    const out = execSync("npx wrangler deployments list --name smanpower-secure", {
-      cwd,
-      encoding: "utf8",
-    });
-    // Find first active version ID
-    const match = out.match(/Version\(s\):\s*\([0-9]+%\)\s*([a-f0-9-]{36})/i);
-    return match ? match[1] : null;
-  } catch (e) {
-    console.warn("⚠️  Could not retrieve previous Worker version ID via wrangler:", e.message);
-    return null;
-  }
-}
+import { buildProductionCi } from "./build-production-ci.mjs";
+import { deployProductionCi } from "./deploy-production-ci.mjs";
 
 export async function deployProductionSafe(options = {}) {
-  const cwd = options.cwd || process.cwd();
-
   console.log("================================================================");
-  console.log("🚀  SAFE PRODUCTION DEPLOYMENT WRAPPER (Phase 1B.2A-S2)");
+  console.log("🚀  SAFE SUPERVISED PRODUCTION RELEASE (Phase 1B.2A-S5)");
   console.log("================================================================\n");
-
-  // Safety Guard: Deployment strictly requires 'main' branch
-  delete process.env.ALLOW_NON_MAIN;
-  const preBranch = execSync("git rev-parse --abbrev-ref HEAD", { cwd, encoding: "utf8" }).trim();
-  if (preBranch !== "main") {
-    console.error(`❌ CRITICAL SAFETY VIOLATION: Cannot deploy from branch '${preBranch}'. Production deployments are strictly restricted to 'main'.`);
-    process.exit(1);
-  }
 
   // Step 1: Execute Safe Production Build Pipeline
-  console.log("--- PHASE 1: EXECUTE SAFE PRODUCTION BUILD ---");
-  await buildProductionSafe(options);
+  console.log("--- PHASE 1: BUILD & CERTIFICATION ---");
+  await buildProductionCi(options);
 
-  // Step 2: Artifact Manifest Verification & Pre-Deployment Audit
-  console.log("\n--- PHASE 2: VALIDATING PRODUCTION ARTIFACT CERTIFICATION ---");
-  const gitSha = execSync("git rev-parse HEAD", { cwd, encoding: "utf8" }).trim();
-  const gitBranch = execSync("git rev-parse --abbrev-ref HEAD", { cwd, encoding: "utf8" }).trim();
-  const timestamp = new Date().toISOString();
-
-  const manifestPath = resolve(cwd, ".production-artifact-manifest.json");
-  const truthPath = resolve(cwd, ".production-build-truth.json");
-  const buildIdPath = resolve(cwd, ".open-next/assets/BUILD_ID");
-
-  if (!existsSync(manifestPath)) {
-    console.error("❌ CRITICAL: .production-artifact-manifest.json not found! Build was not certified.");
-    process.exit(1);
-  }
-
-  let manifest;
-  try {
-    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  } catch (err) {
-    console.error("❌ CRITICAL: Failed to parse .production-artifact-manifest.json:", err.message);
-    process.exit(1);
-  }
-
-  const currentBuildId = existsSync(buildIdPath) ? readFileSync(buildIdPath, "utf8").trim() : null;
-  let currentTruthHash = null;
-  if (existsSync(truthPath)) {
-    try {
-      const truthObj = JSON.parse(readFileSync(truthPath, "utf8"));
-      currentTruthHash = truthObj.truthHash;
-    } catch (e) {}
-  }
-
-  const manifestValidation = validateArtifactManifest({
-    manifest,
-    currentGitSha: gitSha,
-    currentBuildId,
-    currentTruthHash,
-    now: Date.now(),
-    verifyHashes: true,
-    cwd,
-  });
-
-  if (!manifestValidation.valid) {
-    console.error("❌ CRITICAL SAFETY VIOLATION: Artifact certification validation failed!");
-    console.error(`   ${manifestValidation.error}`);
-    console.error("Deployment ABORTED. Re-run `npm run build:production:safe`.");
-    process.exit(1);
-  }
-
-  console.log("   ✅ Artifact certification valid and strictly bound to current commit & truth:");
-  console.log(`      Git SHA:           ${gitSha}`);
-  console.log(`      Git Branch:        ${gitBranch}`);
-  console.log(`      Build ID:          ${currentBuildId}`);
-  console.log(`      Truth Hash:        ${manifest.truthHash.slice(0, 16)}...`);
-  console.log(`      Certified News:    ${manifest.metrics?.verifiedNewsCount}`);
-  console.log(`      Certified Demands: ${manifest.metrics?.verifiedDemandCount}`);
-  console.log(`      Fetch Cache Files: ${manifest.metrics?.fetchCacheEntries}`);
-  console.log(`      Certified At:      ${manifest.verifiedAt}`);
-
-  const previousVersionId = getActiveWorkerVersionId(cwd);
-  if (previousVersionId) {
-    console.log(`   Previous Active Worker Version ID: ${previousVersionId}`);
-  } else {
-    console.log("   ⚠️  Previous Active Worker Version ID: Unknown (will require manual list if rollback needed)");
-  }
-
-  // Step 3: Execute Deployment
-  console.log("\n--- PHASE 3: DEPLOYING TO CLOUDFLARE WORKERS ---");
-  try {
-    execSync("npx opennextjs-cloudflare deploy", {
-      cwd,
-      stdio: "inherit",
-      env: process.env,
-    });
-  } catch (err) {
-    console.error("❌ Deployment failed during opennextjs-cloudflare deploy:", err.message);
-    process.exit(1);
-  }
-
-  // Step 4: Run Post-Deployment Smoke Test
-  console.log("\n--- PHASE 4: POST-DEPLOYMENT HEALTH GATE ---");
-  const smokeResult = await runProductionSmokeTest({
-    baseUrl: "https://smanpower.com",
-    previousVersionId,
-  });
-
-  if (!smokeResult.success) {
-    console.error("❌ POST-DEPLOYMENT VERIFICATION FAILED.");
-    process.exit(1);
-  }
-
-  console.log("================================================================");
-  console.log("🎉 PRODUCTION DEPLOYMENT COMPLETE & FULLY CERTIFIED.");
-  console.log(`Decommissioned version: ${previousVersionId || "unknown"}`);
-  console.log(`Deployed commit:        ${gitSha}`);
-  console.log(`Deployment time:        ${timestamp}`);
-  console.log("================================================================\n");
+  // Step 2: Execute Certified Artifact Deployment & Health Gate
+  console.log("\n--- PHASE 2: DEPLOYMENT & HEALTH GATE ---");
+  await deployProductionCi(options);
 }
 
 // If invoked directly from CLI

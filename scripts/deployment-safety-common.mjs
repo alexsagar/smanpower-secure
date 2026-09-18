@@ -125,10 +125,41 @@ export function validateGitState(options = {}) {
   }
 
   try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-      cwd,
-      encoding: "utf8",
-    }).trim();
+    let branch = process.env.WORKERS_CI_BRANCH || process.env.CF_PAGES_BRANCH || process.env.GITHUB_REF_NAME || "";
+    if (!branch || branch === "HEAD") {
+      try {
+        const gitBranch = execSync("git rev-parse --abbrev-ref HEAD", {
+          cwd,
+          encoding: "utf8",
+        }).trim();
+        if (gitBranch && gitBranch !== "HEAD") {
+          branch = gitBranch;
+        } else {
+          // Detached HEAD: Check if HEAD commit points to origin/main or local main
+          const headSha = execSync("git rev-parse HEAD", { cwd, encoding: "utf8" }).trim();
+          let mainSha = "";
+          try {
+            mainSha = execSync("git rev-parse origin/main", { cwd, encoding: "utf8" }).trim();
+          } catch (_) {
+            try {
+              mainSha = execSync("git rev-parse main", { cwd, encoding: "utf8" }).trim();
+            } catch (__t) {}
+          }
+          if (mainSha && headSha === mainSha) {
+            branch = "main";
+          } else {
+            const pointsAt = execSync("git branch -a --points-at HEAD", { cwd, encoding: "utf8" });
+            if (/(^|\s)(remotes\/origin\/|origin\/)?main($|\s)/m.test(pointsAt)) {
+              branch = "main";
+            } else {
+              branch = gitBranch || "unknown";
+            }
+          }
+        }
+      } catch (_) {
+        branch = branch || "unknown";
+      }
+    }
 
     if (!allowNonMain && branch !== "main") {
       return {

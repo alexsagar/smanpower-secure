@@ -50,6 +50,7 @@ prisma/backups/
 !/docs/deployment/
 /docs/deployment/*
 !/docs/deployment/production-deployment-protocol.md
+!/docs/deployment/phase1b2a-s5-safe-automatic-production-deployment.md
 /test-results/
 /playwright-report/
 /playwright/
