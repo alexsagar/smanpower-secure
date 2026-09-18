@@ -702,6 +702,52 @@ export const trainingContent: PageContent[] = [
 ];
 
 export const trustContent: PageContent[] = [
+  {
+    slug: "company-facts",
+    title: "Official Company Facts & Verified Data.",
+    subtitle: "Company Facts",
+    heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
+    missionHeading: "Verified Facts. Documented Transparency.",
+    overviewSubtitle: "Authoritative Data",
+    missionText: [
+      "Seven Seas Intercontinental Services Pvt. Ltd. was established in 2010 in Kathmandu, Nepal, operating under Government of Nepal, Department of Foreign Employment (DoFE) Licence No. 888/067/068.",
+      "Since our establishment in 2010, Seven Seas has successfully deployed over 150,000 qualified workers to reputable employers across the Middle East, Asia, and Europe, maintaining active recruitment partnerships with more than 350 international employers.",
+      "Our operations strictly follow the Employer-Pays Principle: all candidate recruitment, documentation, and processing costs are covered by employers, and candidates are never charged recruitment or placement fees.",
+      "We maintain an ISO 9001:2015 certified Quality Management System and design our recruitment workflows to align with the labour provisions of the Responsible Business Alliance (RBA) Code of Conduct.",
+      "This page serves as the authoritative single source of truth for our verified corporate details, official contact channels, and operational metrics."
+    ],
+    featuresEyebrow: "Key Metrics & Corporate Identity",
+    featuresHeading: "Verified Company Data.",
+    features: [
+      { title: "Established 2010", desc: "Operating continuously from Kathmandu, Nepal under DoFE Licence 888/067/068." },
+      { title: "150,000+ Workers Deployed", desc: "Evidenced record of international candidate mobilisations across GCC, Europe, and Asia since 2010." },
+      { title: "350+ Employer Partners", desc: "Trusted recruitment partner for multinational corporations and leading regional enterprises." },
+      { title: "Zero Recruitment Fees", desc: "Candidates pay nothing for recruitment, placement, documentation, or processing." },
+      { title: "ISO 9001:2015 Certified", desc: "Quality Management Systems audited and verified for recruitment operations." },
+      { title: "Official Corporate Office", desc: "DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal. Phone: +977 1 5107440." }
+    ],
+    documentsEyebrow: "Supporting Records",
+    documentsHeading: "Official Licences & Documents.",
+    documents: [
+      { title: "License of Foreign Employment (DoFE 888/067/068)", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998968/SSIS_License_of_Foreign_Employment_xwnjyf.pdf", image: "" },
+      { title: "Certificate of Incorporation", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998959/WhatsApp_Image_2026-07-24_at_1.40.38_PM_wb8zdf.jpg", image: "" },
+      { title: "Authority Certificate — Sending Trainee Workers to Japan", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998960/WhatsApp_Image_2026-07-24_at_1.41.30_PM_knnzf2.jpg", image: "" }
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "Frequently Asked Questions About Seven Seas.",
+    faqs: [
+      { q: "When was Seven Seas Intercontinental established?", a: "Seven Seas Intercontinental Services Pvt. Ltd. was established in 2010 in Kathmandu, Nepal, and has operated continuously under DoFE Licence No. 888/067/068." },
+      { q: "How many workers has Seven Seas deployed?", a: "Since establishment in 2010, Seven Seas has deployed over 150,000 qualified workers to verified employers worldwide." },
+      { q: "What is your recruitment fee policy for job seekers?", a: "Seven Seas follows the Employer-Pays Principle. Candidates are never charged recruitment or placement fees, and all candidate costs are covered, including documentation and processing." },
+      { q: "What is the official office address and contact number?", a: "Our corporate office is located at DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal. Primary phone: +977 1 5107440." }
+    ],
+    cta: {
+      heading: "Verify our official documentation.",
+      body: "Review our government licences, compliance documents, and verified partner network.",
+      buttonLabel: "View Official Licences",
+      buttonHref: "/trust-centre/licences",
+    }
+  },
   { 
     slug: "licences", 
     title: "Our Recruitment Licences.", 

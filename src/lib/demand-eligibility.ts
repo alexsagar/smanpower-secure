@@ -26,6 +26,55 @@ export function isDemandPubliclyViewable(demand: {
   );
 }
 
+/**
+ * Whether a demand is expired or closed.
+ * A demand is considered expired if it is explicitly CLOSED, or has a closedAt date,
+ * or has an applicationDeadline that is in the past.
+ */
+export function isDemandExpired(demand: {
+  status: DemandStatus | string;
+  applicationDeadline?: Date | string | null;
+  closedAt?: Date | string | null;
+  positions?: Array<{ deadlineOverride?: Date | string | null; status?: string; isPublic?: boolean }>;
+}): boolean {
+  if (demand.status === DemandStatus.CLOSED || Boolean(demand.closedAt)) {
+    return true;
+  }
+  if (demand.positions && demand.positions.length > 0) {
+    const hasActivePosition = demand.positions.some((pos) => {
+      if (pos.status && pos.status !== "OPEN") return false;
+      const deadline = pos.deadlineOverride || demand.applicationDeadline;
+      return deadline && new Date(deadline).getTime() > Date.now();
+    });
+    if (hasActivePosition) return false;
+  }
+  if (demand.applicationDeadline) {
+    return new Date(demand.applicationDeadline).getTime() < Date.now();
+  }
+  return false;
+}
+
+/**
+ * Authoritative rule for search engine indexation of demands:
+ * - Active, published, public demands are indexable (index, follow).
+ * - Expired or closed demands remain accessible to visitors (HTTP 200) as historical
+ *   records, but must emit noindex, follow to keep search indexes fresh.
+ * - Non-public, draft, or soft-deleted records are not indexable.
+ */
+export function isDemandIndexable(demand: {
+  status: DemandStatus | string;
+  isPublic: boolean;
+  applicationDeadline?: Date | string | null;
+  closedAt?: Date | string | null;
+  deletedAt?: Date | string | null;
+  positions?: Array<{ deadlineOverride?: Date | string | null; status?: string; isPublic?: boolean }>;
+}): boolean {
+  if (demand.deletedAt || !demand.isPublic || demand.status !== DemandStatus.PUBLISHED) {
+    return false;
+  }
+  return !isDemandExpired(demand);
+}
+
 export function isReadvertisable(demand: {
   status: DemandStatus;
   applicationDeadline: Date | null;

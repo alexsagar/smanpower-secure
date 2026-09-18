@@ -15,8 +15,11 @@ interface ApplyPageProps {
 export async function generateMetadata({ params }: ApplyPageProps): Promise<Metadata> {
   const { slug } = await params;
   const demand = await getDemandBySlug(slug);
+  if (!demand || !demand.canApply) {
+    notFound();
+  }
   return buildPageMetadata({
-    title: demand ? `Apply — ${demand.title}` : "Apply",
+    title: `Apply — ${demand.title}`,
     path: `/demands/${slug}/apply`,
     noIndex: true,
   });

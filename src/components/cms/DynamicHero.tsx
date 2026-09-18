@@ -218,7 +218,7 @@ export function DynamicHero({ hero, certificationLogos, lang = "en" }: DynamicHe
               ))}
             </div>
             <p className="text-white/55 text-[10px] md:text-[11px] tracking-[0.14em] max-w-sm text-center">
-              Sedex Compliant • RBA Member • ISO 9001:2015 Certified
+              Sedex-Compliant • RBA-Aligned • ISO 9001:2015 Certified
             </p>
           </ScrollReveal>
         )}

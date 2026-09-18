@@ -92,9 +92,9 @@ createdAt: new Date().toISOString(),
       visible: true,
       content: {
         stats: [
-          { value: "15+", label: "Years Experience" },
-          { value: "50+", label: "Global Partners" },
-          { value: "10k+", label: "Workers Deployed" },
+          { value: "Since 2010", label: "Established" },
+          { value: "350+", label: "Employer Partners" },
+          { value: "150,000+", label: "Workers Deployed" },
           { value: "7", label: "Provinces Covered" }
         ]
       }
