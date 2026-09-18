@@ -33,7 +33,7 @@ const ALL_PAGES: Array<[string, PageContent]> = [
  */
 describe("dynamic page CMS round-trip", () => {
   it("covers every hardcoded page", () => {
-    expect(ALL_PAGES.length).toBe(31);
+    expect(ALL_PAGES.length).toBe(32);
   });
 
   it.each(ALL_PAGES)("renders %s/%s identically via the CMS", (_category, entry) => {
