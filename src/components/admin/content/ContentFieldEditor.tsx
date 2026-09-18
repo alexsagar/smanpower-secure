@@ -514,7 +514,9 @@ function ArrayField({
   // The last seen shape is remembered, so an editor who removes every row and
   // adds again gets a properly shaped object rather than a bare string.
   const shape = React.useRef<unknown>(undefined);
-  if (value.length) shape.current = value[0];
+  React.useEffect(() => {
+    if (value.length) shape.current = value[0];
+  }, [value]);
   // Read inside handlers only — reading a ref during render is not allowed.
   const currentTemplate = () => value[0] ?? shape.current ?? "";
   const addItem = () => {
@@ -610,9 +612,7 @@ function ArrayField({
                       </span>
 
                       {thumbnail ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- editor
-                        // thumbnail of an arbitrary editor-supplied URL; next/image
-                        // would need every possible host allow-listed.
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={thumbnail}
                           alt=""
