@@ -316,7 +316,7 @@ describe("Phase 1B.2A-S5: Automatic Production Deployment Safety Tests", () => {
     it("handles non-200 responses by reporting failure", async () => {
       const result = await runProductionSmokeTest({
         baseUrl: "https://smanpower.com/non-existent-probe-test-xyz",
-        previousVersionId: "04ffd2d0-40dd-4c75-9348-49752c28bff5",
+        previousVersionId: "8fc8d7f8-c056-4110-9788-dc56fd5a518f",
       });
       // The smoke test targets https://smanpower.com normally, but against bad baseUrl or subpaths it reports errors
       // Here baseUrl has a bad path, homepage check will request https://smanpower.com/non-existent-probe-test-xyz/
