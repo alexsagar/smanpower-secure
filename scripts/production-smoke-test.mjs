@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * scripts/production-smoke-test.mjs
  *
@@ -9,6 +7,8 @@
  */
 
 import https from "node:https";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 export async function fetchUrl(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -44,7 +44,7 @@ export async function fetchUrl(url, options = {}) {
 
 export async function runProductionSmokeTest(options = {}) {
   const baseUrl = options.baseUrl || "https://smanpower.com";
-  const previousVersionId = options.previousVersionId || "04ffd2d0-40dd-4c75-9348-49752c28bff5";
+  const previousVersionId = options.previousVersionId || "8fc8d7f8-c056-4110-9788-dc56fd5a518f";
 
   console.log("================================================================");
   console.log(`🌐  PRODUCTION POST-DEPLOYMENT SMOKE TEST: ${baseUrl}`);
@@ -122,8 +122,23 @@ export async function runProductionSmokeTest(options = {}) {
       console.error(`   ❌ FAILED: /demands status ${demandsRes.status}`);
     } else {
       console.log("   ✅ PASS: /demands returned HTTP 200.");
-      // Assert active demands content
-      const requiredDemandSlugs = ["job-vacancy-in-kuwait-lt-322061-2", "general-worker-lt-345209"];
+      // Dynamically load expected demand slugs from manifest, options, or fallback
+      let requiredDemandSlugs = options.expectedDemandSlugs || [];
+      if (requiredDemandSlugs.length === 0) {
+        const truthPath = resolve(process.cwd(), ".production-build-truth.json");
+        if (existsSync(truthPath)) {
+          try {
+            const truthObj = JSON.parse(readFileSync(truthPath, "utf8"));
+            if (Array.isArray(truthObj?.truth?.demands)) {
+              requiredDemandSlugs = truthObj.truth.demands.map((d) => d.slug);
+            }
+          } catch (e) {}
+        }
+      }
+      if (requiredDemandSlugs.length === 0) {
+        requiredDemandSlugs = ["job-vacancy-in-kuwait-lt-322061-2", "general-worker-lt-345209"];
+      }
+
       let demandsFound = 0;
       for (const slug of requiredDemandSlugs) {
         if (demandsRes.body.includes(slug)) {
@@ -140,6 +155,21 @@ export async function runProductionSmokeTest(options = {}) {
       if (demandsRes.body.includes("No job vacancies") || demandsRes.body.includes("No demands found")) {
         errors.push("/demands rendered empty-state fallback!");
         console.error("   ❌ FAILED: Empty demands fallback rendered.");
+      }
+
+      // Probe each active demand detail page directly
+      for (const slug of requiredDemandSlugs) {
+        console.log(`   Probing Demand detail (/demands/${slug}) ...`);
+        const demandDetailRes = await fetchUrl(`${baseUrl}/demands/${slug}`);
+        if (demandDetailRes.status !== 200) {
+          errors.push(`/demands/${slug} returned HTTP ${demandDetailRes.status}`);
+          console.error(`   ❌ FAILED: Demand detail /demands/${slug} returned status ${demandDetailRes.status}`);
+        } else if (demandDetailRes.body.includes("Not Found | Seven Seas Intercontinental")) {
+          errors.push(`/demands/${slug} rendered 404 Not Found!`);
+          console.error(`   ❌ FAILED: Demand detail /demands/${slug} rendered Not Found.`);
+        } else {
+          console.log(`   ✅ PASS: Active demand detail /demands/${slug} verified live.`);
+        }
       }
     }
 
@@ -158,13 +188,28 @@ export async function runProductionSmokeTest(options = {}) {
         console.log("   ✅ PASS: /news contains published articles (no empty-state fallback).");
       }
 
-      // Assert all 4 published news articles
-      const requiredNewsSlugs = [
-        "ilo-protection-nepali-workers-gulf-countries",
-        "safer-nepal-gulf-europe-migration-pathways",
-        "nepal-iom-strengthen-ethical-recruitment",
-        "nepal-recruitment-cost-survey-ethical-recruitment",
-      ];
+      // Dynamically load expected news slugs from manifest, options, or fallback
+      let requiredNewsSlugs = options.expectedNewsSlugs || [];
+      if (requiredNewsSlugs.length === 0) {
+        const truthPath = resolve(process.cwd(), ".production-build-truth.json");
+        if (existsSync(truthPath)) {
+          try {
+            const truthObj = JSON.parse(readFileSync(truthPath, "utf8"));
+            if (Array.isArray(truthObj?.truth?.news)) {
+              requiredNewsSlugs = truthObj.truth.news.map((n) => n.slug);
+            }
+          } catch (e) {}
+        }
+      }
+      if (requiredNewsSlugs.length === 0) {
+        requiredNewsSlugs = [
+          "ilo-protection-nepali-workers-gulf-countries",
+          "safer-nepal-gulf-europe-migration-pathways",
+          "nepal-iom-strengthen-ethical-recruitment",
+          "nepal-recruitment-cost-survey-ethical-recruitment",
+        ];
+      }
+
       let newsFound = 0;
       for (const slug of requiredNewsSlugs) {
         if (newsRes.body.includes(slug)) {
@@ -176,6 +221,21 @@ export async function runProductionSmokeTest(options = {}) {
       }
       if (newsFound === requiredNewsSlugs.length) {
         console.log(`   ✅ PASS: All ${newsFound} published news articles verified live on /news.`);
+      }
+
+      // Probe each published news article detail page directly
+      for (const slug of requiredNewsSlugs) {
+        console.log(`   Probing News article detail (/news/${slug}) ...`);
+        const articleRes = await fetchUrl(`${baseUrl}/news/${slug}`);
+        if (articleRes.status !== 200) {
+          errors.push(`/news/${slug} returned HTTP ${articleRes.status}`);
+          console.error(`   ❌ FAILED: News article /news/${slug} returned status ${articleRes.status}`);
+        } else if (articleRes.body.includes("Not Found | Seven Seas Intercontinental")) {
+          errors.push(`/news/${slug} rendered 404 Not Found!`);
+          console.error(`   ❌ FAILED: News article /news/${slug} rendered Not Found.`);
+        } else {
+          console.log(`   ✅ PASS: Published news article detail /news/${slug} verified live.`);
+        }
       }
     }
 

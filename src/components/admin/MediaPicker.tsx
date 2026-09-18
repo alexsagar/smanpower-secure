@@ -108,10 +108,10 @@ export function MediaPicker({
 
   useEffect(() => {
     if (!open) return;
-    setSelectedIds([]);
     let cancelled = false;
 
     async function loadAssets() {
+      setSelectedIds([]);
       setLoading(true);
 
       try {
