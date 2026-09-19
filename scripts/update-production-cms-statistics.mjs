@@ -15,18 +15,24 @@
  *
  * Safety features:
  *   - Defaults to DRY-RUN mode (requires explicit `--execute` to write).
+ *   - Production database identity verification via cryptographic SHA-256 fingerprint.
  *   - Strict baseline validation: stops if existing records deviate from expected values.
+ *   - Concurrency protection: re-checks block content hashes inside transaction with Serializable isolation.
  *   - Atomic Prisma transaction: both blocks update together or neither does.
- *   - Automatic pre-update snapshot written to `prisma/backups/cms-statistics/`.
+ *   - Automatic pre-update snapshot written to `prisma/backups/cms-statistics/` and dumped to logs.
  *   - Complete rollback capability: `--rollback <snapshot-path> [--execute]`.
- *   - Never exposes database credentials.
- *   - Standalone CLI: never runs during ordinary builds or CI.
+ *   - Never exposes database credentials or connection strings.
+ *   - Standalone CLI: never runs automatically during ordinary builds or CI.
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { resolve } from "node:path";
 import { createRequire } from "node:module";
-import { parseEnvContent } from "./deployment-safety-common.mjs";
+import {
+  parseEnvContent,
+  getDbIdentity,
+  APPROVED_PROD_DB_HASHES,
+} from "./deployment-safety-common.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -256,6 +262,21 @@ async function run() {
     process.exit(1);
   }
 
+  // Cryptographic identity check: verify against approved production hashes
+  const dbIdentity = getDbIdentity(dbUrl);
+  if (!dbIdentity.valid) {
+    console.error(`❌ Error: Invalid DATABASE_URL format: ${dbIdentity.error}`);
+    process.exit(1);
+  }
+
+  const isApprovedProd = APPROVED_PROD_DB_HASHES.has(dbIdentity.hash);
+  if (!isApprovedProd && !args.includes("--allow-unapproved-db")) {
+    console.error(
+      `❌ Safety Abort: Target database fingerprint (${dbIdentity.shortHash}) does not match approved production database identity.`
+    );
+    process.exit(1);
+  }
+
   const prismaModule = require(resolve(cwd, "node_modules/@prisma/client"));
   const { PrismaClient } = prismaModule;
   const prisma = new PrismaClient({
@@ -266,6 +287,7 @@ async function run() {
   try {
     console.log("================================================================");
     console.log(`🔧 CMS STATISTICS UPDATE TOOL [Mode: ${isExecute ? "EXECUTE (LIVE WRITE)" : "DRY-RUN (READ-ONLY)"}]`);
+    console.log(`🔒 Target Database Identity: Approved Production DB (Fingerprint: ${dbIdentity.shortHash})`);
     console.log("================================================================");
 
     if (rollbackFile) {
@@ -277,10 +299,13 @@ async function run() {
       if (!snapshot.homeBlock || !snapshot.aboutBlock) {
         throw new Error("Invalid snapshot format: missing homeBlock or aboutBlock");
       }
+      if (snapshot.homeBlock.id !== BASELINE.home.id || snapshot.aboutBlock.id !== BASELINE.about.id) {
+        throw new Error(`Snapshot block ID mismatch. Expected ${BASELINE.home.id} and ${BASELINE.about.id}`);
+      }
 
       console.log("\nSnapshot Metadata:");
       console.log(`  Created: ${snapshot.timestamp}`);
-      console.log(`  Target DB host: ${snapshot.dbHost || "unspecified"}`);
+      console.log(`  Target DB Fingerprint: ${snapshot.dbFingerprint || "unspecified"}`);
 
       console.log("\nPlanned Rollback Changes:");
       console.log("--- Home Statistics Block Restore ---");
@@ -293,18 +318,29 @@ async function run() {
         return;
       }
 
-      await prisma.$transaction(async (tx) => {
-        await tx.cmsContentBlock.update({
-          where: { id: snapshot.homeBlock.id },
-          data: { content: snapshot.homeBlock.content },
-        });
-        await tx.cmsContentBlock.update({
-          where: { id: snapshot.aboutBlock.id },
-          data: { content: snapshot.aboutBlock.content },
-        });
-      });
+      await prisma.$transaction(
+        async (tx) => {
+          const [currentHome, currentAbout] = await Promise.all([
+            tx.cmsContentBlock.findUnique({ where: { id: BASELINE.home.id } }),
+            tx.cmsContentBlock.findUnique({ where: { id: BASELINE.about.id } }),
+          ]);
+          if (!currentHome || !currentAbout) {
+            throw new Error("Target CMS blocks not found in database for rollback.");
+          }
 
-      console.log("\n✅ ROLLBACK SUCCESSFUL: Database restored to snapshot state.");
+          await tx.cmsContentBlock.update({
+            where: { id: BASELINE.home.id },
+            data: { content: snapshot.homeBlock.content },
+          });
+          await tx.cmsContentBlock.update({
+            where: { id: BASELINE.about.id },
+            data: { content: snapshot.aboutBlock.content },
+          });
+        },
+        { isolationLevel: "Serializable" }
+      );
+
+      console.log("\n✅ ROLLBACK SUCCESSFUL: Database restored atomically to snapshot state.");
       return;
     }
 
@@ -346,7 +382,7 @@ async function run() {
     console.log(`About Page Block [${BASELINE.about.id}]`);
     console.log("----------------------------------------------------------------");
     console.log("BEFORE (items 0-2):");
-    console.log(homeBlock.content.stats ? aboutBlock.content.stats.slice(0, 3) : []);
+    console.log(aboutBlock.content.stats ? aboutBlock.content.stats.slice(0, 3) : []);
     console.log("AFTER  (items 0-2):");
     console.log(nextAboutContent.stats.slice(0, 3));
     console.log("UNCHANGED (item 3):", nextAboutContent.stats[3]);
@@ -371,6 +407,7 @@ async function run() {
 
     const snapshotData = {
       timestamp: new Date().toISOString(),
+      dbFingerprint: dbIdentity.shortHash,
       homeBlock: {
         id: homeBlock.id,
         content: homeBlock.content,
@@ -382,19 +419,40 @@ async function run() {
     };
 
     writeFileSync(snapshotPath, JSON.stringify(snapshotData, null, 2), "utf8");
-    console.log(`   ✅ Snapshot saved to: ${snapshotPath}`);
+    console.log(`   ✅ Snapshot saved to file: ${snapshotPath}`);
+    console.log("\n================================================================");
+    console.log("📋 RECOVERABLE SNAPSHOT PAYLOAD (Keep for Disaster Recovery):");
+    console.log("================================================================");
+    console.log(JSON.stringify(snapshotData, null, 2));
+    console.log("================================================================\n");
 
-    console.log("\n5. Executing database transaction...");
-    await prisma.$transaction(async (tx) => {
-      await tx.cmsContentBlock.update({
-        where: { id: BASELINE.home.id },
-        data: { content: nextHomeContent },
-      });
-      await tx.cmsContentBlock.update({
-        where: { id: BASELINE.about.id },
-        data: { content: nextAboutContent },
-      });
-    });
+    console.log("5. Executing database transaction with concurrency safeguards...");
+    await prisma.$transaction(
+      async (tx) => {
+        // Concurrency Guard: re-read blocks inside transaction
+        const [freshHome, freshAbout] = await Promise.all([
+          tx.cmsContentBlock.findUnique({ where: { id: BASELINE.home.id } }),
+          tx.cmsContentBlock.findUnique({ where: { id: BASELINE.about.id } }),
+        ]);
+
+        if (JSON.stringify(freshHome?.content) !== JSON.stringify(homeBlock.content)) {
+          throw new Error("Concurrency Conflict: Homepage block modified during execution window. Aborted.");
+        }
+        if (JSON.stringify(freshAbout?.content) !== JSON.stringify(aboutBlock.content)) {
+          throw new Error("Concurrency Conflict: About page block modified during execution window. Aborted.");
+        }
+
+        await tx.cmsContentBlock.update({
+          where: { id: BASELINE.home.id },
+          data: { content: nextHomeContent },
+        });
+        await tx.cmsContentBlock.update({
+          where: { id: BASELINE.about.id },
+          data: { content: nextAboutContent },
+        });
+      },
+      { isolationLevel: "Serializable" }
+    );
 
     console.log("   ✅ Database transaction committed successfully.");
     console.log(`\n🎉 UPDATE COMPLETE. Rollback available via:`);
