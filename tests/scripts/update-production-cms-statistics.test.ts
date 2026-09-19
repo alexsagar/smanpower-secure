@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import { writeFileSync, unlinkSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   BASELINE,
   TARGET,
@@ -6,6 +8,7 @@ import {
   transformAboutStats,
   validateHomeBaseline,
   validateAboutBaseline,
+  verifyBackupIntegrity,
 } from "../../scripts/update-production-cms-statistics.mjs";
 
 describe("CMS Statistics Update Script Logic", () => {
@@ -115,5 +118,77 @@ describe("CMS Statistics Update Script Logic", () => {
       },
     };
     expect(() => validateAboutBaseline(corruptedAbout)).toThrow();
+  });
+
+  describe("Backup Integrity and Secure Read-Back Verification", () => {
+    const tempBackupPath = resolve(process.cwd(), "tests/scripts/temp-test-backup.json");
+
+    it("successfully verifies valid backup file and computes SHA-256 checksum", () => {
+      const validBackupData = {
+        timestamp: new Date().toISOString(),
+        dbFingerprint: "test-db-hash",
+        homeBlock: {
+          id: BASELINE.home.id,
+          content: validMockHomeBlock.content,
+        },
+        aboutBlock: {
+          id: BASELINE.about.id,
+          content: validMockAboutBlock.content,
+        },
+      };
+
+      writeFileSync(tempBackupPath, JSON.stringify(validBackupData, null, 2), "utf8");
+
+      try {
+        const result = verifyBackupIntegrity(tempBackupPath);
+        expect(result.valid).toBe(true);
+        expect(result.checksum).toMatch(/^[a-f0-9]{64}$/);
+        expect(result.affectedBlocks).toEqual([BASELINE.home.id, BASELINE.about.id]);
+
+        // Passing matching expected checksum passes
+        expect(verifyBackupIntegrity(tempBackupPath, result.checksum).valid).toBe(true);
+
+        // Passing wrong checksum throws error
+        expect(() => verifyBackupIntegrity(tempBackupPath, "wrong-checksum-12345")).toThrow(
+          /checksum mismatch/i
+        );
+      } finally {
+        if (existsSync(tempBackupPath)) {
+          unlinkSync(tempBackupPath);
+        }
+      }
+    });
+
+    it("aborts when backup file is missing or corrupted", () => {
+      expect(() => verifyBackupIntegrity("non-existent-backup-path.json")).toThrow(
+        /not found/i
+      );
+
+      writeFileSync(tempBackupPath, "INVALID_JSON_CONTENT", "utf8");
+      try {
+        expect(() => verifyBackupIntegrity(tempBackupPath)).toThrow(/corrupted or invalid JSON/i);
+      } finally {
+        if (existsSync(tempBackupPath)) {
+          unlinkSync(tempBackupPath);
+        }
+      }
+    });
+
+    it("aborts when backup contains mismatched block IDs or incomplete blocks", () => {
+      const incompleteBackup = {
+        timestamp: new Date().toISOString(),
+        homeBlock: { id: "wrong-id", content: { stats: [] } },
+        aboutBlock: { id: BASELINE.about.id, content: { stats: [] } },
+      };
+
+      writeFileSync(tempBackupPath, JSON.stringify(incompleteBackup, null, 2), "utf8");
+      try {
+        expect(() => verifyBackupIntegrity(tempBackupPath)).toThrow(/block ID mismatch/i);
+      } finally {
+        if (existsSync(tempBackupPath)) {
+          unlinkSync(tempBackupPath);
+        }
+      }
+    });
   });
 });
