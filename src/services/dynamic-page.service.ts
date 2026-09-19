@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPageBySlug } from "@/repositories/content-resolver";
 import { getContentBySlug, type PageContent } from "@/lib/content";
@@ -16,7 +17,7 @@ export async function buildDynamicPageMetadata(
 ): Promise<Metadata> {
   const content = await getDynamicPageContent(category, slug);
   if (!content) {
-    return buildPageMetadata({ title: "Not Found", path: `/${category}/${slug}`, noIndex: true });
+    notFound();
   }
   const description = [content.subtitle, content.missionText?.[0]]
     .filter(Boolean)

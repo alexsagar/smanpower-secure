@@ -16,7 +16,7 @@ import { DemandLetterImage } from "@/components/demands/DemandLetterImage";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildJobPostingSchema, buildBreadcrumbSchema, buildWebPageSchema } from "@/lib/seo/schema";
 import { getSiteUrl } from "@/lib/seo/site-config";
-import { isDemandPubliclyViewable } from "@/lib/demand-eligibility";
+import { isDemandPubliclyViewable, isDemandIndexable, isDemandExpired } from "@/lib/demand-eligibility";
 import { resolveMediaUrl } from "@/lib/media-resolver";
 import { formatDemandDate, generateDemandSeo, toDateOnly } from "@/lib/demand-presentation";
 
@@ -38,9 +38,10 @@ export async function generateMetadata(
     notFound();
   }
 
-  // Open, expired and closed public demands are indexable historical pages.
-  // Everything else (draft, private, archived) is noindex — and 404s below.
-  const noIndex = !isDemandPubliclyViewable(demand);
+  // Active public demands are indexable. Expired or closed demands remain accessible
+  // as historical records with clear status, but emit noindex, follow to keep
+  // search engine indexes clean of expired vacancies.
+  const noIndex = !isDemandIndexable(demand);
 
   const generatedSeo = generateDemandSeo(demand);
   return buildPageMetadata({
@@ -230,9 +231,17 @@ export default async function DemandDetailPage({ params }: Props) {
             <ShieldAlert className="w-8 h-8 text-red-600 shrink-0" />
             <div>
               <h3 className="font-bold text-red-900 mb-2">{copy.notices.safetyHeading}</h3>
-              <p className="text-sm text-red-800">
-                {demand.candidateSafetyNotice || "Do not make any payment to individuals claiming to represent Seven Seas Intercontinental. Only pay official service fees at our main office and always demand a computer-generated receipt."}
+              <p className="text-sm text-red-800 leading-relaxed">
+                {demand.candidateSafetyNotice || "Seven Seas follows the Employer-Pays Principle. Candidates are not charged recruitment or placement fees, and all candidate costs are covered, including documentation and processing. Never pay anyone claiming to represent Seven Seas."}
               </p>
+              <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold">
+                <Link href="/ethical-recruitment/recruitment-fees" className="text-red-900 underline hover:text-red-700">
+                  Fee Transparency Policy &rarr;
+                </Link>
+                <Link href="/worker-grievance" className="text-red-900 underline hover:text-red-700">
+                  Report Fee Demand &rarr;
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -240,9 +249,17 @@ export default async function DemandDetailPage({ params }: Props) {
             <ShieldAlert className="w-8 h-8 text-blue-600 shrink-0" />
             <div>
               <h3 className="font-bold text-blue-900 mb-2">{copy.notices.feeHeading}</h3>
-              <p className="text-sm text-blue-800">
-                {demand.feeTransparencyNotice || "Seven Seas Intercontinental operates in strict compliance with the Government of Nepal's foreign employment guidelines regarding service fees and costs."}
+              <p className="text-sm text-blue-800 leading-relaxed">
+                {demand.feeTransparencyNotice || "Seven Seas follows the Employer-Pays Principle. Candidates are not charged recruitment or placement fees, and all candidate costs are covered, including documentation and processing."}
               </p>
+              <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold">
+                <Link href="/ethical-recruitment/recruitment-fees" className="text-blue-900 underline hover:text-blue-700">
+                  Zero-Fee Policy &rarr;
+                </Link>
+                <Link href="/worker-grievance" className="text-blue-900 underline hover:text-blue-700">
+                  Worker Grievance Channel &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>

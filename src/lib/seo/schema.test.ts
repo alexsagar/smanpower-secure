@@ -182,10 +182,41 @@ describe('Organization schema', () => {
     for (const url of org.sameAs || []) {
       expect(url).not.toMatch(/rba\.png|sedex\.png|iso\.png/);
     }
+    expect(org.foundingDate).toBe('2010');
+    expect(org.legalName).toBe('Seven Seas Intercontinental Services Pvt. Ltd.');
+  });
+
+  it('falls back to verified legalName and foundingDate when called with empty object', () => {
+    const org: any = buildOrganizationSchema({} as any);
+    expect(org.foundingDate).toBe('2010');
+    expect(org.legalName).toBe('Seven Seas Intercontinental Services Pvt. Ltd.');
+    expect(org.address.streetAddress).toBe('DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal');
+    expect(org.address.streetAddress).not.toMatch(/Metropolitan City/i);
+    expect(org.telephone).toBe('+977 1 5107440');
   });
 
   it('converts relative logoUrl to an absolute URL', () => {
     const org: any = buildOrganizationSchema({ logoUrl: '/custom-logo.webp' } as any);
     expect(org.logo).toBe('https://smanpower.com/custom-logo.webp');
   });
+
+  it('populates employmentType strictly from position or demand evidence', () => {
+    const demand = {
+      status: 'PUBLISHED', isPublic: true, enableApplication: true,
+      title: 'Electrical Technician', companyName: 'BuildCorp',
+      country: { name: 'Qatar' },
+      contractType: 'Full-Time Contract',
+      applicationDeadline: '2026-12-31T00:00:00Z',
+      slug: 'technician-qatar',
+    };
+    const position = { status: 'OPEN', isPublic: true, title: 'Technician' };
+
+    const schemaWithDemandEvidence = buildJobPostingSchema(demand, position);
+    expect(schemaWithDemandEvidence?.employmentType).toBe('FULL_TIME');
+
+    const positionWithDirectType = { ...position, employmentType: 'CONTRACTOR' };
+    const schemaWithPosEvidence = buildJobPostingSchema(demand, positionWithDirectType);
+    expect(schemaWithPosEvidence?.employmentType).toBe('CONTRACTOR');
+  });
 });
+

@@ -13,7 +13,7 @@ import { Metadata } from "next";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const content = await getDynamicPageContent("industries", slug);
-  if (!content) return buildPageMetadata({ path: `/industries/${slug}`, noIndex: true });
+  if (!content) notFound();
   
   return buildPageMetadata({
     title: `${content.title} Recruitment from Nepal`,

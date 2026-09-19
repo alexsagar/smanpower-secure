@@ -1,5 +1,5 @@
 import { getSiteUrl, siteConfig } from "./site-config";
-import { BRAND } from "@/lib/constants";
+import { BRAND, CONTACT } from "@/lib/constants";
 import type { CmsFooterSettings, CmsSiteSettings } from "@/types/content";
 import { generateDemandSeo } from "@/lib/demand-presentation";
 import { toSafeIsoString } from "@/lib/date";
@@ -17,22 +17,35 @@ export const buildOrganizationSchema = (settings?: CmsSiteSettings, footer?: Cms
     ? rawLogo
     : `${siteUrl}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`;
 
+  const legalName = settings?.companyLegalName || BRAND.legalName;
+  const address = settings?.address || CONTACT.address;
+  const phone = settings?.phone || CONTACT.phone;
+  const email = settings?.email || CONTACT.email;
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${siteUrl}/#organization`,
     "name": settings?.companyName || siteConfig.name,
     "url": siteUrl,
-    ...(settings?.companyLegalName ? { "legalName": settings.companyLegalName } : {}),
+    "legalName": legalName,
+    "foundingDate": "2010",
     "logo": logo,
-    ...(settings?.address || settings?.country ? { "address": { "@type": "PostalAddress", ...(settings.address ? { streetAddress: settings.address } : {}), ...(settings.city ? { addressLocality: settings.city } : {}), ...(settings.province ? { addressRegion: settings.province } : {}), ...(settings.postalCode ? { postalCode: settings.postalCode } : {}), ...(settings.country ? { addressCountry: settings.country } : {}) } } : {}),
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": address,
+      "addressLocality": settings?.city || "Kathmandu",
+      "addressRegion": settings?.province || "Bagmati Province",
+      "postalCode": settings?.postalCode || "44600",
+      "addressCountry": settings?.country || "Nepal",
+    },
     "identifier": {
       "@type": "PropertyValue",
       "name": "DoFE Licence Number",
       "value": BRAND.dofeLicenceNumber,
     },
-    ...(settings?.phone ? { "telephone": settings.phone } : {}),
-    ...(settings?.email ? { "email": settings.email } : {}),
+    ...(phone ? { "telephone": phone } : {}),
+    ...(email ? { "email": email } : {}),
     ...(footer?.socialLinks?.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url).length ? { "sameAs": footer.socialLinks.filter((link) => link.isActive && /^https:\/\//.test(link.url)).map((link) => link.url) } : {}),
   };
 };
@@ -238,6 +251,33 @@ export const isEligibleForJobPostingSchema = ({ demand, position }: { demand: an
 };
 
 /**
+ * Resolves standard Schema.org employmentType from evidence on the position or demand.
+ * Returns undefined if no verifiable evidence is present (never invents or defaults to FULL_TIME).
+ */
+export const resolveEmploymentType = (position: any, demand?: any): string | undefined => {
+  const raw = position?.employmentType || demand?.contractType;
+  if (!raw || typeof raw !== "string") return undefined;
+
+  const normalized = raw.trim().toUpperCase().replace(/[-\s]+/g, "_");
+  if (normalized === "FULL_TIME" || normalized === "FULLTIME") return "FULL_TIME";
+  if (normalized === "PART_TIME" || normalized === "PARTTIME") return "PART_TIME";
+  if (normalized === "CONTRACT" || normalized === "CONTRACTOR") return "CONTRACTOR";
+  if (normalized === "TEMPORARY" || normalized === "TEMP") return "TEMPORARY";
+  if (normalized === "INTERN" || normalized === "INTERNSHIP") return "INTERN";
+  if (normalized === "VOLUNTEER") return "VOLUNTEER";
+  if (normalized === "PER_DIEM") return "PER_DIEM";
+  if (normalized === "OTHER") return "OTHER";
+
+  const lower = raw.toLowerCase();
+  if (lower.includes("full time") || lower.includes("full-time")) return "FULL_TIME";
+  if (lower.includes("part time") || lower.includes("part-time")) return "PART_TIME";
+  if (lower.includes("contract")) return "CONTRACTOR";
+  if (lower.includes("temporary") || lower.includes("seasonal")) return "TEMPORARY";
+
+  return undefined;
+};
+
+/**
  * Builds a strict JobPosting schema for a specific position within a demand.
  * Returns null if the position is not eligible.
  */
@@ -263,6 +303,8 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
       ? { amount: position.salaryAmount, currency: String(position.salaryCurrency) }
       : null;
 
+  const employmentType = resolveEmploymentType(position, demand);
+
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -276,6 +318,7 @@ export const buildJobPostingSchema = (demand: any, position: any) => {
     "url": `${siteUrl}/demands/${demand.slug}`,
     // Applications are submitted directly on our own /demands/[slug]/apply form.
     "directApply": true,
+    ...(employmentType ? { "employmentType": employmentType } : {}),
     ...(validThrough ? { "validThrough": validThrough } : {}),
     ...(salaryAmount
       ? {
