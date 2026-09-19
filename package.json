@@ -29,6 +29,7 @@
     "cms:import": "npx tsx src/scripts/cms-import.ts",
     "cms:audit": "npx tsx src/scripts/cms-audit.ts",
     "cms:repair-statistics": "npx tsx src/scripts/cms-repair-statistics.ts",
+    "cms:update-statistics": "node scripts/update-production-cms-statistics.mjs",
     "cms:migrate-dynamic-pages": "npx tsx src/scripts/cms-migrate-dynamic-pages.ts",
     "cms:migrate-page-copy": "npx tsx src/scripts/cms-migrate-page-copy.ts",
     "admin:set-super-admin": "npx tsx src/scripts/set-super-admin.ts",
