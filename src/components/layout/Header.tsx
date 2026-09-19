@@ -230,14 +230,14 @@ export function Header({
               <div className="container-wide py-12">
                 <div className="grid grid-cols-[minmax(200px,260px)_minmax(0,1fr)] gap-x-12">
                   <div className="min-w-0 border-r border-brand-charcoal/10 pr-12">
-                    <h2 className="card-title text-brand-black mb-4 break-words">
+                    <div className="card-title text-brand-black mb-4 break-words">
                       <Link
                         href={section.href}
                         className="hover:text-brand-gold transition-colors"
                       >
                         {section.label}
                       </Link>
-                    </h2>
+                    </div>
                     <p className="text-sm text-brand-muted leading-relaxed">
                       {copy.megaMenuDescription}
                     </p>

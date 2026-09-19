@@ -6,6 +6,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildArticleSchema } from "@/lib/seo/schema";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { sanitizeHtml } from "@/lib/html-safety";
+import { enrichInsightHtml } from "@/lib/seo/insight-linking";
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { CACHE_REVALIDATE, CACHE_TAGS } from "@/lib/cache-tags";
@@ -206,8 +207,9 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                     prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:border-b prose-h2:border-brand-black/15 prose-h2:pb-3 prose-h2:mt-10
                     prose-strong:text-brand-black prose-strong:font-bold
                     prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:border-brand-gold prose-blockquote:text-brand-black/90
+                    prose-a:text-brand-gold-dark prose-a:font-semibold prose-a:underline hover:prose-a:text-brand-gold hover:prose-a:no-underline transition-colors
                     prose-img:rounded-none prose-img:border prose-img:border-brand-black/20 prose-img:shadow-md"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(insight.content) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(enrichInsightHtml(insight.slug, insight.content)) }}
                 />
               </div>
             </main>
