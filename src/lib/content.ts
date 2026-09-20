@@ -954,8 +954,9 @@ export const trustContent: PageContent[] = [
 // ============================================================
 // DESTINATIONS (recruitment by destination) + STANDALONE SEO PAGES
 // ============================================================
-// Saudi Arabia, the United Arab Emirates and Qatar are management-confirmed
-// active destinations. Everything written here is drawn from capabilities the
+// Saudi Arabia, the United Arab Emirates and Qatar are featured destinations
+// on the website. Seven Seas also actively recruits for additional destinations.
+// Everything written here is drawn from capabilities the
 // website already documents (sectors, screening, trade testing, training,
 // documentation, ethical recruitment) — no country-specific visa procedure,
 // salary figure, deployment volume, employer name, office abroad, or
