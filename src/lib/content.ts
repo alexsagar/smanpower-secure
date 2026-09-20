@@ -152,21 +152,21 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     processEyebrow: "How We Stay Accountable",
     processHeading: "Compliance You Can Verify.",
     process: [
-      { title: "Government Licensing", desc: "We operate under full authorization from Nepal's Department of Foreign Employment, maintained through regular audits." },
-      { title: "International Standards", desc: "Our processes are ISO 9001:2015 certified and compliant with the Responsible Business Alliance Code of Conduct." },
-      { title: "Open Documentation", desc: "Licenses, certifications, and compliance records are available for employer review under our open-book policy." },
-      { title: "Independent Audits", desc: "We submit to unannounced third-party checks and maintain a flawless regulatory compliance record." },
+      { title: "Government Licensing", desc: "Operating under Government of Nepal Department of Foreign Employment Licence No. 888/067/068 since 2010." },
+      { title: "International Standards", desc: "Our quality management system is ISO 9001:2015 certified, and our candidate workflows operate within an RBA-aligned framework adhering to the Employer-Pays Principle." },
+      { title: "Open Documentation", desc: "Official government licences, incorporation documents, and quality certifications are available for partner verification." },
+      { title: "Regulatory Oversight", desc: "Recruitment operations are conducted in accordance with Nepal's Foreign Employment Act, 2007 and applicable bilateral labor frameworks." },
     ],
     faqsEyebrow: "Common Questions",
     faqsHeading: "Trust & Compliance.",
     faqs: [
-      { q: "Is Seven Seas government licensed?", a: "Yes. We are fully licensed by the Department of Foreign Employment (DOFE), Nepal, with a clean compliance record." },
-      { q: "What certifications and standards do you hold?", a: "We are ISO 9001:2015 certified for quality management, and our recruitment practices are RBA-compliant and Sedex-compliant." },
-      { q: "Can we review your compliance documents?", a: "Absolutely. Our major licenses, tax clearances, and certifications are open for partner review." },
+      { q: "Is Seven Seas government licensed?", a: "Yes. Seven Seas Intercontinental Services operates under Department of Foreign Employment (DoFE) Licence No. 888/067/068, established in 2010." },
+      { q: "What certifications and standards do you hold?", a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our candidate workflows align with the labour provisions of the Responsible Business Alliance (RBA) Code of Conduct." },
+      { q: "Can we review your compliance documents?", a: "Yes. Copies of our Department of Foreign Employment licence, Certificate of Incorporation, and ISO 9001:2015 certificate are published in our Trust Centre and available for verification." },
     ],
     cta: {
       heading: "Partner with confidence.",
-      body: "Work with a licensed, audited, and internationally certified recruitment partner.",
+      body: "Work with a licensed recruitment agency operating under an ISO 9001:2015 certified quality management system.",
       buttonLabel: "Talk to Our Team",
       buttonHref: "/contact",
     },
@@ -815,13 +815,13 @@ export const trustContent: PageContent[] = [
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
     missionHeading: "Government Approved.",
     missionText: [
-      "Seven Seas Intercontinental operates with full authorization from the Government of Nepal, Department of Foreign Employment (DOFE).",
-      "Our licenses are maintained through strict adherence to national labor laws and regular governmental audits, ensuring your recruitment process is 100% legally compliant."
+      "Seven Seas Intercontinental operates with authorization from the Government of Nepal, Department of Foreign Employment (DoFE) under Licence No. 888/067/068.",
+      "Our operations adhere to Nepal's Foreign Employment Act, 2007 and applicable bilateral labor frameworks, establishing transparent legal procedures for overseas deployment."
     ],
     features: [
-      { title: "DOFE Authorized", desc: "Fully licensed by the Department of Foreign Employment, Nepal." },
-      { title: "Zero Infractions", desc: "A flawless compliance record with national regulatory bodies." },
-      { title: "Regular Renewals", desc: "Licenses maintained through consistent, successful audits." }
+      { title: "DoFE Licensed", desc: "Operating under Government of Nepal Department of Foreign Employment Licence No. 888/067/068." },
+      { title: "Statutory Adherence", desc: "Operations conducted in structured accordance with government-mandated foreign employment procedures." },
+      { title: "Licence Verification", desc: "Official government licences and incorporation certificates available for employer review." }
     ],
     documents: [
       { title: "License of Foreign Employment", fileUrl: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784998968/SSIS_License_of_Foreign_Employment_xwnjyf.pdf", image: "" },
@@ -836,13 +836,13 @@ export const trustContent: PageContent[] = [
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Internationally Recognized.",
     missionText: [
-      "Our commitment to quality and ethics is validated by international standards bodies. We hold ISO certifications for Quality Management Systems.",
-      "These certifications guarantee that our internal processes for sourcing, screening, and deployment meet the highest global benchmarks for reliability."
+      "Our recruitment workflows operate under an ISO 9001:2015 certified Quality Management System.",
+      "This certification validates that our organizational procedures for candidate intake, document handling, and client coordination conform to documented quality management standards."
     ],
     features: [
-      { title: "ISO 9001:2015", desc: "Certified for rigorous Quality Management Systems." },
-      { title: "RBA Alignment", desc: "Operational framework built on the Responsible Business Alliance code." },
-      { title: "Continuous Audits", desc: "Subject to unannounced third-party compliance checks." }
+      { title: "ISO 9001:2015 Certified", desc: "Quality Management System certification covering recruitment and placement processes, subject to documented certificate scope." },
+      { title: "RBA-Aligned Framework", desc: "Recruitment operations structured around the labour provisions of the Responsible Business Alliance Code of Conduct." },
+      { title: "Standardized Procedures", desc: "Workflows governed by documented operational quality management procedures under our ISO 9001:2015 framework." }
     ]
   },
   { 
@@ -852,12 +852,12 @@ export const trustContent: PageContent[] = [
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Total Transparency.",
     missionText: [
-      "We believe that trust is built on transparency. All our major compliance documents, tax clearances, and operational licenses are available for employer review.",
-      "By maintaining an open-book policy, we assure our partners that they are working with a financially stable and legally unassailable entity."
+      "We believe that trust is built on transparency. Key operational licences, registration records, and association memberships are available for employer review.",
+      "By maintaining accessible documentation, we assure our partners that they are working with a legally registered and authorized recruitment enterprise."
     ],
     features: [
-      { title: "Tax Clearances", desc: "Up-to-date financial compliance with the Government of Nepal." },
-      { title: "Chamber of Commerce", desc: "Registered and active members of the national business chamber." },
+      { title: "DoFE Registration", desc: "Operating under Department of Foreign Employment Licence No. 888/067/068." },
+      { title: "Company Incorporation", desc: "Registered with the Office of the Company Registrar, Government of Nepal." },
       { title: "NAFEA Membership", desc: "Active members of the Nepal Association of Foreign Employment Agencies." }
     ]
   },
@@ -900,13 +900,29 @@ export const trustContent: PageContent[] = [
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
     missionHeading: "Always Listening.",
     missionText: [
-      "Even with the best preparation, issues can arise during deployment. Our Grievance Mechanism provides a safe, anonymous way for workers to report concerns.",
+      "Even with the best preparation, issues can arise during deployment. Our Grievance Mechanism provides a safe, accessible way for workers to report concerns.",
       "Our dedicated welfare officers investigate every claim, working with both the worker and the employer to find an equitable resolution."
     ],
     features: [
       { title: "Anonymous Reporting", desc: "Secure channels for workers to report issues without fear." },
       { title: "Welfare Officers", desc: "Dedicated staff in major deployment hubs to mediate disputes." },
       { title: "24-Hour Acknowledgement", desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours to confirm intake, followed by structured inquiry and destination-country dispute resolution." }
+    ],
+    processEyebrow: "Grievance Intake & Handling",
+    processHeading: "How Worker Grievances Are Processed.",
+    process: [
+      { title: "Submission & Intake", desc: "Deployed workers or family members submit concerns through the worker grievance portal at /worker-grievance, telephone, or messaging channels." },
+      { title: "24-Hour Acknowledgement", desc: "Every submitted report is logged and acknowledged within 24 hours to confirm intake and assign an operational case reference." },
+      { title: "Documentation Review", desc: "The welfare desk reviews contractual records, deployment details, and candidate-provided documentation to identify the specific issue." },
+      { title: "Employer Communication", desc: "Our team coordinates directly with the employer or destination partner to address the matter in accordance with the employment agreement." }
+    ],
+    faqsEyebrow: "Grievance FAQ",
+    faqsHeading: "Frequently Asked Questions About Grievance Support.",
+    faqs: [
+      { q: "How can a deployed worker submit a grievance?", a: "Workers can submit grievances online 24/7 via the worker grievance portal at /worker-grievance, or by contacting our Kathmandu office through direct telephone and messaging channels." },
+      { q: "How quickly is a submitted grievance acknowledged?", a: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours to confirm intake and register the case with our welfare support desk." },
+      { q: "What details should be included with a grievance report?", a: "To assist inquiry, workers should provide their full name, passport number, employer name, destination country, contact details, and a factual description of the issue." },
+      { q: "Where does the grievance process direct for formal submission?", a: "Formal online reports should be submitted directly through /worker-grievance, where details are routed to our Kathmandu welfare desk for case review." }
     ],
     cta: {
       heading: "Need to submit a grievance or report an issue?",
