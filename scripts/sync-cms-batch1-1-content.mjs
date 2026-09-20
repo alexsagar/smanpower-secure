@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * scripts/sync-cms-batch1-1-content.mjs
  *
@@ -48,9 +46,13 @@ export function computeSha256(content) {
   return createHash("sha256").update(content, "utf8").digest("hex");
 }
 
-export function computeObjectChecksum(obj) {
-  return computeSha256(JSON.stringify(obj, Object.keys(obj || {}).sort()));
-}
+import {
+  canonicalJsonStringify,
+  computeObjectChecksum,
+  validateRollbackPlan,
+} from "../src/lib/cms-checksum.ts";
+
+export { canonicalJsonStringify, computeObjectChecksum, validateRollbackPlan };
 
 export function getUpdatedBlockContent(slug, existingContent = {}) {
   const fallback = trustContent.find((p) => {
@@ -77,7 +79,7 @@ export function getUpdatedBlockContent(slug, existingContent = {}) {
   return merged;
 }
 
-async function handleRollback(prisma, snapshotPath, isExecute) {
+async function handleRollback(prisma, snapshotPath, isExecute, dbIdentity, allowUnexpected = false) {
   console.log(`\n🔄 Initiating ROLLBACK from snapshot: ${snapshotPath}`);
   if (!existsSync(snapshotPath)) {
     console.error(`❌ ERROR: Snapshot file not found: ${snapshotPath}`);
@@ -101,8 +103,10 @@ async function handleRollback(prisma, snapshotPath, isExecute) {
 
   console.log(`   Snapshot timestamp: ${parsed.timestamp || "unknown"}`);
   console.log(`   Snapshot SHA-256: ${fileHash}`);
-  console.log(`   Blocks to restore: ${parsed.blocks.length}`);
+  console.log(`   Blocks in snapshot: ${parsed.blocks.length}`);
 
+  // Pre-fetch live blocks from database
+  const liveBlocks = new Map();
   for (const item of parsed.blocks) {
     const existing = await prisma.cmsContentBlock.findUnique({
       where: { id: item.blockId },
@@ -111,20 +115,49 @@ async function handleRollback(prisma, snapshotPath, isExecute) {
       console.error(`❌ ERROR: Block ${item.blockId} does not exist in the database!`);
       process.exit(1);
     }
-    console.log(`   - Verified existence of block: ${item.blockId} (${item.slug})`);
+    liveBlocks.set(item.blockId, existing.content);
   }
 
-  if (!isExecute) {
-    console.log("\n🔍 DRY-RUN ROLLBACK complete. Pass `--execute` to perform actual rollback.");
+  const validation = validateRollbackPlan({
+    snapshotDbHash: parsed.dbHash,
+    currentDbHash: dbIdentity.hash,
+    snapshotBlocks: parsed.blocks,
+    liveBlocks,
+    getExpectedPostSyncContent: (slug, content) => getUpdatedBlockContent(slug, content),
+    allowUnexpected,
+  });
+
+  if (!validation.success) {
+    console.error(`❌ ERROR: ${validation.error}`);
+    process.exit(1);
+  }
+
+  for (const item of parsed.blocks) {
+    const currentChecksum = computeObjectChecksum(liveBlocks.get(item.blockId));
+    const restoreChecksum = computeObjectChecksum(item.content);
+    console.log(`   - Block [${item.slug}] ID: ${item.blockId}`);
+    console.log(`     Current DB checksum:     ${currentChecksum.slice(0, 16)}...`);
+    console.log(`     Target restore checksum: ${restoreChecksum.slice(0, 16)}...`);
+  }
+
+  const restoreActions = validation.actions;
+
+  if (restoreActions.length === 0) {
+    console.log("\n✨ All blocks already match the snapshot. No database restoration needed.");
     return;
   }
 
-  console.log("\n⚡ Performing atomic rollback transaction...");
+  if (!isExecute) {
+    console.log(`\n🔍 DRY-RUN ROLLBACK complete. ${restoreActions.length} block(s) ready to restore. Pass \`--execute\` to apply.`);
+    return;
+  }
+
+  console.log(`\n⚡ Performing atomic rollback transaction (${restoreActions.length} blocks)...`);
   await prisma.$transaction(async (tx) => {
-    for (const item of parsed.blocks) {
+    for (const act of restoreActions) {
       await tx.cmsContentBlock.update({
-        where: { id: item.blockId },
-        data: { content: item.content },
+        where: { id: act.blockId },
+        data: { content: act.content },
       });
     }
   });
@@ -139,12 +172,16 @@ async function main() {
   const isRollback = args.includes("--rollback");
   const rollbackArgIdx = args.indexOf("--rollback");
   const rollbackPath = rollbackArgIdx >= 0 ? args[rollbackArgIdx + 1] : null;
+  const allowUnexpected = args.includes("--force-unmatched");
 
   console.log("================================================================================");
   console.log("🔧  CMS BATCH 1.1 CONTENT RECONCILIATION");
   console.log(`    Mode: ${isDryRun ? "DRY-RUN (read-only, pass --execute to apply)" : "EXECUTE (writing to database)"}`);
   if (isRollback) {
     console.log(`    Action: ROLLBACK from snapshot`);
+    if (allowUnexpected) {
+      console.log(`    Flag: --force-unmatched (permits overwriting unexpected edits)`);
+    }
   }
   console.log("================================================================================");
 
@@ -186,7 +223,7 @@ async function main() {
         console.error("❌ ERROR: `--rollback` flag requires snapshot file path.");
         process.exit(1);
       }
-      await handleRollback(prisma, rollbackPath, isExecute);
+      await handleRollback(prisma, rollbackPath, isExecute, dbIdentity, allowUnexpected);
       return;
     }
 

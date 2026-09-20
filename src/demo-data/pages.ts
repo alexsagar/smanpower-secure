@@ -272,7 +272,7 @@ export const demoPages: CmsPage[] = [
     "Certifications",
     "Internationally Recognized.",
     [
-      "Our recruitment workflows operate under an ISO 9001:2015 certified Quality Management System.",
+      "Our recruitment workflows operate under an ISO 9001:2015 certified Quality Management System, and our recruitment practices are RBA-compliant and Sedex-compliant.",
       "This certification validates that our organizational procedures for candidate intake, document handling, and client coordination conform to documented quality management standards."
     ],
     [
