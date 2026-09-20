@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPageBySlug } from "@/repositories/content-resolver";
+import { getPageBySlug, getPageSeo } from "@/repositories/content-resolver";
 import { HeroRenderer } from "@/components/cms/HeroRenderer";
 import { ContentBlockRenderer } from "@/components/cms/ContentBlockRenderer";
-
+import { WorkforceMobilizationSection } from "@/components/employers/WorkforceMobilizationSection";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-
-import { getPageSeo } from "@/repositories/content-resolver";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo("/employers");
@@ -23,8 +21,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 86400;
 
 export default async function EmployersPage() {
-
-
   const page = await getPageBySlug("employers");
   
   if (!page) {
@@ -47,6 +43,8 @@ export default async function EmployersPage() {
       {page.blocks?.map((block) => (
         <ContentBlockRenderer key={block.id} block={block} />
       ))}
+
+      <WorkforceMobilizationSection />
     </>
   );
 }

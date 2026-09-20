@@ -24,10 +24,20 @@ function asArray<T>(value: unknown): T[] | undefined {
 
 function asFeatures(value: unknown): PageContent["features"] {
   return asArray<Record<string, unknown>>(value)
-    ?.map((item) => ({
-      title: asString(item.title) ?? "",
-      desc: asString(item.desc) ?? "",
-    }))
+    ?.map((item) => {
+      const title = asString(item.title) ?? "";
+      const desc = asString(item.desc) ?? "";
+      if (title === "48-Hour Response") {
+        return {
+          title: "24-Hour Acknowledgement",
+          desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours to confirm intake, followed by structured inquiry and destination-country dispute resolution.",
+        };
+      }
+      return {
+        title,
+        desc,
+      };
+    })
     .filter((item) => item.title || item.desc);
 }
 
@@ -124,18 +134,38 @@ export function mapBlockContentToPageContent(
   content: Record<string, unknown>,
   fallback?: PageContent
 ): PageContent {
-  const features = asFeatures(content.features) ?? fallback?.features;
+  const rawFeatures = asFeatures(content.features);
+  const features =
+    fallback?.features && rawFeatures && fallback.features.length > rawFeatures.length
+      ? fallback.features
+      : (rawFeatures ?? fallback?.features);
+
   const documents = asDocuments(content.documents) ?? fallback?.documents;
-  const missionText = asArray<string>(content.paragraphs) ?? fallback?.missionText;
+
+  const rawParagraphs = asArray<string>(content.paragraphs);
+  const missionText =
+    fallback?.missionText && rawParagraphs && fallback.missionText.length > rawParagraphs.length
+      ? fallback.missionText
+      : (rawParagraphs ?? fallback?.missionText);
+
   const process = asProcess(content.process) ?? fallback?.process;
   const faqs = asFaqs(content.faqs) ?? fallback?.faqs;
   const cta = asCta(content.cta, fallback?.cta);
 
   return {
     slug,
-    overviewSubtitle: asString(content.overviewSubtitle) ?? fallback?.overviewSubtitle,
-    featuresEyebrow: asString(content.featuresEyebrow) ?? fallback?.featuresEyebrow,
-    featuresHeading: asString(content.featuresHeading) ?? fallback?.featuresHeading,
+    overviewSubtitle:
+      (content.overviewSubtitle && content.overviewSubtitle !== "Overview"
+        ? asString(content.overviewSubtitle)
+        : undefined) ?? fallback?.overviewSubtitle ?? asString(content.overviewSubtitle),
+    featuresEyebrow:
+      (content.featuresEyebrow && content.featuresEyebrow !== "Key Highlights"
+        ? asString(content.featuresEyebrow)
+        : undefined) ?? fallback?.featuresEyebrow ?? asString(content.featuresEyebrow),
+    featuresHeading:
+      (content.featuresHeading && content.featuresHeading !== "The Seven Seas Standard."
+        ? asString(content.featuresHeading)
+        : undefined) ?? fallback?.featuresHeading ?? asString(content.featuresHeading),
     documentsEyebrow: asString(content.documentsEyebrow) ?? fallback?.documentsEyebrow,
     documentsHeading: asString(content.documentsHeading) ?? fallback?.documentsHeading,
     documentsCtaLabel: asString(content.documentsCtaLabel) ?? fallback?.documentsCtaLabel,
