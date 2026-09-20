@@ -100,6 +100,57 @@ export const buildWebPageSchema = ({
 };
 
 /**
+ * EmploymentAgency JSON-LD for the single verified Kathmandu office.
+ *
+ * Emits only fields whose values are rendered on the page itself: name,
+ * address, telephone and email. Opening hours, geo coordinates and a Google
+ * Business Profile `sameAs` are deliberately omitted until an authoritative
+ * source confirms them — an absent property is correct, an invented one is not.
+ * Never emit this for a destination country: there is no office abroad.
+ */
+export const buildEmploymentAgencySchema = ({
+  canonicalUrl,
+  name,
+  streetAddress,
+  addressLocality,
+  addressRegion,
+  postalCode,
+  addressCountry,
+  telephone,
+  email,
+}: {
+  canonicalUrl: string;
+  name: string;
+  streetAddress: string;
+  addressLocality: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry: string;
+  telephone?: string;
+  email?: string;
+}) => {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl || !canonicalUrl) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "EmploymentAgency",
+    "@id": `${canonicalUrl}#office`,
+    "name": name,
+    "url": canonicalUrl,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": streetAddress,
+      "addressLocality": addressLocality,
+      ...(addressRegion ? { addressRegion } : {}),
+      ...(postalCode ? { postalCode } : {}),
+      "addressCountry": addressCountry,
+    },
+    ...(telephone ? { telephone } : {}),
+    ...(email ? { email } : {}),
+  };
+};
+
+/**
  * BreadcrumbList JSON-LD built from the SAME items used to render the visible
  * breadcrumb trail, guaranteeing parity. `items` are ordered root → current;
  * `url` is optional on the final (current) crumb.

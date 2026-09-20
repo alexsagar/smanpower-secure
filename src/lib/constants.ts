@@ -136,6 +136,11 @@ export const MAIN_NAVIGATION: NavItem[] = [
         href: "/employers/case-studies",
         description: "Successful deployment stories",
       },
+      {
+        label: "Recruitment by Destination",
+        href: "/destinations",
+        description: "Destinations we currently recruit for",
+      },
     ],
   },
   {

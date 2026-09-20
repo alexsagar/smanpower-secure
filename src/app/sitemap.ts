@@ -9,6 +9,7 @@ import {
   trainingContent,
   employersContent,
   ethicalContent,
+  destinationsContent,
 } from "@/lib/content";
 import { CACHE_TAGS, CACHE_REVALIDATE } from "@/lib/cache-tags";
 
@@ -109,11 +110,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/careers", changeFrequency: "weekly" as const, priority: 0.7 },
     { path: "/contact", changeFrequency: "monthly" as const, priority: 0.6 },
     { path: "/demands", changeFrequency: "daily" as const, priority: 0.9 },
+    { path: "/destinations", changeFrequency: "monthly" as const, priority: 0.8 },
     { path: "/employers", changeFrequency: "monthly" as const, priority: 0.8 },
     { path: "/employers/request-workforce", changeFrequency: "monthly" as const, priority: 0.7 },
     { path: "/ethical-recruitment", changeFrequency: "monthly" as const, priority: 0.8 },
     { path: "/industries", changeFrequency: "monthly" as const, priority: 0.8 },
     { path: "/insights", changeFrequency: "weekly" as const, priority: 0.7 },
+    { path: "/manpower-agency-in-kathmandu", changeFrequency: "monthly" as const, priority: 0.7 },
     { path: "/news", changeFrequency: "weekly" as const, priority: 0.7 },
     { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.5 },
     { path: "/success-stories", changeFrequency: "monthly" as const, priority: 0.7 },
@@ -136,6 +139,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   trainingContent.forEach(({ slug }) => {
     addEntry(`/training-facilities/${slug}`, "monthly", 0.7);
+  });
+  destinationsContent.forEach(({ slug }) => {
+    addEntry(`/destinations/${slug}`, "monthly", 0.7);
   });
   employersContent.forEach(({ slug }) => {
     addEntry(`/employers/${slug}`, "monthly", 0.7);

@@ -10,7 +10,16 @@ import type { PageContent } from "@/lib/content";
 import { PageBreadcrumbs, type Crumb } from "@/components/seo/PageBreadcrumbs";
 import { buildFaqSchema } from "@/lib/seo/schema";
 
-export function DynamicPageTemplate({ content, breadcrumbs }: { content: PageContent; breadcrumbs?: Crumb[] }) {
+export function DynamicPageTemplate({
+  content,
+  breadcrumbs,
+  extraSection,
+}: {
+  content: PageContent;
+  breadcrumbs?: Crumb[];
+  /** Optional server-rendered section (e.g. live demands) placed before the process timeline. */
+  extraSection?: React.ReactNode;
+}) {
   const faqSchema = content.faqs && content.faqs.length > 0 ? buildFaqSchema(content.faqs) : null;
   return (
     <article className="min-h-screen bg-brand-off-white text-brand-black">
@@ -130,6 +139,47 @@ export function DynamicPageTemplate({ content, breadcrumbs }: { content: PageCon
         </section>
       )}
 
+      {/* Contextual Internal Links */}
+      {content.links && content.links.length > 0 && (
+        <section className="py-24 lg:py-32 bg-white text-brand-black relative border-t border-brand-charcoal/10">
+          <div className="container-wide mx-auto px-6 lg:px-12 relative z-10">
+            <div className="mb-16 text-center max-w-3xl mx-auto">
+              <span className="text-brand-gold-dark text-xs font-semibold tracking-[0.3em] uppercase mb-4 block">
+                {content.linksEyebrow || "Explore Further"}
+              </span>
+              <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] text-brand-black">
+                {content.linksHeading || "Related Pages."}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {content.links.map((link, i) => (
+                <ScrollReveal key={i} delay={i * 0.04}>
+                  <Link
+                    href={link.href}
+                    className="group h-full flex flex-col justify-between border border-brand-charcoal/10 bg-brand-off-white p-8 hover:border-brand-gold hover:shadow-lg transition-all duration-300"
+                  >
+                    <div>
+                      <h3 className="text-xl font-semibold text-brand-black mb-3 group-hover:text-brand-gold-dark transition-colors">
+                        {link.title}
+                      </h3>
+                      {link.desc && (
+                        <p className="text-brand-muted leading-relaxed font-light text-sm">{link.desc}</p>
+                      )}
+                    </div>
+                    <span className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-gold-dark">
+                      View <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </Link>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {extraSection}
+
       {/* Process Section - Centered 4-Step Grid Flow */}
       {content.process && content.process.length > 0 && (
         <EthicalProcessTimeline
@@ -171,7 +221,7 @@ export function DynamicPageTemplate({ content, breadcrumbs }: { content: PageCon
           <div className="container-wide mx-auto px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
             <div className="max-w-3xl">
               <span className="text-brand-gold text-xs font-semibold tracking-widest uppercase mb-3 block">
-                Workforce Deployment Proposal
+                {content.cta.eyebrow || "Workforce Deployment Proposal"}
               </span>
               <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter leading-[1.1] mb-4 text-brand-white">
                 {content.cta.heading}
@@ -181,14 +231,23 @@ export function DynamicPageTemplate({ content, breadcrumbs }: { content: PageCon
               </p>
             </div>
             {content.cta.buttonLabel && content.cta.buttonHref && (
-              <div className="shrink-0">
+              <div className="shrink-0 flex flex-col sm:flex-row gap-4">
                 <Link
                   href={content.cta.buttonHref}
-                  className="inline-flex items-center gap-3 bg-brand-gold text-brand-black px-8 py-4 text-xs font-semibold uppercase tracking-widest hover:bg-white transition-colors shadow-xl"
+                  className="inline-flex items-center justify-center gap-3 bg-brand-gold text-brand-black px-8 py-4 text-xs font-semibold uppercase tracking-widest hover:bg-white transition-colors shadow-xl"
                 >
                   <span>{content.cta.buttonLabel}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
+                {content.cta.secondaryLabel && content.cta.secondaryHref && (
+                  <Link
+                    href={content.cta.secondaryHref}
+                    className="inline-flex items-center justify-center gap-3 border border-brand-white/40 text-brand-white px-8 py-4 text-xs font-semibold uppercase tracking-widest hover:bg-brand-white hover:text-brand-black transition-colors"
+                  >
+                    <span>{content.cta.secondaryLabel}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </div>
             )}
           </div>

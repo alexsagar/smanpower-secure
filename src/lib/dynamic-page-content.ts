@@ -69,17 +69,33 @@ function asFaqs(value: unknown): PageContent["faqs"] {
     .filter((item) => item.q || item.a);
 }
 
+function asLinks(value: unknown): PageContent["links"] {
+  return asArray<Record<string, unknown>>(value)
+    ?.map((item) => ({
+      title: asString(item.title) ?? "",
+      href: asString(item.href) ?? "",
+      ...(asString(item.desc) ? { desc: asString(item.desc) } : {}),
+    }))
+    .filter((item) => item.href);
+}
+
 function asCta(value: unknown, fallback?: PageContent["cta"]): PageContent["cta"] {
   if (!value || typeof value !== "object") return fallback;
   const item = value as Record<string, unknown>;
   const heading = asString(item.heading);
   const body = asString(item.body);
   if (!heading && !body) return fallback;
+  const eyebrow = asString(item.eyebrow) ?? fallback?.eyebrow;
+  const secondaryLabel = asString(item.secondaryLabel) ?? fallback?.secondaryLabel;
+  const secondaryHref = asString(item.secondaryHref) ?? fallback?.secondaryHref;
   return {
     heading: heading ?? fallback?.heading ?? "",
     body: body ?? fallback?.body ?? "",
     buttonLabel: asString(item.buttonLabel) ?? fallback?.buttonLabel,
     buttonHref: asString(item.buttonHref) ?? fallback?.buttonHref,
+    ...(eyebrow ? { eyebrow } : {}),
+    ...(secondaryLabel ? { secondaryLabel } : {}),
+    ...(secondaryHref ? { secondaryHref } : {}),
   };
 }
 
@@ -124,6 +140,15 @@ export function buildDynamicPageBlockContent(entry: PageContent) {
     faqs: entry.faqs ?? [],
     faqsEyebrow: entry.faqsEyebrow ?? "",
     faqsHeading: entry.faqsHeading ?? "",
+    // Only emitted for pages that actually use the links section, so migrating
+    // an existing page does not rewrite its stored block with empty fields.
+    ...(entry.links?.length
+      ? {
+          links: entry.links,
+          linksEyebrow: entry.linksEyebrow ?? "",
+          linksHeading: entry.linksHeading ?? "",
+        }
+      : {}),
     cta: entry.cta ?? null,
   };
 }
@@ -149,6 +174,7 @@ export function mapBlockContentToPageContent(
       : (rawParagraphs ?? fallback?.missionText);
 
   const process = asProcess(content.process) ?? fallback?.process;
+  const links = asLinks(content.links) ?? fallback?.links;
   const faqs = asFaqs(content.faqs) ?? fallback?.faqs;
   const cta = asCta(content.cta, fallback?.cta);
 
@@ -173,6 +199,8 @@ export function mapBlockContentToPageContent(
     processHeading: asString(content.processHeading) ?? fallback?.processHeading,
     faqsEyebrow: asString(content.faqsEyebrow) ?? fallback?.faqsEyebrow,
     faqsHeading: asString(content.faqsHeading) ?? fallback?.faqsHeading,
+    linksEyebrow: asString(content.linksEyebrow) ?? fallback?.linksEyebrow,
+    linksHeading: asString(content.linksHeading) ?? fallback?.linksHeading,
     title: asString(content.title) ?? fallback?.title ?? "",
     subtitle: asString(content.subtitle) ?? fallback?.subtitle ?? "",
     heroImage: asString(content.heroImage) ?? fallback?.heroImage ?? "",
@@ -182,6 +210,7 @@ export function mapBlockContentToPageContent(
     ...(documents ? { documents } : {}),
     ...(process ? { process } : {}),
     ...(faqs ? { faqs } : {}),
+    ...(links ? { links } : {}),
     ...(cta ? { cta } : {}),
   };
 }

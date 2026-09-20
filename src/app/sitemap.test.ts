@@ -39,6 +39,8 @@ describe("sitemap", () => {
         { slug: "home", updatedAt: new Date("2026-07-08") },
         { slug: "layout", updatedAt: new Date("2026-07-08") },
         { slug: "demands/detail", updatedAt: new Date("2026-07-08") },
+        { slug: "destinations", updatedAt: new Date("2026-07-09") },
+        { slug: "manpower-agency-in-kathmandu", updatedAt: new Date("2026-07-09") },
       ]);
 
     const { default: sitemap } = await import("./sitemap");
@@ -73,6 +75,20 @@ describe("sitemap", () => {
     expect(urls).not.toContain("https://smanpower.com/home");
     expect(urls).not.toContain("https://smanpower.com/layout");
     expect(urls).not.toContain("https://smanpower.com/demands/detail");
+
+    // Destination and Kathmandu pages appear exactly once each, even though a
+    // published CmsPage row exists for the same top-level slug.
+    for (const path of [
+      "/destinations",
+      "/destinations/saudi-arabia",
+      "/destinations/united-arab-emirates",
+      "/destinations/qatar",
+      "/manpower-agency-in-kathmandu",
+    ]) {
+      const url = `https://smanpower.com${path}`;
+      expect(urls.filter((u) => u === url)).toHaveLength(1);
+    }
+    expect(urls).toHaveLength(new Set(urls).size);
 
     // Static routes carry no real timestamp, so no artificial lastModified.
     const root = entries.find((e) => e.url === "https://smanpower.com/");
