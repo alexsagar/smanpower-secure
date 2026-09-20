@@ -29,12 +29,29 @@ export interface PageContent {
   }[];
   faqsEyebrow?: string;
   faqsHeading?: string;
+  /**
+   * Contextual internal links. Rendered as its own card section when present,
+   * so a page can point at the sectors, facilities and records it actually
+   * relates to instead of burying them in prose the template renders as text.
+   */
+  links?: {
+    title: string;
+    desc?: string;
+    href: string;
+  }[];
+  linksEyebrow?: string;
+  linksHeading?: string;
   /** Closing call-to-action band. Rendered when present. */
   cta?: {
     heading: string;
     body: string;
     buttonLabel?: string;
     buttonHref?: string;
+    /** Overrides the band's default eyebrow. */
+    eyebrow?: string;
+    /** Optional second action, for pages serving two distinct audiences. */
+    secondaryLabel?: string;
+    secondaryHref?: string;
   };
   /**
    * Labels rendered by DynamicPageTemplate itself. Optional: when absent the
@@ -933,6 +950,330 @@ export const trustContent: PageContent[] = [
   }
 ];
 
+
+// ============================================================
+// DESTINATIONS (recruitment by destination) + STANDALONE SEO PAGES
+// ============================================================
+// Saudi Arabia, the United Arab Emirates and Qatar are management-confirmed
+// active destinations. Everything written here is drawn from capabilities the
+// website already documents (sectors, screening, trade testing, training,
+// documentation, ethical recruitment) — no country-specific visa procedure,
+// salary figure, deployment volume, employer name, office abroad, or
+// placement guarantee is claimed anywhere below.
+
+/** Indicative, explicitly non-guaranteed mobilisation wording. One source. */
+export const INDICATIVE_TIMEFRAME =
+  "Our current indicative mobilisation timeframe for Gulf destinations is 30 to 45 days. This is an estimate rather than a guarantee: actual lead times depend on the requirement, document attestation, government approvals, medical clearances and other relevant factors.";
+
+/** Sector links shared by the destination pages — the sectors already listed on the website. */
+const SECTOR_LINKS = [
+  { title: "Security Services", desc: "Guards and security personnel screened for overseas security roles.", href: "/industries/security-services" },
+  { title: "Construction & Technical Trades", desc: "Masons, steel fixers, welders, electricians, plumbers and allied trades.", href: "/industries/construction-and-technical-trades" },
+  { title: "Hospitality & Hotels", desc: "Kitchen, food and beverage, housekeeping and front-of-house staff.", href: "/industries/hospitality-and-hotels" },
+  { title: "Facility Management", desc: "Cleaning, maintenance and soft-services teams for managed facilities.", href: "/industries/facility-management" },
+  { title: "Aviation & Ground Handling", desc: "Ground handling, ramp, cargo and airport support roles.", href: "/industries/aviation-and-ground-handling" },
+  { title: "Manufacturing", desc: "Production operators, machine handlers and factory support workers.", href: "/industries/manufacturing" },
+  { title: "Healthcare Support", desc: "Support and auxiliary roles within healthcare environments.", href: "/industries/healthcare-support" },
+  { title: "Logistics & Transport", desc: "Drivers, warehouse and distribution personnel.", href: "/industries/logistics-and-transport" },
+];
+
+/**
+ * Sections shared by every destination page. The Nepal-side recruitment path,
+ * the employer FAQs and the closing CTA are genuinely identical across these
+ * destinations, so they are written once here rather than re-spun three times
+ * to make the pages look more different than they are.
+ */
+const destinationDefaults: Partial<PageContent> = {
+  processEyebrow: "How We Mobilise",
+  processHeading: "The Nepal-Side Recruitment Path.",
+  process: [
+    {
+      title: "Demand Documents & Attestation",
+      desc: "Your demand letter, power of attorney and employment agreement are verified through the Chamber of Commerce and the Nepal Embassy, and the requirement is registered with Nepal's Department of Foreign Employment before any candidate is approached.",
+    },
+    {
+      title: "Sourcing & Screening",
+      desc: "Candidates are identified through our sourcing network across all seven provinces of Nepal and put through background, medical and behavioural screening before any shortlist reaches you.",
+    },
+    {
+      title: "Trade Testing & Employer Selection",
+      desc: "Shortlisted candidates are trade-tested in our Kathmandu facilities. You can interview them and observe the trade tests by live video, or send your own assessors to Kathmandu.",
+    },
+    {
+      title: "Documentation, Orientation & Departure",
+      desc: "We coordinate medical examinations, visa documentation, Department of Foreign Employment labour approval and the mandatory pre-departure orientation, then schedule travel and stay in contact after arrival.",
+    },
+  ],
+  faqsEyebrow: "Employer Questions",
+  faqsHeading: "What Employers Ask Us.",
+  linksEyebrow: "Sectors and Preparation",
+  linksHeading: "Roles We Source and How They Are Prepared.",
+  links: [
+    ...SECTOR_LINKS,
+    { title: "Trade Test Centre", desc: "Practical skill assessment in our Kathmandu facilities, observable remotely.", href: "/training-facilities/trade-test-centre" },
+    { title: "Pre-Departure Orientation", desc: "Mandatory orientation covering the role, the contract and life abroad.", href: "/training-facilities/orientation" },
+    { title: "Recruitment Fee Transparency", desc: "How the employer-pays principle is applied in practice.", href: "/ethical-recruitment/recruitment-fees" },
+    { title: "Licences & Registration", desc: "Our foreign employment licence and registration records.", href: "/trust-centre/licences" },
+  ],
+  cta: {
+    eyebrow: "Workforce Deployment Proposal",
+    heading: "Ready to build your team from Nepal?",
+    body: "Share your role requirements, headcount and target start date. Our corporate relations team will respond within 24 hours with a tailored recruitment proposal.",
+    buttonLabel: "Request Workforce",
+    buttonHref: "/employers/request-workforce",
+  },
+};
+
+// Registered here rather than inline in `categoryDefaults` because the shared
+// sections are defined further down the file with the destination content.
+categoryDefaults.destinations = destinationDefaults;
+
+/** Employer FAQs shared across the destination pages, with the country named. */
+function destinationFaqs(country: string): { q: string; a: string }[] {
+  return [
+    {
+      q: "Do candidates pay any recruitment fees?",
+      a: `Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer. This applies to every requirement we accept for ${country}.`,
+    },
+    {
+      q: "How long does mobilisation usually take?",
+      a: INDICATIVE_TIMEFRAME,
+    },
+    {
+      q: "Can we interview and trade-test candidates before selecting them?",
+      a: `Yes. You can interview shortlisted candidates and observe practical trade tests by live video from ${country}, or send your own assessors to our Kathmandu facilities.`,
+    },
+    {
+      q: `Does Seven Seas have an office in ${country}?`,
+      a: `No. Seven Seas Intercontinental operates from a single office in Kathmandu, Nepal. Work in ${country} is handled through coordination with employers and partners in destination countries, not through a branch of our own.`,
+    },
+    {
+      q: "What recruitment standards do you work to?",
+      a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our recruitment practices are RBA-compliant and Sedex-compliant, operating within an RBA-aligned framework adhering to the Employer-Pays Principle.",
+    },
+    {
+      q: "Which sectors can you recruit for?",
+      a: "The sectors listed on this page are the ones we recruit for: security services, construction and technical trades, hospitality and hotels, facility management, aviation and ground handling, manufacturing, healthcare support, and logistics and transport.",
+    },
+  ];
+}
+
+const DESTINATION_HERO_IMAGE = "/images/hero_training_orientation_1782920391505.png";
+
+/** Country pages. Paragraph structure is shared on purpose; only supportable country context differs. */
+export const destinationsContent: PageContent[] = [
+  {
+    slug: "saudi-arabia",
+    title: "Recruitment of Nepali Workers for Saudi Arabia.",
+    subtitle: "Saudi Arabia",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Saudi Employers.",
+    missionText: [
+      "Saudi Arabia is an active recruitment destination for Seven Seas Intercontinental. Employers in Saudi Arabia appoint us to source, screen, trade-test and mobilise Nepali workers, with every step of the Nepal-side process handled by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Saudi Arabia: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every Saudi Arabian requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Saudi Arabian Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Saudi Arabia." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Saudi Arabian deployment." },
+    ],
+    faqs: destinationFaqs("Saudi Arabia"),
+  },
+  {
+    slug: "united-arab-emirates",
+    title: "Recruitment of Nepali Workers for the United Arab Emirates.",
+    subtitle: "United Arab Emirates",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for UAE Employers.",
+    missionText: [
+      "The United Arab Emirates is an active recruitment destination for Seven Seas Intercontinental. Employers across the UAE appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in the United Arab Emirates: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every UAE requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a UAE Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from the UAE." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every UAE deployment." },
+    ],
+    faqs: destinationFaqs("the United Arab Emirates"),
+  },
+  {
+    slug: "qatar",
+    title: "Recruitment of Nepali Workers for Qatar.",
+    subtitle: "Qatar",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Qatari Employers.",
+    missionText: [
+      "Qatar is an active recruitment destination for Seven Seas Intercontinental. Employers in Qatar appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Qatar: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every Qatari requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Qatari Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Qatar." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Qatari deployment." },
+    ],
+    faqs: destinationFaqs("Qatar"),
+  },
+];
+
+/**
+ * Pages that live at the site root rather than under a `[slug]` category. They
+ * reuse the same resolver, template and CMS-override behaviour; only the CMS
+ * slug and the canonical path differ.
+ */
+export const standaloneContent: PageContent[] = [
+  {
+    slug: "destinations",
+    title: "Recruitment by Destination.",
+    subtitle: "Destinations",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "Where We Recruit Nepali Workers For.",
+    missionText: [
+      "Seven Seas Intercontinental is a licensed Nepali recruitment agency, established in 2010 and working from a single office in Kathmandu. Employers appoint us to source, screen, trade-test and mobilise Nepali workers for their operations abroad.",
+      "Saudi Arabia, the United Arab Emirates and Qatar are currently active destinations for our recruitment services. The Nepal-side process is the same for each: the requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel.",
+      INDICATIVE_TIMEFRAME,
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "Active Destinations",
+    featuresHeading: "Destinations We Currently Recruit For.",
+    features: [
+      { title: "Saudi Arabia", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
+      { title: "United Arab Emirates", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
+      { title: "Qatar", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+    ],
+    linksEyebrow: "Destination Pages",
+    linksHeading: "Explore Each Destination.",
+    links: [
+      { title: "Saudi Arabia", desc: "How we recruit Nepali workers for employers in Saudi Arabia.", href: "/destinations/saudi-arabia" },
+      { title: "United Arab Emirates", desc: "How we recruit Nepali workers for employers in the UAE.", href: "/destinations/united-arab-emirates" },
+      { title: "Qatar", desc: "How we recruit Nepali workers for employers in Qatar.", href: "/destinations/qatar" },
+      { title: "Sectors We Recruit For", desc: "The industries we source and screen Nepali workers for.", href: "/industries" },
+      { title: "Current Demands", desc: "Published demands open for application right now.", href: "/demands" },
+      { title: "Our Kathmandu Office", desc: "The office every requirement is processed from.", href: "/manpower-agency-in-kathmandu" },
+    ],
+    processEyebrow: "How We Mobilise",
+    processHeading: "The Nepal-Side Recruitment Path.",
+    process: destinationDefaults.process,
+    faqsEyebrow: "Employer Questions",
+    faqsHeading: "What Employers Ask Us.",
+    faqs: [
+      {
+        q: "Which destinations are currently active?",
+        a: "Saudi Arabia, the United Arab Emirates and Qatar are currently active recruitment destinations for Seven Seas Intercontinental.",
+      },
+      {
+        q: "Do candidates pay any recruitment fees?",
+        a: "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer.",
+      },
+      {
+        q: "How long does mobilisation usually take?",
+        a: INDICATIVE_TIMEFRAME,
+      },
+      {
+        q: "Does Seven Seas have offices in destination countries?",
+        a: "No. Seven Seas Intercontinental operates from a single office in Kathmandu, Nepal. Work abroad is handled through coordination with employers and partners in destination countries, not through branches of our own.",
+      },
+      {
+        q: "What recruitment standards do you work to?",
+        a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our recruitment practices are RBA-compliant and Sedex-compliant, operating within an RBA-aligned framework adhering to the Employer-Pays Principle.",
+      },
+    ],
+    cta: {
+      eyebrow: "Workforce Deployment Proposal",
+      heading: "Ready to hire from Nepal?",
+      body: "Share your role requirements, headcount and target start date. Our corporate relations team will respond within 24 hours with a tailored recruitment proposal.",
+      buttonLabel: "Request Workforce",
+      buttonHref: "/employers/request-workforce",
+    },
+  },
+  {
+    slug: "manpower-agency-in-kathmandu",
+    title: "Manpower Agency in Kathmandu, Nepal.",
+    subtitle: "Kathmandu Office",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "Our Office in Guheswori, Kathmandu.",
+    missionText: [
+      "Seven Seas Intercontinental is a licensed manpower and overseas employment agency established in 2010, working from DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal. This is our only office; we have no other branches in Nepal or abroad.",
+      "Every requirement we accept is processed here: sourcing across all seven provinces, screening, practical trade testing, training, pre-departure orientation, and the documentation required under Nepal's Department of Foreign Employment framework.",
+      "You can reach the office on 01-5107440 or at info@smanpower.com. Employers should send workforce requirements through the Request Workforce form. Jobseekers should apply only through the published demands on our Demands page, and should never pay a recruitment fee to anyone.",
+    ],
+    overviewSubtitle: "Visit Us",
+    featuresEyebrow: "Office Details",
+    featuresHeading: "Where to Find Us.",
+    features: [
+      { title: "Address", desc: "DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal." },
+      { title: "Phone", desc: "01-5107440, or +977 1 5107440 from outside Nepal." },
+      { title: "Email", desc: "info@smanpower.com for employer and general enquiries." },
+      { title: "Licensed Agency", desc: "Our foreign employment licence and registration records are published in the Trust Centre." },
+      { title: "On-Site Facilities", desc: "Trade test, training and orientation facilities used throughout the recruitment process." },
+      { title: "One Office Only", desc: "Kathmandu is our only office. Verify anyone who claims to represent us elsewhere before paying them anything." },
+    ],
+    linksEyebrow: "Two Ways to Work With Us",
+    linksHeading: "Employers and Jobseekers.",
+    links: [
+      { title: "Employers: Request Workforce", desc: "Send us your role requirements, headcount and target start date.", href: "/employers/request-workforce" },
+      { title: "Jobseekers: Current Demands", desc: "Apply only through the published demands. Never pay a recruitment fee.", href: "/demands" },
+      { title: "Recruitment by Destination", desc: "The destinations we currently recruit for.", href: "/destinations" },
+      { title: "Our Facilities", desc: "Trade test, training and orientation facilities at our Kathmandu operation.", href: "/training-facilities" },
+      { title: "Licences & Registration", desc: "Verify our licence and registration records before engaging us.", href: "/trust-centre/licences" },
+      { title: "Worker Grievance Channel", desc: "Confidential channel for workers and applicants to raise a concern.", href: "/worker-grievance" },
+    ],
+    faqsEyebrow: "Common Questions",
+    faqsHeading: "Visiting and Verifying Us.",
+    faqs: [
+      {
+        q: "Where is the Seven Seas Intercontinental office?",
+        a: "DAI Complex, Panchakanya Marga, Guheswori, Kathmandu, Bagmati Province 44600, Nepal. It is our only office.",
+      },
+      {
+        q: "Does Seven Seas have other branches or any office abroad?",
+        a: "No. Kathmandu is our only office. Work in destination countries is handled through coordination with employers and partners in destination countries.",
+      },
+      {
+        q: "I am a jobseeker. How do I apply?",
+        a: "Apply only through the published demands on our Demands page. Do not send CVs through the employer enquiry form, and do not pay a recruitment fee to anyone claiming to represent us.",
+      },
+      {
+        q: "I am an employer. How do I start?",
+        a: "Use the Request Workforce form and include your role requirements, headcount and target start date. Our corporate relations team responds within 24 hours.",
+      },
+      {
+        q: "How can I verify that Seven Seas is licensed?",
+        a: "Our foreign employment licence, authority certificate for sending trainee workers to Japan, and company incorporation certificate are published in our Trust Centre.",
+      },
+    ],
+    cta: {
+      eyebrow: "Kathmandu Head Office",
+      heading: "Talk to our Kathmandu team.",
+      body: "Employers can submit a workforce requirement and receive a response within 24 hours. Jobseekers should review the currently published demands and apply through the official demand listing.",
+      buttonLabel: "Request Workforce",
+      buttonHref: "/employers/request-workforce",
+      secondaryLabel: "View Current Demands",
+      secondaryHref: "/demands",
+    },
+  },
+];
+
 // Helper to look up content
 export function getContentBySlug(category: string, slug: string): PageContent | undefined {
   const map: Record<string, PageContent[]> = {
@@ -941,6 +1282,8 @@ export function getContentBySlug(category: string, slug: string): PageContent | 
     industries: industriesContent,
     "training-facilities": trainingContent,
     "trust-centre": trustContent,
+    destinations: destinationsContent,
+    standalone: standaloneContent,
   };
 
   const page = map[category]?.find((p) => p.slug === slug);

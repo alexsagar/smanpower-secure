@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Mail, Phone, MapPin, Clock, Building2, Globe2, Inbox, Printer, ShieldCheck, Sparkles, Send, Map, Headphones } from "lucide-react";
 import type { Metadata } from "next";
@@ -94,6 +95,13 @@ export default async function ContactPage() {
               </h2>
               <p className="text-lg text-brand-charcoal/80 leading-relaxed font-sans">
                 {copy.details.body || "Whether you are an international employer seeking verified Nepalese talent or a candidate inquiring about deployment, our team in Kathmandu is ready to assist you."}
+              </p>
+              <p className="mt-4 text-base text-brand-charcoal/80 leading-relaxed font-sans">
+                More about{" "}
+                <Link href="/manpower-agency-in-kathmandu" className="text-brand-gold-dark font-semibold hover:underline">
+                  our manpower agency in Kathmandu
+                </Link>
+                , including the facilities and licence records behind every requirement we process.
               </p>
             </ScrollReveal>
           </div>

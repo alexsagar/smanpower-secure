@@ -41,13 +41,13 @@ const GROUPS: Array<{
   slugs: string[];
 }> = [
   { key: "main", label: "Main pages", description: "Primary marketing pages and their sub-pages.", slugs: [
-    "home", "about", "employers", "ethical-recruitment", "industries", "training-facilities", "trust-centre",
+    "home", "about", "employers", "destinations", "ethical-recruitment", "industries", "training-facilities", "trust-centre",
   ] },
   { key: "resources", label: "Resources", description: "Collection landing pages and their shared copy.", slugs: [
     "gallery", "success-stories", "insights", "news", "demands", "demands/detail",
   ] },
   { key: "engage", label: "Engage", description: "Pages where visitors get in touch or apply.", slugs: [
-    "careers", "careers/detail", "contact", "worker-grievance",
+    "careers", "careers/detail", "contact", "worker-grievance", "manpower-agency-in-kathmandu",
   ] },
   { key: "legal", label: "Legal", description: "Policy and terms pages.", slugs: [
     "privacy-policy", "terms-of-service",
@@ -64,6 +64,8 @@ const LABEL_OVERRIDES: Record<string, string> = {
   "demands/detail": "Demand Detail",
   "careers/detail": "Career Detail",
   "employers/request-workforce": "Request Workforce",
+  destinations: "Recruitment by Destination",
+  "manpower-agency-in-kathmandu": "Kathmandu Office",
 };
 
 export function humanizeSlugSegment(segment: string): string {

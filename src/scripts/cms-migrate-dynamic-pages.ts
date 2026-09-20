@@ -19,6 +19,8 @@ import {
   industriesContent,
   trainingContent,
   trustContent,
+  destinationsContent,
+  standaloneContent,
   type PageContent,
 } from "@/lib/content";
 import { buildDynamicPageBlockContent } from "@/lib/dynamic-page-content";
@@ -31,6 +33,9 @@ const CONTENT_GROUPS: Record<string, PageContent[]> = {
   industries: industriesContent,
   "training-facilities": trainingContent,
   "trust-centre": trustContent,
+  destinations: destinationsContent,
+  // Root-level pages: their CMS slug is the bare page slug, not category/slug.
+  standalone: standaloneContent,
 };
 
 function titleCase(slug: string): string {
@@ -62,12 +67,15 @@ function deepEqual(a: unknown, b: unknown): boolean {
 
 type Outcome = "created" | "updated" | "unchanged";
 
-async function migrate(dryRun: boolean) {
+async function migrate(dryRun: boolean, only?: string[]) {
   const counts: Record<Outcome, number> = { created: 0, updated: 0, unchanged: 0 };
 
   for (const [category, entries] of Object.entries(CONTENT_GROUPS)) {
+    // `--only=destinations,standalone` limits the run to those categories, so
+    // adding a new page group cannot rewrite unrelated CMS records.
+    if (only && !only.includes(category)) continue;
     for (const entry of entries) {
-      const slug = `${category}/${entry.slug}`;
+      const slug = category === "standalone" ? entry.slug : `${category}/${entry.slug}`;
       const desired = buildDynamicPageBlockContent(entry);
 
       const page = await prisma.cmsPage.findUnique({
@@ -141,7 +149,11 @@ async function migrate(dryRun: boolean) {
   );
 }
 
-migrate(process.argv.includes("--dry-run"))
+const onlyArg = process.argv.find((a) => a.startsWith("--only="));
+migrate(
+  process.argv.includes("--dry-run"),
+  onlyArg ? onlyArg.slice("--only=".length).split(",").filter(Boolean) : undefined
+)
   .catch((error) => {
     console.error("Dynamic page migration failed:", error);
     process.exitCode = 1;

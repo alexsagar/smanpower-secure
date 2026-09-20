@@ -36,6 +36,7 @@ export const demoHeaderNavigation: CmsNavigation[] = [
       { id: "nav-ws-6", label: "Documentation Coordination", href: "/employers/documentation", order: 6, isActive: true },
       { id: "nav-ws-7", label: "Deployment Support", href: "/employers/deployment", order: 7, isActive: true },
       { id: "nav-ws-8", label: "Workforce Intelligence", href: "/employers/workforce-intelligence", order: 8, isActive: true },
+      { id: "nav-ws-9", label: "Recruitment by Destination", href: "/destinations", order: 9, isActive: true },
     ],
   },
   {

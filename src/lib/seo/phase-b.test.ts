@@ -9,6 +9,8 @@ import { aboutPage } from '@/demo-data/pages/about';
 // Mock repository calls to isolate service logic from database connection in unit tests
 vi.mock('@/repositories/content-resolver', () => ({
   getPageBySlug: vi.fn().mockResolvedValue(null),
+  // Dynamic page metadata now honours CMS SEO overrides; none stored here.
+  getPageSeo: vi.fn().mockResolvedValue(null),
 }));
 
 // Mock next/navigation notFound

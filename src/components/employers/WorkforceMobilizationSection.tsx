@@ -37,7 +37,25 @@ export function WorkforceMobilizationSection() {
                 </span>
               </div>
               <p className="text-xs font-semibold uppercase tracking-widest text-brand-muted mb-4">
-                Saudi Arabia &bull; UAE &bull; Qatar &bull; Kuwait &bull; Bahrain &bull; Oman
+                <Link href="/destinations/saudi-arabia" className="hover:text-brand-gold-dark underline-offset-4 hover:underline">
+                  Saudi Arabia
+                </Link>{" "}
+                &bull;{" "}
+                <Link href="/destinations/united-arab-emirates" className="hover:text-brand-gold-dark underline-offset-4 hover:underline">
+                  UAE
+                </Link>{" "}
+                &bull;{" "}
+                <Link href="/destinations/qatar" className="hover:text-brand-gold-dark underline-offset-4 hover:underline">
+                  Qatar
+                </Link>{" "}
+                &bull; Kuwait &bull; Bahrain &bull; Oman
+              </p>
+              <p className="text-xs text-brand-charcoal/80 mb-4">
+                See{" "}
+                <Link href="/destinations" className="text-brand-gold-dark font-semibold hover:underline">
+                  recruitment by destination
+                </Link>{" "}
+                for how a requirement is handled for each active destination.
               </p>
               <ul className="space-y-4 text-sm text-brand-charcoal/90">
                 <li className="flex items-start gap-3">
