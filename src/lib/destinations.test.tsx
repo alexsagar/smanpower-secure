@@ -128,6 +128,15 @@ describe("destination and Kathmandu page content", () => {
     }
   });
 
+  it("describes featured destinations without implying they are exclusive", () => {
+    const overview = resolved("standalone", "destinations");
+    const text = JSON.stringify(overview);
+    expect(text).toContain("destination pages currently featured on our website");
+    expect(text).toContain("also actively recruits for additional destinations");
+    expect(text).not.toMatch(/only (active )?destinations/i);
+    expect(text).not.toMatch(/exclusively recruit for/i);
+  });
+
   it.each(allNewPages)("%s page survives a CMS round-trip unchanged", (_category, page) => {
     const stored = buildDynamicPageBlockContent(page);
     const roundTripped = mapBlockContentToPageContent(page.slug, stored);
