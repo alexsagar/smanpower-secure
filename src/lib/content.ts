@@ -1150,16 +1150,16 @@ export const standaloneContent: PageContent[] = [
     missionHeading: "Where We Recruit Nepali Workers For.",
     missionText: [
       "Seven Seas Intercontinental is a licensed Nepali recruitment agency, established in 2010 and working from a single office in Kathmandu. Employers appoint us to source, screen, trade-test and mobilise Nepali workers for their operations abroad.",
-      "Saudi Arabia, the United Arab Emirates and Qatar are currently active destinations for our recruitment services. The Nepal-side process is the same for each: the requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel.",
+      "Saudi Arabia, the United Arab Emirates and Qatar are the destination pages currently featured on our website. Seven Seas Intercontinental also actively recruits for additional destinations across the Gulf and other international markets. The Nepal-side recruitment process is consistent across all jurisdictions: every requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel. Employers with staffing requirements for these or other destinations are invited to contact our team to discuss their needs.",
       INDICATIVE_TIMEFRAME,
     ],
     overviewSubtitle: "Overview",
-    featuresEyebrow: "Active Destinations",
-    featuresHeading: "Destinations We Currently Recruit For.",
+    featuresEyebrow: "Featured Destinations",
+    featuresHeading: "Destinations Currently Featured on Our Website.",
     features: [
-      { title: "Saudi Arabia", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
-      { title: "United Arab Emirates", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
-      { title: "Qatar", desc: "Active destination. Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+      { title: "Saudi Arabia", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
+      { title: "United Arab Emirates", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
+      { title: "Qatar", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
     ],
     linksEyebrow: "Destination Pages",
     linksHeading: "Explore Each Destination.",
@@ -1178,8 +1178,8 @@ export const standaloneContent: PageContent[] = [
     faqsHeading: "What Employers Ask Us.",
     faqs: [
       {
-        q: "Which destinations are currently active?",
-        a: "Saudi Arabia, the United Arab Emirates and Qatar are currently active recruitment destinations for Seven Seas Intercontinental.",
+        q: "Which destinations do you recruit for?",
+        a: "Saudi Arabia, the United Arab Emirates and Qatar are the destination pages currently featured on our website. Seven Seas Intercontinental also recruits for additional destinations. Employers with workforce requirements for these or other destinations are invited to contact our team to discuss their specific needs.",
       },
       {
         q: "Do candidates pay any recruitment fees?",
