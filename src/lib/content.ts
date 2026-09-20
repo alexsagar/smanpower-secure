@@ -153,7 +153,7 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     processHeading: "Compliance You Can Verify.",
     process: [
       { title: "Government Licensing", desc: "Operating under Government of Nepal Department of Foreign Employment Licence No. 888/067/068 since 2010." },
-      { title: "International Standards", desc: "Our quality management system is ISO 9001:2015 certified, and our candidate workflows operate within an RBA-aligned framework adhering to the Employer-Pays Principle." },
+      { title: "International Standards", desc: "Our quality management system is ISO 9001:2015 certified, and our recruitment practices are RBA-compliant and Sedex-compliant, operating within an RBA-aligned framework adhering to the Employer-Pays Principle." },
       { title: "Open Documentation", desc: "Official government licences, authority certificates, and incorporation records are published in our Trust Centre, with quality certification records available for partner verification." },
       { title: "Regulatory Oversight", desc: "Recruitment operations are conducted in accordance with Nepal's Foreign Employment Act, 2007 and applicable bilateral labor frameworks." },
     ],
@@ -161,7 +161,7 @@ export const categoryDefaults: Record<string, Partial<PageContent>> = {
     faqsHeading: "Trust & Compliance.",
     faqs: [
       { q: "Is Seven Seas government licensed?", a: "Yes. Seven Seas Intercontinental Services operates under Department of Foreign Employment (DoFE) Licence No. 888/067/068, established in 2010." },
-      { q: "What certifications and standards do you hold?", a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our candidate workflows align with the labour provisions of the Responsible Business Alliance (RBA) Code of Conduct." },
+      { q: "What certifications and standards do you hold?", a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our recruitment practices are RBA-compliant and Sedex-compliant, operating within an RBA-aligned framework." },
       { q: "Can we review your compliance documents?", a: "Our foreign employment licence, authority certificate for sending trainee workers to Japan, and company incorporation certificate are available in our Trust Centre. Seven Seas also holds an ISO 9001:2015 certificate, which is not publicly posted." },
     ],
     cta: {
@@ -836,7 +836,7 @@ export const trustContent: PageContent[] = [
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/7c2ea761-c5b5-417b-b502-4204e0f476c6_xqz9gq.webp",
     missionHeading: "Internationally Recognized.",
     missionText: [
-      "Our recruitment workflows operate under an ISO 9001:2015 certified Quality Management System.",
+      "Our recruitment workflows operate under an ISO 9001:2015 certified Quality Management System, and our recruitment practices are RBA-compliant and Sedex-compliant.",
       "This certification validates that our organizational procedures for candidate intake, document handling, and client coordination conform to documented quality management standards."
     ],
     features: [

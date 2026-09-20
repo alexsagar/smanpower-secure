@@ -49,9 +49,10 @@ export function computeSha256(content) {
 import {
   canonicalJsonStringify,
   computeObjectChecksum,
+  validateRollbackPlan,
 } from "../src/lib/cms-checksum.ts";
 
-export { canonicalJsonStringify, computeObjectChecksum };
+export { canonicalJsonStringify, computeObjectChecksum, validateRollbackPlan };
 
 export function getUpdatedBlockContent(slug, existingContent = {}) {
   const fallback = trustContent.find((p) => {
@@ -100,20 +101,12 @@ async function handleRollback(prisma, snapshotPath, isExecute, dbIdentity, allow
     process.exit(1);
   }
 
-  // Database Identity Check
-  if (parsed.dbHash && parsed.dbHash !== dbIdentity.hash) {
-    console.error("❌ ERROR: Database identity mismatch!");
-    console.error(`   Snapshot target DB hash: ${parsed.dbHash.slice(0, 12)}...`);
-    console.error(`   Connected DB hash:       ${dbIdentity.hash.slice(0, 12)}...`);
-    console.error("   Aborting rollback because snapshot belongs to a different database.");
-    process.exit(1);
-  }
-
   console.log(`   Snapshot timestamp: ${parsed.timestamp || "unknown"}`);
   console.log(`   Snapshot SHA-256: ${fileHash}`);
-  console.log(`   Blocks to restore: ${parsed.blocks.length}`);
+  console.log(`   Blocks in snapshot: ${parsed.blocks.length}`);
 
-  const restoreActions = [];
+  // Pre-fetch live blocks from database
+  const liveBlocks = new Map();
   for (const item of parsed.blocks) {
     const existing = await prisma.cmsContentBlock.findUnique({
       where: { id: item.blockId },
@@ -122,38 +115,32 @@ async function handleRollback(prisma, snapshotPath, isExecute, dbIdentity, allow
       console.error(`❌ ERROR: Block ${item.blockId} does not exist in the database!`);
       process.exit(1);
     }
+    liveBlocks.set(item.blockId, existing.content);
+  }
 
-    const currentChecksum = computeObjectChecksum(existing.content);
+  const validation = validateRollbackPlan({
+    snapshotDbHash: parsed.dbHash,
+    currentDbHash: dbIdentity.hash,
+    snapshotBlocks: parsed.blocks,
+    liveBlocks,
+    getExpectedPostSyncContent: (slug, content) => getUpdatedBlockContent(slug, content),
+    allowUnexpected,
+  });
+
+  if (!validation.success) {
+    console.error(`❌ ERROR: ${validation.error}`);
+    process.exit(1);
+  }
+
+  for (const item of parsed.blocks) {
+    const currentChecksum = computeObjectChecksum(liveBlocks.get(item.blockId));
     const restoreChecksum = computeObjectChecksum(item.content);
-    const expectedPostSyncContent = getUpdatedBlockContent(item.slug, item.content);
-    const expectedPostSyncChecksum = computeObjectChecksum(expectedPostSyncContent);
-
     console.log(`   - Block [${item.slug}] ID: ${item.blockId}`);
     console.log(`     Current DB checksum:     ${currentChecksum.slice(0, 16)}...`);
     console.log(`     Target restore checksum: ${restoreChecksum.slice(0, 16)}...`);
-
-    const isAlreadyRestored = currentChecksum === restoreChecksum;
-    const isCleanSyncState = currentChecksum === expectedPostSyncChecksum;
-
-    if (isAlreadyRestored) {
-      console.log(`     Status: ALREADY RESTORED (current content matches snapshot).`);
-    } else if (isCleanSyncState) {
-      console.log(`     Status: CLEAN (matches expected post-sync state, safe to roll back).`);
-      restoreActions.push({ blockId: item.blockId, slug: item.slug, content: item.content });
-    } else {
-      console.warn(`     ⚠️  WARNING: Block content differs from both post-sync output and pre-sync snapshot!`);
-      console.warn(`     Expected post-sync checksum: ${expectedPostSyncChecksum.slice(0, 16)}...`);
-      if (!allowUnexpected) {
-        console.error(`❌ ERROR: Block ${item.blockId} contains unexpected edits made after the snapshot.`);
-        console.error("   Aborting rollback to protect subsequent legitimate edits.");
-        console.error("   Pass \`--force-unmatched\` alongside \`--rollback\` to intentionally overwrite subsequent modifications.");
-        process.exit(1);
-      } else {
-        console.warn(`     ⚠️  OVERWRITE PERMITTED: Continuing because --force-unmatched flag is present.`);
-        restoreActions.push({ blockId: item.blockId, slug: item.slug, content: item.content });
-      }
-    }
   }
+
+  const restoreActions = validation.actions;
 
   if (restoreActions.length === 0) {
     console.log("\n✨ All blocks already match the snapshot. No database restoration needed.");

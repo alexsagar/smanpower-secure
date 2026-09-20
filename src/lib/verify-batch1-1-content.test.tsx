@@ -16,9 +16,12 @@ describe("Batch 1.1 Trust Centre & Grievance Content Corrections", () => {
     expect(json).not.toMatch(/unassailable/i);
     expect(json).not.toMatch(/financially stable/i);
     expect(json).not.toMatch(/internationally certified recruitment partner/i);
-    expect(json).not.toMatch(/Sedex-compliant/i);
+    expect(json).not.toMatch(/Sedex member|Sedex certified|SMETA audited/i);
+    expect(json).not.toMatch(/RBA member|RBA certified/i);
 
     // Approved wording
+    expect(json).toMatch(/RBA-compliant/i);
+    expect(json).toMatch(/Sedex-compliant/i);
     expect(json).toMatch(/RBA-aligned framework/i);
     expect(json).toMatch(/ISO 9001:2015/i);
     expect(json).toMatch(/888\/067\/068/i);

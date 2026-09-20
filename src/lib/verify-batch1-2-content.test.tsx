@@ -3,6 +3,8 @@ import { categoryDefaults, trustContent, getContentBySlug } from "@/lib/content"
 import {
   canonicalJsonStringify,
   computeObjectChecksum,
+  validateRollbackPlan,
+  RollbackBlockItem,
 } from "@/lib/cms-checksum";
 
 describe("Batch 1.2 Trust Centre Accuracy & Safety Follow-Up", () => {
@@ -45,7 +47,44 @@ describe("Batch 1.2 Trust Centre Accuracy & Safety Follow-Up", () => {
     });
   });
 
-  describe("2. Deterministic Canonical JSON Serialization & Checksum Safety", () => {
+  describe("2. Approved Compliance Descriptions (RBA-compliant, Sedex-compliant, ISO 9001:2015)", () => {
+    it("verifies trust-centre categoryDefaults contains approved RBA-compliant and Sedex-compliant descriptions", () => {
+      const defaults = categoryDefaults["trust-centre"];
+      expect(defaults).toBeDefined();
+      const json = JSON.stringify(defaults);
+
+      // Approved descriptions
+      expect(json).toMatch(/RBA-compliant/i);
+      expect(json).toMatch(/Sedex-compliant/i);
+      expect(json).toMatch(/ISO 9001:2015/i);
+      expect(json).toMatch(/RBA-aligned framework/i);
+
+      // Forbidden claims
+      expect(json).not.toMatch(/RBA member|Sedex member/i);
+      expect(json).not.toMatch(/RBA certified|Sedex certified/i);
+      expect(json).not.toMatch(/SMETA audited/i);
+      expect(json).not.toMatch(/unannounced/i);
+      expect(json).not.toMatch(/flawless/i);
+      expect(json).not.toMatch(/zero infractions/i);
+    });
+
+    it("verifies certifications page content describes ISO 9001:2015, RBA-compliant, and Sedex-compliant practices accurately", () => {
+      const page = trustContent.find((p) => p.slug === "certifications");
+      expect(page).toBeDefined();
+      const json = JSON.stringify(page);
+
+      expect(json).toMatch(/ISO 9001:2015/i);
+      expect(json).toMatch(/RBA-compliant/i);
+      expect(json).toMatch(/Sedex-compliant/i);
+      expect(json).toMatch(/RBA-Aligned Framework/i);
+
+      expect(json).not.toMatch(/RBA member|Sedex member/i);
+      expect(json).not.toMatch(/RBA certified|Sedex certified/i);
+      expect(json).not.toMatch(/SMETA audited/i);
+    });
+  });
+
+  describe("3. Deterministic Canonical JSON Serialization & Checksum Safety", () => {
     it("canonicalJsonStringify recursively sorts object keys at all nesting levels", () => {
       const unordered = {
         z: 1,
@@ -87,6 +126,32 @@ describe("Batch 1.2 Trust Centre Accuracy & Safety Follow-Up", () => {
       expect(hashA).not.toBe(hashB);
     });
 
+    it("ensures deeply nested property alterations at any depth alter the checksum", () => {
+      const base = {
+        level1: {
+          level2: {
+            level3: {
+              target: "original",
+              fixed: 123,
+            },
+          },
+        },
+      };
+
+      const changed = {
+        level1: {
+          level2: {
+            level3: {
+              target: "modified",
+              fixed: 123,
+            },
+          },
+        },
+      };
+
+      expect(computeObjectChecksum(base)).not.toBe(computeObjectChecksum(changed));
+    });
+
     it("produces identical checksums for identical content regardless of key insertion order", () => {
       const obj1 = {
         title: "Test",
@@ -115,54 +180,125 @@ describe("Batch 1.2 Trust Centre Accuracy & Safety Follow-Up", () => {
     });
   });
 
-  describe("3. Rollback Guard & Unexpected Mutation Safeguards", () => {
-    it("simulates database identity check preventing cross-database rollback", () => {
-      const snapshotDbHash = "389b7880bc32approvedhash";
-      const differentDbHash = "otherdbhash0000000000";
+  describe("4. Rollback Guard & Selective Rollback Safeguards", () => {
+    const mockExpectedPostSync = (slug: string, preSync: unknown) => {
+      const pre = preSync as Record<string, unknown>;
+      return { ...pre, synced: true };
+    };
 
-      const matchesTargetDb = (snapshotHash: string, currentHash: string) => snapshotHash === currentHash;
-      expect(matchesTargetDb(snapshotDbHash, differentDbHash)).toBe(false);
-      expect(matchesTargetDb(snapshotDbHash, snapshotDbHash)).toBe(true);
+    it("rejects wrong-database rollback attempts with clear mismatch error", () => {
+      const snapshotBlocks: RollbackBlockItem[] = [
+        { blockId: "block-1", slug: "trust-centre/licences", content: { title: "Pre" } },
+      ];
+      const liveBlocks = new Map<string, unknown>([
+        ["block-1", { title: "Pre", synced: true }],
+      ]);
+
+      const result = validateRollbackPlan({
+        snapshotDbHash: "db-hash-production-primary",
+        currentDbHash: "db-hash-staging-or-local",
+        snapshotBlocks,
+        liveBlocks,
+        getExpectedPostSyncContent: mockExpectedPostSync,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Database identity mismatch");
+      expect(result.actions).toHaveLength(0);
     });
 
-    it("detects when a block has unexpected edits made after the snapshot", () => {
-      const originalPreSync = { title: "Old Title", body: "Old Body" };
-      const expectedPostSync = { title: "New Title", body: "New Body" };
-      const unexpectedAdminEdit = { title: "New Title", body: "ADMIN CHANGED PHONE NUMBER" };
+    it("detects when a live block contains unexpected edits made after the snapshot and aborts", () => {
+      const snapshotBlocks: RollbackBlockItem[] = [
+        { blockId: "block-1", slug: "trust-centre/licences", content: { title: "Pre" } },
+      ];
+      // Live content was modified by an admin after the sync
+      const liveBlocks = new Map<string, unknown>([
+        ["block-1", { title: "Pre", synced: true, editedByAdmin: "new phone number" }],
+      ]);
 
-      const restoreHash = computeObjectChecksum(originalPreSync);
-      const cleanPostSyncHash = computeObjectChecksum(expectedPostSync);
-      const currentDbHash = computeObjectChecksum(unexpectedAdminEdit);
+      const result = validateRollbackPlan({
+        snapshotDbHash: "same-db-hash",
+        currentDbHash: "same-db-hash",
+        snapshotBlocks,
+        liveBlocks,
+        getExpectedPostSyncContent: mockExpectedPostSync,
+        allowUnexpected: false,
+      });
 
-      const isAlreadyRestored = currentDbHash === restoreHash;
-      const isCleanPostSync = currentDbHash === cleanPostSyncHash;
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("contains unexpected edits made after the snapshot");
+      expect(result.error).toContain("--force-unmatched");
+      expect(result.actions).toHaveLength(0);
+    });
 
-      // When subsequent edits exist, it matches NEITHER state
-      expect(isAlreadyRestored).toBe(false);
-      expect(isCleanPostSync).toBe(false);
+    it("permits overwrite of unexpected edits ONLY when allowUnexpected is explicitly true", () => {
+      const snapshotBlocks: RollbackBlockItem[] = [
+        { blockId: "block-1", slug: "trust-centre/licences", content: { title: "Pre" } },
+      ];
+      const liveBlocks = new Map<string, unknown>([
+        ["block-1", { title: "Pre", synced: true, editedByAdmin: "new phone number" }],
+      ]);
 
-      // Rollback must abort to protect subsequent legitimate edits
-      const shouldAbort = !isAlreadyRestored && !isCleanPostSync;
-      expect(shouldAbort).toBe(true);
+      const result = validateRollbackPlan({
+        snapshotDbHash: "same-db-hash",
+        currentDbHash: "same-db-hash",
+        snapshotBlocks,
+        liveBlocks,
+        getExpectedPostSyncContent: mockExpectedPostSync,
+        allowUnexpected: true, // explicit override
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.actions).toHaveLength(1);
+      expect(result.actions[0].status).toBe("OVERWRITE_FORCED");
     });
 
     it("identifies clean post-sync state as safe to rollback", () => {
-      const originalPreSync = { title: "Old Title" };
-      const expectedPostSync = { title: "New Title" };
+      const snapshotBlocks: RollbackBlockItem[] = [
+        { blockId: "block-1", slug: "trust-centre/licences", content: { title: "Pre" } },
+      ];
+      const liveBlocks = new Map<string, unknown>([
+        ["block-1", { title: "Pre", synced: true }],
+      ]);
 
-      const restoreHash = computeObjectChecksum(originalPreSync);
-      const cleanPostSyncHash = computeObjectChecksum(expectedPostSync);
-      const currentDbHash = cleanPostSyncHash; // Matches post-sync
+      const result = validateRollbackPlan({
+        snapshotDbHash: "same-db-hash",
+        currentDbHash: "same-db-hash",
+        snapshotBlocks,
+        liveBlocks,
+        getExpectedPostSyncContent: mockExpectedPostSync,
+        allowUnexpected: false,
+      });
 
-      const isAlreadyRestored = currentDbHash === restoreHash;
-      const isCleanPostSync = currentDbHash === cleanPostSyncHash;
+      expect(result.success).toBe(true);
+      expect(result.actions).toHaveLength(1);
+      expect(result.actions[0].status).toBe("CLEAN");
+    });
 
-      expect(isAlreadyRestored).toBe(false);
-      expect(isCleanPostSync).toBe(true);
+    it("identifies already restored blocks and requires no database mutation", () => {
+      const snapshotBlocks: RollbackBlockItem[] = [
+        { blockId: "block-1", slug: "trust-centre/licences", content: { title: "Pre" } },
+      ];
+      const liveBlocks = new Map<string, unknown>([
+        ["block-1", { title: "Pre" }], // Already matches target snapshot
+      ]);
+
+      const result = validateRollbackPlan({
+        snapshotDbHash: "same-db-hash",
+        currentDbHash: "same-db-hash",
+        snapshotBlocks,
+        liveBlocks,
+        getExpectedPostSyncContent: mockExpectedPostSync,
+        allowUnexpected: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.actions).toHaveLength(0);
+      expect(result.alreadyRestoredCount).toBe(1);
     });
   });
 
-  describe("4. Live Grievance Page Content Isolation", () => {
+  describe("5. Live Grievance Page Content Isolation", () => {
     it("ensures /trust-centre/grievance provides page-specific intake process and FAQs without generic audit bleed", () => {
       const page = getContentBySlug("trust-centre", "grievance");
       expect(page).toBeDefined();
@@ -186,3 +322,4 @@ describe("Batch 1.2 Trust Centre Accuracy & Safety Follow-Up", () => {
     });
   });
 });
+
