@@ -14,9 +14,12 @@ export function WorkforceMobilizationSection() {
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-normal text-brand-black tracking-tight mb-4">
             Workforce Mobilization Timelines &amp; Bilateral Requirements.
           </h2>
-          <p className="text-brand-charcoal/80 text-base md:text-lg leading-relaxed">
-            International workforce deployment from Nepal operates under strict bilateral labor frameworks governed by the Department of Foreign Employment (DoFE). Below are verified deployment benchmarks and documentation requirements for GCC and European corridors.
+          <p className="text-brand-charcoal/80 text-base md:text-lg leading-relaxed mb-6">
+            International workforce deployment from Nepal operates under bilateral labor frameworks governed by the Department of Foreign Employment (DoFE). Below are typical operational benchmarks and documentation requirements for GCC and European corridors based on standard recruitment workflows.
           </p>
+          <div className="bg-white border-l-2 border-brand-gold p-4 shadow-sm text-xs text-brand-charcoal/90 leading-relaxed">
+            <strong className="text-brand-black">Operational Notice &amp; Disclaimer:</strong> Mobilization timeframes are indicative operational estimates based on typical processing cycles. Actual lead times depend on destination-country requirements, employer document attestation, visa and work permit issuance, consular appointment availability, and individual candidate medical clearances.
+          </div>
         </div>
 
         {/* Timeline Matrix: GCC vs Europe */}
@@ -69,7 +72,7 @@ export function WorkforceMobilizationSection() {
             </div>
             <div className="mt-8 pt-6 border-t border-brand-black/10 flex items-center justify-between text-xs text-brand-muted">
               <span>Standard GCC Cycle</span>
-              <span className="text-brand-gold-dark font-semibold">Fast-track available for urgent demands</span>
+              <span className="text-brand-gold-dark font-semibold">Indicative Operational Estimate</span>
             </div>
           </div>
 
@@ -121,7 +124,7 @@ export function WorkforceMobilizationSection() {
             </div>
             <div className="mt-8 pt-6 border-t border-brand-black/10 flex items-center justify-between text-xs text-brand-muted">
               <span>European Work Permit Cycle</span>
-              <span className="text-brand-gold-dark font-semibold">Subject to host immigration processing</span>
+              <span className="text-brand-gold-dark font-semibold">Subject to Host Immigration &amp; Consular Scheduling</span>
             </div>
           </div>
         </div>
@@ -130,13 +133,13 @@ export function WorkforceMobilizationSection() {
         <div className="bg-brand-black text-brand-white p-8 md:p-12 border border-brand-black">
           <div className="max-w-3xl mb-8">
             <span className="text-brand-gold text-xs font-semibold tracking-widest uppercase mb-2 block font-mono">
-              REGULATORY COMPLIANCE CHECKLIST
+              REGULATORY COMPLIANCE OVERVIEW
             </span>
             <h3 className="font-serif text-2xl md:text-3xl text-brand-white font-normal mb-3">
-              Mandatory Bilateral Documentation Matrix
+              Bilateral Recruitment Documentation Framework
             </h3>
             <p className="text-sm md:text-base text-brand-white/80 leading-relaxed">
-              To recruit workers from Nepal, overseas employers must execute five standard bilateral documents mandated by Nepal’s Foreign Employment Act, 2007:
+              Under Nepal’s Foreign Employment Act, 2007 and Department of Foreign Employment (DoFE) directives, international recruitment generally requires execution of standard bilateral documentation, tailored to destination-country regulatory agreements:
             </p>
           </div>
 
@@ -197,7 +200,7 @@ export function WorkforceMobilizationSection() {
                 <h4 className="font-semibold text-brand-white text-base">6. Embassy Attestation</h4>
               </div>
               <p className="text-xs text-brand-white/70 leading-relaxed">
-                Official verification by the local Chamber of Commerce and Nepal Diplomatic Mission in the host country before vacancy advertisement in Nepal.
+                Verification by the local Chamber of Commerce and Nepal Diplomatic Mission in the host country, as required by DoFE for major corridors (including GCC destinations) prior to recruitment approval.
               </p>
             </div>
           </div>
@@ -205,7 +208,7 @@ export function WorkforceMobilizationSection() {
           {/* Action Row */}
           <div className="border-t border-brand-white/10 pt-8 flex flex-wrap items-center justify-between gap-6">
             <div className="text-xs text-brand-white/70">
-              Need assistance preparing your bilateral documents or demand letter? Our compliance team provides bilingual templates.
+              Need assistance preparing your bilateral recruitment documentation? Our compliance team provides jurisdiction-specific guidance and bilingual templates.
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <Link
