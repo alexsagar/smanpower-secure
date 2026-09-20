@@ -30,7 +30,7 @@ function asFeatures(value: unknown): PageContent["features"] {
       if (title === "48-Hour Response") {
         return {
           title: "24-Hour Acknowledgement",
-          desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours.",
+          desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours to confirm intake, followed by structured inquiry and destination-country dispute resolution.",
         };
       }
       return {

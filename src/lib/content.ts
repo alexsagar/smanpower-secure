@@ -418,7 +418,7 @@ export const ethicalContent: PageContent[] = [
       { title: "Multilingual Channels", desc: "Workers can raise concerns in a language they are comfortable with, not only in English or the employer's language." },
       { title: "Anonymity & Non-Retaliation", desc: "Complaints can be made confidentially, and retaliation against a worker for raising a grievance is not tolerated." },
       { title: "Around-The-Clock Access", desc: "Deployed workers can reach a grievance channel at any time, not only during Nepal office hours." },
-      { title: "Case Logging & Tracking", desc: "Every grievance is recorded, acknowledged, and tracked to resolution, with the worker kept informed of progress." },
+      { title: "24-Hour Acknowledgement & Case Tracking", desc: "Every grievance is formally acknowledged within 24 hours to confirm intake, separating initial logging from subsequent bilateral investigation and resolution." },
       { title: "Destination Welfare Contacts", desc: "On-the-ground contacts in destination countries can engage employers directly when a case needs local attention." },
       { title: "Escalation & Remedy", desc: "Where an employer or partner is at fault, we escalate to them and, where necessary, to the relevant authorities." },
     ],
@@ -435,7 +435,7 @@ export const ethicalContent: PageContent[] = [
     faqs: [
       { q: "Can a worker complain without their employer finding out?", a: "Yes. Grievances can be raised confidentially, and retaliation against a worker for raising one is not tolerated in our network." },
       { q: "What kinds of issues can be raised?", a: "Anything from unpaid or incorrect wages and contract terms to accommodation, safety, or treatment concerns — any gap between what was promised and what the worker is experiencing." },
-      { q: "How quickly are grievances handled?", a: "Every grievance is acknowledged promptly and investigated without undue delay; urgent safety issues are prioritised for immediate attention." },
+      { q: "How quickly are grievances handled?", a: "Every grievance is formally acknowledged within 24 hours of submission to confirm receipt and assign a case officer. Bilateral investigation and dispute resolution proceed through destination welfare contacts and employers, with urgent safety concerns prioritized immediately." },
       { q: "What if the employer is at fault?", a: "We escalate directly to the employer, press for remedy for the worker, and involve the relevant authorities where the situation requires it." },
     ],
     cta: {
@@ -493,39 +493,39 @@ export const industriesContent: PageContent[] = [
     title: "Security Services Talent.", 
     subtitle: "Guarding & Protective Services", 
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/1e36b5a4-baac-42b6-86e3-94cd2136cfe3_jve70w.webp",
-    overviewSubtitle: "Disciplined Security Solutions",
-    missionHeading: "Disciplined, Highly Vetted Security Personnel from Nepal.",
+    overviewSubtitle: "Disciplined Security Talent",
+    missionHeading: "Disciplined Security Personnel from Nepal.",
     missionText: [
-      "Nepal has a legendary heritage of producing some of the world's most disciplined, honorable, and steadfast security personnel. Seven Seas Intercontinental is a premier supplier of static security guards, access control specialists, and asset protection personnel to government facilities, critical infrastructure, corporate headquarters, and commercial centers across the Gulf and international territories.",
-      "We maintain dual talent streams: seasoned military and police veterans from the Nepalese Army, Nepal Police, and Armed Police Force (APF), alongside rigorously trained civilian security personnel. Every candidate undergoes rigorous vetting, including formal background checks through Nepal Police Headquarters, verified discharge records, and psychological aptitude screening.",
-      "Physical readiness and alertness are non-negotiable. Candidates must meet stringent physical standards (minimum height 5'7\" for static guards, healthy BMI, 20/20 corrected vision, and endurance benchmarks) before undergoing practical drills, incident response simulations, and fire safety fundamentals.",
-      "Our pre-deployment training modules are closely aligned with international security licensing standards, including Dubai's Security Industry Regulatory Agency (SIRA) and Abu Dhabi's Private Security Business Department (PSBD). Candidates are trained in basic English incident logging, CCTV observation basics, access control etiquette, and conflict de-escalation."
+      "Nepal has a long-standing tradition of providing disciplined and dependable security personnel for commercial, industrial, and infrastructure protection across international markets. Seven Seas Intercontinental deploys thoroughly screened security guards, access control specialists, and asset protection personnel tailored to client-specified facility requirements.",
+      "We recruit across two candidate categories: former service personnel from the Nepalese Army, Nepal Police, and Armed Police Force (APF), alongside screened civilian security personnel. Vetting procedures include mandatory Police Clearance Certificates issued by Nepal Police Headquarters, forensic inspection of original service discharge documentation, and structured situational interviews.",
+      "Physical readiness is benchmarked against vacancy-specific employer requisitions. Where mandated by clients, candidates are screened for physical criteria (such as minimum height of 5'7\" / 170 cm for male static guards, proportional BMI, normal color and corrected 20/20 vision, and physical stamina) alongside practical drill evaluations and basic emergency awareness.",
+      "Our pre-departure orientation provides foundational familiarization aligned with Middle Eastern and international security environments, including operational concepts relevant to Dubai's Security Industry Regulatory Agency (SIRA) and Abu Dhabi's Private Security Business Department (PSBD) frameworks. Candidates receive preparatory instruction in English incident logging, basic CCTV observation concepts, access control protocols, and conflict de-escalation prior to official host-country examinations conducted in destination territories."
     ],
-    featuresEyebrow: "Security Standards",
-    featuresHeading: "Uncompromising Vetting & Physical Standards.",
+    featuresEyebrow: "Screening & Standards",
+    featuresHeading: "Vetting, Preparation & Client-Specified Standards.",
     features: [
-      { title: "Ex-Military & Police Veterans", desc: "Verified former personnel from the Nepalese Army and Armed Police Force with proven tactical discipline and clean service records." },
-      { title: "Regulatory Framework Alignment", desc: "Pre-training curriculum aligned with GCC private security frameworks including UAE SIRA and PSBD licensing prerequisites." },
-      { title: "Physical Conditioning & Fitness Benchmarks", desc: "Strict biometric criteria including height, BMI, distance running, obstacle navigation, and comprehensive medical fitness clearances." },
-      { title: "Static Guarding & Perimeter Protection", desc: "Training in access control, visitor badging, bag search procedures, patrol logging, and gatehouse management." },
-      { title: "CCTV Monitoring & English Incident Reporting", desc: "Proficiency in surveillance room observation, two-way radio etiquette, and clear written English incident reporting." },
-      { title: "Emergency Response & First-Aid Protocols", desc: "Certified instruction in building evacuation procedures, basic life support (BLS), crowd control, and emergency fire response." }
+      { title: "Ex-Service Personnel & Civilian Guards", desc: "Sourcing former personnel from the Nepalese Army and Armed Police Force with verified original discharge documentation, alongside screened civilian guards." },
+      { title: "Preparatory Curriculum Alignment", desc: "Pre-departure preparation covering foundational operational concepts relevant to GCC security environments prior to mandatory in-country licensing." },
+      { title: "Client-Specified Fitness Screening", desc: "Physical screening conducted strictly against employer-mandated criteria, including height, BMI, vision, and general health clearances." },
+      { title: "Static Guarding & Perimeter Protection", desc: "Preparation in access control, visitor badging, bag search procedures, patrol logging, and gatehouse management." },
+      { title: "CCTV Observation & English Incident Reporting", desc: "Instruction in surveillance monitoring basics, two-way radio communication protocols, and clear written English incident reporting." },
+      { title: "Emergency Response & First-Aid Basics", desc: "Instruction in building evacuation procedures, basic life support (BLS) fundamentals, and emergency fire response basics." }
     ],
     processEyebrow: "Security Mobilization",
-    processHeading: "Rigorous Vetting to International Deployment.",
+    processHeading: "From Sourcing to International Deployment.",
     process: [
-      { title: "Police Clearance & Service Verification", desc: "Official criminal record vetting via Nepal Police Headquarters and service record authentication for military veterans." },
-      { title: "Biometric & Physical Readiness Assessment", desc: "Stringent verification of height, weight, eyesight, color vision, and endurance testing under supervised drill conditions." },
-      { title: "Security SOP & Communication Training", desc: "Pre-deployment training on access control protocols, radio procedures, customer de-escalation, and incident documentation." },
-      { title: "DoFE Labor Clearances & Mobilization", desc: "Department of Foreign Employment approval, bilateral contract authentication, and coordinated deployment to destination ports." }
+      { title: "Police Clearance & Discharge Inspection", desc: "Official criminal record vetting via Nepal Police Headquarters and physical verification of original discharge certificates for veterans." },
+      { title: "Employer-Specified Physical Assessment", desc: "Verification against client-defined physical benchmarks (height, vision, BMI) and endurance testing under supervised conditions." },
+      { title: "SOP Familiarization & Security English", desc: "Pre-departure instruction in access control etiquette, two-way radio procedures, customer de-escalation, and incident documentation." },
+      { title: "DoFE Clearances & Mobilization", desc: "Department of Foreign Employment approval, bilateral contract authentication, and coordinated deployment to destination ports." }
     ],
     faqsEyebrow: "Security FAQ",
     faqsHeading: "Frequently Asked Questions for Security Employers.",
     faqs: [
-      { q: "Do you supply both ex-military veterans and civilian security guards?", a: "Yes. We source both ex-military/police veterans (Nepalese Army, Nepal Police, Armed Police Force) for high-security, VIP, and critical infrastructure roles, as well as physically qualified, trained civilian guards for commercial and residential asset protection." },
-      { q: "How are candidates verified for criminal and disciplinary records?", a: "Every candidate must present an official Police Clearance Certificate issued by Nepal Police Headquarters. For ex-military personnel, we verify original discharge certificates directly with the relevant military pension board." },
-      { q: "Can your security personnel pass SIRA (Dubai) or PSBD (Abu Dhabi) exams?", a: "Yes. Our security candidates undergo pre-training in Kathmandu covering the theoretical and physical modules of SIRA and PSBD curricula, resulting in exceptionally high first-time pass rates upon arrival in the UAE." },
-      { q: "What physical standards do you require for security guards?", a: "Standard requirements include a minimum height of 5'7\" (170 cm) for male guards, normal BMI (18.5–24.9), uncorrected or corrected 20/20 vision without color blindness, and successful completion of physical endurance and drill assessments." }
+      { q: "Do you supply both ex-military personnel and civilian security guards?", a: "Yes. We source both ex-military and police personnel (Nepalese Army, Nepal Police, Armed Police Force) for high-security, asset protection, and critical infrastructure roles, as well as screened and trained civilian guards where clients specify civilian candidates." },
+      { q: "How are candidates verified for criminal and disciplinary records?", a: "Every candidate must present an official Police Clearance Certificate issued by Nepal Police Headquarters, which is mandatory for government labor approval. For ex-service personnel, our team inspects original discharge documentation (Pension Patra) and service conduct records to verify honorable service. We do not claim automated or institutional verification with military pension boards." },
+      { q: "Can your security personnel pass SIRA (Dubai) or PSBD (Abu Dhabi) exams?", a: "Seven Seas does not issue SIRA or PSBD licenses, as official regulatory testing and licensing are legally administered exclusively by authorized government authorities within the UAE. In Kathmandu, we provide pre-departure preparatory instruction covering relevant terminology, English reporting formats, access control principles, and physical conditioning to prepare candidates for their official examinations upon arrival." },
+      { q: "What physical standards do you require for security guards?", a: "Physical criteria are determined by specific employer requisitions and destination-country regulatory guidelines. When mandated by clients, standard benchmarks typically specify a minimum height of 5'7\" (170 cm) for male static guards, proportional BMI, adequate vision, and sound cardiovascular fitness verified during pre-employment medical examinations." }
     ],
     cta: {
       heading: "Deploy Disciplined Security Personnel.",
@@ -555,39 +555,39 @@ export const industriesContent: PageContent[] = [
     title: "Hospitality & Hotels Staffing.", 
     subtitle: "Hospitality & Catering", 
     heroImage: "https://res.cloudinary.com/o99xd4mq/image/upload/v1784873183/d84731bc-1469-4e0b-926e-f20c5b4455fb_g40mbj.webp",
-    overviewSubtitle: "International Hospitality Standards",
-    missionHeading: "Delivering World-Class Hospitality Talent from Nepal.",
+    overviewSubtitle: "Hospitality Talent Solutions",
+    missionHeading: "Hospitality and Catering Staffing from Nepal.",
     missionText: [
-      "Nepalese hospitality professionals are renowned across the Gulf Cooperation Council (GCC), Europe, and luxury island resorts for their genuine warmth, disciplined work ethic, and cultural adaptability. Seven Seas Intercontinental deploys fully vetted, English-proficient talent across every tier of hotel, resort, restaurant, and industrial catering operations.",
-      "Our recruitment methodology combines rigorous technical trade evaluations with structured etiquette and language assessments. From executive sous chefs, commis, and pastry specialists to front-desk concierges, bilingual guest relations officers, baristas, and banquet captains, we ensure candidates match the brand standards of leading 4-star and 5-star international hotel chains.",
-      "Back-of-house operations receive equal precision. We source experienced room attendants, laundry supervisors, public area cleaners, and kitchen stewards trained in commercial hygiene, chemical safety (COSHH), and high-efficiency room turnaround. All culinary and food-handling candidates undergo mandatory food safety certifications and comprehensive health screenings before deployment.",
-      "Through our dedicated trade testing partnerships and practical simulation environments in Kathmandu, overseas employers can conduct live in-person or remote video trade tests, observing candidates prepare specific cuisine recipes, execute table service drills, or demonstrate customer dispute resolution."
+      "Nepalese hospitality professionals are valued across the Gulf Cooperation Council (GCC), Europe, and international hospitality hubs for their dedication, professional discipline, and service orientation. Seven Seas Intercontinental deploys vetted, English-proficient talent across hotels, resorts, restaurants, and catering operations.",
+      "Our selection process evaluates practical trade capabilities alongside service presentation and conversational English proficiency. From commis, line cooks, and pastry bakers to front-desk agents, guest service staff, baristas, and food servers, we align candidate skill levels with international 4-star and 5-star brand standards.",
+      "Back-of-house operations receive equal attention. We source room attendants, laundry operators, public area cleaners, and kitchen stewards trained in commercial cleaning practices, chemical safety basics (COSHH), and room turnaround efficiency. We source candidates with verified food hygiene credentials and require comprehensive medical and food-handler health clearances before deployment. Seven Seas does not issue HACCP certificates directly; we verify candidate qualifications and facilitate practical evaluations.",
+      "Through practical trade testing partnerships with hospitality institutes and commercial kitchen facilities in Kathmandu, employers can conduct live in-person or remote video trade tests, observing candidates prepare specific recipes, demonstrate table service routines, or execute front-office roleplay."
     ],
-    featuresEyebrow: "Core Competencies",
+    featuresEyebrow: "Hospitality Capabilities",
     featuresHeading: "Specialized Hospitality Workforce Solutions.",
     features: [
-      { title: "Culinary Brigade & Food Safety", desc: "Sourcing commis, line cooks, pastry chefs, and executive sous chefs certified in HACCP food hygiene protocols and international kitchen safety standards." },
-      { title: "Front Office & Guest Relations", desc: "Bilingual, tech-literate concierges and receptionists screened for English fluency, front-desk property management system (PMS) familiarity, and guest etiquette." },
-      { title: "Food & Beverage (F&B) Service", desc: "Fine-dining waiters, banquet captains, and trained baristas experienced in table setting, sequence of service, and high-volume catering." },
-      { title: "Executive Housekeeping", desc: "Room attendants and public area cleaners trained in luxury turndown standards, chemical handling safety, and rapid room inspection protocols." },
-      { title: "Practical Kitchen & Service Testing", desc: "Pre-deployment skill verification conducted in simulated commercial kitchen and dining environments in Kathmandu." },
-      { title: "Cultural & Brand Orientation", desc: "Comprehensive pre-departure training covering Middle Eastern and European workplace culture, guest diversity, and zero-compromise grooming standards." }
+      { title: "Culinary Talent & Food Safety Awareness", desc: "Sourcing commis, line cooks, and kitchen staff with verified training in HACCP food hygiene protocols and commercial kitchen safety standards." },
+      { title: "Front Office & Guest Services", desc: "Customer-facing receptionists and concierges screened for English fluency, front-desk property management system (PMS) familiarity, and hospitality etiquette." },
+      { title: "Food & Beverage (F&B) Service", desc: "Waitstaff, banquet captains, and trained baristas experienced in table setting, sequence of service, and high-volume banquet operations." },
+      { title: "Housekeeping & Facilities Support", desc: "Room attendants and public area cleaners trained in luxury turndown standards, chemical handling safety, and room inspection protocols." },
+      { title: "Practical Trade Testing Facilities", desc: "Skill verification conducted in Kathmandu through partner commercial kitchen and hospitality training facilities." },
+      { title: "Cultural & Workplace Orientation", desc: "Pre-departure briefings covering Middle Eastern and European workplace expectations, customer diversity, and professional grooming standards." }
     ],
     processEyebrow: "Hospitality Deployment Flow",
-    processHeading: "From Trade Testing to 5-Star Placement.",
+    processHeading: "From Trade Testing to International Placement.",
     process: [
-      { title: "Trade Testing & Culinary Audits", desc: "Candidates execute practical recipe preparation, knife skills, table setting, or front-desk roleplay in simulated Kathmandu facilities." },
+      { title: "Trade Testing & Skill Audits", desc: "Candidates execute practical recipe preparation, knife skills, table setting, or service roleplay in partner facilities in Kathmandu." },
       { title: "English Fluency & Grooming Screening", desc: "Structured conversational interviews assess spoken English proficiency, professional presentation, and customer service attitude." },
-      { title: "GAMCA Medical & Food Handler Clearances", desc: "Rigorous health screenings, communicable disease panels, and food-handler medical certifications at approved facilities." },
-      { title: "Brand Orientation & Scheduled Mobilization", desc: "Host-country hospitality norms briefing, visa stamping, DoFE labor approvals, and coordinated group flight arrival." }
+      { title: "Medical & Food Handler Clearances", desc: "Comprehensive health screenings, communicable disease panels, and food-handler medical certifications at approved medical centers." },
+      { title: "Orientation & Coordinated Mobilization", desc: "Host-country hospitality norms briefing, visa stamping, DoFE labor approvals, and coordinated travel arrangements." }
     ],
     faqsEyebrow: "Hospitality FAQ",
     faqsHeading: "Frequently Asked Questions for Hoteliers.",
     faqs: [
       { q: "What hospitality roles does Seven Seas supply?", a: "We supply all tiers of hospitality staffing including Executive Chefs, Sous Chefs, Commis (I, II, III), Pastry Chefs, Waiters/Waitresses, Banquet Captains, Baristas, Bartenders, Front Desk Agents, Guest Service Officers, Bellhops, Housekeeping Attendants, Laundry Operators, and Kitchen Stewards." },
-      { q: "How do you test culinary candidates before client selection?", a: "Culinary candidates perform practical trade tests in commercial kitchen facilities in Kathmandu. They are evaluated on knife handling, recipe execution, hygiene, timing, and presentation under the observation of certified culinary instructors or directly via client video stream." },
-      { q: "What English language standards do your hospitality candidates meet?", a: "All customer-facing candidates (Front Office, F&B Service, Guest Relations) undergo structured English oral assessments aligned with CEFR B1–B2 standards, ensuring fluent comprehension and polite guest communication." },
-      { q: "What is the typical deployment timeline for hotel openings or seasonal demand?", a: "For GCC destination countries (UAE, Qatar, Saudi Arabia), recruitment, trade testing, visa processing, and mobilization typically take 30 to 45 days. For European seasonal resorts, work permit lead times vary between 90 and 120 days." }
+      { q: "How do you test culinary candidates before client selection?", a: "Seven Seas does not issue HACCP certificates directly. Instead, culinary candidates demonstrate practical competency in partner commercial kitchen facilities in Kathmandu. Candidates are evaluated on knife handling, recipe execution, hygiene practices, timing, and presentation under the observation of qualified culinary instructors or directly via client video stream." },
+      { q: "What English language standards do your hospitality candidates meet?", a: "Customer-facing candidates (Front Office, F&B Service, Guest Relations) undergo structured English oral assessments aligned with CEFR B1–B2 standards, ensuring fluent comprehension and polite guest communication." },
+      { q: "What is the typical deployment timeline for hotel openings or seasonal demand?", a: "For GCC destinations, mobilization typically ranges between 30 and 45 days under standard processing conditions. For European seasonal resorts, work permit processing lead times typically vary between 90 and 150 days. These timelines are indicative operational estimates; actual lead times depend on employer document attestation, host-government permit issuance, and consular processing." }
     ],
     cta: {
       heading: "Build Your High-Performance Hospitality Team.",
@@ -906,11 +906,11 @@ export const trustContent: PageContent[] = [
     features: [
       { title: "Anonymous Reporting", desc: "Secure channels for workers to report issues without fear." },
       { title: "Welfare Officers", desc: "Dedicated staff in major deployment hubs to mediate disputes." },
-      { title: "24-Hour Acknowledgement", desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours." }
+      { title: "24-Hour Acknowledgement", desc: "Grievance reports can be submitted 24/7 and are acknowledged within 24 hours to confirm intake, followed by structured inquiry and destination-country dispute resolution." }
     ],
     cta: {
       heading: "Need to submit a grievance or report an issue?",
-      body: "Our welfare support desk operates 24/7. Reports can be submitted confidentially and are acknowledged within 24 hours.",
+      body: "Our welfare support desk operates 24/7. Reports can be submitted confidentially and are acknowledged within 24 hours, followed by structured inquiry and resolution tracking.",
       buttonLabel: "Submit Grievance",
       buttonHref: "/worker-grievance",
     }

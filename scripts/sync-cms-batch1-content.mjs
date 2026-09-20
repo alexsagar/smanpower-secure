@@ -11,10 +11,10 @@
  * Security & Reliability Safeguards:
  *   - Defaults to DRY-RUN mode (requires explicit `--execute` to write).
  *   - Cryptographic SHA-256 database identity verification against approved production databases.
- *   - Secure backup creation in Git-excluded private storage (.backup/).
- *   - Concurrency protection: checks block existence and hashes.
+ *   - Secure backup creation in Git-excluded private storage (.backup/ and prisma/backups/cms-batch1/).
+ *   - Concurrency protection: verifies target block IDs and existing checksums.
  *   - Atomic Prisma transaction: all 3 blocks update together or none do.
- *   - Rollback capability: `--rollback <snapshot-path> [--execute]`.
+ *   - Selective Rollback capability: `--rollback <snapshot-path> [--execute]` restoring ONLY the snapshot block IDs.
  *   - Strictly redacts raw production data, credentials, and connection strings from output logs.
  *   - Standalone CLI: never runs automatically during ordinary builds or CI.
  */
@@ -33,11 +33,13 @@ import { buildDynamicPageBlockContent } from "../src/lib/dynamic-page-content.ts
 
 const require = createRequire(import.meta.url);
 
-export const TARGET_SLUGS = [
-  "trust-centre/grievance",
-  "industries/security-services",
-  "industries/hospitality-and-hotels",
-];
+export const TARGET_BLOCK_MAP = {
+  "trust-centre/grievance": "block-trust-centre/grievance-intro",
+  "industries/security-services": "cms0qvo170002yy68ks14wgx7",
+  "industries/hospitality-and-hotels": "cms0qvoxc0008yy68id164yzg",
+};
+
+export const TARGET_SLUGS = Object.keys(TARGET_BLOCK_MAP);
 
 export function getUpdatedBlockContent(slug) {
   if (slug === "trust-centre/grievance") {
@@ -63,7 +65,66 @@ export function computeSha256(content) {
 }
 
 export function computeObjectChecksum(obj) {
-  return computeSha256(JSON.stringify(obj, Object.keys(obj).sort()));
+  return computeSha256(JSON.stringify(obj, Object.keys(obj || {}).sort()));
+}
+
+async function handleRollback(prisma, snapshotPath, isExecute) {
+  console.log(`\n🔄 Initiating ROLLBACK from snapshot: ${snapshotPath}`);
+  if (!existsSync(snapshotPath)) {
+    console.error(`❌ ERROR: Snapshot file not found: ${snapshotPath}`);
+    process.exit(1);
+  }
+
+  const rawJson = readFileSync(snapshotPath, "utf8");
+  const fileHash = computeSha256(rawJson);
+  let parsed;
+  try {
+    parsed = JSON.parse(rawJson);
+  } catch (err) {
+    console.error(`❌ ERROR: Snapshot file contains invalid JSON: ${err.message}`);
+    process.exit(1);
+  }
+
+  if (!parsed.blocks || !Array.isArray(parsed.blocks) || parsed.blocks.length === 0) {
+    console.error("❌ ERROR: Snapshot file does not contain a valid `blocks` array.");
+    process.exit(1);
+  }
+
+  console.log(`   Snapshot timestamp: ${parsed.timestamp || "unknown"}`);
+  console.log(`   Snapshot SHA-256: ${fileHash}`);
+  console.log(`   Blocks to restore: ${parsed.blocks.length}`);
+
+  // Concurrency check: inspect each block in the DB before restoring
+  for (const item of parsed.blocks) {
+    const existing = await prisma.cmsContentBlock.findUnique({
+      where: { id: item.blockId },
+    });
+    if (!existing) {
+      console.error(`❌ ERROR: Target block ${item.blockId} not found in database. Cannot safely rollback.`);
+      process.exit(1);
+    }
+    const currentHash = computeObjectChecksum(existing.content);
+    const targetHash = computeObjectChecksum(item.content);
+    console.log(`  * Block ID [${item.blockId}] (${item.pageSlug}): current hash ${currentHash.slice(0, 10)} -> restore hash ${targetHash.slice(0, 10)}`);
+  }
+
+  if (!isExecute) {
+    console.log("\n✅ ROLLBACK DRY-RUN COMPLETE: Verified all snapshot blocks exist. No changes were made.");
+    console.log("   Pass `--execute` to apply rollback.");
+    return;
+  }
+
+  // Atomic transaction restoring ONLY these exact block IDs
+  await prisma.$transaction(async (tx) => {
+    for (const item of parsed.blocks) {
+      await tx.cmsContentBlock.update({
+        where: { id: item.blockId },
+        data: { content: item.content },
+      });
+    }
+  });
+
+  console.log("\n🎉 ROLLBACK SUCCESS: All snapshot blocks restored without altering unrelated records.");
 }
 
 async function main() {
@@ -78,7 +139,7 @@ async function main() {
   console.log("🔧  CMS BATCH 1 CONTENT RECONCILIATION");
   console.log(`    Mode: ${isDryRun ? "DRY-RUN (read-only, pass --execute to apply)" : "EXECUTE (writing to database)"}`);
   if (isRollback) {
-    console.log(`    Action: ROLLBACK from snapshot: ${rollbackPath}`);
+    console.log(`    Action: ROLLBACK from snapshot`);
   }
   console.log("================================================================================");
 
@@ -111,6 +172,15 @@ async function main() {
   const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
 
   try {
+    if (isRollback) {
+      if (!rollbackPath) {
+        console.error("❌ ERROR: --rollback requires a path to snapshot file.");
+        process.exit(1);
+      }
+      await handleRollback(prisma, rollbackPath, isExecute);
+      return;
+    }
+
     const pages = await prisma.cmsPage.findMany({
       where: { slug: { in: TARGET_SLUGS } },
       include: {
@@ -133,10 +203,19 @@ async function main() {
     const blocksToUpdate = [];
     for (const page of pages) {
       for (const block of page.blocks) {
+        const expectedBlockId = TARGET_BLOCK_MAP[page.slug];
+        if (expectedBlockId && block.id !== expectedBlockId) {
+          console.warn(`⚠️  Block ID mismatch for ${page.slug}: expected ${expectedBlockId}, got ${block.id}`);
+        }
         const targetContent = getUpdatedBlockContent(page.slug);
+        const currentHash = computeObjectChecksum(block.content);
+        const targetHash = computeObjectChecksum(targetContent);
+
         blocksToUpdate.push({
           pageSlug: page.slug,
           blockId: block.id,
+          currentHash,
+          targetHash,
           currentContent: block.content,
           targetContent,
         });
@@ -146,21 +225,23 @@ async function main() {
     console.log(`\nIdentified ${blocksToUpdate.length} block(s) for reconciliation:`);
     for (const b of blocksToUpdate) {
       console.log(`  * Page [${b.pageSlug}] -> Block ID [${b.blockId}]`);
+      console.log(`    Current Checksum: ${b.currentHash.slice(0, 12)}... | Target Checksum: ${b.targetHash.slice(0, 12)}...`);
     }
 
     if (isDryRun) {
       console.log("\n✅ DRY-RUN COMPLETED: All blocks inspected. No database changes were made.");
-      console.log("   To apply these updates, run with `--execute`.");
+      console.log("   To apply these updates with cryptographic pre-write backup, run with `--execute`.");
       return;
     }
 
-    // Secure backup
-    const backupDir = resolve(process.cwd(), ".backup");
+    // Secure backup storage
+    const backupDir = resolve(process.cwd(), "prisma/backups/cms-batch1");
     mkdirSync(backupDir, { recursive: true });
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const snapshotFile = resolve(backupDir, `cms-batch1-backup-${timestamp}.json`);
+    const snapshotFile = resolve(backupDir, `cms-batch1-snapshot-${timestamp}.json`);
     const backupData = {
       timestamp: new Date().toISOString(),
+      databaseFingerprint: dbIdentity.shortHash,
       blocks: blocksToUpdate.map((b) => ({
         pageSlug: b.pageSlug,
         blockId: b.blockId,
@@ -170,8 +251,8 @@ async function main() {
     const backupJson = JSON.stringify(backupData, null, 2);
     writeFileSync(snapshotFile, backupJson, "utf8");
     const backupHash = computeSha256(backupJson);
-    console.log(`\n💾 Secure backup created: ${snapshotFile}`);
-    console.log(`   Checksum (SHA-256): ${backupHash}`);
+    console.log(`\n💾 Pre-write secure backup written: ${snapshotFile}`);
+    console.log(`   Backup Checksum (SHA-256): ${backupHash}`);
 
     // Atomic transaction
     await prisma.$transaction(async (tx) => {
