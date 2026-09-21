@@ -38,7 +38,7 @@ import {
   APPROVED_PROD_DB_HASHES,
 } from "./deployment-safety-common.mjs";
 
-const VALID_TARGETS = new Set(["pages", "seo", "nav"]);
+const VALID_TARGETS = new Set(["pages", "seo", "nav", "backup", "restore"]);
 
 export function parseRunnerArgs(args = []) {
   let target = "";
@@ -46,6 +46,7 @@ export function parseRunnerArgs(args = []) {
   let hasConfirmProd = false;
   let envFile = ".env.production";
   let only = "destinations,standalone";
+  let file = "";
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -65,6 +66,10 @@ export function parseRunnerArgs(args = []) {
       only = arg.slice("--only=".length);
     } else if (arg === "--only") {
       only = args[++i] || only;
+    } else if (arg.startsWith("--file=")) {
+      file = arg.slice("--file=".length);
+    } else if (arg === "--file") {
+      file = args[++i] || file;
     }
   }
 
@@ -74,12 +79,13 @@ export function parseRunnerArgs(args = []) {
     hasConfirmProd,
     envFile,
     only,
-    dryRun: !isApply,
+    file,
+    dryRun: !isApply && target !== "backup",
   };
 }
 
 export function buildChildExecutionPlan(options, cwd = process.cwd()) {
-  const { target, isApply, hasConfirmProd, only } = options;
+  const { target, isApply, hasConfirmProd, only, file } = options;
 
   let scriptPath = "";
   const childArgs = [];
@@ -99,6 +105,11 @@ export function buildChildExecutionPlan(options, cwd = process.cwd()) {
     childArgs.push("--nav-only");
     if (isApply) childArgs.push("--apply");
     if (hasConfirmProd) childArgs.push("--confirm-production");
+  } else if (target === "backup") {
+    scriptPath = resolve(cwd, "src/scripts/cms-export.ts");
+  } else if (target === "restore") {
+    scriptPath = resolve(cwd, "src/scripts/cms-import.ts");
+    if (file) childArgs.push(file);
   }
 
   return { scriptPath, childArgs };
@@ -114,8 +125,13 @@ export async function runCmsSeed(options = {}) {
 
   if (!VALID_TARGETS.has(parsed.target)) {
     console.error(`\n❌ ERROR: Invalid or missing --target.`);
-    console.error("Valid targets: 'pages' (CMS pages), 'seo' (SEOPageMeta), 'nav' (Navigation child).");
+    console.error("Valid targets: 'pages' (CMS pages), 'seo' (SEOPageMeta), 'nav' (Navigation child), 'backup' (CMS backup), 'restore' (CMS restore).");
     console.error("Example: node scripts/run-production-cms-seed.mjs --target=pages\n");
+    return { success: false, exitCode: 1 };
+  }
+
+  if (parsed.target === "restore" && !parsed.file) {
+    console.error(`\n❌ ERROR: Target 'restore' requires --file=<path-to-backup.json>\n`);
     return { success: false, exitCode: 1 };
   }
 
@@ -140,7 +156,8 @@ export async function runCmsSeed(options = {}) {
   const isProdDb = APPROVED_PROD_DB_HASHES.has(dbId.hash) || combinedEnv.APP_ENV === "production";
 
   // 2. Safety Gate for Production
-  if (isProdDb && parsed.isApply && !parsed.hasConfirmProd) {
+  const requiresConfirm = (parsed.isApply || parsed.target === "restore");
+  if (isProdDb && requiresConfirm && !parsed.hasConfirmProd) {
     console.error("\n🚨 SAFETY ABORT: Target is PRODUCTION database!");
     console.error("Writing to production requires explicit --confirm-production.");
     console.error("Execution aborted to prevent unintended production write.\n");
@@ -150,8 +167,15 @@ export async function runCmsSeed(options = {}) {
   // 3. Build execution plan
   const { scriptPath, childArgs } = buildChildExecutionPlan(parsed, cwd);
 
+  const modeDesc =
+    parsed.target === "backup"
+      ? "READ-ONLY EXPORT (Safe: exports production CMS tables to JSON)"
+      : parsed.dryRun
+      ? "DRY-RUN (Safe: no database writes)"
+      : "APPLY (LIVE WRITES AUTHORIZED)";
+
   console.log(`Target Operation:  ${parsed.target.toUpperCase()}`);
-  console.log(`Execution Mode:    ${parsed.dryRun ? "DRY-RUN (Safe: no database writes)" : "APPLY (LIVE WRITES AUTHORIZED)"}`);
+  console.log(`Execution Mode:    ${modeDesc}`);
   console.log(`Database Host:     ${dbId.host || "unknown"} (${dbId.shortHash || "unknown"})`);
   console.log(`Database Identity: ${isProdDb ? "APPROVED PRODUCTION" : "NON-PRODUCTION / TEST"}`);
   console.log(`Child Script:      ${scriptPath}`);
