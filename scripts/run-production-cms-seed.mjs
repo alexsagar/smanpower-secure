@@ -155,9 +155,32 @@ export async function runCmsSeed(options = {}) {
   const dbId = getDbIdentity(dbUrl);
   const isProdDb = APPROVED_PROD_DB_HASHES.has(dbId.hash) || combinedEnv.APP_ENV === "production";
 
-  // 2. Safety Gate for Production
-  const requiresConfirm = (parsed.isApply || parsed.target === "restore");
-  if (isProdDb && requiresConfirm && !parsed.hasConfirmProd) {
+  // 2a. Restore is a destructive, fail-closed target.
+  // It deletes every CMS row before replaying the backup, so it never runs
+  // implicitly: --apply is always required, and the production database is
+  // refused outright until a restore has been rehearsed against an isolated DB.
+  if (parsed.target === "restore") {
+    if (isProdDb) {
+      console.error("\n🚨 SAFETY ABORT: Restore against the PRODUCTION database is DISABLED.");
+      console.error("cms-import.ts wipes all CMS tables before replaying the backup and has not");
+      console.error("been rehearsed against production. Use the Neon branch / point-in-time");
+      console.error("restore path in docs/runbooks/cms-backup-restore.md instead.\n");
+      return { success: false, exitCode: 1 };
+    }
+    if (!parsed.isApply) {
+      console.error("\n❌ ERROR: Target 'restore' performs destructive writes and requires --apply.");
+      console.error("There is no dry-run mode for restore.\n");
+      return { success: false, exitCode: 1 };
+    }
+    if (!parsed.hasConfirmProd) {
+      console.error("\n❌ ERROR: Target 'restore' requires --confirm-production to acknowledge");
+      console.error("that all CMS tables in the target database will be deleted and replaced.\n");
+      return { success: false, exitCode: 1 };
+    }
+  }
+
+  // 2b. Safety Gate for Production
+  if (isProdDb && parsed.isApply && !parsed.hasConfirmProd) {
     console.error("\n🚨 SAFETY ABORT: Target is PRODUCTION database!");
     console.error("Writing to production requires explicit --confirm-production.");
     console.error("Execution aborted to prevent unintended production write.\n");
