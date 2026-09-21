@@ -30,7 +30,29 @@ async function exportCmsData() {
 
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 
-  console.log(`✅ CMS data successfully exported to: ${filePath}`);
+  // Verify backup completeness and recoverability
+  const stats = fs.statSync(filePath);
+  if (stats.size < 1024) {
+    throw new Error(`Backup file is suspiciously small (${stats.size} bytes). Export verification failed.`);
+  }
+
+  const readBack = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  if (!Array.isArray(readBack.pages) || readBack.pages.length === 0) {
+    throw new Error("Export verification failed: No pages found in backup.");
+  }
+  if (!Array.isArray(readBack.seoMeta) || readBack.seoMeta.length === 0) {
+    throw new Error("Export verification failed: No SEO metadata found in backup.");
+  }
+  if (!Array.isArray(readBack.navigationItems) || readBack.navigationItems.length === 0) {
+    throw new Error("Export verification failed: No navigation items found in backup.");
+  }
+
+  console.log(`✅ CMS data successfully exported and verified:`);
+  console.log(`   - File path:        ${filePath}`);
+  console.log(`   - File size:        ${(stats.size / 1024).toFixed(2)} KB`);
+  console.log(`   - CMS Pages:        ${readBack.pages.length}`);
+  console.log(`   - SEO Page Meta:    ${readBack.seoMeta.length}`);
+  console.log(`   - Navigation Items: ${readBack.navigationItems.length}`);
 }
 
 exportCmsData()

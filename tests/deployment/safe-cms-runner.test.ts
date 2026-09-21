@@ -68,6 +68,27 @@ describe("Safe Production CMS Runner Contract & Argument Forwarding", () => {
       expect(plan.scriptPath).toContain("seed-destinations-nav-seo.ts");
       expect(plan.childArgs).toEqual(["--nav-only"]);
     });
+
+    it("maps target 'backup' to cms-export.ts with empty child args", () => {
+      const plan = buildChildExecutionPlan({
+        target: "backup",
+        isApply: false,
+        hasConfirmProd: false,
+      });
+      expect(plan.scriptPath).toContain("cms-export.ts");
+      expect(plan.childArgs).toEqual([]);
+    });
+
+    it("maps target 'restore' to cms-import.ts with file argument", () => {
+      const plan = buildChildExecutionPlan({
+        target: "restore",
+        isApply: true,
+        hasConfirmProd: true,
+        file: "prisma/backups/test.json",
+      });
+      expect(plan.scriptPath).toContain("cms-import.ts");
+      expect(plan.childArgs).toEqual(["prisma/backups/test.json"]);
+    });
   });
 
   describe("3. Production Safety Abort Gate", () => {
