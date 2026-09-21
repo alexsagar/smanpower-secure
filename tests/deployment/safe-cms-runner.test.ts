@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { parseRunnerArgs, buildChildExecutionPlan, runCmsSeed } from "../../scripts/run-production-cms-seed.mjs";
 import { verifyBackup } from "../../src/scripts/cms-export";
 import { spawnSync } from "node:child_process";
@@ -171,11 +171,35 @@ describe("Safe Production CMS Runner Contract & Argument Forwarding", () => {
   });
 
   describe("5. Restore Target Safety", () => {
+    // Self-contained env fixtures: .env.test / .env.production are git-ignored and
+    // absent in CI, so these tests write their own throwaway env files instead.
+    const NON_PROD_ENV = "tests/deployment/.tmp-nonprod.env";
+    const PROD_ENV = "tests/deployment/.tmp-prod.env";
+
+    beforeAll(() => {
+      writeFileSync(
+        resolve(process.cwd(), NON_PROD_ENV),
+        'DATABASE_URL="postgresql://postgres:test@localhost:5432/smanpower_qa?schema=public"\n'
+      );
+      writeFileSync(
+        resolve(process.cwd(), PROD_ENV),
+        'DATABASE_URL="postgresql://user:pass@example.invalid:5432/fake?schema=public"\nAPP_ENV="production"\n'
+      );
+    });
+
+
+    afterAll(() => {
+      for (const f of [NON_PROD_ENV, PROD_ENV]) {
+        const p = resolve(process.cwd(), f);
+        if (existsSync(p)) unlinkSync(p);
+      }
+    });
+
     const restoreParsed = (over = {}) => ({
       target: "restore",
       isApply: false,
       hasConfirmProd: false,
-      envFile: ".env.test",
+      envFile: NON_PROD_ENV,
       only: "destinations,standalone",
       file: "prisma/backups/test.json",
       dryRun: true,
@@ -206,7 +230,7 @@ describe("Safe Production CMS Runner Contract & Argument Forwarding", () => {
           isApply: true,
           hasConfirmProd: true,
           dryRun: false,
-          envFile: ".env.production",
+          envFile: PROD_ENV,
         }),
         dryRunRunnerOnly: true,
       });
