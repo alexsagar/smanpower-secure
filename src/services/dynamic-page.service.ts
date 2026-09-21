@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPageBySlug } from "@/repositories/content-resolver";
+import { getPageBySlug, getPageSeo } from "@/repositories/content-resolver";
 import { getContentBySlug, type PageContent } from "@/lib/content";
 import { mapBlockContentToPageContent } from "@/lib/dynamic-page-content";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -13,21 +13,31 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
  */
 export async function buildDynamicPageMetadata(
   category: string,
-  slug: string
+  slug: string,
+  options: DynamicPageOptions = {}
 ): Promise<Metadata> {
-  const content = await getDynamicPageContent(category, slug);
+  const path = options.path ?? `/${category}/${slug}`;
+  const content = await getDynamicPageContent(category, slug, options);
   if (!content) {
     notFound();
   }
-  const description = [content.subtitle, content.missionText?.[0]]
+  const fallbackDescription = [content.subtitle, content.missionText?.[0]]
     .filter(Boolean)
     .join(" ")
     .trim()
     .slice(0, 300) || undefined;
+
+  // Editors can override title/description/canonical/OG per page path in the
+  // CMS SEO manager; the resolved page content remains the fallback.
+  const seo = await getPageSeo(path).catch(() => null);
+
   return buildPageMetadata({
-    title: content.title,
-    description,
-    path: `/${category}/${slug}`,
+    title: seo?.metaTitle || content.title,
+    description: seo?.metaDescription || fallbackDescription,
+    path,
+    canonicalOverride: seo?.canonicalUrl,
+    ogImage: seo?.ogImage,
+    noIndex: seo?.noIndex,
   });
 }
 
@@ -43,12 +53,20 @@ export async function buildDynamicPageMetadata(
 
 const DYNAMIC_PAGE_BLOCK_TYPE = "image_text";
 
+export type DynamicPageOptions = {
+  /** CMS page slug, when it is not `<category>/<slug>` (root-level pages). */
+  cmsSlug?: string;
+  /** Canonical route path, when it is not `/<category>/<slug>`. */
+  path?: string;
+};
+
 export async function getDynamicPageContent(
   category: string,
-  slug: string
+  slug: string,
+  options: DynamicPageOptions = {}
 ): Promise<PageContent | undefined> {
   const fallback = getContentBySlug(category, slug);
-  const page = await getPageBySlug(`${category}/${slug}`);
+  const page = await getPageBySlug(options.cmsSlug ?? `${category}/${slug}`);
 
   const block = page?.blocks?.find(
     (candidate) => candidate.visible && candidate.blockType === DYNAMIC_PAGE_BLOCK_TYPE

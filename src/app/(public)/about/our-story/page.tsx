@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -41,6 +42,17 @@ export default async function OurStoryPage() {
         </p>
         <p className="text-lg text-brand-muted leading-relaxed">
           {copy.beginning.paragraphs[1]}
+        </p>
+        <p className="mt-8 text-lg text-brand-muted leading-relaxed">
+          Everything described here is run from{" "}
+          <Link href="/manpower-agency-in-kathmandu" className="text-brand-gold-dark font-semibold hover:underline">
+            our manpower agency office in Kathmandu
+          </Link>
+          , for the{" "}
+          <Link href="/destinations" className="text-brand-gold-dark font-semibold hover:underline">
+            destinations we currently recruit for
+          </Link>
+          .
         </p>
       </EditorialSection>
       )}
