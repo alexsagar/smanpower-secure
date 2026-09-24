@@ -966,6 +966,15 @@ export const trustContent: PageContent[] = [
 export const INDICATIVE_TIMEFRAME =
   "Our current indicative mobilisation timeframe for Gulf destinations is 30 to 45 days. This is an estimate rather than a guarantee: actual lead times depend on the requirement, document attestation, government approvals, medical clearances and other relevant factors.";
 
+/**
+ * Timeframe wording for destinations outside the Gulf. The 30-45 day figure in
+ * INDICATIVE_TIMEFRAME is explicitly scoped to Gulf destinations, so quoting it
+ * for Malaysia, Japan or Europe would be an unsupported claim. No substitute
+ * number is invented here: the lead time is confirmed per requirement instead.
+ */
+export const NON_GULF_TIMEFRAME =
+  "Mobilisation lead times outside the Gulf vary by destination and by requirement, and we do not publish a single figure for them. Actual timing depends on the requirement, document attestation, government approvals, medical clearances and other relevant factors. We confirm an indicative timeframe for your specific requirement once we have reviewed it.";
+
 /** Sector links shared by the destination pages — the sectors already listed on the website. */
 const SECTOR_LINKS = [
   { title: "Security Services", desc: "Guards and security personnel screened for overseas security roles.", href: "/industries/security-services" },
@@ -1029,8 +1038,17 @@ const destinationDefaults: Partial<PageContent> = {
 // sections are defined further down the file with the destination content.
 categoryDefaults.destinations = destinationDefaults;
 
-/** Employer FAQs shared across the destination pages, with the country named. */
-function destinationFaqs(country: string): { q: string; a: string }[] {
+/**
+ * Employer FAQs shared across the destination pages, with the country named.
+ *
+ * `timeframe` defaults to the Gulf figure. Non-Gulf destinations must pass
+ * NON_GULF_TIMEFRAME — the published 30-45 day estimate is scoped to the Gulf
+ * and does not transfer to Malaysia, Japan or Europe.
+ */
+function destinationFaqs(
+  country: string,
+  timeframe: string = INDICATIVE_TIMEFRAME
+): { q: string; a: string }[] {
   return [
     {
       q: "Do candidates pay any recruitment fees?",
@@ -1038,7 +1056,7 @@ function destinationFaqs(country: string): { q: string; a: string }[] {
     },
     {
       q: "How long does mobilisation usually take?",
-      a: INDICATIVE_TIMEFRAME,
+      a: timeframe,
     },
     {
       q: "Can we interview and trade-test candidates before selecting them?",
@@ -1054,7 +1072,7 @@ function destinationFaqs(country: string): { q: string; a: string }[] {
     },
     {
       q: "Which sectors can you recruit for?",
-      a: "The sectors listed on this page are the ones we recruit for: security services, construction and technical trades, hospitality and hotels, facility management, aviation and ground handling, manufacturing, healthcare support, and logistics and transport.",
+      a: "The sectors listed on this page are the ones we recruit for: security services, construction and technical trades, hospitality and hotels, facility management, aviation and ground handling, manufacturing, healthcare support, and logistics and transport. This describes what we can source, screen and trade-test for; it does not indicate that a vacancy is currently open in any particular sector or destination. Published openings appear on our Demands page.",
     },
   ];
 }
@@ -1135,6 +1153,188 @@ export const destinationsContent: PageContent[] = [
     ],
     faqs: destinationFaqs("Qatar"),
   },
+  {
+    slug: "oman",
+    title: "Recruitment of Nepali Workers for Oman.",
+    subtitle: "Oman",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Omani Employers.",
+    missionText: [
+      "Oman is a recruitment destination Seven Seas Intercontinental accepts requirements for. Employers in Oman appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Oman: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every Omani requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How an Omani Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Oman." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Omani deployment." },
+    ],
+    faqs: destinationFaqs("Oman"),
+  },
+  {
+    slug: "bahrain",
+    title: "Recruitment of Nepali Workers for Bahrain.",
+    subtitle: "Bahrain",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Bahraini Employers.",
+    missionText: [
+      "Bahrain is a recruitment destination Seven Seas Intercontinental accepts requirements for. Employers in Bahrain appoint us to source, screen, trade-test and mobilise Nepali workers, with every step of the Nepal-side process handled by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Bahrain: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every Bahraini requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Bahraini Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Bahrain." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Bahraini deployment." },
+    ],
+    faqs: destinationFaqs("Bahrain"),
+  },
+  {
+    slug: "kuwait",
+    title: "Recruitment of Nepali Workers for Kuwait.",
+    subtitle: "Kuwait",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Kuwaiti Employers.",
+    missionText: [
+      "Kuwait is a recruitment destination Seven Seas Intercontinental accepts requirements for. Employers in Kuwait appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Kuwait: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer, and that position is applied to every Kuwaiti requirement without exception.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Kuwaiti Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Kuwait." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Kuwaiti deployment." },
+    ],
+    faqs: destinationFaqs("Kuwait"),
+  },
+  {
+    slug: "malaysia",
+    title: "Recruitment of Nepali Workers for Malaysia.",
+    subtitle: "Malaysia",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Malaysian Employers.",
+    missionText: [
+      "Malaysia is a recruitment destination Seven Seas Intercontinental accepts requirements for. Employers in Malaysia appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Malaysia: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Malaysia sits outside the Gulf, so we do not apply our indicative Gulf mobilisation estimate to it. Lead times are confirmed against your specific requirement rather than quoted in advance. What does not change is the fee position: candidates are never charged recruitment, placement, or processing fees, and recruitment costs are paid by the employer.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Malaysian Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Malaysia." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Pre-Departure Orientation", desc: "Every selected worker completes the mandatory orientation covering the role, contract and destination." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Malaysian deployment." },
+    ],
+    faqs: destinationFaqs("Malaysia", NON_GULF_TIMEFRAME),
+  },
+  {
+    slug: "japan",
+    title: "Recruitment of Nepali Workers for Japan.",
+    subtitle: "Japan",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Japanese Employers.",
+    missionText: [
+      "Japan is a recruitment destination Seven Seas Intercontinental accepts requirements for. Employers in Japan appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Japan: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Japan sits outside the Gulf, and employer requirements for it differ enough that we discuss them case by case rather than publishing a standard lead time or a fixed preparation path. The fee position is the same everywhere we work: candidates are never charged recruitment, placement, or processing fees, and recruitment costs are paid by the employer.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Japanese Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Japan." },
+      { title: "Requirement-Led Preparation", desc: "Role-specific preparation agreed with you before mobilisation, rather than a single fixed path applied to every requirement." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Japanese deployment." },
+    ],
+    faqs: destinationFaqs("Japan", NON_GULF_TIMEFRAME),
+  },
+  {
+    slug: "europe",
+    title: "Recruitment of Nepali Workers for Europe.",
+    subtitle: "Europe",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Side Recruitment Partner for European Employers.",
+    missionText: [
+      "Seven Seas Intercontinental supports employers across Europe with sourcing, screening, trade testing and mobilisation of Nepali workers, coordinated from our Kathmandu office. Employers are invited to contact our team to discuss country-specific workforce requirements.",
+      "This is a regional page rather than a country page, and the distinction matters. Europe is not a single jurisdiction: entry rules, employer obligations and permitted recruitment routes differ from one European country to the next, and nothing here should be read as a statement about any particular country's requirements. We confirm what is possible for your country and your role once we have reviewed the requirement with you.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu, with no offices or branches in Europe. Candidates are never charged recruitment, placement, or processing fees; recruitment costs are paid by the employer.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What We Handle",
+    featuresHeading: "The Nepal-Side Work We Carry Out.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Your requirement documents verified and registered under Nepal's Department of Foreign Employment framework before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable remotely." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Country-Specific Discussion", desc: "Feasibility, route and timing reviewed against your specific European country and role before anything is committed." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate, on every requirement we accept." },
+    ],
+    faqsEyebrow: "Employer Questions",
+    faqsHeading: "What European Employers Ask Us.",
+    faqs: [
+      {
+        q: "Do candidates pay any recruitment fees?",
+        a: "Candidates are never charged recruitment, placement, or processing fees. Recruitment costs are paid by the employer. This applies to every requirement we accept, in every destination.",
+      },
+      {
+        q: "Does this page mean you can recruit into any European country?",
+        a: "No. This page describes the Nepal-side work we carry out for European employers; it is not a statement that recruitment is possible into every European country, nor a claim of authorisation in any specific one. Feasibility is confirmed per country and per requirement after we review it with you.",
+      },
+      {
+        q: "Is 'Europe' here the same as the EU?",
+        a: "No. We use Europe in the geographic sense, not as a reference to the European Union or to any other bloc or agreement. Membership of any such group does not determine how a requirement is handled.",
+      },
+      {
+        q: "Are the rules the same across Europe?",
+        a: "No. Entry rules, employer obligations and permitted recruitment routes differ from one European country to another, and they change over time. We do not publish country-specific requirements on this page, and nothing here should be treated as advice for a particular jurisdiction.",
+      },
+      {
+        q: "How long does mobilisation take for a European requirement?",
+        a: NON_GULF_TIMEFRAME,
+      },
+      {
+        q: "Does Seven Seas have an office in Europe?",
+        a: "No. Seven Seas Intercontinental operates from a single office in Kathmandu, Nepal. Work in Europe is handled through coordination with employers and partners in destination countries, not through a branch of our own.",
+      },
+      {
+        q: "What recruitment standards do you work to?",
+        a: "We maintain an ISO 9001:2015 certified Quality Management System for recruitment operations, and our recruitment practices are RBA-compliant and Sedex-compliant, operating within an RBA-aligned framework adhering to the Employer-Pays Principle.",
+      },
+    ],
+    cta: {
+      eyebrow: "Country-Specific Enquiry",
+      heading: "Tell us which country you are hiring into.",
+      body: "Share the European country, the roles, the headcount and your target start date. Our corporate relations team will respond within 24 hours to discuss what is possible for that specific requirement.",
+      buttonLabel: "Request Workforce",
+      buttonHref: "/employers/request-workforce",
+    },
+  },
 ];
 
 /**
@@ -1151,16 +1351,22 @@ export const standaloneContent: PageContent[] = [
     missionHeading: "Where We Recruit Nepali Workers For.",
     missionText: [
       "Seven Seas Intercontinental is a licensed Nepali recruitment agency, established in 2010 and working from a single office in Kathmandu. Employers appoint us to source, screen, trade-test and mobilise Nepali workers for their operations abroad.",
-      "Saudi Arabia, the United Arab Emirates and Qatar are the destination pages currently featured on our website. Seven Seas Intercontinental also actively recruits for additional destinations across the Gulf and other international markets. The Nepal-side recruitment process is consistent across all jurisdictions: every requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel. Employers with staffing requirements for these or other destinations are invited to contact our team to discuss their needs.",
+      "Eight countries have a destination page on this website — Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia and Japan — alongside a regional page covering our Nepal-side work for employers in Europe. These are the destinations currently featured here, not a closed list: Seven Seas Intercontinental accepts requirements for additional destinations, and the pages published here are expected to grow. Employers with staffing requirements for these or other destinations are invited to contact our team.",
+      "The Nepal-side recruitment process is consistent across every jurisdiction we work in: each requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel. What differs between destinations is the employer-side context, which we confirm against your specific requirement rather than publishing as general guidance.",
       INDICATIVE_TIMEFRAME,
     ],
     overviewSubtitle: "Overview",
-    featuresEyebrow: "Featured Destinations",
-    featuresHeading: "Destinations Currently Featured on Our Website.",
+    featuresEyebrow: "Individual Countries",
+    featuresHeading: "Countries With a Destination Page.",
     features: [
-      { title: "Saudi Arabia", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
-      { title: "United Arab Emirates", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
-      { title: "Qatar", desc: "Featured destination page. Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+      { title: "Saudi Arabia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
+      { title: "United Arab Emirates", desc: "Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
+      { title: "Qatar", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+      { title: "Oman", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Omani employers." },
+      { title: "Bahrain", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Bahraini employers." },
+      { title: "Kuwait", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Kuwaiti employers." },
+      { title: "Malaysia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Malaysian employers. Outside the Gulf, so lead times are confirmed per requirement." },
+      { title: "Japan", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Japanese employers. Requirements are discussed case by case." },
     ],
     linksEyebrow: "Destination Pages",
     linksHeading: "Explore Each Destination.",
@@ -1168,6 +1374,12 @@ export const standaloneContent: PageContent[] = [
       { title: "Saudi Arabia", desc: "How we recruit Nepali workers for employers in Saudi Arabia.", href: "/destinations/saudi-arabia" },
       { title: "United Arab Emirates", desc: "How we recruit Nepali workers for employers in the UAE.", href: "/destinations/united-arab-emirates" },
       { title: "Qatar", desc: "How we recruit Nepali workers for employers in Qatar.", href: "/destinations/qatar" },
+      { title: "Oman", desc: "How we recruit Nepali workers for employers in Oman.", href: "/destinations/oman" },
+      { title: "Bahrain", desc: "How we recruit Nepali workers for employers in Bahrain.", href: "/destinations/bahrain" },
+      { title: "Kuwait", desc: "How we recruit Nepali workers for employers in Kuwait.", href: "/destinations/kuwait" },
+      { title: "Malaysia", desc: "How we recruit Nepali workers for employers in Malaysia.", href: "/destinations/malaysia" },
+      { title: "Japan", desc: "How we recruit Nepali workers for employers in Japan.", href: "/destinations/japan" },
+      { title: "Europe (Regional)", desc: "Regional page, not a country page. Our Nepal-side work for European employers, discussed country by country.", href: "/destinations/europe" },
       { title: "Sectors We Recruit For", desc: "The industries we source and screen Nepali workers for.", href: "/industries" },
       { title: "Current Demands", desc: "Published demands open for application right now.", href: "/demands" },
       { title: "Our Kathmandu Office", desc: "The office every requirement is processed from.", href: "/manpower-agency-in-kathmandu" },
@@ -1180,7 +1392,11 @@ export const standaloneContent: PageContent[] = [
     faqs: [
       {
         q: "Which destinations do you recruit for?",
-        a: "Saudi Arabia, the United Arab Emirates and Qatar are the destination pages currently featured on our website. Seven Seas Intercontinental also recruits for additional destinations. Employers with workforce requirements for these or other destinations are invited to contact our team to discuss their specific needs.",
+        a: "Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia and Japan are the country destination pages currently featured on our website, alongside a regional page for Europe. Seven Seas Intercontinental also recruits for additional destinations, and this list is expected to grow. Employers with workforce requirements for these or other destinations are invited to contact our team to discuss their specific needs.",
+      },
+      {
+        q: "Is Europe a destination country on this site?",
+        a: "No. Europe is a regional page describing the Nepal-side work we carry out for European employers. It is not a country page, and it is not a statement that recruitment is possible into every European country. Europe is not a single jurisdiction, so feasibility is confirmed per country and per requirement.",
       },
       {
         q: "Do candidates pay any recruitment fees?",
