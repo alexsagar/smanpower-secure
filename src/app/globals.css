@@ -48,6 +48,14 @@
     /* Scales down all rem-based Tailwind classes (text, padding, margin) proportionally */
   }
 
+  /* Lenis adds `.lenis` to <html> while it is driving the document scroller.
+     Native CSS smooth scrolling fights Lenis's own animation, so it is turned
+     off only while Lenis is mounted — readers with prefers-reduced-motion get
+     no Lenis instance and therefore keep the native smooth behaviour above. */
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
   /* Keep section anchors / hash links clear of the fixed header instead of
      scrolling their heading underneath it. */
   :target,
