@@ -88,7 +88,7 @@
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
-    "lenis": "^1.3.25",
+    "lenis": "^1.3.26",
     "lucide-react": "^1.23.0",
     "nepal-district-map": "^1.1.0",
     "next": "16.2.9",
