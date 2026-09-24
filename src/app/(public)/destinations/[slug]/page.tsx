@@ -10,11 +10,24 @@ import { getPublishedDemands } from "@/repositories/content-resolver";
 
 export const revalidate = 86400;
 
-/** Slug → the `Country.name` used by the demand filter. */
+/**
+ * Slug → the `Country.name` used by the demand filter.
+ *
+ * Only individual countries appear here. `europe` is deliberately absent: it is
+ * a regional page, not a country, and there is no single `Country` record it
+ * could filter demands by. A slug with no entry simply renders no demand
+ * preview, which is also the correct behaviour for a country that currently has
+ * no published demands.
+ */
 const COUNTRY_NAME: Record<string, string> = {
   "saudi-arabia": "Saudi Arabia",
   "united-arab-emirates": "United Arab Emirates",
   qatar: "Qatar",
+  oman: "Oman",
+  bahrain: "Bahrain",
+  kuwait: "Kuwait",
+  malaysia: "Malaysia",
+  japan: "Japan",
 };
 
 export function generateStaticParams() {

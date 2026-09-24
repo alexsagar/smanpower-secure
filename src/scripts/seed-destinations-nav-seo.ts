@@ -51,6 +51,48 @@ const SEO_ROWS = [
     focusKeyword: "recruitment agency nepal qatar",
   },
   {
+    pagePath: "/destinations/oman",
+    metaTitle: "Nepali Workforce Recruitment for Oman | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Oman. Employer-pays recruitment, documented process, Kathmandu trade testing.",
+    focusKeyword: "recruitment agency nepal oman",
+  },
+  {
+    pagePath: "/destinations/bahrain",
+    metaTitle: "Nepali Workforce Recruitment for Bahrain | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Bahrain. Employer-pays recruitment, documented process, Kathmandu trade testing.",
+    focusKeyword: "recruitment agency nepal bahrain",
+  },
+  {
+    pagePath: "/destinations/kuwait",
+    metaTitle: "Nepali Workforce Recruitment for Kuwait | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Kuwait. Employer-pays recruitment, documented process, Kathmandu trade testing.",
+    focusKeyword: "recruitment agency nepal kuwait",
+  },
+  {
+    pagePath: "/destinations/malaysia",
+    metaTitle: "Nepali Workforce Recruitment for Malaysia | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Malaysia. Employer-pays recruitment, with lead times confirmed per requirement.",
+    focusKeyword: "recruitment agency nepal malaysia",
+  },
+  {
+    pagePath: "/destinations/japan",
+    metaTitle: "Nepali Workforce Recruitment for Japan | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Japan. Employer-pays recruitment, with requirements discussed case by case.",
+    focusKeyword: "recruitment agency nepal japan",
+  },
+  {
+    pagePath: "/destinations/europe",
+    metaTitle: "Nepali Workforce Recruitment for Europe | Seven Seas Intercontinental",
+    metaDescription:
+      "Nepal-side sourcing, screening, trade testing and mobilisation of Nepali workers for employers across Europe, coordinated from Kathmandu. A regional page: feasibility is confirmed country by country.",
+    focusKeyword: "nepali workers recruitment europe",
+  },
+  {
     pagePath: "/manpower-agency-in-kathmandu",
     metaTitle: "Manpower Agency in Kathmandu, Nepal | Seven Seas Intercontinental",
     metaDescription:
