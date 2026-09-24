@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleTranslateScript } from "@/components/layout/GoogleTranslateScript";
 import { FirstVisitLoader } from "@/components/loading/FirstVisitLoader";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { publicFontVariables } from "@/lib/fonts";
 import "@/app/globals.css";
 
@@ -70,9 +71,11 @@ export default async function PublicLayout({
         )}
         <GoogleTranslateScript />
         <FirstVisitLoader />
-        <Header navigation={headerNav} copy={layoutCopy.header} />
-        <main className="flex-1">{children}</main>
-        <Footer footerSettings={footerSettings} siteSettings={siteSettings} resourceLinks={resourceLinks} copy={layoutCopy.footer} />
+        <SmoothScroll>
+          <Header navigation={headerNav} copy={layoutCopy.header} />
+          <main className="flex-1">{children}</main>
+          <Footer footerSettings={footerSettings} siteSettings={siteSettings} resourceLinks={resourceLinks} copy={layoutCopy.footer} />
+        </SmoothScroll>
       </body>
     </html>
   );

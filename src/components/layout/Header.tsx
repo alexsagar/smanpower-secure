@@ -270,6 +270,9 @@ export function Header({
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
             className="fixed inset-0 z-40 bg-brand-white xl:hidden flex flex-col pt-[calc(var(--site-header-height)+env(safe-area-inset-top))] overflow-y-auto"
+            // Keeps Lenis off this panel so the open menu scrolls itself
+            // instead of driving the page behind it.
+            data-lenis-prevent
           >
             <div className="px-6 flex-1">
               {Object.entries(navConfig).map(([key, section]) => (
