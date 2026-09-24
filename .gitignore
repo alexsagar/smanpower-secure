@@ -65,3 +65,6 @@ prisma/backups/
 # Production safety artifacts (generated, uncommitted)
 .production-build-truth.json
 .production-artifact-manifest.json
+
+# Impeccable local configuration
+.impeccable/config.local.json
