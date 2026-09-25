@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T00:00:00.000Z",
+  "title": "Design System: Seven Seas Intercontinental",
+  "extensions": {
+    "colorMeta": {
+      "brand-gold": {
+        "role": "primary",
+        "displayName": "Antique Gold",
+        "canonical": "#B5913F",
+        "tonalRamp": ["#221B0C", "#3D3115", "#5C4A1F", "#7A6224", "#9A7B32", "#B5913F", "#CDB075", "#E8DCBE"]
+      },
+      "brand-gold-dark": {
+        "role": "primary",
+        "displayName": "Deep Bronze",
+        "canonical": "#7A6224",
+        "tonalRamp": ["#171207", "#2E250D", "#453814", "#5C4A1B", "#7A6224", "#9C7F36", "#C0A362", "#E3D5B0"]
+      },
+      "brand-black": {
+        "role": "neutral",
+        "displayName": "Absolute Black",
+        "canonical": "#000000",
+        "tonalRamp": ["#000000", "#0D0D0D", "#1A1A1A", "#333333", "#4D4D4D", "#808080", "#B3B3B3", "#E6E6E6"]
+      },
+      "brand-charcoal": {
+        "role": "neutral",
+        "displayName": "Ink Charcoal",
+        "canonical": "#171717",
+        "tonalRamp": ["#0A0A0A", "#171717", "#262626", "#3D3D3D", "#5C5C5C", "#8A8A8A", "#BDBDBD", "#E8E8E8"]
+      },
+      "brand-muted": {
+        "role": "neutral",
+        "displayName": "Quiet Slate",
+        "canonical": "#77736A",
+        "tonalRamp": ["#16150F", "#2B2924", "#403E36", "#5C594F", "#77736A", "#9A968D", "#C2BFB7", "#E6E4DF"]
+      },
+      "brand-stone": {
+        "role": "neutral",
+        "displayName": "Dry Stone",
+        "canonical": "#EDE9E1",
+        "tonalRamp": ["#26231C", "#3D392F", "#5C5748", "#807A68", "#A8A192", "#CFC9BC", "#EDE9E1", "#F8F6F2"]
+      },
+      "brand-off-white": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "canonical": "#F7F5F0",
+        "tonalRamp": ["#292722", "#423F37", "#605C50", "#87826F", "#B0AB99", "#D6D2C5", "#F7F5F0", "#FCFBF8"]
+      },
+      "brand-white": {
+        "role": "neutral",
+        "displayName": "Pure White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#1A1A1A", "#333333", "#4D4D4D", "#808080", "#B3B3B3", "#D9D9D9", "#F2F2F2", "#FFFFFF"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles on public brand surfaces. Science Gothic at 300 only — never bolded." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles. Last role that uses the brand face." },
+      "title": { "displayName": "Title", "purpose": "Subsection titles. Switches to Manrope semibold." },
+      "body": { "displayName": "Body", "purpose": "Running copy at 1.7 line-height." },
+      "label": { "displayName": "Label / Eyebrow", "purpose": "Uppercase eyebrows and nav labels at 0.28em tracking — a system signature." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "scroll-reveal", "value": "opacity 0→1, translateY(20px)→0 over 600ms ease-out", "purpose": "Standard once-only entrance as content enters the viewport." },
+      { "name": "state-transition", "value": "200ms", "purpose": "Default duration for button and link state changes." },
+      { "name": "mobile-menu", "value": "tween 300ms, translateX(100%)→0", "purpose": "Full-screen mobile navigation panel slide-in." },
+      { "name": "marquee", "value": "90s linear infinite translateX(0→-50%)", "purpose": "Partner/logo strip scroll." },
+      { "name": "smooth-scroll", "value": "Lenis lerp 0.14, wheelMultiplier 1", "purpose": "Damped document scrolling; disabled under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ],
+    "rootFontSize": "14px"
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default action. Absolute Black fill, square corners, 44px tall.",
+      "html": "<button class=\"ds-btn-primary\">Request Workforce</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 24px; background: #000000; color: #FFFFFF; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 0; cursor: pointer; transition: all 0.2s; } .ds-btn-primary:hover { background: #171717; } .ds-btn-primary:focus-visible { outline: 2px solid #B5913F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Gold Button",
+      "kind": "button",
+      "refersTo": "button-gold",
+      "description": "The single consequential action on a surface. Never more than one per viewport.",
+      "html": "<button class=\"ds-btn-gold\">Partner With Us</button>",
+      "css": ".ds-btn-gold { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 24px; background: #B5913F; color: #000000; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 0; cursor: pointer; transition: all 0.2s; } .ds-btn-gold:hover { background: #7A6224; color: #FFFFFF; } .ds-btn-gold:focus-visible { outline: 2px solid #B5913F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action carried by a hairline border rather than a fill.",
+      "html": "<button class=\"ds-btn-outline\">View Demands</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 24px; background: transparent; color: #171717; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid rgba(23,23,23,0.2); border-radius: 0; cursor: pointer; transition: all 0.2s; } .ds-btn-outline:hover { background: #EDE9E1; } .ds-btn-outline:focus-visible { outline: 2px solid #B5913F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "White ground with a hairline border that shifts to gold on focus.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Company name\" />",
+      "css": ".ds-input { width: 100%; height: 44px; padding: 0 16px; background: #FFFFFF; color: #171717; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 14px; border: 1px solid rgba(23,23,23,0.2); border-radius: 0; transition: border-color 0.2s; } .ds-input::placeholder { color: #77736A; } .ds-input:focus-visible { border-color: #B5913F; outline: 2px solid #B5913F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Eyebrow Label",
+      "kind": "custom",
+      "refersTo": "label",
+      "description": "Gold uppercase micro-label above section headlines. The 0.28em tracking is a system signature.",
+      "html": "<span class=\"ds-eyebrow\">Recruitment by Destination</span>",
+      "css": ".ds-eyebrow { display: inline-block; color: #7A6224; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 600; line-height: 1.2; letter-spacing: 0.28em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Gold Badge",
+      "kind": "chip",
+      "refersTo": "badge-gold",
+      "description": "Status marker on a 10%-opacity gold ground with accessible bronze text.",
+      "html": "<span class=\"ds-badge-gold\">Published</span>",
+      "css": ".ds-badge-gold { display: inline-flex; align-items: center; padding: 2px 10px; background: rgba(181,145,63,0.1); color: #7A6224; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 500; border-radius: 0; }"
+    },
+    {
+      "name": "Navigation Label",
+      "kind": "nav",
+      "refersTo": "label",
+      "description": "Desktop header link. Uppercase, very small, wide-tracked; gold on hover.",
+      "html": "<a class=\"ds-nav-label\" href=\"#\">Workforce Solutions</a>",
+      "css": ".ds-nav-label { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 6px; color: #171717; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; transition: color 0.2s; } .ds-nav-label:hover { color: #B5913F; } .ds-nav-label:focus-visible { outline: 2px solid #B5913F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Editorial Section Panel",
+      "kind": "card",
+      "refersTo": null,
+      "description": "The signature surface: flat, square, ruled with 4%-opacity vertical hairlines instead of a border box.",
+      "html": "<section class=\"ds-editorial\"><span class=\"ds-editorial-rule\"></span><span class=\"ds-editorial-rule\"></span><div class=\"ds-editorial-body\"><span class=\"ds-editorial-eyebrow\">Ethical Recruitment</span><h2 class=\"ds-editorial-title\">Employer-pays, documented end to end</h2></div></section>",
+      "css": ".ds-editorial { position: relative; padding: 96px 24px; background: #F7F5F0; color: #171717; overflow: hidden; } .ds-editorial-rule { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(23,23,23,0.04); } .ds-editorial-rule:nth-of-type(1) { left: 25%; } .ds-editorial-rule:nth-of-type(2) { left: 75%; } .ds-editorial-body { position: relative; z-index: 1; max-width: 640px; } .ds-editorial-eyebrow { display: block; margin-bottom: 24px; color: #B5913F; font-family: Manrope, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; } .ds-editorial-title { margin: 0; font-family: 'Science Gothic', Manrope, ui-sans-serif, system-ui, sans-serif; font-size: clamp(2rem, 3vw, 3rem); font-weight: 300; line-height: 1.05; letter-spacing: -0.03em; color: #000000; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Verified Dossier",
+    "overview": "The interface behaves like a document assembled for inspection rather than a website built to persuade. An employer evaluating a Nepali recruitment agency from 4,000 km away is performing an audit, and the design answers that posture directly: flat surfaces, sharp corners, hairline rules, and a near-total absence of ornament. Nothing is softened, because everything on the page is evidence being presented and evidence does not need decoration.\n\nDensity is low and deliberate. Sections breathe at py-20 md:py-32, headlines run to 4.5rem in a 300-weight face that is wide and thin rather than loud, and body copy sits at a generous 1.7 line-height. The effect is an unhurried, broadsheet-like calm — the visual equivalent of a company that says \"compliant\" where a competitor would say \"certified\". Restraint is the argument.\n\nColour is almost entirely absent. A black-charcoal-stone-offwhite range carries the entire interface, and a single gold accent appears only where something genuinely carries weight. The palette's near-monochrome discipline is what makes the gold legible as a signal at all.",
+    "keyCharacteristics": [
+      "Flat by doctrine — no radius, no drop shadows",
+      "Editorial scale: very large, very light display type",
+      "Hairline rules and column lines instead of boxes and cards",
+      "Gold as a scarce signal, never as decoration",
+      "Text-led hierarchy; imagery supports, never leads",
+      "Generous vertical rhythm, low information density"
+    ],
+    "rules": [
+      { "name": "The Scarce Gold Rule", "body": "Gold marks only what carries consequence — an eyebrow, a focus ring, an active nav state, the one action that matters on the surface. Its rarity is the entire mechanism. If two gold elements compete in the same viewport, one of them is wrong.", "section": "colors" },
+      { "name": "The Two Golds Rule", "body": "#B5913F is for large marks, fills and borders. Small text set in gold uses #7A6224, always. The split exists purely for contrast compliance and must never be collapsed back into one value.", "section": "colors" },
+      { "name": "The Warm Ground Rule", "body": "The page is Warm Paper (#F7F5F0), never white. White appears only inside components that need to lift off that ground — inputs, certain cards. Defaulting a page background to #FFFFFF breaks the system's warmth.", "section": "colors" },
+      { "name": "The Structure-Is-Not-Scale Rule", "body": "Semantic heading level and visual size are decoupled by design. h1–h6 carry document structure for accessibility and SEO only; visual weight comes from a role class. A card h3 and a page h3 are expected to look nothing alike. Never reach for a lower heading level to get a smaller size.", "section": "typography" },
+      { "name": "The No Faux Bold Rule", "body": "Science Gothic ships only at weights 200–400. Applying font-bold or font-semibold to a brand-face heading makes the browser synthesise a fake bold that is heavier and wider than any real cut — precisely the coarseness the system exists to avoid. The public display treatment is locked at 300.", "section": "typography" },
+      { "name": "The Public-Face Rule", "body": "The brand face is a public-site treatment. Public brand surfaces carry Science Gothic at 300 for h1/h2; h3–h6 stay on the body face because 300 is too fragile at those sizes. The admin platform runs on Manrope at working weights — an observed boundary, not governance over admin design.", "section": "typography" },
+      { "name": "The Tracking Inversion Rule", "body": "Large type tightens (down to -0.035em); small type widens (up to +0.28em). Any new size should follow that curve rather than inheriting a neutral 0.", "section": "typography" },
+      { "name": "The Ruled Page Rule", "body": "Editorial sections draw four evenly spaced vertical hairlines (w-px, charcoal or white at 4% opacity, the group at 50% opacity) behind their content. This is the system's substitute for visible containers — structure implied by ruling, not by boxing.", "section": "layout" },
+      { "name": "The Anchor Clearance Rule", "body": "Every [id] and :target carries scroll-margin-top: var(--site-header-height). Any new scroll-target must inherit it, or headings land underneath the fixed header.", "section": "layout" },
+      { "name": "The Flat-By-Doctrine Rule", "body": "Surfaces are flat at rest and flat in every state. Depth comes from tone, border and space. Do not reintroduce box-shadow — including on hover, including \"just a subtle one\".", "section": "elevation" },
+      { "name": "The Narrow Exception Rule", "body": "The flatness doctrine has a small set of legitimate exceptions, and the list is closed: the loader bar uses a 999px pill radius, and focus rings are outlines rather than shadows. Anything beyond these is a violation, not a precedent.", "section": "elevation" },
+      { "name": "The Square Corner Rule", "body": "Radius is 0 everywhere. The only sanctioned exception is the loader bar's pill (999px). Writing rounded-lg is not an error the system will catch gracefully — the global override silently flattens it, so use no radius utility at all rather than one that appears to work.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do set page backgrounds to Warm Paper (#F7F5F0) and reserve #FFFFFF for components that lift off it.",
+      "Do use Deep Bronze (#7A6224) for any gold-coloured text below heading scale — it is the value that clears WCAG AA, and AA is the project's stated target.",
+      "Do pick visual size with a role class (.section-title, .card-title, .eyebrow) and choose the heading tag purely for document structure.",
+      "Do consume var(--site-header-height) for any fixed chrome, page offset or scroll target.",
+      "Do convey depth with the tonal ladder — Warm Paper → Dry Stone → White → inverted Charcoal/Black — plus hairline borders.",
+      "Do follow the tracking curve: tighten large type toward -0.035em, widen small type toward +0.28em.",
+      "Do give every new animation a prefers-reduced-motion path, as the loader bar and smooth scrolling already do.",
+      "Do keep the brand face at weight 300 on public h1/h2, and let h3–h6 fall to Manrope."
+    ],
+    "donts": [
+      "Don't add border-radius anywhere. The global override flattens radius utilities silently, so a rounded-lg that \"looks fine\" is simply being ignored.",
+      "Don't add box-shadow, including on hover. The system is flat by doctrine, and shadow utilities are globally nulled.",
+      "Don't apply font-bold or font-semibold to a Science Gothic heading — the browser will synthesise a faux bold, which is the exact coarseness the ExtraLight treatment exists to avoid.",
+      "Don't let two gold elements compete in one viewport. Gold marks consequence; duplicating it destroys the signal.",
+      "Don't use #B5913F for small text. That is what #7A6224 is for.",
+      "Don't resemble the saturated manpower-agency category — stock handshake photography, flag grids, blue gradients, badge clutter, rotating banner carousels. The restraint of this system exists specifically to escape that look.",
+      "Don't drift toward generic SaaS/startup landing conventions — rounded cards, soft shadows, purple gradients, illustrated blobs, emoji feature icons.",
+      "Don't hard-code a country or destination list into layout, navigation or copy; destination coverage is expected to grow.",
+      "Don't convert a pixel handoff against a 16px root. This project's root font-size is 14px."
+    ]
+  }
+}

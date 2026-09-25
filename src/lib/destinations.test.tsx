@@ -20,7 +20,22 @@ vi.mock("@/lib/seo/site-config", () => ({
   siteConfig: { name: "Seven Seas Intercontinental", brandStem: "Seven Seas", description: "" },
 }));
 
-const COUNTRY_SLUGS = ["saudi-arabia", "united-arab-emirates", "qatar"];
+/** Individual approved countries, in the order they are registered. */
+const COUNTRY_SLUGS = [
+  "saudi-arabia",
+  "united-arab-emirates",
+  "qatar",
+  "oman",
+  "bahrain",
+  "kuwait",
+  "malaysia",
+  "japan",
+];
+/** Regional pages registered alongside the countries. Europe is not a country. */
+const REGIONAL_SLUGS = ["europe"];
+const DESTINATION_SLUGS = [...COUNTRY_SLUGS, ...REGIONAL_SLUGS];
+/** Destinations outside the Gulf: the 30-45 day Gulf estimate must not appear. */
+const NON_GULF_SLUGS = ["malaysia", "japan", "europe"];
 const ROOT_SLUGS = ["destinations", "manpower-agency-in-kathmandu"];
 
 const resolved = (category: string, slug: string): PageContent => {
@@ -30,14 +45,27 @@ const resolved = (category: string, slug: string): PageContent => {
 };
 
 const allNewPages: Array<[string, PageContent]> = [
-  ...COUNTRY_SLUGS.map((s) => ["destinations", resolved("destinations", s)] as [string, PageContent]),
+  ...DESTINATION_SLUGS.map((s) => ["destinations", resolved("destinations", s)] as [string, PageContent]),
   ...ROOT_SLUGS.map((s) => ["standalone", resolved("standalone", s)] as [string, PageContent]),
 ];
 
 describe("destination and Kathmandu page content", () => {
   it("registers exactly the confirmed destinations", () => {
-    expect(destinationsContent.map((c) => c.slug)).toEqual(COUNTRY_SLUGS);
+    expect(destinationsContent.map((c) => c.slug)).toEqual(DESTINATION_SLUGS);
     expect(standaloneContent.map((c) => c.slug)).toEqual(ROOT_SLUGS);
+  });
+
+  it("registers the eight approved countries and no extra country page", () => {
+    // Europe is regional; individual European country pages are out of scope.
+    const registered = destinationsContent.map((c) => c.slug);
+    expect(registered.filter((s) => !REGIONAL_SLUGS.includes(s))).toEqual(COUNTRY_SLUGS);
+    expect(registered).not.toContain("germany");
+    expect(registered).not.toContain("poland");
+    expect(registered).not.toContain("croatia");
+    expect(registered).not.toContain("romania");
+    // Sector x country pages are explicitly out of scope.
+    expect(registered.every((s) => !s.includes("construction"))).toBe(true);
+    expect(registered.every((s) => !s.includes("security"))).toBe(true);
   });
 
   it.each(allNewPages)("%s page has a single H1 and substantive sections", (_category, page) => {
@@ -92,6 +120,43 @@ describe("destination and Kathmandu page content", () => {
     }
   });
 
+  it.each(NON_GULF_SLUGS)("does not quote the Gulf timeframe on %s", (slug) => {
+    // The 30-45 day figure is scoped to Gulf destinations; transferring it to a
+    // non-Gulf destination would be an unsupported claim.
+    const text = JSON.stringify(resolved("destinations", slug));
+    expect(text).not.toMatch(/30 to 45 days|30–45|30-45/);
+    expect(text).not.toMatch(/indicative mobilisation timeframe for Gulf destinations is/);
+  });
+
+  it("keeps Europe a regional page with its factual boundaries intact", () => {
+    const europe = resolved("destinations", "europe");
+    const text = JSON.stringify(europe);
+
+    // Stated boundaries.
+    expect(text).toContain("Europe is not a single jurisdiction");
+    expect(text).toMatch(/no offices or branches in Europe|not through a branch of our own/);
+    expect(text).toMatch(/regional page/i);
+
+    // Must not imply Europe = EU, blanket authorisation, or universal vacancies.
+    expect(text).not.toMatch(/European Union member|throughout the EU|across the EU\b/i);
+    expect(text).not.toMatch(/authorised to recruit into (every|all)/i);
+    expect(text).not.toMatch(/vacancies (in|across) (every|all) European/i);
+    expect(text).not.toMatch(/same (rules|procedure|process) (across|throughout) Europe/i);
+    expect(text).not.toMatch(/work permits? (are )?guaranteed/i);
+
+    // Europe is not presented as a country.
+    expect(europe.subtitle).toBe("Europe");
+    expect(text).not.toMatch(/the country of Europe/i);
+  });
+
+  it("does not present Europe as a country on the hub", () => {
+    const overview = resolved("standalone", "destinations");
+    const text = JSON.stringify(overview);
+    expect(text).toMatch(/Europe \(Regional\)|regional page/i);
+    // The country feature list must not contain Europe.
+    expect((overview.features ?? []).map((f) => f.title)).not.toContain("Europe");
+  });
+
   it("uses 2010 as the establishment year and never repeats the 2008 milestone", () => {
     for (const [, page] of allNewPages) {
       const text = JSON.stringify(page);
@@ -120,10 +185,10 @@ describe("destination and Kathmandu page content", () => {
     expect(JSON.stringify(kathmandu)).not.toContain("/contact");
   });
 
-  it("links the destination overview to every country page", () => {
+  it("links the destination overview to every destination page", () => {
     const overview = resolved("standalone", "destinations");
     const hrefs = (overview.links ?? []).map((l) => l.href);
-    for (const slug of COUNTRY_SLUGS) {
+    for (const slug of DESTINATION_SLUGS) {
       expect(hrefs).toContain(`/destinations/${slug}`);
     }
   });
@@ -131,10 +196,14 @@ describe("destination and Kathmandu page content", () => {
   it("describes featured destinations without implying they are exclusive", () => {
     const overview = resolved("standalone", "destinations");
     const text = JSON.stringify(overview);
-    expect(text).toContain("destination pages currently featured on our website");
-    expect(text).toContain("also actively recruits for additional destinations");
+    // PRODUCT.md records that destination coverage is expected to expand, so the
+    // hub must never read as a closed list.
+    expect(text).toContain("currently featured");
+    expect(text).toMatch(/not a closed list|expected to grow/);
+    expect(text).toContain("additional destinations");
     expect(text).not.toMatch(/only (active )?destinations/i);
     expect(text).not.toMatch(/exclusively recruit for/i);
+    expect(text).not.toMatch(/\bthe only destinations\b/i);
   });
 
   it.each(allNewPages)("%s page survives a CMS round-trip unchanged", (_category, page) => {

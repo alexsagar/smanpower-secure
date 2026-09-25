@@ -10,12 +10,40 @@ import { getPublishedDemands } from "@/repositories/content-resolver";
 
 export const revalidate = 86400;
 
-/** Slug → the `Country.name` used by the demand filter. */
+/**
+ * Slug → the `Country.name` used by the demand filter.
+ *
+ * Only individual countries appear here. `europe` is deliberately absent: it is
+ * a regional page, not a country, and there is no single `Country` record it
+ * could filter demands by. A slug with no entry simply renders no demand
+ * preview, which is also the correct behaviour for a country that currently has
+ * no published demands.
+ */
 const COUNTRY_NAME: Record<string, string> = {
   "saudi-arabia": "Saudi Arabia",
   "united-arab-emirates": "United Arab Emirates",
   qatar: "Qatar",
+  oman: "Oman",
+  bahrain: "Bahrain",
+  kuwait: "Kuwait",
+  malaysia: "Malaysia",
+  japan: "Japan",
 };
+
+/**
+ * An unknown slug must be a real 404, not a 200 carrying the not-found UI.
+ *
+ * `notFound()` alone cannot achieve that here: the public segment has a
+ * `loading.tsx`, so the response has already begun streaming by the time the
+ * page runs, and Next cannot change a status code after headers are sent (see
+ * the "Status Codes" note in the Next.js docs). `dynamicParams = false` rejects
+ * the slug at the routing layer instead, before any of that.
+ *
+ * Safe because the valid set is fixed at build time by content.ts: the CMS is
+ * seeded from content.ts and has no page-creation path, so a new page always
+ * requires a code change and rebuild anyway.
+ */
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return destinationsContent.map((c) => ({ slug: c.slug }));
