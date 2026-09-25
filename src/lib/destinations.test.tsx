@@ -4,6 +4,7 @@ import {
   destinationsContent,
   standaloneContent,
   getContentBySlug,
+  destinationHrefForFeature,
   INDICATIVE_TIMEFRAME,
   type PageContent,
 } from "@/lib/content";
@@ -191,6 +192,50 @@ describe("destination and Kathmandu page content", () => {
     for (const slug of DESTINATION_SLUGS) {
       expect(hrefs).toContain(`/destinations/${slug}`);
     }
+  });
+
+  it("renders all eight hub country cards as links to their destination page", () => {
+    const overview = resolved("standalone", "destinations");
+
+    // Mirror how the /destinations page attaches hrefs to the country cards.
+    const features = (overview.features ?? []).map((feature) => {
+      const href = destinationHrefForFeature(feature.title);
+      return href ? { ...feature, href } : feature;
+    });
+
+    // Render the cards in isolation (no links section) so the only
+    // /destinations/<slug> anchors in the markup are the eight country cards.
+    const cardsOnly: PageContent = {
+      slug: "destinations",
+      title: overview.title,
+      subtitle: overview.subtitle,
+      heroImage: overview.heroImage,
+      featuresHeading: overview.featuresHeading,
+      features,
+    };
+    const html = renderToStaticMarkup(<DynamicPageTemplate content={cardsOnly} />);
+    const hrefs = [...html.matchAll(/href="(\/destinations\/[a-z-]+)"/g)].map((m) => m[1]);
+
+    // Exactly the eight countries, in order — no Europe (not a hub card), no dupes.
+    expect(hrefs).toEqual(COUNTRY_SLUGS.map((s) => `/destinations/${s}`));
+  });
+
+  it("leaves non-country feature cards non-clickable", () => {
+    // The Kathmandu office cards are features too; they must not become links.
+    const kathmandu = resolved("standalone", "manpower-agency-in-kathmandu");
+    const features = (kathmandu.features ?? []).map((feature) => {
+      const href = destinationHrefForFeature(feature.title);
+      return href ? { ...feature, href } : feature;
+    });
+    const cardsOnly: PageContent = {
+      slug: "manpower-agency-in-kathmandu",
+      title: kathmandu.title,
+      subtitle: kathmandu.subtitle,
+      heroImage: kathmandu.heroImage,
+      features,
+    };
+    const html = renderToStaticMarkup(<DynamicPageTemplate content={cardsOnly} />);
+    expect(html).not.toContain("/destinations/");
   });
 
   it("describes featured destinations without implying they are exclusive", () => {

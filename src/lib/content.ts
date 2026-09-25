@@ -8,6 +8,11 @@ export interface PageContent {
   features?: {
     title: string;
     desc: string;
+    /**
+     * Optional link target. When set, DynamicPageTemplate renders the whole
+     * feature card as a semantic <Link> instead of a static <div>.
+     */
+    href?: string;
   }[];
   documents?: {
     title: string;
@@ -1509,4 +1514,18 @@ export function getContentBySlug(category: string, slug: string): PageContent | 
   // Layer the category-wide process / FAQ / CTA sections underneath the page's
   // own data so every child page renders 5-6 sections; page fields win.
   return { ...categoryDefaults[category], ...page };
+}
+
+/**
+ * Resolve the destination page href for a destinations-hub feature card.
+ *
+ * The hub's "Countries With a Destination Page" cards carry only a title/desc
+ * (in both the CMS and the content.ts fallback), so the link target is derived
+ * from `destinationsContent`, matching the card title against a destination's
+ * display name. Returns undefined for a title with no destination page, so
+ * non-country feature cards elsewhere stay non-clickable.
+ */
+export function destinationHrefForFeature(title: string): string | undefined {
+  const match = destinationsContent.find((c) => c.subtitle === title);
+  return match ? `/destinations/${match.slug}` : undefined;
 }

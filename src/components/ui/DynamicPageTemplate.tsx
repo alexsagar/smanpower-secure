@@ -57,9 +57,13 @@ export function DynamicPageTemplate({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {content.features.map((feature, i) => (
-                <ScrollReveal key={i} delay={i * 0.05}>
-                  <div className="group h-full border border-brand-charcoal/10 bg-brand-off-white p-8 lg:p-10 hover:border-brand-gold hover:shadow-lg transition-all duration-300 relative flex flex-col justify-between">
+              {content.features.map((feature, i) => {
+                // Same square card either way; a linked card adds a pointer
+                // cursor and a visible keyboard focus ring for accessibility.
+                const cardClass =
+                  "group h-full border border-brand-charcoal/10 bg-brand-off-white p-8 lg:p-10 hover:border-brand-gold hover:shadow-lg transition-all duration-300 relative flex flex-col justify-between";
+                const inner = (
+                  <>
                     <div>
                       <div className="text-brand-gold-dark text-4xl font-serif italic mb-6 opacity-60 group-hover:opacity-100 transition-opacity">
                         {String(i + 1).padStart(2, "0")}
@@ -72,9 +76,23 @@ export function DynamicPageTemplate({
                       </p>
                     </div>
                     <div className="w-12 h-px bg-brand-gold/40 mt-8 group-hover:w-full group-hover:bg-brand-gold-dark transition-all duration-500" />
-                  </div>
-                </ScrollReveal>
-              ))}
+                  </>
+                );
+                return (
+                  <ScrollReveal key={i} delay={i * 0.05}>
+                    {feature.href ? (
+                      <Link
+                        href={feature.href}
+                        className={`${cardClass} cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-dark focus-visible:ring-offset-2 focus-visible:ring-offset-brand-off-white`}
+                      >
+                        {inner}
+                      </Link>
+                    ) : (
+                      <div className={cardClass}>{inner}</div>
+                    )}
+                  </ScrollReveal>
+                );
+              })}
             </div>
           </div>
         </section>
