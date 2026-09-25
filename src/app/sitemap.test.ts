@@ -83,6 +83,7 @@ describe("sitemap", () => {
       "/destinations/saudi-arabia",
       "/destinations/united-arab-emirates",
       "/destinations/qatar",
+      "/destinations/cyprus",
       "/manpower-agency-in-kathmandu",
     ]) {
       const url = `https://smanpower.com${path}`;

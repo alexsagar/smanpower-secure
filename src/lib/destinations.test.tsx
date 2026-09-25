@@ -31,12 +31,13 @@ const COUNTRY_SLUGS = [
   "kuwait",
   "malaysia",
   "japan",
+  "cyprus",
 ];
 /** Regional pages registered alongside the countries. Europe is not a country. */
 const REGIONAL_SLUGS = ["europe"];
 const DESTINATION_SLUGS = [...COUNTRY_SLUGS, ...REGIONAL_SLUGS];
 /** Destinations outside the Gulf: the 30-45 day Gulf estimate must not appear. */
-const NON_GULF_SLUGS = ["malaysia", "japan", "europe"];
+const NON_GULF_SLUGS = ["malaysia", "japan", "cyprus", "europe"];
 const ROOT_SLUGS = ["destinations", "manpower-agency-in-kathmandu"];
 
 const resolved = (category: string, slug: string): PageContent => {
@@ -56,10 +57,15 @@ describe("destination and Kathmandu page content", () => {
     expect(standaloneContent.map((c) => c.slug)).toEqual(ROOT_SLUGS);
   });
 
-  it("registers the eight approved countries and no extra country page", () => {
+  it("registers the nine approved countries and no extra country page", () => {
     // Europe is regional; individual European country pages are out of scope.
     const registered = destinationsContent.map((c) => c.slug);
     expect(registered.filter((s) => !REGIONAL_SLUGS.includes(s))).toEqual(COUNTRY_SLUGS);
+    expect(COUNTRY_SLUGS).toHaveLength(9);
+    // Cyprus is the ninth approved individual country; Europe stays regional.
+    expect(registered).toContain("cyprus");
+    expect(REGIONAL_SLUGS).toContain("europe");
+    expect(REGIONAL_SLUGS).not.toContain("cyprus");
     expect(registered).not.toContain("germany");
     expect(registered).not.toContain("poland");
     expect(registered).not.toContain("croatia");
@@ -129,6 +135,36 @@ describe("destination and Kathmandu page content", () => {
     expect(text).not.toMatch(/indicative mobilisation timeframe for Gulf destinations is/);
   });
 
+  it("adds Cyprus as a non-Gulf individual country with requirement-led wording", () => {
+    const cyprus = resolved("destinations", "cyprus");
+    const text = JSON.stringify(cyprus);
+    // Cyprus-authored copy only, so shared defaults (the Nepal-side process, the
+    // sector FAQ) are not mistaken for invented Cyprus-specific claims.
+    const authored = [cyprus.missionHeading, ...(cyprus.missionText ?? []),
+      ...(cyprus.features ?? []).flatMap((f) => [f.title, f.desc])].join(" ");
+
+    // Ninth individual country, not a regional page.
+    expect(cyprus.slug).toBe("cyprus");
+    expect(cyprus.subtitle).toBe("Cyprus");
+    expect(COUNTRY_SLUGS).toContain("cyprus");
+    expect(REGIONAL_SLUGS).not.toContain("cyprus");
+
+    // Non-Gulf: no Gulf timeframe anywhere; requirement-led caution like Malaysia/Japan.
+    expect(text).not.toMatch(/30 to 45 days|30–45|30-45/);
+    expect(text).toMatch(/outside the Gulf/i);
+    expect(text).toMatch(/confirmed against your specific requirement/i);
+
+    // Employer audience.
+    expect(text).toMatch(/Cypriot employers|businesses in Cyprus/i);
+    expect(text).toMatch(/do not operate a branch in Cyprus/i);
+
+    // No invented Cyprus-specific legal/visa rules, guarantees or statistics in
+    // the authored copy (shared coordination wording in defaults is exempt).
+    expect(authored).not.toMatch(/visa|work permit|guarantee/i);
+    expect(authored).not.toMatch(/\bEU\b|European Union|Schengen/i);
+    expect(authored).not.toMatch(/\d+\s*(workers|placements|companies|clients|%)/i);
+  });
+
   it("keeps Europe a regional page with its factual boundaries intact", () => {
     const europe = resolved("destinations", "europe");
     const text = JSON.stringify(europe);
@@ -194,7 +230,7 @@ describe("destination and Kathmandu page content", () => {
     }
   });
 
-  it("renders all eight hub country cards as links to their destination page", () => {
+  it("renders all nine hub country cards as links to their destination page", () => {
     const overview = resolved("standalone", "destinations");
 
     // Mirror how the /destinations page attaches hrefs to the country cards.
@@ -204,7 +240,7 @@ describe("destination and Kathmandu page content", () => {
     });
 
     // Render the cards in isolation (no links section) so the only
-    // /destinations/<slug> anchors in the markup are the eight country cards.
+    // /destinations/<slug> anchors in the markup are the nine country cards.
     const cardsOnly: PageContent = {
       slug: "destinations",
       title: overview.title,
@@ -216,8 +252,10 @@ describe("destination and Kathmandu page content", () => {
     const html = renderToStaticMarkup(<DynamicPageTemplate content={cardsOnly} />);
     const hrefs = [...html.matchAll(/href="(\/destinations\/[a-z-]+)"/g)].map((m) => m[1]);
 
-    // Exactly the eight countries, in order — no Europe (not a hub card), no dupes.
+    // Exactly the nine countries, in order — no Europe (not a hub card), no dupes.
     expect(hrefs).toEqual(COUNTRY_SLUGS.map((s) => `/destinations/${s}`));
+    expect(hrefs).toContain("/destinations/cyprus");
+    expect(hrefs).not.toContain("/destinations/europe");
   });
 
   it("leaves non-country feature cards non-clickable", () => {

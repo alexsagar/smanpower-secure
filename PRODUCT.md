@@ -61,7 +61,7 @@ The compliance posture is deliberately narrower than competitors typically claim
 ## Evidence on Hand
 
 - **Real and checkable:** the employer-pays/zero-fee policy; ISO 9001:2015 certification; RBA and Sedex compliance posture; Nepal government licensing; the Trust Centre (company facts, licences, certifications); a documented Nepal-side recruitment process; the Guheswori office; a 24-hour response commitment on workforce requests; a 24/7 grievance channel acknowledged within 24 hours.
-- **Live destination coverage at time of writing:** Saudi Arabia, United Arab Emirates, Qatar. Further destination markets are planned, so this list is current fact rather than a fixed set.
+- **Live destination coverage at time of writing:** nine individual country pages — Saudi Arabia, United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia, Japan and Cyprus — plus a regional Europe page (not a country). Further destination markets are planned, so this list is current fact rather than a fixed set, and the count must not be baked into copy, layout or navigation.
 - **CMS-managed and variable:** success stories, testimonials, insights, news, client partners, team members, statistics, training facilities and the media library. Treat these as real but changing — never hardcode their current values into a design.
 - **Must not be fabricated:** additional offices or branches; membership in any standards body; certifications beyond those listed; client names, pricing, placement volumes, benchmarks or testimonials not already in the CMS.
 
