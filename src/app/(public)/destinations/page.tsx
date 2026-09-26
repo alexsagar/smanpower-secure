@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDynamicPageContent, buildDynamicPageMetadata } from "@/services/dynamic-page.service";
+import { getContentBySlug, linkDestinationFeatures } from "@/lib/content";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 const CMS_SLUG = "destinations";
@@ -20,9 +21,20 @@ export default async function DestinationsPage() {
 
   if (!content) notFound();
 
+  // Make each country card a link from its stable `destinationSlug` (never its
+  // editable title). The code-defined hub cards supply the slug when the
+  // resolved content came from the CMS; cards with no slug stay non-clickable.
+  const linkedContent = {
+    ...content,
+    features: linkDestinationFeatures(
+      content.features,
+      getContentBySlug("standalone", CMS_SLUG)?.features
+    ),
+  };
+
   return (
     <DynamicPageTemplate
-      content={content}
+      content={linkedContent}
       breadcrumbs={[
         { name: "Home", path: "" },
         { name: "Recruitment by Destination", path: PATH },

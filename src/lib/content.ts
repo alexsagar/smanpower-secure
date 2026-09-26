@@ -8,6 +8,18 @@ export interface PageContent {
   features?: {
     title: string;
     desc: string;
+    /**
+     * Stable destination route key (e.g. "united-arab-emirates"). The card's
+     * link is derived from this, never from the editable `title`, so an editor
+     * relabelling a card cannot break its href. Non-destination cards omit it.
+     */
+    destinationSlug?: string;
+    /**
+     * Resolved link target. When set, DynamicPageTemplate renders the whole
+     * feature card as a semantic <Link> instead of a static <div>. Populated
+     * from `destinationSlug` at render time; not authored directly.
+     */
+    href?: string;
   }[];
   documents?: {
     title: string;
@@ -1274,6 +1286,30 @@ export const destinationsContent: PageContent[] = [
     faqs: destinationFaqs("Japan", NON_GULF_TIMEFRAME),
   },
   {
+    slug: "cyprus",
+    title: "Recruitment of Nepali Workers for Cyprus.",
+    subtitle: "Cyprus",
+    heroImage: DESTINATION_HERO_IMAGE,
+    missionHeading: "A Nepal-Licensed Recruitment Partner for Cypriot Employers.",
+    missionText: [
+      "Cyprus is a recruitment destination Seven Seas Intercontinental accepts requirements for. Companies and businesses in Cyprus appoint us to source, screen, trade-test and mobilise Nepali workers, with the Nepal-side process handled end to end by our Kathmandu team.",
+      "We are a licensed Nepali recruitment agency established in 2010, working from a single office in Kathmandu. We do not operate a branch in Cyprus: your requirement is processed in Nepal under the Department of Foreign Employment framework, in coordination with you and your appointed representatives.",
+      "Cyprus sits outside the Gulf, so we do not apply our indicative Gulf mobilisation estimate to it. Recruitment requirements and lead times are confirmed against your specific requirement rather than quoted in advance. The fee position does not change: candidates are never charged recruitment, placement, or processing fees, and recruitment costs are paid by the employer.",
+    ],
+    overviewSubtitle: "Overview",
+    featuresEyebrow: "What You Get",
+    featuresHeading: "How a Cypriot Requirement Is Handled.",
+    features: [
+      { title: "Documented Demand Handling", desc: "Demand letter, power of attorney and employment agreement verified and registered before sourcing begins." },
+      { title: "Nationwide Sourcing", desc: "Candidates identified across all seven provinces of Nepal, not only from Kathmandu walk-ins." },
+      { title: "Practical Trade Testing", desc: "Skills validated in our Kathmandu trade test centre, observable by live video from Cyprus." },
+      { title: "Requirement-Led Preparation", desc: "Role-specific preparation agreed with you before mobilisation, rather than a single fixed path applied to every requirement." },
+      { title: "Employer-Led Selection", desc: "You interview and select. No worker is deployed to you without your approval." },
+      { title: "Employer-Pays Recruitment", desc: "Zero fees charged to the candidate on every Cypriot deployment." },
+    ],
+    faqs: destinationFaqs("Cyprus", NON_GULF_TIMEFRAME),
+  },
+  {
     slug: "europe",
     title: "Recruitment of Nepali Workers for Europe.",
     subtitle: "Europe",
@@ -1351,7 +1387,7 @@ export const standaloneContent: PageContent[] = [
     missionHeading: "Where We Recruit Nepali Workers For.",
     missionText: [
       "Seven Seas Intercontinental is a licensed Nepali recruitment agency, established in 2010 and working from a single office in Kathmandu. Employers appoint us to source, screen, trade-test and mobilise Nepali workers for their operations abroad.",
-      "Eight countries have a destination page on this website — Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia and Japan — alongside a regional page covering our Nepal-side work for employers in Europe. These are the destinations currently featured here, not a closed list: Seven Seas Intercontinental accepts requirements for additional destinations, and the pages published here are expected to grow. Employers with staffing requirements for these or other destinations are invited to contact our team.",
+      "Nine countries have a destination page on this website — Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia, Japan and Cyprus — alongside a regional page covering our Nepal-side work for employers in Europe. These are the destinations currently featured here, not a closed list: Seven Seas Intercontinental accepts requirements for additional destinations, and the pages published here are expected to grow. Employers with staffing requirements for these or other destinations are invited to contact our team.",
       "The Nepal-side recruitment process is consistent across every jurisdiction we work in: each requirement is documented and registered under Nepal's Department of Foreign Employment framework, candidates are sourced and screened across all seven provinces, skills are trade-tested in Kathmandu, and every selected worker completes a mandatory pre-departure orientation before travel. What differs between destinations is the employer-side context, which we confirm against your specific requirement rather than publishing as general guidance.",
       INDICATIVE_TIMEFRAME,
     ],
@@ -1359,14 +1395,15 @@ export const standaloneContent: PageContent[] = [
     featuresEyebrow: "Individual Countries",
     featuresHeading: "Countries With a Destination Page.",
     features: [
-      { title: "Saudi Arabia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
-      { title: "United Arab Emirates", desc: "Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
-      { title: "Qatar", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
-      { title: "Oman", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Omani employers." },
-      { title: "Bahrain", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Bahraini employers." },
-      { title: "Kuwait", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Kuwaiti employers." },
-      { title: "Malaysia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Malaysian employers. Outside the Gulf, so lead times are confirmed per requirement." },
-      { title: "Japan", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Japanese employers. Requirements are discussed case by case." },
+      { title: "Saudi Arabia", destinationSlug: "saudi-arabia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
+      { title: "United Arab Emirates", destinationSlug: "united-arab-emirates", desc: "Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
+      { title: "Qatar", destinationSlug: "qatar", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+      { title: "Oman", destinationSlug: "oman", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Omani employers." },
+      { title: "Bahrain", destinationSlug: "bahrain", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Bahraini employers." },
+      { title: "Kuwait", destinationSlug: "kuwait", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Kuwaiti employers." },
+      { title: "Malaysia", destinationSlug: "malaysia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Malaysian employers. Outside the Gulf, so lead times are confirmed per requirement." },
+      { title: "Japan", destinationSlug: "japan", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Japanese employers. Requirements are discussed case by case." },
+      { title: "Cyprus", destinationSlug: "cyprus", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Cypriot employers. Outside the Gulf, so recruitment requirements and lead times are confirmed per requirement." },
     ],
     linksEyebrow: "Destination Pages",
     linksHeading: "Explore Each Destination.",
@@ -1379,6 +1416,7 @@ export const standaloneContent: PageContent[] = [
       { title: "Kuwait", desc: "How we recruit Nepali workers for employers in Kuwait.", href: "/destinations/kuwait" },
       { title: "Malaysia", desc: "How we recruit Nepali workers for employers in Malaysia.", href: "/destinations/malaysia" },
       { title: "Japan", desc: "How we recruit Nepali workers for employers in Japan.", href: "/destinations/japan" },
+      { title: "Cyprus", desc: "How we recruit Nepali workers for employers in Cyprus.", href: "/destinations/cyprus" },
       { title: "Europe (Regional)", desc: "Regional page, not a country page. Our Nepal-side work for European employers, discussed country by country.", href: "/destinations/europe" },
       { title: "Sectors We Recruit For", desc: "The industries we source and screen Nepali workers for.", href: "/industries" },
       { title: "Current Demands", desc: "Published demands open for application right now.", href: "/demands" },
@@ -1392,7 +1430,7 @@ export const standaloneContent: PageContent[] = [
     faqs: [
       {
         q: "Which destinations do you recruit for?",
-        a: "Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia and Japan are the country destination pages currently featured on our website, alongside a regional page for Europe. Seven Seas Intercontinental also recruits for additional destinations, and this list is expected to grow. Employers with workforce requirements for these or other destinations are invited to contact our team to discuss their specific needs.",
+        a: "Saudi Arabia, the United Arab Emirates, Qatar, Oman, Bahrain, Kuwait, Malaysia, Japan and Cyprus are the country destination pages currently featured on our website, alongside a regional page for Europe. Seven Seas Intercontinental also recruits for additional destinations, and this list is expected to grow. Employers with workforce requirements for these or other destinations are invited to contact our team to discuss their specific needs.",
       },
       {
         q: "Is Europe a destination country on this site?",
@@ -1509,4 +1547,35 @@ export function getContentBySlug(category: string, slug: string): PageContent | 
   // Layer the category-wide process / FAQ / CTA sections underneath the page's
   // own data so every child page renders 5-6 sections; page fields win.
   return { ...categoryDefaults[category], ...page };
+}
+
+/**
+ * Resolve the destination page href for a destinations-hub feature card.
+ *
+ * The hub's "Countries With a Destination Page" cards carry only a title/desc
+ * (in both the CMS and the content.ts fallback), so the link target is derived
+ * from `destinationsContent`, matching the card title against a destination's
+ * display name. Returns undefined for a title with no destination page, so
+ * non-country feature cards elsewhere stay non-clickable.
+ */
+type FeatureCard = NonNullable<PageContent["features"]>[number];
+
+/**
+ * Attach the destination link to each hub feature card from its stable
+ * `destinationSlug` — never from the editable `title`. A relabelled card (e.g.
+ * "United Arab Emirates" → "UAE") keeps linking to the same route.
+ *
+ * `fallbackFeatures` are the code-defined hub cards (from content.ts). When a
+ * resolved card comes from the CMS and carries no slug of its own, the slug is
+ * taken from the code-defined card at the same position, so the link never
+ * depends on CMS-stored data. Cards with no resolvable slug stay non-clickable.
+ */
+export function linkDestinationFeatures(
+  features: FeatureCard[] | undefined,
+  fallbackFeatures: FeatureCard[] | undefined
+): FeatureCard[] | undefined {
+  return features?.map((feature, index) => {
+    const slug = feature.destinationSlug ?? fallbackFeatures?.[index]?.destinationSlug;
+    return slug ? { ...feature, href: `/destinations/${slug}` } : feature;
+  });
 }

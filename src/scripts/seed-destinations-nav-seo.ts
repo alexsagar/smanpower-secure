@@ -86,6 +86,13 @@ const SEO_ROWS = [
     focusKeyword: "recruitment agency nepal japan",
   },
   {
+    pagePath: "/destinations/cyprus",
+    metaTitle: "Nepali Workforce Recruitment for Cyprus | Seven Seas Intercontinental",
+    metaDescription:
+      "Licensed Nepal recruitment agency sourcing, screening and trade-testing Nepali workers for employers in Cyprus. Employer-pays recruitment, with recruitment requirements and lead times confirmed per requirement.",
+    focusKeyword: "recruitment agency nepal cyprus",
+  },
+  {
     pagePath: "/destinations/europe",
     metaTitle: "Nepali Workforce Recruitment for Europe | Seven Seas Intercontinental",
     metaDescription:
