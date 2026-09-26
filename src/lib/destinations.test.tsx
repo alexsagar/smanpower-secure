@@ -4,7 +4,7 @@ import {
   destinationsContent,
   standaloneContent,
   getContentBySlug,
-  destinationHrefForFeature,
+  linkDestinationFeatures,
   INDICATIVE_TIMEFRAME,
   type PageContent,
 } from "@/lib/content";
@@ -230,50 +230,82 @@ describe("destination and Kathmandu page content", () => {
     }
   });
 
-  it("renders all nine hub country cards as links to their destination page", () => {
+  /** Render only the given feature cards, so the sole /destinations anchors in
+   *  the markup come from the cards (not the links section). */
+  const renderCardHrefs = (features: PageContent["features"], slug = "destinations"): string[] => {
+    const html = renderToStaticMarkup(
+      <DynamicPageTemplate content={{ slug, title: "t", subtitle: "s", heroImage: "/hero.png", features }} />
+    );
+    return [...html.matchAll(/href="(\/destinations\/[a-z-]+)"/g)].map((m) => m[1]);
+  };
+
+  it("renders all nine hub country cards as links resolved from stable slugs", () => {
     const overview = resolved("standalone", "destinations");
+    const linked = linkDestinationFeatures(overview.features, overview.features);
+    const hrefs = renderCardHrefs(linked);
 
-    // Mirror how the /destinations page attaches hrefs to the country cards.
-    const features = (overview.features ?? []).map((feature) => {
-      const href = destinationHrefForFeature(feature.title);
-      return href ? { ...feature, href } : feature;
-    });
-
-    // Render the cards in isolation (no links section) so the only
-    // /destinations/<slug> anchors in the markup are the nine country cards.
-    const cardsOnly: PageContent = {
-      slug: "destinations",
-      title: overview.title,
-      subtitle: overview.subtitle,
-      heroImage: overview.heroImage,
-      featuresHeading: overview.featuresHeading,
-      features,
-    };
-    const html = renderToStaticMarkup(<DynamicPageTemplate content={cardsOnly} />);
-    const hrefs = [...html.matchAll(/href="(\/destinations\/[a-z-]+)"/g)].map((m) => m[1]);
-
+    // Every card carries its own destinationSlug — the link never reads title.
+    expect((overview.features ?? []).map((f) => f.destinationSlug)).toEqual(COUNTRY_SLUGS);
     // Exactly the nine countries, in order — no Europe (not a hub card), no dupes.
     expect(hrefs).toEqual(COUNTRY_SLUGS.map((s) => `/destinations/${s}`));
     expect(hrefs).toContain("/destinations/cyprus");
     expect(hrefs).not.toContain("/destinations/europe");
   });
 
+  it("resolves the href from destinationSlug even when the display title changes", () => {
+    const overview = resolved("standalone", "destinations");
+    // Simulate an editor relabelling every card's display copy in the CMS while
+    // the stable destinationSlug is untouched.
+    const relabelled = (overview.features ?? []).map((f, i) => ({
+      ...f,
+      title: `Renamed ${i}`,
+      desc: "Edited copy",
+    }));
+    const hrefs = renderCardHrefs(linkDestinationFeatures(relabelled, overview.features));
+    expect(hrefs).toEqual(COUNTRY_SLUGS.map((s) => `/destinations/${s}`));
+  });
+
+  it("keeps UAE linking to /destinations/united-arab-emirates under any label", () => {
+    const overview = resolved("standalone", "destinations");
+    const uae = (overview.features ?? []).find((f) => f.destinationSlug === "united-arab-emirates");
+    expect(uae).toBeTruthy();
+    // Relabel just the UAE card to a shorter form.
+    const edited = (overview.features ?? []).map((f) =>
+      f.destinationSlug === "united-arab-emirates" ? { ...f, title: "UAE" } : f
+    );
+    const linked = linkDestinationFeatures(edited, overview.features);
+    const uaeLinked = linked?.find((f) => f.destinationSlug === "united-arab-emirates");
+    expect(uaeLinked?.title).toBe("UAE");
+    expect(uaeLinked?.href).toBe("/destinations/united-arab-emirates");
+    expect(renderCardHrefs(linked)).toContain("/destinations/united-arab-emirates");
+  });
+
+  it("links Cyprus to /destinations/cyprus from its stable slug", () => {
+    const overview = resolved("standalone", "destinations");
+    const linked = linkDestinationFeatures(overview.features, overview.features);
+    const cyprus = linked?.find((f) => f.destinationSlug === "cyprus");
+    expect(cyprus?.href).toBe("/destinations/cyprus");
+  });
+
+  it("backfills the slug by position when a CMS card carries no destinationSlug", () => {
+    const overview = resolved("standalone", "destinations");
+    // Emulate CMS-sourced cards: display copy only, no destinationSlug (as
+    // asFeatures produces), still in the code-defined order.
+    const cmsLike = (overview.features ?? []).map((f, i) => ({
+      title: `CMS label ${i}`,
+      desc: "from cms",
+    }));
+    const hrefs = renderCardHrefs(linkDestinationFeatures(cmsLike, overview.features));
+    expect(hrefs).toEqual(COUNTRY_SLUGS.map((s) => `/destinations/${s}`));
+  });
+
   it("leaves non-country feature cards non-clickable", () => {
-    // The Kathmandu office cards are features too; they must not become links.
+    // The Kathmandu office cards are features too, with no destinationSlug and
+    // no code-defined destination card at their positions — so no link.
     const kathmandu = resolved("standalone", "manpower-agency-in-kathmandu");
-    const features = (kathmandu.features ?? []).map((feature) => {
-      const href = destinationHrefForFeature(feature.title);
-      return href ? { ...feature, href } : feature;
-    });
-    const cardsOnly: PageContent = {
-      slug: "manpower-agency-in-kathmandu",
-      title: kathmandu.title,
-      subtitle: kathmandu.subtitle,
-      heroImage: kathmandu.heroImage,
-      features,
-    };
-    const html = renderToStaticMarkup(<DynamicPageTemplate content={cardsOnly} />);
-    expect(html).not.toContain("/destinations/");
+    const linked = linkDestinationFeatures(kathmandu.features, kathmandu.features);
+    expect(linked?.every((f) => f.href === undefined)).toBe(true);
+    expect(renderCardHrefs(linked, "manpower-agency-in-kathmandu")).toEqual([]);
   });
 
   it("describes featured destinations without implying they are exclusive", () => {

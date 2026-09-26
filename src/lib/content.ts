@@ -9,8 +9,15 @@ export interface PageContent {
     title: string;
     desc: string;
     /**
-     * Optional link target. When set, DynamicPageTemplate renders the whole
-     * feature card as a semantic <Link> instead of a static <div>.
+     * Stable destination route key (e.g. "united-arab-emirates"). The card's
+     * link is derived from this, never from the editable `title`, so an editor
+     * relabelling a card cannot break its href. Non-destination cards omit it.
+     */
+    destinationSlug?: string;
+    /**
+     * Resolved link target. When set, DynamicPageTemplate renders the whole
+     * feature card as a semantic <Link> instead of a static <div>. Populated
+     * from `destinationSlug` at render time; not authored directly.
      */
     href?: string;
   }[];
@@ -1388,15 +1395,15 @@ export const standaloneContent: PageContent[] = [
     featuresEyebrow: "Individual Countries",
     featuresHeading: "Countries With a Destination Page.",
     features: [
-      { title: "Saudi Arabia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
-      { title: "United Arab Emirates", desc: "Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
-      { title: "Qatar", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
-      { title: "Oman", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Omani employers." },
-      { title: "Bahrain", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Bahraini employers." },
-      { title: "Kuwait", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Kuwaiti employers." },
-      { title: "Malaysia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Malaysian employers. Outside the Gulf, so lead times are confirmed per requirement." },
-      { title: "Japan", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Japanese employers. Requirements are discussed case by case." },
-      { title: "Cyprus", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Cypriot employers. Outside the Gulf, so recruitment requirements and lead times are confirmed per requirement." },
+      { title: "Saudi Arabia", destinationSlug: "saudi-arabia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Saudi Arabian employers." },
+      { title: "United Arab Emirates", destinationSlug: "united-arab-emirates", desc: "Nepali workers sourced, screened, trade-tested and mobilised for UAE employers." },
+      { title: "Qatar", destinationSlug: "qatar", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Qatari employers." },
+      { title: "Oman", destinationSlug: "oman", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Omani employers." },
+      { title: "Bahrain", destinationSlug: "bahrain", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Bahraini employers." },
+      { title: "Kuwait", destinationSlug: "kuwait", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Kuwaiti employers." },
+      { title: "Malaysia", destinationSlug: "malaysia", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Malaysian employers. Outside the Gulf, so lead times are confirmed per requirement." },
+      { title: "Japan", destinationSlug: "japan", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Japanese employers. Requirements are discussed case by case." },
+      { title: "Cyprus", destinationSlug: "cyprus", desc: "Nepali workers sourced, screened, trade-tested and mobilised for Cypriot employers. Outside the Gulf, so recruitment requirements and lead times are confirmed per requirement." },
     ],
     linksEyebrow: "Destination Pages",
     linksHeading: "Explore Each Destination.",
@@ -1551,7 +1558,24 @@ export function getContentBySlug(category: string, slug: string): PageContent | 
  * display name. Returns undefined for a title with no destination page, so
  * non-country feature cards elsewhere stay non-clickable.
  */
-export function destinationHrefForFeature(title: string): string | undefined {
-  const match = destinationsContent.find((c) => c.subtitle === title);
-  return match ? `/destinations/${match.slug}` : undefined;
+type FeatureCard = NonNullable<PageContent["features"]>[number];
+
+/**
+ * Attach the destination link to each hub feature card from its stable
+ * `destinationSlug` — never from the editable `title`. A relabelled card (e.g.
+ * "United Arab Emirates" → "UAE") keeps linking to the same route.
+ *
+ * `fallbackFeatures` are the code-defined hub cards (from content.ts). When a
+ * resolved card comes from the CMS and carries no slug of its own, the slug is
+ * taken from the code-defined card at the same position, so the link never
+ * depends on CMS-stored data. Cards with no resolvable slug stay non-clickable.
+ */
+export function linkDestinationFeatures(
+  features: FeatureCard[] | undefined,
+  fallbackFeatures: FeatureCard[] | undefined
+): FeatureCard[] | undefined {
+  return features?.map((feature, index) => {
+    const slug = feature.destinationSlug ?? fallbackFeatures?.[index]?.destinationSlug;
+    return slug ? { ...feature, href: `/destinations/${slug}` } : feature;
+  });
 }

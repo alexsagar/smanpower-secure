@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDynamicPageContent, buildDynamicPageMetadata } from "@/services/dynamic-page.service";
-import { destinationHrefForFeature } from "@/lib/content";
+import { getContentBySlug, linkDestinationFeatures } from "@/lib/content";
 import { DynamicPageTemplate } from "@/components/ui/DynamicPageTemplate";
 
 const CMS_SLUG = "destinations";
@@ -21,15 +21,15 @@ export default async function DestinationsPage() {
 
   if (!content) notFound();
 
-  // The country cards ("Countries With a Destination Page") carry only a
-  // title/desc; attach each one's destination href so the whole card becomes a
-  // link. Cards with no matching destination page are left untouched.
+  // Make each country card a link from its stable `destinationSlug` (never its
+  // editable title). The code-defined hub cards supply the slug when the
+  // resolved content came from the CMS; cards with no slug stay non-clickable.
   const linkedContent = {
     ...content,
-    features: content.features?.map((feature) => {
-      const href = destinationHrefForFeature(feature.title);
-      return href ? { ...feature, href } : feature;
-    }),
+    features: linkDestinationFeatures(
+      content.features,
+      getContentBySlug("standalone", CMS_SLUG)?.features
+    ),
   };
 
   return (
